@@ -19,6 +19,8 @@
 
 #import "java/lang/Iterable.h"
 
+static unsigned long mutationHack = 1;
+
 NSUInteger JreDefaultFastEnumeration(
     __unsafe_unretained id<JavaLangIterable> obj, NSFastEnumerationState *state,
     __unsafe_unretained id *stackbuf, NSUInteger len) {
@@ -26,7 +28,7 @@ NSUInteger JreDefaultFastEnumeration(
   SEL nextSel = @selector(next);
   __unsafe_unretained id iter = (ARCBRIDGE id) (void *) state->extra[0];
   if (!iter) {
-    state->mutationsPtr = (unsigned long *) (ARCBRIDGE void *) obj;
+    state->mutationsPtr = (unsigned long *) (ARCBRIDGE void *) &mutationHack;
     // The for/in loop could break early so we have no guarantee of being able
     // to release the iterator. As long as the current autorelease pool is not
     // cleared within the loop, this should be fine.
