@@ -160,6 +160,10 @@ static void doWait(id obj, long long timeout) {
   doWait(self, timeout + (nanos == 0 ? 0 : 1));
 }
 
+- (void)__javaClone {
+  [self __javaClone:self];
+}
+
 - (void)__javaClone:(id)original {
 }
 

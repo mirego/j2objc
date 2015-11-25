@@ -219,7 +219,10 @@ public class System {
       {
 #endif  // #if (defined(...))
 
-#if TARGET_OS_IPHONE || TARGET_OS_IPHONE_SIMULATOR
+#if WATCHOS_HACK
+        // watchOS doesn't have the UIDevice class.
+        versionString = [NSProcessInfo processInfo].operatingSystemVersionString;
+#elif TARGET_OS_IPHONE || TARGET_OS_IPHONE_SIMULATOR
         // If [NSProcessInfo processInfo].operatingSystemVersion is not available in the SDK and
         // this is iOS SDK, use [UIDevice currentDevice].
         versionString = [UIDevice currentDevice].systemVersion;
