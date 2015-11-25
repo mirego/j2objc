@@ -224,10 +224,15 @@ public class System {
       {
 #endif  // #if (defined(...))
 
-#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+#if (TARGET_OS_IPHONE || TARGET_OS_SIMULATOR) && !TARGET_OS_WATCH
         // If [NSProcessInfo processInfo].operatingSystemVersion is not available in the SDK and
         // this is iOS SDK, use [UIDevice currentDevice].
         versionString = [UIDevice currentDevice].systemVersion;
+#elif TARGET_OS_WATCH
+        // This is watchOS. We use operatingSystemVersionString which gives us a localized
+        // version not suitable for parsing. Given the use case of this property, it's not worth
+        // doing more than just reporting this back verbatim.
+        versionString = [NSProcessInfo processInfo].operatingSystemVersionString;
 #else
         // If we arrive here, we want to try again to see if [UIDevice currentDevice] is
         // available. This is because the code may be running in a 64-bit iOS Simulator, but
@@ -245,7 +250,7 @@ public class System {
           // doing more than just reporting this back verbatim.
           versionString = [NSProcessInfo processInfo].operatingSystemVersionString;
         }
-#endif  // #if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
+#endif  // #if (TARGET_OS_IPHONE || TARGET_OS_SIMULATOR) && !TARGET_OS_WATCH
       }
 
       [JavaLangSystem_props setPropertyWithNSString:@"os.version" withNSString:versionString];
