@@ -163,6 +163,10 @@ static void doWait(id obj, long long timeout) {
 - (void)javaFinalize {
 }
 
+- (void)__javaClone {
+  [self __javaClone:self];
+}
+
 - (void)__javaClone:(id)original {
 }
 
