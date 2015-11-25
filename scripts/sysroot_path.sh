@@ -14,17 +14,20 @@
 # limitations under the License.
 
 # Returns the location of the latest installed Xcode Mac OS X, iPhoneOS,
-# or iPhoneSimulator SDK root directory.
+# iPhoneSimulator, AppleTV, AppleTVSimulator, WatchOS and WatchSimulator SDK root directory.
 #
-# Usage: sysroot_path [--iphoneos | --iphonesimulator]
+# Usage: sysroot_path [--iphoneos | --iphonesimulator | --appletvos | --appletvsimulator | --watchos | --watchsimulator]
 
 SDK_TYPE=MacOSX
 if [ $# -gt 0 ]; then
   case $1 in
     --iphoneos ) SDK_TYPE=iPhoneOS ;;
     --iphonesimulator ) SDK_TYPE=iPhoneSimulator ;;
+    --appletvos ) SDK_TYPE=AppleTVOS ;;
+    --appletvsimulator ) SDK_TYPE=AppleTVSimulator ;;
     --watchos ) SDK_TYPE=WatchOS ;;
-    * ) echo "usage: $0 [--iphoneos | --iphonesimulator | --watchos]" && exit 1 ;;
+    --watchsimulator ) SDK_TYPE=WatchSimulator ;;
+    * ) echo "usage: $0 [--iphoneos | --iphonesimulator | --appletvos | --appletvsimulator | --watchos | --watchsimulator]" && exit 1 ;;
   esac
 fi
 
@@ -59,8 +62,14 @@ if [ "x${SDK_PATH}" = "x" ]; then
     SDK_TYPE=iphoneos
   elif [ ${SDK_TYPE} == "iphonesimulator" ]; then
     SDK_TYPE=iphonesimulator
+  elif [ ${SDK_TYPE} == "appletvos" ]; then
+    SDK_TYPE=appletvos
+  elif [ ${SDK_TYPE} == "appletvsimulator" ]; then
+    SDK_TYPE=appletvsimulator
   elif [ ${SDK_TYPE} == "watchos" ]; then
     SDK_TYPE=watchos
+  elif [ ${SDK_TYPE} == "watchsimulator" ]; then
+    SDK_TYPE=watchsimulator
   else
     SDK_TYPE=macosx
   fi
