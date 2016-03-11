@@ -37,7 +37,9 @@ package java.lang;
 #include "mach/mach_time.h"
 #include "TargetConditionals.h"
 
+#if !TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
 extern char **environ;
+#endif
 ]-*/
 
 import java.io.BufferedInputStream;
@@ -374,6 +376,7 @@ public class System {
 
   public static native Map<String,String> getenv() /*-[
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+#if !TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
     for (int i = 0; environ[i]; i++) {
       NSString *var = [NSString stringWithUTF8String:environ[i]];
       NSRange range = [var rangeOfString:@"="];
@@ -383,6 +386,7 @@ public class System {
         [dict setObject:value forKey:key];
       }
     }
+#endif
     return [JavaUtilCollections unmodifiableMapWithJavaUtilMap:
             [NSDictionaryMap mapWithDictionary:dict]];
   ]-*/;
