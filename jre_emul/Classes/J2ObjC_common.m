@@ -18,6 +18,8 @@
 
 #import "J2ObjC_common.h"
 
+#import <libkern/OSAtomic.h>
+
 #import "FastPointerLookup.h"
 #import "IOSClass.h"
 #import "java/lang/AbstractStringBuilder.h"
@@ -79,9 +81,9 @@ id JreStrongAssignAndConsume(__strong id *pIvar, NS_RELEASES_ARGUMENT id value) 
 #define VOLATILE_MASK ((1 << VOLATILE_POWER) - 1)
 #define VOLATILE_HASH(x) (((long)x >> 5) & VOLATILE_MASK)
 #define VOLATILE_GETLOCK(ptr) &volatile_locks[VOLATILE_HASH(ptr)]
-#define VOLATILE_LOCK(l) while (__c11_atomic_exchange(l, 1, __ATOMIC_SEQ_CST)) {}
-#define VOLATILE_UNLOCK(l) __c11_atomic_store(l, 0, __ATOMIC_SEQ_CST)
-typedef _Atomic(uint8_t) volatile_lock_t;
+#define VOLATILE_LOCK(l) OSSpinLockLock(l)
+#define VOLATILE_UNLOCK(l) OSSpinLockUnlock(l)
+typedef OSSpinLock volatile_lock_t;
 static volatile_lock_t volatile_locks[1 << VOLATILE_POWER] = { 0 };
 
 id JreLoadVolatileId(volatile_id *pVar) {
