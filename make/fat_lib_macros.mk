@@ -16,41 +16,47 @@
 
 FAT_LIB_PLIST_DIR = $(BUILD_DIR)/plists
 
-FAT_LIB_MACOSX_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh)
 FAT_LIB_IPHONE_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --iphoneos)
 FAT_LIB_SIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --iphonesimulator)
-FAT_LIB_WATCH_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --watchos)
-FAT_LIB_TV_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvos)
-FAT_LIB_TVSIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvsimulator)
-
-FAT_LIB_MACOSX_FLAGS = $(FAT_LIB_OSX_FLAGS) -DJ2OBJC_BUILD_ARCH=x86_64 -mmacosx-version-min=10.7 \
-  -isysroot $(FAT_LIB_MACOSX_SDK_DIR)
+FAT_LIB_MACOSX_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh)
+FAT_LIB_APPLETVOS_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvos)
+FAT_LIB_APPLETVOS_SIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvsimulator)
+FAT_LIB_WATCHOS_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --watchos)
+FAT_LIB_WATCHOS_SIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --watchsimulator)
 
 FAT_LIB_IPHONE_FLAGS = -arch armv7 -DJ2OBJC_BUILD_ARCH=armv7 -miphoneos-version-min=5.0 \
   -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
 FAT_LIB_IPHONE64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -miphoneos-version-min=5.0 \
   -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
-FAT_LIB_WATCHV7K_FLAGS = -arch armv7k -DJ2OBJC_BUILD_ARCH=armv7k -mwatchos-version-min=2.0 \
-  -isysroot $(FAT_LIB_WATCH_SDK_DIR)
+FAT_LIB_IPHONEV7S_FLAGS = -arch armv7s -DJ2OBJC_BUILD_ARCH=armv7s -miphoneos-version-min=5.0 \
+  -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
 FAT_LIB_SIMULATOR_FLAGS = -arch i386 -DJ2OBJC_BUILD_ARCH=i386 -miphoneos-version-min=5.0 \
   -isysroot $(FAT_LIB_SIMULATOR_SDK_DIR)
 FAT_LIB_SIMULATOR64_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -miphoneos-version-min=5.0 \
   -isysroot $(FAT_LIB_SIMULATOR_SDK_DIR)
 
-FAT_LIB_TV_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=9.0 \
-  -isysroot $(FAT_LIB_TV_SDK_DIR)
-FAT_LIB_TVSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mappletvos-version-min=9.0 \
-  -isysroot $(FAT_LIB_TVSIMULATOR_SDK_DIR)
+FAT_LIB_MACOSX_FLAGS = $(FAT_LIB_OSX_FLAGS) -DJ2OBJC_BUILD_ARCH=x86_64 -mmacosx-version-min=10.7 \
+  -isysroot $(FAT_LIB_MACOSX_SDK_DIR)
+
+FAT_LIB_APPLETVOS_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=9.0 \
+  -isysroot $(FAT_LIB_APPLETVOS_SDK_DIR)
+FAT_LIB_APPLETVOS_SIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mappletvos-version-min=9.0 \
+  -isysroot $(FAT_LIB_APPLETVOS_SIMULATOR_SDK_DIR)
+
+FAT_LIB_WATCHOS_FLAGS = -arch armv7k -DJ2OBJC_BUILD_ARCH=armv7k -mwatchos-version-min=2.0 \
+  -isysroot $(FAT_LIB_WATCHOS_SDK_DIR)
+FAT_LIB_WATCHOS_SIMULATOR_FLAGS = -arch i386 -DJ2OBJC_BUILD_ARCH=i386 -mwatchos-version-min=2.0 \
+  -isysroot $(FAT_LIB_WATCHOS_SIMULATOR_SDK_DIR)
 
 FAT_LIB_XCODE_FLAGS = -arch $(1) -DJ2OBJC_BUILD_ARCH=$(1) -miphoneos-version-min=5.0 \
   -isysroot $(SDKROOT)
 
-# Only iPhone armv7 and arm64 builds need a bitcode marker.
+# iPhone armv7/arm64, appletvos and watchos builds need a bitcode marker.
 ifeq ("$(XCODE_7_MINIMUM)", "YES")
 FAT_LIB_IPHONE_FLAGS += -fembed-bitcode
 FAT_LIB_IPHONE64_FLAGS += -fembed-bitcode
-FAT_LIB_WATCHV7K_FLAGS += -fembed-bitcode
-FAT_LIB_TV_FLAGS += -fembed-bitcode
+FAT_LIB_APPLETVOS_FLAGS += -fembed-bitcode
+FAT_LIB_WATCHOS_FLAGS += -fembed-bitcode
 endif
 
 # Command-line pattern for calling libtool and filtering the "same member name"
@@ -59,14 +65,16 @@ fat_lib_filtered_libtool = set -o pipefail && $(LIBTOOL) -static -o $1 -filelist
   | (grep -v "same member name" || true)
 
 arch_flags = $(strip \
-  $(patsubst macosx,$(FAT_LIB_MACOSX_FLAGS),\
   $(patsubst iphone,$(FAT_LIB_IPHONE_FLAGS),\
   $(patsubst iphone64,$(FAT_LIB_IPHONE64_FLAGS),\
-  $(patsubst watchv7k,$(FAT_LIB_WATCHV7K_FLAGS),\
+  $(patsubst iphonev7s,$(FAT_LIB_IPHONEV7S_FLAGS),\
   $(patsubst simulator,$(FAT_LIB_SIMULATOR_FLAGS),\
   $(patsubst simulator64,$(FAT_LIB_SIMULATOR64_FLAGS),\
-  $(patsubst appletvos,$(FAT_LIB_TV_FLAGS),\
-  $(patsubst appletvsimulator,$(FAT_LIB_TVSIMULATOR_FLAGS),$(1))))))))))
+  $(patsubst macosx,$(FAT_LIB_MACOSX_FLAGS),\
+  $(patsubst appletvos,$(FAT_LIB_APPLETVOS_FLAGS),\
+  $(patsubst appletvsimulator,$(FAT_LIB_APPLETVOS_SIMULATOR_FLAGS),\
+  $(patsubst watchos,$(FAT_LIB_WATCHOS_FLAGS),\
+  $(patsubst watchsimulator,$(FAT_LIB_WATCHOS_SIMULATOR_FLAGS),$(1))))))))))))
 
 fat_lib_dependencies:
 	@:
@@ -160,18 +168,28 @@ endef
 # Generate the rule for the macosx library
 # Args:
 #   1. Library name.
-define mac_lib_rule
+define macosx_lib_rule
 $(ARCH_BUILD_MACOSX_DIR)/lib$(1).a: $(BUILD_DIR)/objs-macosx/lib$(1).a
 	@mkdir -p $$(@D)
 	install -m 0644 $$< $$@
 endef
 
-# Generate the rule for the appletv library
+# Generate the rule for the appletvos library
 # Args:
 #   1. Library name.
 #   2. List of architecture specific libraries.
-define tv_lib_rule
-$(ARCH_BUILD_TV_DIR)/lib$(1).a: $(2)
+define appletvos_lib_rule
+$(ARCH_BUILD_APPLETVOS_DIR)/lib$(1).a: $(2)
+	@mkdir -p $$(@D)
+	$$(LIPO) -create $$^ -output $$@
+endef
+
+# Generate the rules for watchos library
+# Args:
+#   1. Library name.
+#   2. List of architecture specific libraries.
+define watchos_lib_rule
+$(ARCH_BUILD_WATCHOS_DIR)/lib$(1).a: $(2)
 	@mkdir -p $$(@D)
 	$$(LIPO) -create $$^ -output $$@
 endef
@@ -200,19 +218,24 @@ emit_arch_specific_compile_rules = $(foreach arch,$(XCODE_ARCHS),\
 else
 # Targets specific to a command-line build
 
-FAT_LIB_IOS_ARCHS = $(filter-out macosx appletv%,$(J2OBJC_ARCHS))
-FAT_LIB_MAC_ARCH = $(filter macosx,$(J2OBJC_ARCHS))
-FAT_LIB_TV_ARCHS = $(filter appletv%,$(J2OBJC_ARCHS))
+FAT_LIB_IOS_ARCHS = $(filter iphone% simulator%,$(J2OBJC_ARCHS))
+FAT_LIB_MACOSX_ARCH = $(filter macosx,$(J2OBJC_ARCHS))
+FAT_LIB_APPLETVOS_ARCHS = $(filter appletv%,$(J2OBJC_ARCHS))
+FAT_LIB_WATCHOS_ARCHS = $(filter watch%,$(J2OBJC_ARCHS))
 
 emit_library_rules = $(foreach arch,$(J2OBJC_ARCHS),\
   $(eval $(call arch_lib_rule,$(BUILD_DIR)/objs-$(arch),$(1),$(2)))) \
   $(if $(FAT_LIB_IOS_ARCHS),\
     $(eval $(call fat_lib_rule,$(1),$(FAT_LIB_IOS_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
     $(ARCH_BUILD_DIR)/lib$(1).a,) \
-  $(if $(FAT_LIB_MAC_ARCH),$(eval $(call mac_lib_rule,$(1))) $(ARCH_BUILD_MACOSX_DIR)/lib$(1).a,) \
-  $(if $(FAT_LIB_TV_ARCHS),\
-    $(eval $(call tv_lib_rule,$(1),$(FAT_LIB_TV_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
-    $(ARCH_BUILD_TV_DIR)/lib$(1).a,) \
+  $(if $(FAT_LIB_MACOSX_ARCH),\
+  	$(eval $(call macosx_lib_rule,$(1))) $(ARCH_BUILD_MACOSX_DIR)/lib$(1).a,) \
+  $(if $(FAT_LIB_APPLETVOS_ARCHS),\
+    $(eval $(call appletvos_lib_rule,$(1),$(FAT_LIB_APPLETVOS_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
+    $(ARCH_BUILD_APPLETVOS_DIR)/lib$(1).a,) \
+  $(if $(FAT_LIB_WATCHOS_ARCHS),\
+    $(eval $(call watchos_lib_rule,$(1),$(FAT_LIB_WATCHOS_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
+    $(ARCH_BUILD_WATCHOS_DIR)/lib$(1).a,) \
 
 emit_arch_specific_compile_rules = $(foreach arch,$(J2OBJC_ARCHS),\
   $(call emit_compile_rules_for_arch,$(1),$(BUILD_DIR)/objs-$(arch),$(2),$(3),\

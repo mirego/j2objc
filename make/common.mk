@@ -42,10 +42,15 @@ ARCH_BUILD_MACOSX_DIR = $(ARCH_BUILD_DIR)/macosx
 ARCH_LIB_MACOSX_DIR = $(ARCH_LIB_DIR)/macosx
 DIST_LIB_MACOSX_DIR = $(DIST_LIB_DIR)/macosx
 
-# Appletv library dirs.
-ARCH_BUILD_TV_DIR = $(ARCH_BUILD_DIR)/appletvos
-ARCH_LIB_TV_DIR = $(ARCH_LIB_DIR)/appletvos
-DIST_LIB_TV_DIR = $(DIST_LIB_DIR)/appletvos
+# Appletvos library dirs.
+ARCH_BUILD_APPLETVOS_DIR = $(ARCH_BUILD_DIR)/appletvos
+ARCH_LIB_APPLETVOS_DIR = $(ARCH_LIB_DIR)/appletvos
+DIST_LIB_APPLETVOS_DIR = $(DIST_LIB_DIR)/appletvos
+
+# Watchos library dirs.
+ARCH_BUILD_WATCHOS_DIR = $(ARCH_BUILD_DIR)/watchos
+ARCH_LIB_WATCHOS_DIR = $(ARCH_LIB_DIR)/watchos
+DIST_LIB_WATCHOS_DIR = $(DIST_LIB_DIR)/watchos
 
 ifndef GEN_OBJC_DIR
 GEN_OBJC_DIR = $(BUILD_DIR)/objc
@@ -54,14 +59,28 @@ ifndef GEN_JAVA_DIR
 GEN_JAVA_DIR = $(BUILD_DIR)/java
 endif
 
-TVOS_AVAILABLE = \
+MACOSX_AVAILABLE = \
+  $(shell if xcodebuild -version -sdk macosx >/dev/null 2>&1; \
+  then echo "YES"; else echo "NO"; fi)
+
+APPLETVOS_AVAILABLE = \
   $(shell if xcodebuild -version -sdk appletvos >/dev/null 2>&1; \
   then echo "YES"; else echo "NO"; fi)
 
+WATCHOS_AVAILABLE = \
+  $(shell if xcodebuild -version -sdk watchos >/dev/null 2>&1; \
+  then echo "YES"; else echo "NO"; fi)
+
 ifndef J2OBJC_ARCHS
-J2OBJC_ARCHS = macosx iphone iphone64 watchv7k simulator simulator64
-ifeq ($(TVOS_AVAILABLE), YES)
+J2OBJC_ARCHS = iphone iphone64 simulator simulator64
+ifeq ($(MACOSX_AVAILABLE), YES)
+J2OBJC_ARCHS += macosx
+endif
+ifeq ($(APPLETVOS_AVAILABLE), YES)
 J2OBJC_ARCHS += appletvos appletvsimulator
+endif
+ifeq ($(WATCHOS_AVAILABLE), YES)
+J2OBJC_ARCHS += watchos watchsimulator
 endif
 endif
 
