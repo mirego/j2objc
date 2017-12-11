@@ -178,6 +178,24 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         "@property (weak, readonly, nonatomic) jint fieldReorder;");
   }
 
+  public void testInterfaceGettersAsProperties() throws IOException {
+    String source =
+        "import com.google.j2objc.annotations.Property; "
+        + "public interface FooBar {"
+        + "  @Property public String fooName();"
+        + "  public String barName();"
+        + "  public void setBarName(String barName);"
+        + "}";
+    String translation = translateSourceFile(source, "FooBar", "FooBar.h");
+
+    // Test declare getter as readonly property.
+    assertTranslation(translation,
+        "@property (readonly) NSString *fooName;");
+
+    assertNotInTranslation(translation,
+        "@property (readonly) NSString *barName;");
+  }
+
   public void testSynchronizedPropertyGetter() throws IOException {
     String source = "import com.google.j2objc.annotations.Property; "
         + "public class FooBar {"

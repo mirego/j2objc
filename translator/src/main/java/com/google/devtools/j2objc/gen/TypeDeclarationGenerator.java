@@ -385,6 +385,50 @@ public class TypeDeclarationGenerator extends TypeGenerator {
         println(propertyName + ";");
       }
     }
+    printInterfaceMethodsProperties();
+  }
+
+  private void printInterfaceMethodsProperties() {
+    for (BodyDeclaration declaration : getInnerDeclarations()) {
+      if (declaration.getKind().equals(TreeNode.Kind.METHOD_DECLARATION)) {
+        PropertyAnnotation property = (PropertyAnnotation) TreeUtil.getAnnotation(Property.class, declaration.getAnnotations());
+        if (property != null) {
+            MethodDeclaration m = (MethodDeclaration) declaration;
+            ExecutableElement methodElement = m.getExecutableElement();
+            TypeElement typeElement = ElementUtil.getDeclaringClass(methodElement);
+
+            if (!m.isConstructor() && typeElement.getKind().isInterface() && !TypeUtil.isVoid(methodElement.getReturnType())) {
+              newline();
+              String propertyName = nameTable.getMethodSelector(methodElement);
+              String returnType = nameTable.getObjCType(methodElement.getReturnType());
+              Set<String> attributes = property.getPropertyAttributes();
+              print("@property ");
+
+              if (options.nullability() && !methodElement.getReturnType().getKind().isPrimitive()) {
+                if (ElementUtil.hasNullableAnnotation(methodElement)) {
+                  attributes.add("nullable");
+                } else if (ElementUtil.isNonnull(methodElement, parametersNonnullByDefault)) {
+                  attributes.add("nonnull");
+                } else if (!attributes.contains("null_unspecified")) {
+                  attributes.add("null_resettable");
+                }
+              }
+
+              if (!attributes.isEmpty()) {
+                print('(');
+                print(PropertyAnnotation.toAttributeString(attributes));
+                print(") ");
+              }
+
+              print(returnType);
+              if (!returnType.endsWith("*")) {
+                print(' ');
+              }
+              println(propertyName + ";");
+            }
+          }
+        }
+      }
   }
 
   protected void printCompanionClassDeclaration() {

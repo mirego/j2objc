@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  * @author Harry Cheung
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface Property {
   String value() default "";
 }

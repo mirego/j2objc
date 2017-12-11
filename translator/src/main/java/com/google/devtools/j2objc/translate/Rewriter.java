@@ -273,48 +273,54 @@ public class Rewriter extends UnitTreeVisitor {
    */
   @Override
   public void endVisit(PropertyAnnotation node) {
-    FieldDeclaration field = (FieldDeclaration) node.getParent();
-    TypeMirror fieldType = field.getTypeMirror();
-    VariableDeclarationFragment firstVarNode = field.getFragment(0);
-    if (typeUtil.isString(fieldType)) {
-      node.addAttribute("copy");
-    } else if (ElementUtil.hasAnnotation(firstVarNode.getVariableElement(), Weak.class)) {
-      if (node.hasAttribute("strong")) {
-        ErrorUtil.error(field, "Weak field annotation conflicts with strong Property attribute");
-        return;
-      }
-      node.addAttribute("weak");
-    }
-
-    node.removeAttribute("readwrite");
-    node.removeAttribute("strong");
-    node.removeAttribute("atomic");
-
-    // Make sure attempt isn't made to specify an accessor method for fields with multiple
-    // fragments, since each variable needs unique accessors.
-    String getter = node.getGetter();
-    String setter = node.getSetter();
-    if (field.getFragments().size() > 1) {
-      if (getter != null) {
-        ErrorUtil.error(field, "@Property getter declared for multiple fields");
-        return;
-      }
-      if (setter != null) {
-        ErrorUtil.error(field, "@Property setter declared for multiple fields");
-        return;
-      }
-    } else {
-      // Check that specified accessors exist.
-      TypeElement enclosingType = TreeUtil.getEnclosingTypeElement(node);
-      if (getter != null) {
-        if (ElementUtil.findMethod(enclosingType, getter) == null) {
-          ErrorUtil.error(field, "Non-existent getter specified: " + getter);
+    if (node.getParent() instanceof MethodDeclaration) {
+      // MethodDeclaration method = (MethodDeclaration) node.getParent();
+      // TypeMirror fieldType = method.getExecutableElement().getReturnType();
+      node.addAttribute("readonly");
+    } else if (node.getParent() instanceof FieldDeclaration) {
+      FieldDeclaration field = (FieldDeclaration) node.getParent();
+      TypeMirror fieldType = field.getTypeMirror();
+      VariableDeclarationFragment firstVarNode = field.getFragment(0);
+      if (typeUtil.isString(fieldType)) {
+        node.addAttribute("copy");
+      } else if (ElementUtil.hasAnnotation(firstVarNode.getVariableElement(), Weak.class)) {
+        if (node.hasAttribute("strong")) {
+          ErrorUtil.error(field, "Weak field annotation conflicts with strong Property attribute");
+          return;
         }
+        node.addAttribute("weak");
       }
-      if (setter != null) {
-        if (ElementUtil.findMethod(
-            enclosingType, setter, TypeUtil.getQualifiedName(fieldType)) == null) {
-          ErrorUtil.error(field, "Non-existent setter specified: " + setter);
+
+      node.removeAttribute("readwrite");
+      node.removeAttribute("strong");
+      node.removeAttribute("atomic");
+
+      // Make sure attempt isn't made to specify an accessor method for fields with multiple
+      // fragments, since each variable needs unique accessors.
+      String getter = node.getGetter();
+      String setter = node.getSetter();
+      if (field.getFragments().size() > 1) {
+        if (getter != null) {
+          ErrorUtil.error(field, "@Property getter declared for multiple fields");
+          return;
+        }
+        if (setter != null) {
+          ErrorUtil.error(field, "@Property setter declared for multiple fields");
+          return;
+        }
+      } else {
+        // Check that specified accessors exist.
+        TypeElement enclosingType = TreeUtil.getEnclosingTypeElement(node);
+        if (getter != null) {
+          if (ElementUtil.findMethod(enclosingType, getter) == null) {
+            ErrorUtil.error(field, "Non-existent getter specified: " + getter);
+          }
+        }
+        if (setter != null) {
+          if (ElementUtil.findMethod(
+              enclosingType, setter, TypeUtil.getQualifiedName(fieldType)) == null) {
+            ErrorUtil.error(field, "Non-existent setter specified: " + setter);
+          }
         }
       }
     }
