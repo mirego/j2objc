@@ -82,6 +82,7 @@ public class Options {
   private boolean translateBootclasspath = false;
   private boolean translateClassfiles = false;
   private String annotationsJar = null;
+  private boolean useModularImports = false;
 
   // Property not defined in Java 9, so use empty bootclasspath.
   private String bootclasspath = System.getProperty("sun.boot.class.path", "");
@@ -329,6 +330,8 @@ public class Options {
         stripGwtIncompatible = true;
       } else if (arg.equals("--strip-reflection")) {
         stripReflection = true;
+      } else if (arg.equals("--modular-imports")) {
+        useModularImports = true;
       } else if (arg.equals("-Xstrip-enum-constants")) {
         stripEnumConstants = true;
       } else if (arg.equals("--no-wrapper-methods")) {
@@ -647,6 +650,15 @@ public class Options {
   @VisibleForTesting
   public void setStripReflection(boolean b) {
     stripReflection = b;
+  }
+
+  public boolean useModularImports() {
+    return useModularImports;
+  }
+
+  @VisibleForTesting
+  public void setUseModularImports(boolean b) {
+    useModularImports = b;
   }
 
   public boolean stripEnumConstants() {

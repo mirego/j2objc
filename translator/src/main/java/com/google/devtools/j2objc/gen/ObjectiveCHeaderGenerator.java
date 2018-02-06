@@ -35,6 +35,11 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
   // prefix would be "MyPkgFoo".
   protected final String varPrefix;
 
+  // A boolean value indicating if includes should be modular or not. For example,
+  // a non modular include looks like #include "Foo.h" while a non modular include
+  // looks like #include <JRE/Foo.h>.
+  protected final boolean useModularImports;
+
   /**
    * Generate an Objective-C header file for each type declared in the given {@link GenerationUnit}.
    */
@@ -45,6 +50,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
   protected ObjectiveCHeaderGenerator(GenerationUnit unit) {
     super(unit, false);
     varPrefix = getVarPrefix(unit.getOutputPath());
+    useModularImports = unit.options().useModularImports();
   }
 
   @Override
@@ -105,7 +111,11 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     // Print collected includes.
     newline();
     for (String header : includeFiles) {
-      printf("#include \"%s\"\n", header);
+      if (useModularImports) {
+        printf("#include <JRE/%s>\n", header);
+      } else {
+        printf("#include \"%s\"\n", header);
+      }
     }
     printForwardDeclarations(forwardDeclarations);
 
