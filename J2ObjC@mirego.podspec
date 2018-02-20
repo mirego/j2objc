@@ -1,8 +1,6 @@
-@version = "2.0.5"
-
 Pod::Spec.new do |s|
   s.name                = "J2ObjC@mirego"
-  s.version             = @version
+  s.version             = '2.0.5'
   s.license             = { :type => 'Apache 2.0', :file => 'LICENSE' }
   s.homepage            = "https://developers.google.com/j2objc/"
   s.author              = { "Tom Ball" => "tball@google.com" }
