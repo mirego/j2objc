@@ -10,10 +10,8 @@ Pod::Spec.new do |s|
   s.platform            = :ios, "8.0"
   s.requires_arc        = true
 
-  #s.source_files        = 'JRE.framework/Headers/*.h', 'JSR305.framework/Headers/*.h'
-  #s.public_header_files = 'JRE.framework/Headers/*.h', 'JSR305.framework/Headers/*.h'
-  s.vendored_frameworks = ['JRE.framework', 'JSR305.framework']
-  s.preserve_paths      = ['j2objc', 'JRE.framework/*', 'JSR305.framework/*']
+  s.preserve_paths      = 'J2ObjC'
+  s.vendored_frameworks = 'J2ObjC/JRE.framework', 'J2ObjC/JSR305.framework'
   s.frameworks          = 'Security'
   s.libraries           = 'iconv', 'icucore', 'z' # icucore might be useless
 end
