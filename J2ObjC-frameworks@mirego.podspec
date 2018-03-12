@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name                = "J2ObjC@mirego"
+  s.name                = "J2ObjC-frameworks@mirego"
   s.version             = '2.0.5'
   s.license             = { :type => 'Apache 2.0', :file => 'LICENSE' }
   s.homepage            = "https://developers.google.com/j2objc/"
