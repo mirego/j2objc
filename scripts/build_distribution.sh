@@ -46,8 +46,8 @@ fi
 # Remove any previous distribution artifacts.
 rm -rf ${DISTRIBUTION_NAME} ${DISTRIBUTION_NAME}.zip
 
-echo "make all_dist"
-$ENV_CMD make -j8 all_dist
+echo "make dist"
+$ENV_CMD make -j8 dist
 ERR=$?
 if [ ${ERR} -ne 0 ]; then
   exit ${ERR}
