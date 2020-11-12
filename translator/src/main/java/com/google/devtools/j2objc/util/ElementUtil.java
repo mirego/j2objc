@@ -857,4 +857,35 @@ public final class ElementUtil {
     }
     return null;
   }
+
+  /**
+   * Determines if an element is a Kotlin type by looking at the source file embedded in the class file.
+   */
+  public static boolean isKotlinType(Element node) {
+    TypeElement decClass = ElementUtil.getDeclaringClass(node);
+
+    if (decClass == null) {
+      return false;
+    }
+
+    String sourceName = ElementUtil.getSourceFile(decClass);
+
+    if (sourceName == null) {
+      return false;
+    }
+
+    return sourceName.endsWith(".kt");
+  }
+
+  /**
+   * Determines if a TypeElement is a Kotlin type by checking each of its enclosed elements.
+   */
+  public static boolean isKotlinType(TypeElement node) {
+    for (Element elem : node.getEnclosedElements()) {
+      if(isKotlinType(elem)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

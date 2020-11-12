@@ -44,6 +44,8 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.TreeVisitor;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
+import com.google.devtools.j2objc.pipeline.TranslationProcessor;
+import com.google.devtools.j2objc.types.ExecutablePair;
 import com.google.devtools.j2objc.types.FunctionElement;
 import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
@@ -59,6 +61,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -246,6 +250,11 @@ public class Functionizer extends UnitTreeVisitor {
   @Override
   public void endVisit(MethodInvocation node) {
     ExecutableElement method = node.getExecutableElement();
+
+    if (ElementUtil.isKotlinType(method)) {
+      return;
+    }
+
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
       functionizeInvocation(node, method, node.getExpression(), node.getArguments());
@@ -311,6 +320,29 @@ public class Functionizer extends UnitTreeVisitor {
   public void endVisit(ClassInstanceCreation node) {
     ExecutableElement element = node.getExecutableElement();
     TypeElement type = ElementUtil.getDeclaringClass(element);
+
+    if(ElementUtil.isKotlinType(element)) {
+      String fullName = nameTable.getFullFunctionName(element);
+      fullName = fullName.substring(0, fullName.indexOf("_"));
+
+      GeneratedExecutableElement classElement = GeneratedExecutableElement
+          .newMethodWithSelector(fullName, node.getTypeMirror(), ElementUtil.getDeclaringClass(element));
+
+      GeneratedExecutableElement allocElement = GeneratedExecutableElement
+          .newMethodWithSelector("alloc", node.getExecutableType().getReturnType(),
+              ElementUtil.getDeclaringClass(element));
+      ExecutablePair allocPair = new ExecutablePair(allocElement, node.getExecutableType());
+
+      MethodInvocation allocMethod = new MethodInvocation(allocPair, new SimpleName(classElement));
+
+      MethodInvocation initMethod = new MethodInvocation(node.getExecutablePair(), allocMethod);
+      TreeUtil.moveList(node.getCaptureArgs(), initMethod.getArguments());
+      TreeUtil.moveList(node.getArguments(), initMethod.getArguments());
+
+      node.replaceWith(initMethod);
+      return;
+    }
+
     FunctionElement funcElement = newAllocatingConstructorElement(element);
     FunctionInvocation invocation = new FunctionInvocation(funcElement, node.getTypeMirror());
     invocation.setHasRetainedResult(node.hasRetainedResult() || options.useARC());

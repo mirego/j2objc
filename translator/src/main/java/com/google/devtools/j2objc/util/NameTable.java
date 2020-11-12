@@ -42,7 +42,9 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -369,6 +371,25 @@ public class NameTable {
     return false;
   }
 
+    private boolean appendParamKeywordKotlin(
+        StringBuilder sb, Name paramName, char delim, boolean first) {
+        String keyword = paramName.toString();
+        if (first) {
+            keyword = capitalize(keyword);
+        }
+        sb.append(keyword).append(delim);
+        return false;
+    }
+
+    private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
+        for(Element x : elements) {
+            if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
+                return Optional.of(x.getSimpleName().toString());
+            }
+        }
+        return Optional.empty();
+    }
+
   private String addParamNames(ExecutableElement method, String name, char delim) {
     StringBuilder sb = new StringBuilder(name);
     boolean first = true;
@@ -379,7 +400,21 @@ public class NameTable {
       }
     }
     for (VariableElement param : method.getParameters()) {
-      first = appendParamKeyword(sb, param.asType(), delim, first);
+      if(ElementUtil.isKotlinType(method)) {
+
+        if(first && method.getSimpleName().toString().equals("<init>")) {
+          sb.append("With");
+        }
+
+        if(name.startsWith("set") &&
+            checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
+          break;
+        }
+
+        first = appendParamKeywordKotlin(sb, param.getSimpleName(), delim, first);
+      } else {
+        first = appendParamKeyword(sb, param.asType(), delim, first);
+      }
     }
     if (ElementUtil.isConstructor(method)) {
       for (VariableElement param : captureInfo.getImplicitPostfixParams(declaringClass)) {
@@ -392,6 +427,15 @@ public class NameTable {
   public String getMethodSelector(ExecutableElement method) {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
+        if(selector.startsWith("get") && ElementUtil.isKotlinType(method)) {
+            Optional<String> getterName =
+                checkEnclosedElementsForField(ElementUtil.getDeclaringClass(method).getEnclosedElements(),
+                    selector.substring(3));
+            if(getterName.isPresent()) {
+                return getterName.get();
+            }
+
+        }
       return selector;
     }
     selector = getMethodSelectorInner(method);
@@ -650,6 +694,12 @@ public class NameTable {
       return mappedName;
     }
 
+//  this was in the original fork we got this from, not sure why : https://github.com/dhwitz/j2objc/tree/kotlin-native
+//  but we want the full prefix
+//  if(ElementUtil.isKotlinType(element)) {
+//     return getPrefixKotlin(ElementUtil.getPackage(element)) + getTypeSubName(element);
+//  }
+
     // Use camel-cased package+class name.
     return getPrefix(ElementUtil.getPackage(element)) + getTypeSubName(element);
   }
@@ -676,6 +726,20 @@ public class NameTable {
   private String getPrefix(PackageElement packageElement) {
     return prefixMap.getPrefix(packageElement);
   }
+
+    private String getPrefixKotlin(PackageElement packageElement) {
+        String prefix = prefixMap.getPrefix(packageElement);
+        StringBuilder kotlinPrefix = new StringBuilder();
+
+        for(int i = 0; i < prefix.length(); i++) {
+            char current = prefix.charAt(i);
+            if(Character.isUpperCase(current)) {
+                kotlinPrefix.append(current);
+            }
+        }
+
+        return kotlinPrefix.toString();
+    }
 
   /** Ignores the ObjectiveCName annotation. */
   private String getDefaultObjectiveCName(TypeElement element) {
