@@ -34,7 +34,7 @@ BASE_PACKAGE = com/google/devtools/j2objc
 
 DIST_DEPS = $(JSR305_JAR) j2objc_annotations.jar
 INTERNAL_DEPS = $(GUAVA_JAR) $(JSR305_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) \
-    $(PLUME_UTIL_JAR)
+    $(PLUME_UTIL_JAR) $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR)
 ifdef JAVA_8
 INTERNAL_DEPS += $(JAVAC_JAR)
 endif
@@ -294,7 +294,6 @@ TEST_RESOURCE_FILES = $(TEST_RESOURCES:%=$(TEST_DIR)/%)
 
 # Files in dependent jars that aren't needed in combined jar.
 UNUSED_JAR_CONTENTS = \
-  $(CLASS_DIR)/[A-Z]* \
   $(CLASS_DIR)/[ahp]* \
   $(CLASS_DIR)/about_files \
   $(CLASS_DIR)/ant_tasks \

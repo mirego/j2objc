@@ -53,6 +53,9 @@ GUAVA_ANDROID_SOURCE_JAR = guava-25.1-android-sources.jar
 SCENELIB_JAR = scenelib.jar
 PLUME_UTIL_JAR = plume-util-1.0.6.jar
 
+KOTLIN_STDLIB_JAR = kotlin-stdlib-1.4.0.jar
+KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.2.0.jar
+
 MOCKITO_JAR = mockito-core-2.23.4.jar
 MOCKITO_SOURCE_JAR = mockito-core-2.23.4-sources.jar
 
