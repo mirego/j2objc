@@ -26,14 +26,6 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.j2objc.annotations.ObjectiveCName;
-import kotlin.Metadata;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmClassifier;
-import kotlinx.metadata.KmConstructor;
-import kotlinx.metadata.KmType;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,7 +41,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -379,13 +370,10 @@ public class NameTable {
     sb.append(keyword).append(delim);
     return false;
   }
-  private boolean appendParamKeywordKotlin(StringBuilder sb, Name paramName, char delim, boolean first){
-    return appendParamKeywordKotlin(sb, paramName.toString(), delim, first);
-  }
 
     private boolean appendParamKeywordKotlin(
-        StringBuilder sb, String paramName, char delim, boolean first) {
-        String keyword = paramName;
+        StringBuilder sb, Name paramName, char delim, boolean first) {
+        String keyword = paramName.toString();
         if (first) {
             keyword = capitalize(keyword);
         }
@@ -411,69 +399,29 @@ public class NameTable {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
     }
+    for (VariableElement param : method.getParameters()) {
+      if(ElementUtil.isKotlinType(method)) {
 
-    if (ElementUtil.isKotlinType(method)) {
-      Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
-      KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-      KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-      KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
-      KmConstructor kmConstructor = null;
-
-      if (ElementUtil.isConstructor(method)) {
-        List<String> jvmArgumentTypes = method.getParameters().stream()
-                .map(variableElement -> variableElement.asType().toString())
-                .collect(Collectors.toList());
-
-        for(KmConstructor loopConstructor:kmClass.getConstructors()) {
-          List<String> kmArgumentTypes = loopConstructor.getValueParameters().stream()
-            .map(kmValueParameter -> toJavaType(kmValueParameter.getType()))
-            .collect(Collectors.toList());
-
-          if(jvmArgumentTypes.equals(kmArgumentTypes)) {
-            kmConstructor = loopConstructor;
-          }
-        }
-
-      }
-
-      int idx = 0;
-      for (VariableElement param : method.getParameters()) {
-
-        if (first && ElementUtil.isConstructor(method)) {
+        if(first && method.getSimpleName().toString().equals("<init>")) {
           sb.append("With");
         }
 
-        if (name.startsWith("set") && checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
+        if(name.startsWith("set") &&
+            checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
           break;
         }
 
-        String paramName = param.getSimpleName().toString();
-        if(kmConstructor != null) {
-          paramName = kmConstructor.getValueParameters().get(idx).getName();
-        }
-
-        first = appendParamKeywordKotlin(sb, paramName, delim, first);
-        idx++;
-      }
-    } else {
-      for (VariableElement param : method.getParameters()) {
+        first = appendParamKeywordKotlin(sb, param.getSimpleName(), delim, first);
+      } else {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
-      if (ElementUtil.isConstructor(method)) {
-        for (VariableElement param : captureInfo.getImplicitPostfixParams(declaringClass)) {
-          first = appendParamKeyword(sb, param.asType(), delim, first);
-        }
+    }
+    if (ElementUtil.isConstructor(method)) {
+      for (VariableElement param : captureInfo.getImplicitPostfixParams(declaringClass)) {
+        first = appendParamKeyword(sb, param.asType(), delim, first);
       }
     }
     return sb.toString();
-  }
-
-  private String toJavaType(KmType kmType) {
-    String classname = ((KmClassifier.Class)kmType.getClassifier()).getName();
-    if (classname.equals("kotlin/Int")) {
-      return "int";
-    }
-    return "";
   }
 
   public String getMethodSelector(ExecutableElement method) {
