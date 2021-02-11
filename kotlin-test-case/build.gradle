@@ -1,0 +1,117 @@
+plugins {
+    id "org.jetbrains.kotlin.multiplatform" version "1.4.21"
+    id 'mirego.publish' version '1.0'
+}
+
+apply {
+    // this plugin minifies the kotlin js output. Several bugs currently with this (e.g. multiple npms having an index.js)
+    plugin("kotlin-dce-js")
+}
+
+def iosArchLibrarySuffix = System.getenv('SDK_NAME')?.startsWith("iphoneos") ? "iosarm64" : "iosx64"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    jcenter()
+    delegate.miregoPublic()
+}
+
+kotlin {
+    targets {
+        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.js, 'js') {
+            browser {
+                webpackTask {
+                    output.libraryTarget = "amd"
+                }
+//                dceTask {
+//                    keep("common.org.stjs.generator")
+//                }
+            }
+            binaries.executable()
+        }
+
+        final def iOSTarget = iosArchLibrarySuffix == "iosarm64" ? presets.iosArm64 : presets.iosX64
+        fromPreset(iOSTarget, "ios") {
+            binaries {
+                framework {
+                    embedBitcode("bitcode")
+                    baseName = 'KotlinTestCase'
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        all {
+            languageSettings {
+                useExperimentalAnnotation('kotlin.Experimental')
+                useExperimentalAnnotation('kotlin.time.ExperimentalTime')
+                useExperimentalAnnotation('kotlin.js.ExperimentalJsExport')
+            }
+        }
+        commonMain {
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-js"
+            }
+
+            compileKotlinJs {
+                kotlinOptions.metaInfo = true
+                kotlinOptions.sourceMap = true
+                kotlinOptions.suppressWarnings = true
+                kotlinOptions.verbose = true
+                kotlinOptions.main = "call"
+                kotlinOptions.outputFile = "${projectDir}/build/web/common.js"
+            }
+        }
+        iosMain {
+        }
+    }
+}
+
+task copyLibraryTask() {
+    copy {
+        from "${projectDir}/build/kotlin-js-min/js/main"
+        into "${projectDir}/../web/src/library"
+        include "/*.js"
+    }
+}
+
+task copyFramework() {
+    def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+
+    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
+
+    doLast {
+        def frameworkFilename = "Kore.framework"
+        def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
+
+        def targetDir = file("build/bin/ios").toString()
+        copy {
+            from srcFile.parent
+            into targetDir
+            include "${frameworkFilename}/**"
+            include "${frameworkFilename}.dSYM"
+        }
+        def j2objcTarget = file("../core/generated-objc").toString()
+        copy {
+            from "${srcFile}/headers"
+            into j2objcTarget
+            include '**/*.h'
+        }
+    }
+}
+
+runDceJsKotlin.keep "common.org.stjs.generator"
+
+runDceJsKotlin.dependsOn copyLibraryTask
+jsMainClasses.dependsOn runDceJsKotlin
+copyLibraryTask.mustRunAfter compileKotlinJs

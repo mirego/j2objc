@@ -15,6 +15,8 @@
 package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.GenerationTest;
+import org.stjs.generator.ClassWithDefaultConstructor;
+
 import java.io.IOException;
 
 /**

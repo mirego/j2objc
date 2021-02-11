@@ -144,5 +144,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="kotlin-test-case.commonMain" />
   </component>
 </module>
