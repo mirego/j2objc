@@ -145,5 +145,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="kotlin-test-case.commonMain" />
+    <orderEntry type="module" module-name="kotlin-interop-test-cases.commonMain" scope="TEST" />
   </component>
 </module>

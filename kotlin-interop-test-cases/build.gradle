@@ -45,6 +45,10 @@ kotlin {
                 useExperimentalAnnotation('kotlin.time.ExperimentalTime')
                 useExperimentalAnnotation('kotlin.js.ExperimentalJsExport')
             }
+            kotlin {
+                srcDir 'src'
+                exclude '**/*.java'
+            }
         }
         commonMain {
             dependencies {
