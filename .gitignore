@@ -20,6 +20,7 @@ dist/
 .idea/artifacts/
 .idea/libraries/
 .idea/modules/
+/.idea/workspace.xml
 
 # Gradle
 .gradle
