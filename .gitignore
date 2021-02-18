@@ -16,6 +16,11 @@ dist/
 # Mac System Files
 .DS_Store
 
+# IntelliJ IDEA Files
+.idea/artifacts/
+.idea/libraries/
+.idea/modules/
+
 # Gradle
 .gradle
 build
