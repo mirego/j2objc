@@ -1,1 +1,1 @@
-com.mirego.interop.kotlin.test.ClassWithoutConstructor=kotlin-interop-test-case/build/bin/native/Common.framework/Headers/Common.h
+com.mirego.interop.kotlin.test.constructor=Common.h
