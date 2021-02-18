@@ -73,7 +73,7 @@ protobuf_dist: protobuf_compiler_dist protobuf_runtime_dist
 
 all_dist: dist all_frameworks examples_dist
 
-clean:
+clean: kotlin_clean
 	@rm -rf $(BUILD_DIR) $(DIST_DIR)
 	@cd annotations && $(MAKE) clean
 	@cd java_deps && $(MAKE) clean
@@ -93,6 +93,7 @@ clean:
 test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
 	@cd translator && $(MAKE) regression-test
+	@$(MAKE) kotlin
 
 test_jre_emul: jre_emul_dist junit_dist
 	@cd jre_emul && $(MAKE) -f tests.mk test

@@ -1,8 +1,5 @@
 
 #kotlin subsection
-
-include make/translate_macros.mk
-
 KOTLIN_INTEROP_DIR = $(J2OBJC_ROOT)/kotlin-interop-test-cases
 KOTLIN_INTEROP_JVM_JAR = $(KOTLIN_INTEROP_DIR)/build/libs/kotlin-interop-test-cases-jvm.jar
 KOTLIN_NATIVE_FRAMEWORK = $(KOTLIN_INTEROP_DIR)/build/bin/native/Common.framework
@@ -21,6 +18,7 @@ KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_o
 KOTLIN_NATIVE_JAVA_SOURCES = $(shell find $(KOTLIN_NATIVE_SOURCE_DIR) -name '*.java')
 KOTLIN_NATIVE_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_objc/tests
 
+J2OBJC_EXE = $(DIST_DIR)/j2objc
 J2OBJCC_EXE = $(DIST_DIR)/j2objcc
 GW = ./gradlew
 
@@ -29,7 +27,7 @@ kotlin_clean: kotlin_clean_interop kotlin_clean_native
 kotlin_clean_interop:
 	@rm -rf $(KOTLIN_INTEROP_BUILD_OUTPUT_DIR)
 
-kotlin: kotlin_interop kotlin_native_test
+kotlin: kotlin_interop kotlin_native_tests
 
 kotlin_interop:
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) jvmJar
@@ -42,7 +40,7 @@ kotlin_clean_native:
 kotlin_native_tests: kotlin_translate_tests kotlin_compile_tests kotlin_run_tests
 
 kotlin_translate_tests:
-	$(TRANSLATE_EXE) \
+	$(J2OBJC_EXE) \
 	-classpath $(DIST_LIB_DIR)/j2objc_junit.jar:$(KOTLIN_INTEROP_JVM_JAR) \
 	-encoding UTF-8 \
 	-Werror \
