@@ -41,9 +41,10 @@ endif
 JAR_DEPS_DIST = $(DIST_DEPS:%=$(DIST_JAR_DIR)/%) $(INTERNAL_DEPS:%=$(JAVA_DEPS_JAR_DIR)/%)
 JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST)))
 JUNIT_JAR_DIST = $(DIST_JAR_DIR)/$(JUNIT_JAR)
+KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-interop-test-cases-jvm.jar
 
-CLASSPATH = $(CLASS_DIR):$(JAR_DEPS_PATH)
-TEST_CLASSPATH = $(TEST_DIR):$(CLASS_DIR):$(JAR_DEPS_PATH):$(JUNIT_JAR_DIST)
+CLASSPATH = $(CLASS_DIR):$(JAR_DEPS_PATH):$(KOTLIN_DEPS_PATH)
+TEST_CLASSPATH = $(TEST_DIR):$(CLASS_DIR):$(JAR_DEPS_PATH):$(JUNIT_JAR_DIST):$(KOTLIN_DEPS_PATH)
 TEST_BOOT_CLASSPATH = $(DIST_JAR_DIR)/jre_emul.jar
 
 MAIN_CLASS = com.google.devtools.j2objc.J2ObjC
@@ -355,7 +356,8 @@ COMMON_TEST_FLAGS = \
   -ea junit.textui.TestRunner
 
 test: compile-tests copy-test-resources
-	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
+#	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.kotlin.constructor.ConstructorTest
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \

@@ -144,7 +144,15 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="kotlin-test-case.commonMain" />
-    <orderEntry type="module" module-name="kotlin-interop-test-cases.commonMain" scope="TEST" />
+    <orderEntry type="module" module-name="kotlin-interop-test-cases.commonMain" />
+    <orderEntry type="module-library">
+      <library name="kotlin-interop-test-cases.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../kotlin-interop-test-cases/build/libs/kotlin-interop-test-cases-jvm.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
