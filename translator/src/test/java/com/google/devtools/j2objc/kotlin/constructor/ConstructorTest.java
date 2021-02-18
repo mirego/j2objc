@@ -19,7 +19,7 @@ public class ConstructorTest extends GenerationTest {
                                 "return withoutConstructor;" +
                             "}" +
                         "}",
-                "WithoutConstructor", "WithoutConstructor.m"
+                "WithoutConstructor", "WithoutConstructor.h"
         );
 
         System.out.println(translation);

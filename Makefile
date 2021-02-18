@@ -25,6 +25,8 @@ J2OBJC_ROOT = .
 
 include make/common.mk
 include make/j2objc_deps.mk
+#mirego kotlin interop
+include make/kotlin.mk
 
 # Force test targets to be run sequentially to avoid interspersed output.
 ifdef IS_TEST_GOAL

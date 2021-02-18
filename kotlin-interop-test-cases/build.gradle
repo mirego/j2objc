@@ -23,7 +23,7 @@ kotlin {
             binaries {
                 framework {
                     embedBitcode("bitcode")
-                    baseName = 'KotlinTestCase'
+                    baseName = 'Common'
                 }
             }
         }
@@ -31,7 +31,7 @@ kotlin {
             binaries {
                 framework {
                     embedBitcode("bitcode")
-                    baseName = 'KotlinTestCase'
+                    baseName = 'Common'
                     isStatic = true
                 }
             }
@@ -43,7 +43,6 @@ kotlin {
             languageSettings {
                 useExperimentalAnnotation('kotlin.Experimental')
                 useExperimentalAnnotation('kotlin.time.ExperimentalTime')
-                useExperimentalAnnotation('kotlin.js.ExperimentalJsExport')
             }
             kotlin {
                 srcDir 'src'
@@ -68,7 +67,7 @@ task copyFramework() {
     dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
 
     doLast {
-        def frameworkFilename = "Kore.framework"
+        def frameworkFilename = "Common.framework"
         def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
 
         def targetDir = file("build/bin/ios").toString()
@@ -83,6 +82,24 @@ task copyFramework() {
             from "${srcFile}/headers"
             into j2objcTarget
             include '**/*.h'
+        }
+    }
+}
+task copyFrameworkNative() {
+    def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+
+    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkNative"
+
+    doLast {
+        def frameworkFilename = "Common.framework"
+        def srcFile = kotlin.targets.native.binaries.getFramework(buildType).outputFile
+
+        def targetDir = file("build/bin/native").toString()
+        copy {
+            from srcFile.parent
+            into targetDir
+            include "${frameworkFilename}/**"
+            include "${frameworkFilename}.dSYM"
         }
     }
 }
