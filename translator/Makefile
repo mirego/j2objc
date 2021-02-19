@@ -356,7 +356,7 @@ COMMON_TEST_FLAGS = \
   -ea junit.textui.TestRunner
 
 test: compile-tests copy-test-resources
-#	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.kotlin.constructor.ConstructorTest
 
 regression-test: compile-tests copy-test-resources
