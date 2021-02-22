@@ -96,7 +96,7 @@ public final class NioUtils {
     private static native ChannelFactory getChannelFactory() /*-[
       Class cls = NSClassFromString(@"JavaNioChannelFactoryImpl");
       if (cls) {
-        return AUTORELEASE([[cls alloc] init]);
+        return [[[cls alloc] init] autorelease];
       }
       return nil;
     ]-*/;

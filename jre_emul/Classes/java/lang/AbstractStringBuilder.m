@@ -42,7 +42,7 @@
 static void JreStringBuilder_move(JreStringBuilder *self, jint size, jint index);
 
 static void OutOfMemory() {
-  @throw AUTORELEASE([[JavaLangOutOfMemoryError alloc] init]);
+  @throw [[[JavaLangOutOfMemoryError alloc] init] autorelease];
 }
 
 static inline void NewBuffer(JreStringBuilder *sb, jint size) {
@@ -54,17 +54,16 @@ static inline void NewBuffer(JreStringBuilder *sb, jint size) {
 }
 
 static JavaLangStringIndexOutOfBoundsException *IndexAndLength(JreStringBuilder *sb, jint index) {
-  id exc = [[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
-      [NSString stringWithFormat:@"this.length=%d; index=%d", sb->count_, index]];
-  @throw AUTORELEASE(exc);
+  @throw [[[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
+          [NSString stringWithFormat:@"this.length=%d; index=%d", sb->count_, index
+          ]] autorelease];
 }
 
 static JavaLangStringIndexOutOfBoundsException *StartEndAndLength(
     JreStringBuilder *sb, jint start, jint end) {
-  id exc = [[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
-      [NSString stringWithFormat:@"this.length=%d; start=%d; length=%d", sb->count_, start,
-      end - start]];
-  @throw AUTORELEASE(exc);
+  @throw [[[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
+          [NSString stringWithFormat:@"this.length=%d; start=%d; length=%d", sb->count_, start,
+          end - start]] autorelease];
 }
 
 @implementation JavaLangAbstractStringBuilder
@@ -100,9 +99,8 @@ void JavaLangAbstractStringBuilder_initPackagePrivate(JavaLangAbstractStringBuil
 void JavaLangAbstractStringBuilder_initPackagePrivateWithInt_(
     JavaLangAbstractStringBuilder *self, jint capacity) {
   if (capacity < 0) {
-    id exc = [[JavaLangNegativeArraySizeException alloc] initWithNSString:
-        JavaLangInteger_toStringWithInt_(capacity)];
-    @throw AUTORELEASE(exc);
+    @throw [[[JavaLangNegativeArraySizeException alloc] initWithNSString:
+        JavaLangInteger_toStringWithInt_(capacity)] autorelease];
   }
   NewBuffer(&self->delegate_, capacity);
 }
@@ -201,7 +199,7 @@ void JreStringBuilder_appendCharSequenceSubset(
     s = @"null";
   }
   if ((start | end) < 0 || start > end || end > [s java_length]) {
-    @throw AUTORELEASE([[JavaLangIndexOutOfBoundsException alloc] init]);
+    @throw [[[JavaLangIndexOutOfBoundsException alloc] init] autorelease];
   }
   jint length = end - start;
   jint newCount = sb->count_ + length;
@@ -342,17 +340,16 @@ void JreStringBuilder_insertCharArraySubset(
       return;
     }
   }
-  id exc = [[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
+  @throw [[[JavaLangStringIndexOutOfBoundsException alloc] initWithNSString:
       [NSString stringWithFormat:@"this.length=%d; index=%d; chars.length=%d; start=%d; length=%d",
-          sb->count_, index, chars->size_, start, length]];
-  @throw AUTORELEASE(exc);
+          sb->count_, index, chars->size_, start, length]] autorelease];
 }
 
 void JreStringBuilder_insertChar(JreStringBuilder *sb, jint index, jchar ch) {
   if (index < 0 || index > sb->count_) {
-    id exc = [[JavaLangArrayIndexOutOfBoundsException alloc] initWithNSString:
-        [NSString stringWithFormat:@"this.length=%d; index=%d", sb->count_, index]];
-    @throw AUTORELEASE(exc);
+    @throw [[[JavaLangArrayIndexOutOfBoundsException alloc] initWithNSString:
+        [NSString stringWithFormat:@"this.length=%d; index=%d", sb->count_, index
+        ]] autorelease];
   }
   JreStringBuilder_move(sb, 1, index);
   sb->buffer_[index] = ch;
@@ -383,7 +380,7 @@ void JreStringBuilder_insertCharSequence(
   }
   if ((index | start | end) < 0 || index > sb->count_ || start > end
       || end > [s java_length]) {
-    @throw AUTORELEASE([[JavaLangIndexOutOfBoundsException alloc] init]);
+    @throw [[[JavaLangIndexOutOfBoundsException alloc] init] autorelease];
   }
   JreStringBuilder_insertString(sb, index, [[s subSequenceFrom:start to:end] description]);
 }
@@ -428,8 +425,8 @@ void JreStringBuilder_replace(JreStringBuilder *sb, jint start, jint end, NSStri
     }
     if (start == end) {
       if (string == nil) {
-        @throw AUTORELEASE([[JavaLangNullPointerException alloc]
-            initWithNSString:@"string == null"]);
+        @throw [[[JavaLangNullPointerException alloc]
+            initWithNSString:@"string == null"] autorelease];
       }
       JreStringBuilder_insertString(sb, start, string);
       return;
@@ -503,9 +500,8 @@ void JreStringBuilder_reverse(JreStringBuilder *sb) {
 
 - (void)setLengthWithInt:(jint)length {
   if (length < 0) {
-    id exc = [[JavaLangStringIndexOutOfBoundsException alloc]
-        initWithNSString:[NSString stringWithFormat:@"length < 0: %d", length]];
-    @throw AUTORELEASE(exc);
+    @throw [[[JavaLangStringIndexOutOfBoundsException alloc]
+        initWithNSString:[NSString stringWithFormat:@"length < 0: %d", length]] autorelease];
   }
   EnsureCapacity(&delegate_, length);
   if (delegate_.count_ < length) {
@@ -564,7 +560,7 @@ NSString *JreStringBuilder_toStringAndDealloc(JreStringBuilder *sb) {
     result = (NSString *)CFStringCreateWithCharactersNoCopy(
         NULL, sb->buffer_, sb->count_, kCFAllocatorMalloc);
   }
-  return AUTORELEASE(result);
+  return [result autorelease];
 }
 
 - (id<JavaLangCharSequence>)subSequenceFrom:(jint)start
@@ -721,9 +717,7 @@ jint JavaLangCharacter_offsetByCodePointsRaw(
 
 - (void)dealloc {
   free(delegate_.buffer_);
-#if !__has_feature(objc_arc)
   [super dealloc];
-#endif
 }
 
 // Suppress undeclared-selector warnings to avoid creating method bodies

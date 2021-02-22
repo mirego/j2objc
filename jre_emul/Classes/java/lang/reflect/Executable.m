@@ -278,12 +278,10 @@ static GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable 
   return [class_ hash] ^ (NSUInteger)metadata_;
 }
 
-#if !__has_feature(objc_arc)
 - (void)dealloc {
   [__c11_atomic_load(&paramTypes_, __ATOMIC_RELAXED) release];
   [super dealloc];
 }
-#endif
 
 + (const J2ObjcClassInfo *)__metadata {
   static J2ObjcMethodInfo methods[] = {
@@ -350,8 +348,8 @@ GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable *self) 
   IOSObjectArray *exceptionTypes = JreParseClassList(
       JrePtrAtIndex(self->ptrTable_, metadata->exceptionsIdx));
   LibcoreReflectGenericSignatureParser *parser =
-      AUTORELEASE([[LibcoreReflectGenericSignatureParser alloc]
-        initWithJavaLangClassLoader:JavaLangClassLoader_getSystemClassLoader()]);
+      [[[LibcoreReflectGenericSignatureParser alloc]
+        initWithJavaLangClassLoader:JavaLangClassLoader_getSystemClassLoader()] autorelease];
   if (isMethod) {
     [parser parseForMethodWithJavaLangReflectGenericDeclaration:self
                                                    withNSString:signatureAttribute
@@ -362,10 +360,10 @@ GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable *self) 
                                                         withNSString:signatureAttribute
                                                    withIOSClassArray:exceptionTypes];
   }
-  return AUTORELEASE([[GenericInfo alloc] init:parser->exceptionTypes_
-                                    parameters:parser->parameterTypes_
-                                    returnType:parser->returnType_
-                                typeParameters:parser->formalTypeParameters_]);
+  return [[[GenericInfo alloc] init:parser->exceptionTypes_
+                         parameters:parser->parameterTypes_
+                         returnType:parser->returnType_
+                     typeParameters:parser->formalTypeParameters_] autorelease];
 }
 
 @end

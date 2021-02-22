@@ -131,12 +131,12 @@ public abstract class IosRSAKey implements RSAKey, Key {
       publicKeyQuery[(id) kSecReturnData] = (id) kCFBooleanTrue;
       OSStatus status =
           SecItemCopyMatching((CFDictionaryRef)publicKeyQuery, (CFTypeRef *)&publicKey);
-      RELEASE_(publicKeyQuery);
+      [publicKeyQuery release];
 
       IOSByteArray *bytes = nil;
       if (status == noErr && publicKey.length > 0) {
         bytes = [IOSByteArray arrayWithBytes:(jbyte *)publicKey.bytes count:publicKey.length];
-        RELEASE_(publicKey);
+        [publicKey release];
       } else {
           NSString *msg =
               [NSString stringWithFormat:@"PublicKey getEncoded error %d", (int)status];
@@ -229,7 +229,7 @@ public abstract class IosRSAKey implements RSAKey, Key {
 #endif
       }
 
-      RELEASE_(publicKey);
+      [publicKey release];
       return (jlong)secKeyRef;
     ]-*/;
   }
@@ -284,12 +284,12 @@ public abstract class IosRSAKey implements RSAKey, Key {
       [privateKeyQuery setObject:[NSNumber numberWithBool:true] forKey:(id)kSecReturnData];
       OSStatus status =
           SecItemCopyMatching((CFDictionaryRef)privateKeyQuery, (CFTypeRef *)&privateKey);
-      RELEASE_(privateKeyQuery);
+      [privateKeyQuery release];
 
       IOSByteArray *bytes = nil;
       if (status == noErr && privateKey.length > 0) {
         bytes = [IOSByteArray arrayWithBytes:(jbyte *)privateKey.bytes count:privateKey.length];
-        RELEASE_(privateKey);
+        [privateKey release];
       }
       return bytes;
     ]-*/;
@@ -325,8 +325,8 @@ public abstract class IosRSAKey implements RSAKey, Key {
      * certificate needs to be stripped first.
      */
     private static native long createPrivateSecKeyRef(byte[] bytes) /*-[
-      NSData * privateKey = AUTORELEASE([[NSData alloc] initWithBytes:(const void *)(bytes->buffer_)
-                                                               length:bytes->size_]);
+      NSData * privateKey = [[[NSData alloc] initWithBytes:(const void *)(bytes->buffer_)
+                                                    length:bytes->size_] autorelease];
 
       // Delete any previous key definition.
       NSMutableDictionary *keyQuery = getPrivateQuery();

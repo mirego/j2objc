@@ -783,7 +783,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
     if (self->instanceFollowRedirects_
         && [response.URL.scheme isEqualToString:request.URL.scheme]) {
       // Workaround for iOS bug (https://forums.developer.apple.com/thread/43818).
-      NSMutableURLRequest *nextRequest = AUTORELEASE([request mutableCopy]);
+      NSMutableURLRequest *nextRequest = [[request mutableCopy] autorelease];
 
       NSString *responseCookies = [response.allHeaderFields objectForKey:@"Set-Cookie"];
       if (responseCookies) {
@@ -801,7 +801,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         JavaNetURL *redirectURL = [[JavaNetURL alloc] initWithNSString:[response.URL description]];
         ComGoogleJ2objcNetIosHttpURLConnection_saveResponseCookiesWithJavaNetURL_withJavaUtilMap_(
             redirectURL, headerMap);
-        RELEASE_(redirectURL);
+        [redirectURL release];
       }
       completionHandler(nextRequest);
     } else {

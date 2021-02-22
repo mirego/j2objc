@@ -38,7 +38,6 @@ JUNIT_SOURCES = \
     org/junit/AfterClass.java \
     org/junit/Assert.java \
     org/junit/Assume.java \
-    org/junit/AssumptionViolatedException.java \
     org/junit/Before.java \
     org/junit/BeforeClass.java \
     org/junit/ClassRule.java \
@@ -50,10 +49,6 @@ JUNIT_SOURCES = \
     org/junit/experimental/ParallelComputer.java \
     org/junit/experimental/categories/Categories.java \
     org/junit/experimental/categories/Category.java \
-    org/junit/experimental/categories/CategoryFilterFactory.java \
-    org/junit/experimental/categories/CategoryValidator.java \
-    org/junit/experimental/categories/ExcludeCategories.java \
-    org/junit/experimental/categories/IncludeCategories.java \
     org/junit/experimental/max/CouldNotReadCoreException.java \
     org/junit/experimental/max/MaxCore.java \
     org/junit/experimental/max/MaxHistory.java \
@@ -63,24 +58,19 @@ JUNIT_SOURCES = \
     org/junit/experimental/runners/Enclosed.java \
     org/junit/experimental/theories/DataPoint.java \
     org/junit/experimental/theories/DataPoints.java \
-    org/junit/experimental/theories/FromDataPoints.java \
     org/junit/experimental/theories/ParameterSignature.java \
-    org/junit/experimental/theories/ParameterSupplier.java \
     org/junit/experimental/theories/ParametersSuppliedBy.java \
+    org/junit/experimental/theories/ParameterSupplier.java \
     org/junit/experimental/theories/PotentialAssignment.java \
     org/junit/experimental/theories/Theories.java \
     org/junit/experimental/theories/Theory.java \
     org/junit/experimental/theories/internal/AllMembersSupplier.java \
     org/junit/experimental/theories/internal/Assignments.java \
-    org/junit/experimental/theories/internal/BooleanSupplier.java \
-    org/junit/experimental/theories/internal/EnumSupplier.java \
     org/junit/experimental/theories/internal/ParameterizedAssertionError.java \
-    org/junit/experimental/theories/internal/SpecificDataPointsSupplier.java \
     org/junit/experimental/theories/suppliers/TestedOn.java \
     org/junit/experimental/theories/suppliers/TestedOnSupplier.java \
     org/junit/internal/ArrayComparisonFailure.java \
     org/junit/internal/AssumptionViolatedException.java \
-    org/junit/internal/Classes.java \
     org/junit/internal/ComparisonCriteria.java \
     org/junit/internal/ExactComparisonCriteria.java \
     org/junit/internal/InexactComparisonCriteria.java \
@@ -88,7 +78,6 @@ JUNIT_SOURCES = \
     org/junit/internal/MethodSorter.java \
     org/junit/internal/RealSystem.java \
     org/junit/internal/TextListener.java \
-    org/junit/internal/Throwables.java \
     org/junit/internal/builders/AllDefaultPossibilitiesBuilder.java \
     org/junit/internal/builders/AnnotatedBuilder.java \
     org/junit/internal/builders/IgnoredBuilder.java \
@@ -118,8 +107,7 @@ JUNIT_SOURCES = \
     org/junit/internal/runners/model/EachTestNotifier.java \
     org/junit/internal/runners/model/MultipleFailureException.java \
     org/junit/internal/runners/model/ReflectiveCallable.java \
-    org/junit/internal/runners/rules/RuleMemberValidator.java \
-    org/junit/internal/runners/rules/ValidationError.java \
+    org/junit/internal/runners/rules/RuleFieldValidator.java \
     org/junit/internal/runners/statements/ExpectException.java \
     org/junit/internal/runners/statements/Fail.java \
     org/junit/internal/runners/statements/FailOnTimeout.java \
@@ -127,7 +115,6 @@ JUNIT_SOURCES = \
     org/junit/internal/runners/statements/RunAfters.java \
     org/junit/internal/runners/statements/RunBefores.java \
     org/junit/matchers/JUnitMatchers.java \
-    org/junit/rules/DisableOnDebug.java \
     org/junit/rules/ErrorCollector.java \
     org/junit/rules/ExpectedException.java \
     org/junit/rules/ExpectedExceptionMatcherBuilder.java \
@@ -135,7 +122,6 @@ JUNIT_SOURCES = \
     org/junit/rules/MethodRule.java \
     org/junit/rules/RuleChain.java \
     org/junit/rules/RunRules.java \
-    org/junit/rules/Stopwatch.java \
     org/junit/rules/TemporaryFolder.java \
     org/junit/rules/TestName.java \
     org/junit/rules/TestRule.java \
@@ -146,15 +132,11 @@ JUNIT_SOURCES = \
     org/junit/runner/Computer.java \
     org/junit/runner/Describable.java \
     org/junit/runner/Description.java \
-    org/junit/runner/FilterFactories.java \
-    org/junit/runner/FilterFactory.java \
-    org/junit/runner/FilterFactoryParams.java \
-    org/junit/runner/JUnitCommandLineParseResult.java \
     org/junit/runner/JUnitCore.java \
     org/junit/runner/Request.java \
     org/junit/runner/Result.java \
-    org/junit/runner/RunWith.java \
     org/junit/runner/Runner.java \
+    org/junit/runner/RunWith.java \
     org/junit/runner/manipulation/Filter.java \
     org/junit/runner/manipulation/Filterable.java \
     org/junit/runner/manipulation/NoTestsRemainException.java \
@@ -164,7 +146,6 @@ JUNIT_SOURCES = \
     org/junit/runner/notification/RunListener.java \
     org/junit/runner/notification/RunNotifier.java \
     org/junit/runner/notification/StoppedByUserException.java \
-    org/junit/runner/notification/SynchronizedRunListener.java \
     org/junit/runners/AllTests.java \
     org/junit/runners/BlockJUnit4ClassRunner.java \
     org/junit/runners/JUnit4.java \
@@ -172,7 +153,6 @@ JUNIT_SOURCES = \
     org/junit/runners/Parameterized.java \
     org/junit/runners/ParentRunner.java \
     org/junit/runners/Suite.java \
-    org/junit/runners/model/Annotatable.java \
     org/junit/runners/model/FrameworkField.java \
     org/junit/runners/model/FrameworkMember.java \
     org/junit/runners/model/FrameworkMethod.java \
@@ -182,18 +162,7 @@ JUNIT_SOURCES = \
     org/junit/runners/model/RunnerBuilder.java \
     org/junit/runners/model/RunnerScheduler.java \
     org/junit/runners/model/Statement.java \
-    org/junit/runners/model/TestClass.java \
-    org/junit/runners/model/TestTimedOutException.java \
-    org/junit/runners/parameterized/BlockJUnit4ClassRunnerWithParameters.java \
-    org/junit/runners/parameterized/BlockJUnit4ClassRunnerWithParametersFactory.java \
-    org/junit/runners/parameterized/ParametersRunnerFactory.java \
-    org/junit/runners/parameterized/TestWithParameters.java \
-    org/junit/validator/AnnotationValidator.java \
-    org/junit/validator/AnnotationValidatorFactory.java \
-    org/junit/validator/AnnotationsValidator.java \
-    org/junit/validator/PublicClassValidator.java \
-    org/junit/validator/TestClassValidator.java \
-    org/junit/validator/ValidateWith.java
+    org/junit/runners/model/TestClass.java
 
 JUNIT_DATAPROVIDER_SOURCES = \
     com/tngtech/java/junit/dataprovider/DataProvider.java \

@@ -35,8 +35,8 @@
 
 + (instancetype)constructorWithDeclaringClass:(IOSClass *)aClass
                                      metadata:(const J2ObjcMethodInfo *)metadata {
-  return AUTORELEASE([[JavaLangReflectConstructor alloc] initWithDeclaringClass:aClass
-                                                                       metadata:metadata]);
+  return [[[JavaLangReflectConstructor alloc] initWithDeclaringClass:aClass
+                                                            metadata:metadata] autorelease];
 }
 
 static id NewInstance(JavaLangReflectConstructor *self, void (^fillArgs)(NSInvocation *)) {
@@ -59,7 +59,7 @@ static id NewInstance(JavaLangReflectConstructor *self, void (^fillArgs)(NSInvoc
       [invocation invokeWithTarget:cls];
       [invocation getReturnValue:&newInstance];
     } else {
-      newInstance = AUTORELEASE([cls alloc]);
+      newInstance = [[cls alloc] autorelease];
       [invocation invokeWithTarget:newInstance];
     }
   }

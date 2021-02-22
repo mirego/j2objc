@@ -275,7 +275,7 @@ public final class NativeTimeZone extends TimeZone {
   @Override
   public native String getDisplayName(boolean daylight, int style, Locale locale) /*-[
     if (style != JavaUtilTimeZone_SHORT && style != JavaUtilTimeZone_LONG) {
-      @throw AUTORELEASE([[JavaLangIllegalArgumentException alloc] init]);
+      @throw [[[JavaLangIllegalArgumentException alloc] init] autorelease];
     }
 
     NSTimeZoneNameStyle zoneStyle;

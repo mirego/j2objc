@@ -194,7 +194,7 @@ static NSDictionary *protocolMapping;
   if (self != [ComGoogleJ2objcNetSslIosSslSocket class]) {
     return;
   }
-  NSMutableDictionary *temp = AUTORELEASE([[NSMutableDictionary alloc] init]);
+  NSMutableDictionary *temp = [[[NSMutableDictionary alloc] init] autorelease];
   NSString *key;
   key = [ComGoogleJ2objcSecurityIosSecurityProvider_SslProtocol_get_DEFAULT() description];
   temp[key] = @(kTLSProtocol1);
@@ -223,12 +223,10 @@ static NSDictionary *protocolMapping;
 
 - (void)dealloc {
   tearDownContext(self);
-#if !__has_feature(objc_arc)
   [_sslInputStream release];
   [_sslOutputStream release];
   [_sslException release];
   [super dealloc];
-#endif
 }
 
 #pragma mark JavaNetSocket methods
@@ -536,11 +534,9 @@ ComGoogleJ2objcNetSslIosSslSocket *create_ComGoogleJ2objcNetSslIosSslSocket_init
 @implementation WrapperSocket
 
 - (void)dealloc {
-#if !__has_feature(objc_arc)
   [underlyingSocket release];
   [hostname release];
   [super dealloc];
-#endif
 }
 
 #pragma mark ComGoogleJ2objcNetSslIosSslSocket methods

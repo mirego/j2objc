@@ -213,7 +213,7 @@ public final class CurrencyNumericCodesImpl implements CurrencyNumericCodes {
           @"ZMW": @967,
           @"ZWL": @932
       };
-      RETAIN_(iso4217);
+      [iso4217 retain];
     });
     NSNumber *number = iso4217[currencyCode];
     return number ? [number intValue] : 0;

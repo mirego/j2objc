@@ -44,7 +44,7 @@ static double defaultValue = 3.1416;
 @implementation JavaLangReflectMethodTest
 
 - (void)setUp {
-  object_ = AUTORELEASE([[JavaUtilLinkedList alloc] init]);
+  object_ = [[[JavaUtilLinkedList alloc] init] autorelease];
   class_ = JavaUtilLinkedList_class_();
 }
 
@@ -89,7 +89,7 @@ static double defaultValue = 3.1416;
 
 static id invokeValueMethod(NSString *methodName) {
   JavaLangDouble *value =
-      AUTORELEASE([[JavaLangDouble alloc] initWithDouble:defaultValue]);
+      [[[JavaLangDouble alloc] initWithDouble:defaultValue] autorelease];
   JavaLangReflectMethod *method = [JavaLangDouble_class_() getMethod:methodName parameterTypes:nil];
   IOSObjectArray *parameters = [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
   return [method invokeWithId:value

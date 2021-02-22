@@ -72,12 +72,10 @@ import sun.reflect.CallerSensitive;
   return originalName_;
 }
 
-#if !__has_feature(objc_arc)
 - (void)dealloc {
   RELEASE_(originalName_);
   [super dealloc];
 }
-#endif
 @end
 ]-*/
 

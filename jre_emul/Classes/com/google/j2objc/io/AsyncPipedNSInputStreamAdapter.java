@@ -175,8 +175,8 @@ public final class AsyncPipedNSInputStreamAdapter {
         // written < 0 means the stream is closed, do nothing in that case.
 
         // Do not use autorelease to reduce memory pressure.
-        RELEASE_(leftoverData_);
-        leftoverData_ = RETAIN_(nextLeftover);
+        [leftoverData_ release];
+        leftoverData_ = [nextLeftover retain];
 
         // Close if needed.
         if (closeAfterLeftoverCleared_ && !leftoverData_) {
@@ -218,7 +218,7 @@ public final class AsyncPipedNSInputStreamAdapter {
       [(NSOutputStream *)nativeOutputStream_ removeFromRunLoop:[NSRunLoop currentRunLoop]
                                                        forMode:NSRunLoopCommonModes];
       [(NSOutputStream *)nativeOutputStream_ setDelegate:nil];
-      RELEASE_(delegate_);
+      [delegate_ release];
       delegate_ = nil;
       threadForClosing_ = nil;
 
@@ -348,9 +348,9 @@ public final class AsyncPipedNSInputStreamAdapter {
     [adapter start];
 
     // adapter is now retained by its own dedicated thread.
-    AUTORELEASE(adapter);
+    [adapter autorelease];
 
     // Autorelease the underlying CFReadStream object.
-    return AUTORELEASE((NSInputStream *)readStreamRef);
+    return [(NSInputStream *)readStreamRef autorelease];
   ]-*/;
 }
