@@ -167,8 +167,10 @@ public class HeaderMap {
     PackageElement pkg = ElementUtil.getPackage(type);
 
     if(ElementUtil.isKotlinType(type)) {
-      String packageName = NameTable.camelCaseQualifiedName(pkg.toString());
-      return outputDirFromPackage(pkg) + packageName + ".framework/Headers/" + packageName + ".h";
+      mappedHeader = map.get(pkg.toString());
+      if (mappedHeader != null) {
+        return mappedHeader;
+      }
     }
 
     return outputDirFromPackage(pkg) + name + ".h";

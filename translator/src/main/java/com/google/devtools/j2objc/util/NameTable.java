@@ -401,9 +401,9 @@ public class NameTable {
     }
 
     // mirego kotlin interop
-    if (ElementUtil.isKotlinType(method)) {
-      return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
-    }
+//    if (ElementUtil.isKotlinType(method)) {
+//      return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
+//    }
 
     for (VariableElement param : method.getParameters()) {
       first = appendParamKeyword(sb, param.asType(), delim, first);

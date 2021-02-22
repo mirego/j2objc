@@ -17,5 +17,11 @@ dist/
 .DS_Store
 
 # IntelliJ IDEA Files
-*.iml
-.idea
+.idea/artifacts/
+.idea/libraries/
+.idea/modules/
+/.idea/workspace.xml
+
+# Gradle
+.gradle
+build
