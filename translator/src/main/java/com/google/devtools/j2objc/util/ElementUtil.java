@@ -858,6 +858,7 @@ public final class ElementUtil {
     return null;
   }
 
+  // mirego kotlin interop
   /**
    * Determines if an element is a Kotlin type by looking at the source file embedded in the class file.
    */
