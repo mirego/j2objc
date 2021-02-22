@@ -17,6 +17,6 @@ public class ConstructorTest extends GenerationTest {
     String className = WithoutConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[ComMiregoInteropKotlinTestConstructorClassWithoutConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
   }
 }

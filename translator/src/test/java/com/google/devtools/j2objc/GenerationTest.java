@@ -86,6 +86,7 @@ public class GenerationTest extends TestCase {
   // mirego kotlin
   final private static String kotlinJavaTestDirectory = Paths.get("src", "test", "java", "com", "mirego", "interop", "java", "test").toAbsolutePath().toString();
   final private static String kotlinJavaTestPackage = Paths.get("com", "mirego", "interop", "java", "test").toString() + "/";
+  final private static String kotlinPrefixesProperties = "prefixes.properties";
 
   protected File tempDir;
   protected Parser parser;
@@ -127,6 +128,7 @@ public class GenerationTest extends TestCase {
         "-d", tempPath,
         "-sourcepath", tempPath,
         "-sourcepath", kotlinJavaTestDirectory, // mirego kotlin
+        "--prefixes",  kotlinPrefixesProperties, // mirego kotlin
         "-classpath", tempPath,
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
