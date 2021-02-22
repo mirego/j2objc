@@ -33,6 +33,8 @@ SOURCEPATH = $(CWD):$(JAVA_SOURCE_DIR)
 BASE_PACKAGE = com/google/devtools/j2objc
 
 DIST_DEPS = $(JSR305_JAR) j2objc_annotations.jar
+
+# mirego kotlin interop
 INTERNAL_DEPS = $(GUAVA_JAR) $(JSR305_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) \
     $(PLUME_UTIL_JAR) $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR)
 ifdef JAVA_8
@@ -357,7 +359,6 @@ COMMON_TEST_FLAGS = \
 
 test: compile-tests copy-test-resources
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
-	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.kotlin.constructor.ConstructorTest
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
