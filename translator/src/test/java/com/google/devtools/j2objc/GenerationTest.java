@@ -83,7 +83,7 @@ import junit.framework.TestCase;
  */
 public class GenerationTest extends TestCase {
 
-  // mirego kotlin
+  // mirego kotlin interop
   final private static String kotlinJavaTestDirectory = Paths.get("src", "test", "java", "com", "mirego", "interop", "java", "test").toAbsolutePath().toString();
   final private static String kotlinJavaTestPackage = Paths.get("com", "mirego", "interop", "java", "test").toString() + "/";
   final private static String kotlinPrefixesProperties = "prefixes.properties";
@@ -127,8 +127,8 @@ public class GenerationTest extends TestCase {
     options.load(new String[]{
         "-d", tempPath,
         "-sourcepath", tempPath,
-        "-sourcepath", kotlinJavaTestDirectory, // mirego kotlin
-        "--prefixes",  kotlinPrefixesProperties, // mirego kotlin
+        "-sourcepath", kotlinJavaTestDirectory, // mirego kotlin interop
+        "--prefixes",  kotlinPrefixesProperties, // mirego kotlin interop
         "-classpath", tempPath,
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
@@ -815,7 +815,7 @@ public class GenerationTest extends TestCase {
   // Empty test so Bazel won't report a "no tests" error.
   public void testNothing() {}
 
-  // mirego kotlin
+  // mirego kotlin interop
 
   /**
    * Translate a Java source file contents, returning the contents of either the generated header or

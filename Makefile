@@ -73,6 +73,7 @@ protobuf_dist: protobuf_compiler_dist protobuf_runtime_dist
 
 all_dist: dist all_frameworks examples_dist
 
+#mirego kotlin interop
 clean: kotlin_clean
 	@rm -rf $(BUILD_DIR) $(DIST_DIR)
 	@cd annotations && $(MAKE) clean
@@ -93,6 +94,7 @@ clean: kotlin_clean
 test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
 	@cd translator && $(MAKE) regression-test
+	# mirego kotlin interop
 	@$(MAKE) kotlin
 
 test_jre_emul: jre_emul_dist junit_dist
