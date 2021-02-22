@@ -359,6 +359,7 @@ COMMON_TEST_FLAGS = \
 
 test: compile-tests copy-test-resources
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
