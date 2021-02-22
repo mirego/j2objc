@@ -380,8 +380,7 @@ public class NameTable {
     return false;
   }
 
-  private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements,
-                                                         String fieldName) {
+  private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
     for (Element x : elements) {
       if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
         return Optional.of(x.getSimpleName().toString());
