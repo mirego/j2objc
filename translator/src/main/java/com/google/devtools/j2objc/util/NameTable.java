@@ -412,50 +412,51 @@ public class NameTable {
       }
     }
 
-    if (ElementUtil.isKotlinType(method)) {
-      Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
-      KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-      KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-      KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
-      KmConstructor kmConstructor = null;
+    // if (ElementUtil.isKotlinType(method)) {
+    //   Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
+    //   KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
+    //   KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
+    //   KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
+    //   KmConstructor kmConstructor = null;
 
-      if (ElementUtil.isConstructor(method)) {
-        List<String> jvmArgumentTypes = method.getParameters().stream()
-                .map(variableElement -> variableElement.asType().toString())
-                .collect(Collectors.toList());
+    //   if (ElementUtil.isConstructor(method)) {
+    //     List<String> jvmArgumentTypes = method.getParameters().stream()
+    //             .map(variableElement -> variableElement.asType().toString())
+    //             .collect(Collectors.toList());
 
-        for(KmConstructor loopConstructor:kmClass.getConstructors()) {
-          List<String> kmArgumentTypes = loopConstructor.getValueParameters().stream()
-            .map(kmValueParameter -> toJavaType(kmValueParameter.getType()))
-            .collect(Collectors.toList());
+    //     for(KmConstructor loopConstructor:kmClass.getConstructors()) {
+    //       List<String> kmArgumentTypes = loopConstructor.getValueParameters().stream()
+    //         .map(kmValueParameter -> toJavaType(kmValueParameter.getType()))
+    //         .collect(Collectors.toList());
 
-          if(jvmArgumentTypes.equals(kmArgumentTypes)) {
-            kmConstructor = loopConstructor;
-          }
-        }
+    //       if(jvmArgumentTypes.equals(kmArgumentTypes)) {
+    //         kmConstructor = loopConstructor;
+    //       }
+    //     }
 
-      }
+    //   }
 
-      int idx = 0;
-      for (VariableElement param : method.getParameters()) {
+    //   int idx = 0;
+    //   for (VariableElement param : method.getParameters()) {
 
-        if (first && ElementUtil.isConstructor(method)) {
-          sb.append("With");
-        }
+    //     if (first && ElementUtil.isConstructor(method)) {
+    //       sb.append("With");
+    //     }
 
-        if (name.startsWith("set") && checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
-          break;
-        }
+    //     if (name.startsWith("set") && checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
+    //       break;
+    //     }
 
-        String paramName = param.getSimpleName().toString();
-        if(kmConstructor != null) {
-          paramName = kmConstructor.getValueParameters().get(idx).getName();
-        }
+    //     String paramName = param.getSimpleName().toString();
+    //     if(kmConstructor != null) {
+    //       paramName = kmConstructor.getValueParameters().get(idx).getName();
+    //     }
 
-        first = appendParamKeywordKotlin(sb, paramName, delim, first);
-        idx++;
-      }
-    } else {
+    //     first = appendParamKeywordKotlin(sb, paramName, delim, first);
+    //     idx++;
+    //   }
+    // } else 
+    {
       for (VariableElement param : method.getParameters()) {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }

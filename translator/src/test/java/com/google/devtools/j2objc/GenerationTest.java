@@ -60,6 +60,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -81,6 +82,11 @@ import junit.framework.TestCase;
  * @author Tom Ball
  */
 public class GenerationTest extends TestCase {
+
+  // mirego kotlin interop
+  final private static String kotlinJavaTestDirectory = Paths.get("src", "test", "java", "com", "mirego", "interop", "java", "test").toAbsolutePath().toString();
+  final private static String kotlinJavaTestPackage = Paths.get("com", "mirego", "interop", "java", "test").toString() + "/";
+  final private static String kotlinPrefixesProperties = "prefixes.properties";
 
   protected File tempDir;
   protected Parser parser;
@@ -121,6 +127,8 @@ public class GenerationTest extends TestCase {
     options.load(new String[]{
         "-d", tempPath,
         "-sourcepath", tempPath,
+        "-sourcepath", kotlinJavaTestDirectory, // mirego kotlin interop
+        "--prefixes",  kotlinPrefixesProperties, // mirego kotlin interop
         "-classpath", tempPath,
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
@@ -806,4 +814,30 @@ public class GenerationTest extends TestCase {
 
   // Empty test so Bazel won't report a "no tests" error.
   public void testNothing() {}
+
+  // mirego kotlin interop
+
+  /**
+   * Translate a Java source file contents, returning the contents of either the generated header or
+   * implementation file.
+   *
+   * @param typeName the type of the class which file we need to load and translate
+   * @param testPackage the test package this file is a part of
+   * @param outputExtension the extension of the output to return as a result.
+   */
+  protected String translateJavaSourceFileForKotlinTest(String typeName, String testPackage,
+                                                        String outputExtension)
+      throws IOException {
+    FileUtil fileUtil = options.fileUtil();
+    String sourceFileName = testPackage + typeName + ".java";
+    InputFile sourceFile = fileUtil.findFileOnSourcePath(sourceFileName);
+    String source = fileUtil.readFile(sourceFile);
+    if (source == null) {
+      throw new IOException("Could not read file" + sourceFileName);
+    }
+    CompilationUnit compilationUnit = translateType(typeName, source);
+
+    String outputFilename = kotlinJavaTestPackage + testPackage + typeName + outputExtension;
+    return generateFromUnit(compilationUnit, outputFilename);
+  }
 }

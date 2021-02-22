@@ -1,2 +1,1 @@
-unit.mapping.Test=my/mapping/Test.h
 com.mirego.interop.kotlin.test.constructor=Common.h
