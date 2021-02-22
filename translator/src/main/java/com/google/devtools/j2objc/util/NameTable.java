@@ -400,9 +400,9 @@ public class NameTable {
     }
 
     // mirego kotlin interop
-//    if (ElementUtil.isKotlinType(method)) {
-//      return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
-//    }
+    if (ElementUtil.isKotlinType(method)) {
+      return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
+    }
 
     for (VariableElement param : method.getParameters()) {
       first = appendParamKeyword(sb, param.asType(), delim, first);
@@ -768,19 +768,22 @@ public class NameTable {
     if (first) {
       keyword = capitalize(keyword);
     }
-    sb.append(keyword).append(delim);
+    sb.append(keyword);
+
+    // todo gaudet code from initial branch appends delim at the end ... why ?
+//    sb.append(keyword).append(delim);
     return false;
   }
 
   private String addParamNamesKotlin(ExecutableElement method,
                                      String name,
                                      char delim,
-                                     boolean first, StringBuilder sb,
+                                     boolean first,
+                                     StringBuilder sb,
                                      TypeElement declaringClass) {
 
     Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
-    KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(),
-        meta.d2(), meta.xs(), meta.pn(), meta.xi());
+    KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
     KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
     KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
     KmConstructor kmConstructor = null;
@@ -797,6 +800,7 @@ public class NameTable {
 
         if (jvmArgumentTypes.equals(kmArgumentTypes)) {
           kmConstructor = loopConstructor;
+          break;
         }
       }
     }
@@ -851,12 +855,19 @@ public class NameTable {
     return kotlinPrefix.toString();
   }
 
+  private static final Map<String, String> kotlinToJavaType = new HashMap<>();
+  static {
+    kotlinToJavaType.put("kotlin/Int", "int");
+    kotlinToJavaType.put("kotlin/String", "java.lang.String");
+  }
 
   private String toJavaType(KmType kmType) {
-    String classname = ((KmClassifier.Class) kmType.getClassifier()).getName();
-    if (classname.equals("kotlin/Int")) {
-      return "int";
+    String kotlinType = ((KmClassifier.Class) kmType.getClassifier()).getName();
+    String javaType = kotlinToJavaType.get(kotlinType);
+    if (javaType == null) {
+      logger.fine(String.format("Could not find mapping for kotlin type : %s", kotlinType));
+      return "";
     }
-    return "";
+    return javaType;
   }
 }

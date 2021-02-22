@@ -13,58 +13,58 @@ public class ConstructorTests extends TestCase {
         assert (withoutConstructor != null);
     }
 
-    @Test
-    public void testClassWithDefaultConstructor() {
+     @Test
+     public void testClassWithDefaultConstructor() {
 
-        DefaultConstructor defaultConstructor = new DefaultConstructor();
+         DefaultConstructor defaultConstructor = new DefaultConstructor();
 
-        assert (defaultConstructor != null);
-    }
+         assert (defaultConstructor != null);
+     }
 
-    @Test
-    public void testClassWithDefaultConstructorMultipleParameters() {
-        DefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new DefaultConstructorMultipleParameters();
+     @Test
+     public void testClassWithDefaultConstructorMultipleParameters() {
+         DefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new DefaultConstructorMultipleParameters();
 
-        assert (defaultConstructorMultipleParameters != null);
-    }
+         assert (defaultConstructorMultipleParameters != null);
+     }
 
-    @Test
-    public void testClassWithDefaultConstructorWithDefaultValue() {
+     @Test
+     public void testClassWithDefaultConstructorWithDefaultValue() {
 
-        DefaultConstructorWithDefaultValue defaultConstructorWithDefaultValue = new DefaultConstructorWithDefaultValue();
+         DefaultConstructorWithDefaultValue defaultConstructorWithDefaultValue = new DefaultConstructorWithDefaultValue();
 
-        assert (defaultConstructorWithDefaultValue != null);
-    }
+         assert (defaultConstructorWithDefaultValue != null);
+     }
 
-    @Test
-    public void testClassWithDefaultConstructorWithInitBlock() {
+     @Test
+     public void testClassWithDefaultConstructorWithInitBlock() {
 
-        DefaultConstructorWithInitBlock defaultConstructorWithInitBlock = new DefaultConstructorWithInitBlock();
+         DefaultConstructorWithInitBlock defaultConstructorWithInitBlock = new DefaultConstructorWithInitBlock();
 
-        assert (defaultConstructorWithInitBlock != null);
-    }
+         assert (defaultConstructorWithInitBlock != null);
+     }
 
-    @Test
-    public void testClassWithDefaultConstructorWithMultipleInitBlocks() {
+     @Test
+     public void testClassWithDefaultConstructorWithMultipleInitBlocks() {
 
-        DefaultConstructorWithMultipleInitBlocks defaultConstructorWithMultipleInitBlocks = new DefaultConstructorWithMultipleInitBlocks();
+         DefaultConstructorWithMultipleInitBlocks defaultConstructorWithMultipleInitBlocks = new DefaultConstructorWithMultipleInitBlocks();
 
-        assert (defaultConstructorWithMultipleInitBlocks != null);
-    }
+         assert (defaultConstructorWithMultipleInitBlocks != null);
+     }
 
-    @Test
-    public void testClassWithDefaultConstructorWithPrivateProperty() {
+     @Test
+     public void testClassWithDefaultConstructorWithPrivateProperty() {
 
-        DefaultConstructorWithPrivateProperty defaultConstructorWithPrivateProperty = new DefaultConstructorWithPrivateProperty();
+         DefaultConstructorWithPrivateProperty defaultConstructorWithPrivateProperty = new DefaultConstructorWithPrivateProperty();
 
-        assert (defaultConstructorWithPrivateProperty != null);
-    }
+         assert (defaultConstructorWithPrivateProperty != null);
+     }
 
-    @Test
-    public void testClassWithSecondaryConstructor() {
+     @Test
+     public void testClassWithSecondaryConstructor() {
 
-        SecondaryConstructor secondaryConstructor = new SecondaryConstructor();
+         SecondaryConstructor secondaryConstructor = new SecondaryConstructor();
 
-        assert (secondaryConstructor != null);
-    }
+         assert (secondaryConstructor != null);
+     }
 }

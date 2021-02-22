@@ -42,7 +42,7 @@ kotlin_native_tests: kotlin_translate_tests kotlin_compile_tests kotlin_run_test
 
 kotlin_translate_tests:
 	$(J2OBJC_EXE) \
-	-classpath $(DIST_LIB_DIR)/j2objc_junit.jar:$(KOTLIN_INTEROP_JVM_JAR) \
+	-classpath $(TEST_CLASSPATH)  \
 	-encoding UTF-8 \
 	-Werror \
 	--build-closure \

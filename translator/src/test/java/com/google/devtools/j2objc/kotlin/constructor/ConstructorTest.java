@@ -33,7 +33,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] initWithName:@\"ClassWithDefaultConstructor\"]");
   }
 
   @Test
