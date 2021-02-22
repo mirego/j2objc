@@ -34,10 +34,10 @@
     </excludeFromCompile>
     <bytecodeTargetLevel>
       <module name="kotlin-interop-test-cases" target="1.8" />
-      <module name="kotlin-interop-test-cases.commonMain" target="1.6" />
-      <module name="kotlin-interop-test-cases.commonTest" target="1.6" />
-      <module name="kotlin-interop-test-cases.jvmMain" target="1.6" />
-      <module name="kotlin-interop-test-cases.jvmTest" target="1.6" />
+      <module name="kotlin-interop-test-cases.commonMain" target="1.8" />
+      <module name="kotlin-interop-test-cases.commonTest" target="1.8" />
+      <module name="kotlin-interop-test-cases.jvmMain" target="1.8" />
+      <module name="kotlin-interop-test-cases.jvmTest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
