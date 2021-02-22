@@ -32,6 +32,7 @@ kotlin: kotlin_interop kotlin_native_tests
 kotlin_interop:
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) jvmJar
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) copyFrameworkNative
+	@mkdir -p $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 	@cp $(KOTLIN_NATIVE_FRAMEWORK)/Headers/Common.h $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 
 kotlin_clean_native:
