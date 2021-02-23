@@ -768,10 +768,8 @@ public class NameTable {
     if (first) {
       keyword = capitalize(keyword);
     }
-    sb.append(keyword);
 
-    // todo gaudet code from initial branch appends delim at the end ... why ?
-//    sb.append(keyword).append(delim);
+    sb.append(keyword).append(delim);
     return false;
   }
 
