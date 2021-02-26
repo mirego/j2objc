@@ -26,14 +26,6 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.j2objc.annotations.ObjectiveCName;
-import kotlin.Metadata;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmClassifier;
-import kotlinx.metadata.KmConstructor;
-import kotlinx.metadata.KmType;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,6 +51,15 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
+import kotlin.Metadata;
+import kotlinx.metadata.Flag.Type;
+import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmClassifier;
+import kotlinx.metadata.KmConstructor;
+import kotlinx.metadata.KmType;
+import kotlinx.metadata.KmTypeParameter;
+import kotlinx.metadata.jvm.KotlinClassHeader;
+import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Singleton service for type/method/variable name support.
@@ -784,21 +785,24 @@ public class NameTable {
     KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
     KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
     KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
+    List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
     KmConstructor kmConstructor = null;
 
     if (ElementUtil.isConstructor(method)) {
       List<String> jvmArgumentTypes = method.getParameters().stream()
-          .map(variableElement -> variableElement.asType().toString())
+          .map(variableElement -> getCleanedJvmParameter(variableElement))
           .collect(Collectors.toList());
 
       for (KmConstructor loopConstructor : kmClass.getConstructors()) {
         List<String> kmArgumentTypes = loopConstructor.getValueParameters().stream()
-            .map(kmValueParameter -> toJavaType(kmValueParameter.getType()))
+            .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters))
             .collect(Collectors.toList());
 
         if (jvmArgumentTypes.equals(kmArgumentTypes)) {
+          if (kmConstructor != null) {
+            throw new RuntimeException(String.format("Found more that one matching constructor : %s", kmClass.name));
+          }
           kmConstructor = loopConstructor;
-          break;
         }
       }
     }
@@ -825,6 +829,18 @@ public class NameTable {
     }
 
     return sb.toString();
+  }
+
+  private String getCleanedJvmParameter(VariableElement element) {
+    // todo gaudet there must be a way to get the list type directly instead of removing it the hard way
+    String elementType = element.asType().toString();
+    int startIndex = elementType.indexOf('<');
+    if (startIndex > 0) {
+      return elementType.substring( 0, startIndex);
+    }
+
+    return element.asType().toString();
+
   }
 
   private String getMethodSelectorKotlin(ExecutableElement method, String selector) {
@@ -855,17 +871,77 @@ public class NameTable {
 
   private static final Map<String, String> kotlinToJavaType = new HashMap<>();
   static {
+    // java primitive types
+    kotlinToJavaType.put("kotlin/Byte", "byte");
+    kotlinToJavaType.put("kotlin/Short", "short");
     kotlinToJavaType.put("kotlin/Int", "int");
+    kotlinToJavaType.put("kotlin/Long", "long");
+    kotlinToJavaType.put("kotlin/Char", "char");
+    kotlinToJavaType.put("kotlin/Double", "double");
+    kotlinToJavaType.put("kotlin/Boolean", "boolean");
+
+    // java non-primitive types
+    kotlinToJavaType.put("kotlin/Any", "java.lang.Object");
+    kotlinToJavaType.put("kotlin/Cloneable", "java.lang.Cloneable");
+    kotlinToJavaType.put("kotlin/Comparable", "java.lang.Comparable");
+    kotlinToJavaType.put("kotlin/Enum", "java.lang.Enum");
+    kotlinToJavaType.put("kotlin/Annotation", "java.lang.Annotation");
+    kotlinToJavaType.put("kotlin/Deprecated", "java.lang.Deprecated");
+    kotlinToJavaType.put("kotlin/CharSequence", "java.lang.CharSequence");
     kotlinToJavaType.put("kotlin/String", "java.lang.String");
+    kotlinToJavaType.put("kotlin/Number", "java.lang.Number");
+    kotlinToJavaType.put("kotlin/Throwable", "java.lang.Throwable");
+
+    // java boxed primitive types
+    kotlinToJavaType.put("kotlin/Byte?", "java.lang.Byte");
+    kotlinToJavaType.put("kotlin/Short?", "java.lang.Short");
+    kotlinToJavaType.put("kotlin/Int?", "java.lang.Integer");
+    kotlinToJavaType.put("kotlin/Long?", "java.lang.Long");
+    kotlinToJavaType.put("kotlin/Char?", "java.lang.Char");
+    kotlinToJavaType.put("kotlin/Double?", "java.lang.Double");
+    kotlinToJavaType.put("kotlin/Boolean?", "java.lang.Boolean");
+
+    // java collection types
+    kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");
+    kotlinToJavaType.put("kotlin/collections/MutableIterator", "java.util.Iterator");
+    kotlinToJavaType.put("kotlin/collections/Iterable", "java.util.Iterable");
+    kotlinToJavaType.put("kotlin/collections/MutableIterable", "java.util.Iterable");
+    kotlinToJavaType.put("kotlin/collections/Collection", "java.util.Collection");
+    kotlinToJavaType.put("kotlin/collections/MutableCollection", "java.util.Collection");
+    kotlinToJavaType.put("kotlin/collections/Set", "java.util.Set");
+    kotlinToJavaType.put("kotlin/collections/MutableSet", "java.util.Set");
+    kotlinToJavaType.put("kotlin/collections/List", "java.util.List");
+    kotlinToJavaType.put("kotlin/collections/MutableList", "java.util.List");
+    kotlinToJavaType.put("kotlin/collections/ListIterator", "java.util.ListIterator");
+    kotlinToJavaType.put("kotlin/collections/MutableListIterator", "java.util.ListIterator");
+    kotlinToJavaType.put("kotlin/collections/Map", "java.util.Map");
+    kotlinToJavaType.put("kotlin/collections/MutableMap", "java.util.Map");
+    kotlinToJavaType.put("kotlin/collections/Map.Entry", "java.util.Map.Entry");
+    kotlinToJavaType.put("kotlin/collections/MutableMap.MutableEntry", "java.util.Map.Entry");
   }
 
-  private String toJavaType(KmType kmType) {
+  private String toJavaType(KmType kmType,
+                            List<KmTypeParameter> kmClassTypeParameters) {
+    boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
     String kotlinType = ((KmClassifier.Class) kmType.getClassifier()).getName();
-    String javaType = kotlinToJavaType.get(kotlinType);
+    if (isNullable) {
+      kotlinType += '?';
+    }
+
+    String javaType = null;
+    if (isKotlinType(kotlinType)) {
+      javaType = kotlinToJavaType.get(kotlinType);
+    } else {
+      javaType = kotlinType.replace('/', '.');
+    }
+
     if (javaType == null) {
-      logger.fine(String.format("Could not find mapping for kotlin type : %s", kotlinType));
-      return "";
+      throw new RuntimeException(String.format("Could not find mapping for kotlin type : %s", kotlinType));
     }
     return javaType;
+  }
+
+  private boolean isKotlinType(String type) {
+    return type.indexOf("kotlin/") == 0;
   }
 }

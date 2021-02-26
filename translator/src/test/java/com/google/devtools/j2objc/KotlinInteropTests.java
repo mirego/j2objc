@@ -16,7 +16,8 @@
 
 package com.google.devtools.j2objc;
 
-import com.google.devtools.j2objc.kotlin.constructor.ConstructorTest;
+import com.google.devtools.j2objc.kotlin.ConstructorTest;
+import com.google.devtools.j2objc.kotlin.InterfacesTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -28,6 +29,7 @@ public class KotlinInteropTests {
   private static final Class<?>[] kotlinInteropClasses =
       new Class<?>[] {
           ConstructorTest.class,
+          InterfacesTest.class,
       };
 
 
