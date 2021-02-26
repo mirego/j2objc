@@ -33,7 +33,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] initWithName:@\"ClassWithDefaultConstructor\"]");
   }
 
   @Test
@@ -42,7 +42,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorMultipleParameters.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructorMultipleParameters alloc] initWithFirstParameter:@\"First\" secondParameter:@\"Second\"]");
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithDefaultValue.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithDefaultValue alloc] init]");
   }
 
   @Test
@@ -60,7 +60,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithInitBlock.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithInitBlock alloc] initWithName:@\"ClassWithDefaultConstructorWithInitBlock\"]");
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithMultipleInitBlocks.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithMultipleInitBlocks alloc] initWithName:@\"ClassWithDefaultConstructorWithMultipleInitBlocks\"]");
   }
 
   @Test
@@ -78,7 +78,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithPrivateProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithPrivateProperty alloc] initWithName:@\"ClassWithDefaultConstructorWithPrivateProperty\"]");
   }
 
   @Test
@@ -87,6 +87,6 @@ public class ConstructorTest extends GenerationTest {
     String className = SecondaryConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] init]");
+    assertTranslation(translation, "[[CommonClassWithSecondaryConstructor alloc] init]");
   }
 }
