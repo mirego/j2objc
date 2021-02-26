@@ -769,7 +769,6 @@ public class NameTable {
     if (first) {
       keyword = capitalize(keyword);
     }
-
     sb.append(keyword).append(delim);
     return false;
   }
