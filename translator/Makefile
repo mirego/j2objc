@@ -309,6 +309,9 @@ else
 PRUNE_CMD = rm -rf $(UNUSED_JAR_CONTENTS)
 endif
 
+# mirego kotlin interop
+include ../make/kotlin.mk
+
 default: $(J2OBJC_JAR)
 	@: # suppress make's "nothing to be done" message
 
@@ -349,7 +352,7 @@ $(J2OBJC_SH_DIST): $(J2OBJC_SH) $(J2OBJC_JAR_DIST)
 dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 	@:
 
-clean:
+clean: kotlin_clean
 	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
@@ -357,8 +360,9 @@ COMMON_TEST_FLAGS = \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner
 
-test: compile-tests copy-test-resources
+test: compile-tests copy-test-resources kotlin
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \

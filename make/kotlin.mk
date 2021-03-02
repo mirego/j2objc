@@ -9,8 +9,23 @@ KOTLIN_NATIVE_DIR = $(J2OBJC_ROOT)/kotlin-native-tests/
 KOTLIN_NATIVE_BUILD_OUTPUT_DIR = $(KOTLIN_NATIVE_DIR)/build_result
 KOTLIN_NATIVE_SOURCE_DIR = $(KOTLIN_NATIVE_DIR)/src/test/java
 
-KOTLIN_INTEROP_KOTLIN_SOURCES_DIR = $(KOTLIN_INTEROP_DIR)/src/commonMain/kotlin/com/mirego/interop/kotlin/test
-KOTLIN_INTEROP_KOTLIN_SOURCES = $(shell find $(KOTLIN_INTEROP_JAVA_SOURCES_DIR) -name '*.kt')
+# files here are disabled for j2objc jira to fix is noted after
+KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
+	DefaultConstructorWithDefaultValue.h \
+	DefaultConstructorWithDefaultValue.m \
+	DefaultConstructorWithNullableIntParameter.h \
+	DefaultConstructorWithNullableIntParameter.m \
+	DefaultConstructorWithListParameter.h \
+	DefaultConstructorWithListParameter.m \
+	DefaultConstructorWithMutableListParameter.h \
+	DefaultConstructorWithMutableListParameter.m \
+	WithInt.h \
+	WithInt.m \
+	WithList.h \
+	WithList.m \
+	WithNullableInt.h \
+	WithNullableInt.m
+
 KOTLIN_INTEROP_JAVA_SOURCES_DIR = $(KOTLIN_INTEROP_DIR)/src/commonMain/kotlin/com/mirego/interop/java/test
 KOTLIN_INTEROP_JAVA_SOURCES = $(shell find $(KOTLIN_INTEROP_JAVA_SOURCES_DIR) -name '*.java')
 KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_objc/test_cases
@@ -42,7 +57,7 @@ kotlin_native_tests: kotlin_translate_tests kotlin_compile_tests kotlin_run_test
 
 kotlin_translate_tests:
 	$(J2OBJC_EXE) \
-	-classpath $(DIST_LIB_DIR)/j2objc_junit.jar:$(KOTLIN_INTEROP_JVM_JAR) \
+	-classpath $(TEST_CLASSPATH)  \
 	-encoding UTF-8 \
 	-Werror \
 	--build-closure \
@@ -60,7 +75,10 @@ kotlin_translate_tests:
 
 KOTLIN_NATIVE_TESTS_J2OBJC_OUTPUT_SOURCES = $(shell find $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) -name '*.m')
 
-kotlin_compile_tests:
+kotlin_remove_disabled_tests:
+	@cd $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) && rm -r $(KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS)
+
+kotlin_compile_tests: kotlin_remove_disabled_tests
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \
