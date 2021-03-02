@@ -252,9 +252,37 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement method = node.getExecutableElement();
 
     if (ElementUtil.isKotlinType(method)) {
+      String fullName = nameTable.getFullFunctionName(method);
+      String className = fullName.substring(0, fullName.indexOf("_"));
+      String methodName = fullName.substring(fullName.indexOf("_") + 1);
+
+      Expression expression =  node.getExpression();
+
+      ExecutablePair pair = node.getExecutablePair();
+      TypeMirror type = node.getTypeMirror();
+
+
+      GeneratedExecutableElement classElement = GeneratedExecutableElement
+              .newMethodWithSelector(className, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+
+
+      GeneratedExecutableElement allocElement = GeneratedExecutableElement
+              .newMethodWithSelector("kotlinObject", node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
+
+
+      ExecutablePair allocPair = new ExecutablePair(allocElement, node.getExecutableType());
+
+      MethodInvocation allocMethod = new MethodInvocation(allocPair, new SimpleName(classElement));
+
+      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), allocMethod);
+
+
+//      TreeUtil.moveList(node.getVarargsType(), staticMethod.getArguments());
+      TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
+
+      node.replaceWith(staticMethod);
       return;
     }
-
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
       functionizeInvocation(node, method, node.getExpression(), node.getArguments());
