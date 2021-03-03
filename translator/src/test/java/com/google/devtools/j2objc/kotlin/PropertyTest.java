@@ -162,7 +162,7 @@ public class PropertyTest extends GenerationTest {
     String className = LongProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, 1L);
+    assertTranslation(translation, "1L");
   }
 
   @Test

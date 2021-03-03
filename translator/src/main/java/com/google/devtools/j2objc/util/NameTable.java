@@ -868,16 +868,21 @@ public class NameTable {
     return kotlinPrefix.toString();
   }
 
-  private static final Map<String, String> kotlinToJavaType = new HashMap<>();
+  private static final Map<String, String> kotlinToJavaPrimitiveType = new HashMap<>();
   static {
     // java primitive types
-    kotlinToJavaType.put("kotlin/Byte", "byte");
-    kotlinToJavaType.put("kotlin/Short", "short");
-    kotlinToJavaType.put("kotlin/Int", "int");
-    kotlinToJavaType.put("kotlin/Long", "long");
-    kotlinToJavaType.put("kotlin/Char", "char");
-    kotlinToJavaType.put("kotlin/Double", "double");
-    kotlinToJavaType.put("kotlin/Boolean", "boolean");
+    kotlinToJavaPrimitiveType.put("kotlin/Byte", "byte");
+    kotlinToJavaPrimitiveType.put("kotlin/Short", "short");
+    kotlinToJavaPrimitiveType.put("kotlin/Int", "int");
+    kotlinToJavaPrimitiveType.put("kotlin/Long", "long");
+    kotlinToJavaPrimitiveType.put("kotlin/Char", "char");
+    kotlinToJavaPrimitiveType.put("kotlin/Float", "float");
+    kotlinToJavaPrimitiveType.put("kotlin/Double", "double");
+    kotlinToJavaPrimitiveType.put("kotlin/Boolean", "boolean");
+  }
+
+  private static final Map<String, String> kotlinToJavaType = new HashMap<>();
+  static {
 
     // java non-primitive types
     kotlinToJavaType.put("kotlin/Any", "java.lang.Object");
@@ -892,13 +897,14 @@ public class NameTable {
     kotlinToJavaType.put("kotlin/Throwable", "java.lang.Throwable");
 
     // java boxed primitive types
-    kotlinToJavaType.put("kotlin/Byte?", "java.lang.Byte");
-    kotlinToJavaType.put("kotlin/Short?", "java.lang.Short");
-    kotlinToJavaType.put("kotlin/Int?", "java.lang.Integer");
-    kotlinToJavaType.put("kotlin/Long?", "java.lang.Long");
-    kotlinToJavaType.put("kotlin/Char?", "java.lang.Char");
-    kotlinToJavaType.put("kotlin/Double?", "java.lang.Double");
-    kotlinToJavaType.put("kotlin/Boolean?", "java.lang.Boolean");
+    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
+    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
+    kotlinToJavaType.put("kotlin/Int", "java.lang.Integer");
+    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
+    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
+    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
+    kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
+    kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
 
     // java collection types
     kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");
@@ -923,13 +929,17 @@ public class NameTable {
                             List<KmTypeParameter> kmClassTypeParameters) {
     boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
     String kotlinType = ((KmClassifier.Class) kmType.getClassifier()).getName();
-    if (isNullable) {
-      kotlinType += '?';
-    }
 
     String javaType = null;
     if (isKotlinType(kotlinType)) {
-      javaType = kotlinToJavaType.get(kotlinType);
+      if (!isNullable) {
+        javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+      }
+
+      if (javaType == null) {
+        javaType = kotlinToJavaType.get(kotlinType);
+      }
+
     } else {
       javaType = kotlinType.replace('/', '.');
     }

@@ -24,7 +24,31 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	WithList.h \
 	WithList.m \
 	WithNullableInt.h \
-	WithNullableInt.m
+	WithNullableInt.m \
+	PublicInnerClassFunction.h \
+	PublicInnerClassFunction.m \
+	PublicOverloadedFunction.h \
+	PublicOverloadedFunction.m \
+	ListProperty.h \
+	ListProperty.m \
+	PublicLambdaFunction.h \
+	PublicLambdaFunction.m \
+	PublicRecursiveFunction.h \
+	PublicRecursiveFunction.m \
+	PublicTailRecursiveFunction.h \
+	PublicTailRecursiveFunction.m \
+	PublicVariableArgumentsFunction.h \
+	PublicVariableArgumentsFunction.m \
+	PublicExtensionFunction.h \
+	PublicExtensionFunction.m \
+	PublicStaticFunction.h \
+	PublicStaticFunction.m \
+	BackingPropertyWithCustomSetter.h \
+	BackingPropertyWithCustomSetter.m \
+ 	BackingFieldWithCustomSetter.h \
+	BackingFieldWithCustomSetter.m \
+	BackingPropertyWithCustomGetter.h \
+	BackingPropertyWithCustomGetter.m
 
 KOTLIN_INTEROP_JAVA_SOURCES_DIR = $(KOTLIN_INTEROP_DIR)/src/commonMain/kotlin/com/mirego/interop/java/test
 KOTLIN_INTEROP_JAVA_SOURCES = $(shell find $(KOTLIN_INTEROP_JAVA_SOURCES_DIR) -name '*.java')
