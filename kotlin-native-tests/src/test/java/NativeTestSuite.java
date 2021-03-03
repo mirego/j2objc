@@ -11,6 +11,9 @@ public class NativeTestSuite {
         new Class<?>[]{
             ConstructorTests.class,
             //InterfacesTests.class,
+            //FunctionTests.class,
+            PropertyTests.class,
+            ObjectsTests.class,
         };
 
     public static Test suite() {
