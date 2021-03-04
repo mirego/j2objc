@@ -706,7 +706,7 @@ public class Functionizer extends UnitTreeVisitor {
 
       ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
 
-      final SimpleName simpleName = new SimpleName(classElement);
+      SimpleName simpleName = new SimpleName(classElement);
 
       MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, simpleName);
 
