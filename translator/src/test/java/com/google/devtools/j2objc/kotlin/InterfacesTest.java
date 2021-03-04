@@ -13,7 +13,7 @@ public class InterfacesTest extends GenerationTest {
 
   @Test
   public void testInterfaceWithInt() throws IOException {
-    
+
     String className = WithInt.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 

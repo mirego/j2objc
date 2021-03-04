@@ -84,7 +84,7 @@ public class PropertyTests extends TestCase {
    assert(lateInitializedProperty.main(args) == "initialized");
  }
 
-// todo this throws but we cannot catch it since
+// todo this throws but we cannot catch it since java code does not throw
 //  @Test
 //  public void testLateNonInitializedProperty() {
 //    LateNonInitializedProperty lateNonInitializedProperty = new LateNonInitializedProperty();
@@ -102,13 +102,6 @@ public class PropertyTests extends TestCase {
  public void testLongProperty() {
    LongProperty longProperty = new LongProperty();
    assert(longProperty.main(args) == 1L);
- }
-
-  @Test
- public void testRawStringProperty() {
-   RawStringProperty rawStringProperty = new RawStringProperty();
-   System.out.println("yolo: " + rawStringProperty.main(args));
-   assert(rawStringProperty.main(args) == "This is my stringon multiple lineslike I expect");
  }
 
  @Test
