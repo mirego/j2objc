@@ -2,9 +2,6 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomGetter;
-import com.mirego.interop.java.test.property.BackingFieldWithCustomSetter;
-import com.mirego.interop.java.test.property.BackingPropertyWithCustomGetter;
-import com.mirego.interop.java.test.property.BackingPropertyWithCustomSetter;
 import com.mirego.interop.java.test.property.BooleanProperty;
 import com.mirego.interop.java.test.property.ByteProperty;
 import com.mirego.interop.java.test.property.CharProperty;
@@ -13,18 +10,13 @@ import com.mirego.interop.java.test.property.EscapedStringProperty;
 import com.mirego.interop.java.test.property.FloatProperty;
 import com.mirego.interop.java.test.property.IntProperty;
 import com.mirego.interop.java.test.property.LateInitializedProperty;
-import com.mirego.interop.java.test.property.LateNonInitializedProperty;
-import com.mirego.interop.java.test.property.ListProperty;
 import com.mirego.interop.java.test.property.LongProperty;
 import com.mirego.interop.java.test.property.NullableBooleanProperty;
 import com.mirego.interop.java.test.property.NullableProperty;
 import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGeneratedGetter;
-import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
-import com.mirego.interop.java.test.property.RawStringProperty;
 import com.mirego.interop.java.test.property.ShortProperty;
 import com.mirego.interop.java.test.property.StringProperty;
 import java.io.IOException;
-import kotlin.jvm.internal.Intrinsics.Kotlin;
 import org.junit.Test;
 
 public class PropertyTest extends GenerationTest {
@@ -140,15 +132,6 @@ public class PropertyTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "return [classWithLongProperty long]");
-  }
-
-  @Test
-  public void testRawStringProperty() throws IOException {
-
-    String className = RawStringProperty.class.getSimpleName();
-    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-
-    assertTranslation(translation, "return [classWithStringProperty string]");
   }
 
   @Test

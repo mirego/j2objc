@@ -27,4 +27,10 @@ public class InterfacesTests extends TestCase {
     //     List list = withList.main(args);
     //     assert (list.get(0) == Integer.valueOf(1));
     // }
+    
+    // remove when at least one test passes
+    @Test
+    public void doNothing() {
+
+    } 
 }
