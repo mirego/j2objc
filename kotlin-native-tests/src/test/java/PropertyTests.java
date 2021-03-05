@@ -15,12 +15,12 @@ public class PropertyTests extends TestCase {
     assert(backingFieldWithCustomGetter.main(args) == "backed field");
   }
 
-// todo param names
-//  @Test
-//  public void testBackingFieldWithCustomSetter() {
-//    BackingFieldWithCustomSetter backingFieldWithCustomSetter = new BackingFieldWithCustomSetter();
-//    assert(backingFieldWithCustomSetter.main(args) == "xxxxxx");
-//  }
+
+ @Test
+ public void testBackingFieldWithCustomSetter() {
+   BackingFieldWithCustomSetter backingFieldWithCustomSetter = new BackingFieldWithCustomSetter();
+   assert(backingFieldWithCustomSetter.main(args) == "backed field");
+ }
 
 // todo getter not found
 //  @Test
@@ -29,7 +29,7 @@ public class PropertyTests extends TestCase {
 //    assert(backingPropertyWithCustomGetter.main(args) == "xxxxxx");
 //  }
 
-// todo param names
+// todo Setter not found
 //  @Test
 //  public void testBackingPropertyWithCustomSetter() {
 //    BackingPropertyWithCustomSetter backingPropertyWithCustomSetter = new BackingPropertyWithCustomSetter();
@@ -142,9 +142,9 @@ public class PropertyTests extends TestCase {
  }
 
 // todo param names
-//  @Test
-//  public void testPublicMutablePropertyWithGeneratedSetter() {
-//    PublicMutablePropertyWithGeneratedSetter publicMutablePropertyWithGeneratedSetter = new PublicMutablePropertyWithGeneratedSetter();
-//    assert(publicMutablePropertyWithGeneratedSetter.main(args) == "xxxxxx");
-//  }
+ @Test
+ public void testPublicMutablePropertyWithGeneratedSetter() {
+   PublicMutablePropertyWithGeneratedSetter publicMutablePropertyWithGeneratedSetter = new PublicMutablePropertyWithGeneratedSetter();
+   assert(publicMutablePropertyWithGeneratedSetter.main(args) == "mutatedMutableProperty");
+ }
 }

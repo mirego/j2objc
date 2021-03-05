@@ -30,7 +30,5 @@ public class InterfacesTests extends TestCase {
     
     // remove when at least one test passes
     @Test
-    public void doNothing() {
-
-    } 
+    public void testNothing() {} 
 }
