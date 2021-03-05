@@ -554,7 +554,8 @@ public class StatementGenerator extends UnitTreeVisitor {
     // Object receiving the message, or null if it's a method in this class.
     Expression receiver = node.getExpression();
     buffer.append('[');
-    if (ElementUtil.isStatic(element)) {
+    // mirego kotlin interop
+    if (ElementUtil.isStatic(element) && !ElementUtil.isKotlinType(element)) {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
       receiver.accept(this);

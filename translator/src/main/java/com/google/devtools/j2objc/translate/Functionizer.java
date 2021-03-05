@@ -250,6 +250,7 @@ public class Functionizer extends UnitTreeVisitor {
 
     // mirego kotlin interop
     if (ElementUtil.isKotlinType(method)) {
+      endVisitKotlin(node, method);
       return;
     }
 
@@ -684,5 +685,35 @@ public class Functionizer extends UnitTreeVisitor {
     TreeUtil.moveList(node.getArguments(), initMethod.getArguments());
 
     node.replaceWith(initMethod);
+  }
+
+  private void endVisitKotlin(MethodInvocation node,
+                              ExecutableElement element) {
+    if (ElementUtil.isStatic(element)) {
+      String fullName = nameTable.getFullFunctionName(element);
+      fullName = fullName.substring(0, fullName.indexOf("_"));
+
+      TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
+      String kotlinClassname = node.getExpression().toString();
+      String instanceSelector = Character.toLowerCase(kotlinClassname.charAt(0)) + kotlinClassname.substring(1);
+
+      GeneratedExecutableElement classElement = GeneratedExecutableElement
+          .newMethodWithSelector(fullName, typeMirror, ElementUtil.getDeclaringClass(element));
+
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
+          .newMethodWithSelector(instanceSelector, typeMirror,
+              ElementUtil.getDeclaringClass(element));
+
+      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
+
+      SimpleName simpleName = new SimpleName(classElement);
+
+      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, simpleName);
+
+      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
+      TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
+
+      node.replaceWith(staticMethod);
+    }
   }
 }
