@@ -2,6 +2,8 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomGetter;
+import com.mirego.interop.java.test.property.BackingFieldWithCustomSetter;
+import com.mirego.interop.java.test.property.BackingPropertyWithCustomSetter;
 import com.mirego.interop.java.test.property.BooleanProperty;
 import com.mirego.interop.java.test.property.ByteProperty;
 import com.mirego.interop.java.test.property.CharProperty;
@@ -14,6 +16,7 @@ import com.mirego.interop.java.test.property.LongProperty;
 import com.mirego.interop.java.test.property.NullableBooleanProperty;
 import com.mirego.interop.java.test.property.NullableProperty;
 import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGeneratedGetter;
+import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
 import com.mirego.interop.java.test.property.ShortProperty;
 import com.mirego.interop.java.test.property.StringProperty;
 import java.io.IOException;
@@ -33,16 +36,17 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo param names
-//  @Test
-//  public void testBackingFieldWithCustomSetter() throws IOException {
-//
-//    String className = BackingFieldWithCustomSetter.class.getSimpleName();
-//    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//    assertTranslation(translation, "xxxxxxx");
-//  }
+  @Test
+  public void testBackingFieldWithCustomSetter() throws IOException {
 
-  // todo custom getter
+    String className = BackingFieldWithCustomSetter.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "  [classWithBackingFieldCustomGetter setBackedField:@\"backed\"];\n"
+                                          + "  return [classWithBackingFieldCustomGetter backedField];");
+  }
+
+  // todo getter not found
 //  @Test
 //  public void testBackingPropertyWithCustomGetter() throws IOException {
 //
@@ -52,7 +56,7 @@ public class PropertyTest extends GenerationTest {
 //    assertTranslation(translation, "xxxxxxx");
 //  }
 
-  // todo param names
+  // todo setter not found
 //  @Test
 //  public void testBackingPropertyWithCustomSetter() throws IOException {
 //
@@ -209,12 +213,13 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo param names
-//  @Test
-//  public void testPublicMutablePropertyWithGeneratedSetter() throws IOException {
-//
-//    String className = PublicMutablePropertyWithGeneratedSetter.class.getSimpleName();
-//    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//    assertTranslation(translation, "xxxxxxx");
-//  }
+  @Test
+  public void testPublicMutablePropertyWithGeneratedSetter() throws IOException {
+
+    String className = PublicMutablePropertyWithGeneratedSetter.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "  [mutablePropertyClass setMutableProperty:@\"mutatedMutableProperty\"];\n"
+                                          + "  return [mutablePropertyClass mutableProperty];");
+  }
 }

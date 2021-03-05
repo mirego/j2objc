@@ -9,12 +9,11 @@ public class FunctionTests extends TestCase {
 
   private static final String[] args = {""};
 
-  // todo param name
-//   @Test
-//   public void testPublicExtensionFunction() {
-//     PublicExtensionFunction publicExtensionFunction = new PublicExtensionFunction();
-//     assert(publicExtensionFunction.main(args) == "xxxxxx");
-//   }
+  @Test
+  public void testPublicExtensionFunction() {
+    PublicExtensionFunction publicExtensionFunction = new PublicExtensionFunction();
+    assert(publicExtensionFunction.main(args) == "extension");
+  }
 
   @Test
   public void testPublicFunctionReturningBoolean() {
@@ -85,12 +84,11 @@ public class FunctionTests extends TestCase {
 //    assert(publicFunctionWithDefaultArguments.main(args) == "string1 string2");
 //  }
 
-// todo param names
-//  @Test
-//  public void testPublicInnerClassFunction() {
-//    PublicInnerClassFunction publicInnerClassFunction = new PublicInnerClassFunction();
-//    assert(publicInnerClassFunction.main(args) == 3);
-//  }
+ @Test
+ public void testPublicInnerClassFunction() {
+   PublicInnerClassFunction publicInnerClassFunction = new PublicInnerClassFunction();
+   assert(publicInnerClassFunction.main(args) == 3);
+ }
 
 // todo lambda is a property getter not working properly
 //  @Test
@@ -106,19 +104,17 @@ public class FunctionTests extends TestCase {
    assert(publicLocalFunction.main(args) == "local function");
  }
 
-// todo param names
-//  @Test
-//  public void testPublicOverloadedFunction() {
-//    PublicOverloadedFunction publicOverloadedFunction = new PublicOverloadedFunction();
-//    assert(publicOverloadedFunction.main(args) == "1");
-//  }
+ @Test
+ public void testPublicOverloadedFunction() {
+   PublicOverloadedFunction publicOverloadedFunction = new PublicOverloadedFunction();
+   assert(publicOverloadedFunction.main(args) == "1");
+ }
 
-// todo param names
-//  @Test
-//  public void testPublicRecursiveFunction() {
-//    PublicRecursiveFunction publicRecursiveFunction = new PublicRecursiveFunction();
-//    assert(publicRecursiveFunction.main(args) == 24);
-//  }
+ @Test
+ public void testPublicRecursiveFunction() {
+   PublicRecursiveFunction publicRecursiveFunction = new PublicRecursiveFunction();
+   assert(publicRecursiveFunction.main(args) == 24);
+ }
 
  @Test
  public void testPublicSingleExpressionFunction() {
@@ -133,14 +129,13 @@ public class FunctionTests extends TestCase {
 //    assert(publicStaticFunction.main(args) == "staticString");
 //  }
 
-// todo param names
-//  @Test
-//  public void testPublicTailRecursiveFunction() {
-//    PublicTailRecursiveFunction publicTailRecursiveFunction = new PublicTailRecursiveFunction();
-//    assert(publicTailRecursiveFunction.main(args) == 24);
-//  }
+ @Test
+ public void testPublicTailRecursiveFunction() {
+   PublicTailRecursiveFunction publicTailRecursiveFunction = new PublicTailRecursiveFunction();
+   assert(publicTailRecursiveFunction.main(args) == 24);
+ }
 
-// todo param names
+// todo incompatible types
 //  @Test
 //  public void testPublicVariableArgumentsFunction() {
 //    PublicVariableArgumentsFunction publicVariableArgumentsFunction = new PublicVariableArgumentsFunction();

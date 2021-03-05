@@ -5,7 +5,7 @@ KOTLIN_INTEROP_JVM_JAR = $(KOTLIN_INTEROP_DIR)/build/libs/kotlin-interop-test-ca
 KOTLIN_NATIVE_FRAMEWORK = $(KOTLIN_INTEROP_DIR)/build/bin/native/Common.framework
 KOTLIN_NATIVE_FRAMEWORK_LIB = $(KOTLIN_NATIVE_FRAMEWORK)/Common
 KOTLIN_INTEROP_BUILD_OUTPUT_DIR = $(KOTLIN_INTEROP_DIR)/build
-KOTLIN_NATIVE_DIR = $(J2OBJC_ROOT)/kotlin-native-tests/
+KOTLIN_NATIVE_DIR = $(J2OBJC_ROOT)/kotlin-native-tests
 KOTLIN_NATIVE_BUILD_OUTPUT_DIR = $(KOTLIN_NATIVE_DIR)/build_result
 KOTLIN_NATIVE_SOURCE_DIR = $(KOTLIN_NATIVE_DIR)/src/test/java
 
@@ -25,28 +25,16 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	WithList.m \
 	WithNullableInt.h \
 	WithNullableInt.m \
-	PublicInnerClassFunction.h \
-	PublicInnerClassFunction.m \
-	PublicOverloadedFunction.h \
-	PublicOverloadedFunction.m \
 	ListProperty.h \
 	ListProperty.m \
 	PublicLambdaFunction.h \
 	PublicLambdaFunction.m \
-	PublicRecursiveFunction.h \
-	PublicRecursiveFunction.m \
-	PublicTailRecursiveFunction.h \
-	PublicTailRecursiveFunction.m \
 	PublicVariableArgumentsFunction.h \
 	PublicVariableArgumentsFunction.m \
-	PublicExtensionFunction.h \
-	PublicExtensionFunction.m \
 	PublicStaticFunction.h \
 	PublicStaticFunction.m \
 	BackingPropertyWithCustomSetter.h \
 	BackingPropertyWithCustomSetter.m \
- 	BackingFieldWithCustomSetter.h \
-	BackingFieldWithCustomSetter.m \
 	BackingPropertyWithCustomGetter.h \
 	BackingPropertyWithCustomGetter.m
 
@@ -91,8 +79,8 @@ kotlin_translate_tests:
 	--nullability \
 	--swift-friendly \
 	-J-Xmx2G \
-	--header-mapping $(KOTLIN_NATIVE_DIR)header-mapping.j2objc \
-	--prefixes $(KOTLIN_NATIVE_DIR)prefixes.properties \
+	--header-mapping $(KOTLIN_NATIVE_DIR)/header-mapping.j2objc \
+	--prefixes $(KOTLIN_NATIVE_DIR)/prefixes.properties \
 	-d $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) \
 	$(KOTLIN_INTEROP_JAVA_SOURCES) \
 	$(KOTLIN_NATIVE_JAVA_SOURCES)

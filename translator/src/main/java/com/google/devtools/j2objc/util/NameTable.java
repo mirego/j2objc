@@ -19,8 +19,12 @@ package com.google.devtools.j2objc.util;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.devtools.j2objc.J2ObjC;
 import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
@@ -37,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -52,12 +57,15 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 import kotlin.Metadata;
+import kotlin.reflect.KFunction;
 import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmClassifier;
 import kotlinx.metadata.KmConstructor;
+import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
+import kotlinx.metadata.KmValueParameter;
 import kotlinx.metadata.jvm.KotlinClassHeader;
 import kotlinx.metadata.jvm.KotlinClassMetadata;
 
@@ -785,24 +793,36 @@ public class NameTable {
     KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
     KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
     List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
-    KmConstructor kmConstructor = null;
+
+    String methodName = method.getSimpleName().toString();
+    Multimap<String, List<KmValueParameter>> potentialMethodParameters = ArrayListMultimap.create();
+    List<KmValueParameter> matchingParams = null;
+
+    List<String> jvmArgumentTypes = method.getParameters().stream()
+        .map(variableElement -> getCleanedJvmParameter(variableElement))
+        .collect(Collectors.toList());
 
     if (ElementUtil.isConstructor(method)) {
-      List<String> jvmArgumentTypes = method.getParameters().stream()
-          .map(variableElement -> getCleanedJvmParameter(variableElement))
+      for (KmConstructor loopConstructor : kmClass.getConstructors()) {
+        potentialMethodParameters.put(methodName, loopConstructor.getValueParameters());
+      }
+    } else {
+      for (KmFunction loopFunction : kmClass.getFunctions()) {
+        potentialMethodParameters.put(loopFunction.getName(), loopFunction.getValueParameters());
+      }
+    }
+
+    for (Entry<String, List<KmValueParameter>> methodParamsEntry : potentialMethodParameters.entries()) {
+      List<KmValueParameter> methodParams = methodParamsEntry.getValue();
+      List<String> kmArgumentTypes = methodParams.stream()
+          .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters))
           .collect(Collectors.toList());
 
-      for (KmConstructor loopConstructor : kmClass.getConstructors()) {
-        List<String> kmArgumentTypes = loopConstructor.getValueParameters().stream()
-            .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters))
-            .collect(Collectors.toList());
-
-        if (jvmArgumentTypes.equals(kmArgumentTypes)) {
-          if (kmConstructor != null) {
-            throw new RuntimeException(String.format("Found more that one matching constructor : %s", kmClass.name));
-          }
-          kmConstructor = loopConstructor;
+      if (methodParamsEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
+        if (matchingParams != null) {
+          throw new RuntimeException(String.format("Found more that one matching method %s for class %s", methodName, kmClass.name));
         }
+        matchingParams = methodParams;
       }
     }
 
@@ -819,8 +839,8 @@ public class NameTable {
       }
 
       String paramName = param.getSimpleName().toString();
-      if (kmConstructor != null) {
-        paramName = kmConstructor.getValueParameters().get(idx).getName();
+      if (matchingParams != null) {
+        paramName = matchingParams.get(idx).getName();
       }
 
       first = appendParamKeywordKotlin(sb, paramName, delim, first);
@@ -905,6 +925,17 @@ public class NameTable {
     kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
     kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
     kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
+
+    // todo this is so varargs method parsing works ... but not tested yet since varargs don't work.
+    // need to test all types of var args types possible
+//    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
+//    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
+    kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+//    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
+//    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
+//    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
+//    kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
+//    kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
 
     // java collection types
     kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");
