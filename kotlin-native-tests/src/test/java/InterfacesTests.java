@@ -10,25 +10,22 @@ public class InterfacesTests extends TestCase {
     private static final String[] args = {""};
 
     // @Test
-    // public void testInterfaceWithInt() {
-    //     WithInt withInt = new WithInt();
-    //     assert (withInt.main(args) == 1);
-    // }
+    public void testInterfaceWithInt() {
+        WithInt withInt = new WithInt();
+        assert (withInt.main(args) == 1);
+    }
 
-    // @Test
-    // public void testInterfaceWithNullableInt() {
-    //     WithNullableInt withNullableInt = new WithNullableInt();
-    //     assert (withNullableInt.main(args) == Integer.valueOf(1));
-    // }
-
-    // @Test
-    // public void testInterfaceWithList() {
-    //     WithList withList = new WithList();
-    //     List list = withList.main(args);
-    //     assert (list.get(0) == Integer.valueOf(1));
-    // }
-    
-    // remove when at least one test passes
     @Test
-    public void testNothing() {} 
+    public void testInterfaceWithNullableInt() {
+        WithNullableInt withNullableInt = new WithNullableInt();
+        assert (withNullableInt.main(args) == Integer.valueOf(1));
+    }
+
+    // @Test
+    public void testInterfaceWithList() {
+        WithList withList = new WithList();
+        List list = withList.main(args);
+        assert (list.get(0) == Integer.valueOf(1));
+    }
+
 }
