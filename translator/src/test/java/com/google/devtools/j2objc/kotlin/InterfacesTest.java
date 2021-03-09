@@ -17,7 +17,10 @@ public class InterfacesTest extends GenerationTest {
     String className = WithInt.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
+    assertTranslation(translation, "return [withInt convertInputInt:1];");
+    assertTranslation(translation, "- (jint)convertInputInt:(jint)inputInt {\n"
+        + "  return inputInt;\n"
+        + "}");
   }
 
   @Test
@@ -26,7 +29,10 @@ public class InterfacesTest extends GenerationTest {
     String className = WithNullableInt.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
+    assertTranslation(translation, "return [withNullableInt convertInputNullableInt:JavaLangInteger_valueOfWithInt_(1)];");
+    assertTranslation(translation, "- (JavaLangInteger *)convertInputNullableInt:(JavaLangInteger *)inputNullableInteger {\n"
+        + "  return inputNullableInteger;\n"
+        + "}");
   }
 
   @Test
@@ -35,7 +41,11 @@ public class InterfacesTest extends GenerationTest {
     String className = WithList.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
+    assertTranslation(translation, "return [withList convertInputList:JavaUtilArrays_asListWithNSObjectArray_([IOSObjectArray arrayWithObjects:(id[])"
+        + "{ JavaLangInteger_valueOfWithInt_(1) } count:1 type:JavaLangInteger_class_()])];");
+    assertTranslation(translation, "- (id<JavaUtilList>)convertInputList:(id<JavaUtilList>)inputList {\n"
+        + "  return inputList;\n"
+        + "}");
   }
 
 }
