@@ -694,8 +694,7 @@ public class Functionizer extends UnitTreeVisitor {
       fullName = fullName.substring(0, fullName.indexOf("_"));
 
       TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-      String kotlinClassname = node.getExpression().toString();
-      String instanceSelector = Character.toLowerCase(kotlinClassname.charAt(0)) + kotlinClassname.substring(1);
+      String instanceSelector = NameTable.uncapitalize(node.getExpression().toString());
 
       GeneratedExecutableElement classElement = GeneratedExecutableElement
           .newMethodWithSelector(fullName, typeMirror, ElementUtil.getDeclaringClass(element));

@@ -981,4 +981,12 @@ public class NameTable {
   private boolean isKotlinType(String type) {
     return type.indexOf("kotlin/") == 0;
   }
+
+  /**
+   * Uncapitalize the first letter of a string.
+   */
+  public static String uncapitalize(String s) {
+    return s.length() > 0 ? Character.toLowerCase(s.charAt(0)) + s.substring(1) : s;
+  }
+
 }
