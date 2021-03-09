@@ -1,6 +1,6 @@
-com.mirego.interop.kotlin.test.constructor=Common.h
-com.mirego.interop.kotlin.test.interfaces=Common.h
-com.mirego.interop.kotlin.test.function=Common.h
-com.mirego.interop.kotlin.test.property=Common.h
-com.mirego.interop.kotlin.test.objects=Common.h
-com.mirego.interop.kotlin.test.nullsafety=Common.h
+com.mirego.interop.kotlin.test.constructor=Common_wrapper.h
+com.mirego.interop.kotlin.test.interfaces=Common_wrapper.h
+com.mirego.interop.kotlin.test.function=Common_wrapper.h
+com.mirego.interop.kotlin.test.property=Common_wrapper.h
+com.mirego.interop.kotlin.test.objects=Common_wrapper.h
+com.mirego.interop.kotlin.test.nullsafety=Common_wrapper.h
