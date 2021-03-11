@@ -2,11 +2,12 @@ package com.google.devtools.j2objc.ast;
 
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+// MIREGO kotlin interop (whole file)
+
 /**
- * Node for accessing a field via "super" keyword.
+ * Node for accessing a field via the "." notation
  */
 public class PropertyAccess extends Expression {
 

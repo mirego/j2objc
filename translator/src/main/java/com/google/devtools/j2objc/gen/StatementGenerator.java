@@ -647,13 +647,6 @@ public class StatementGenerator extends UnitTreeVisitor {
       return false;
     }
 
-    // MIREGO kotlin interop >>
-//    if (ElementUtil.isKotlinType(element)) {
-//      buffer.append(node.getFullyQualifiedName());
-//      return false;
-//    }
-    // MIREGO <<
-
     Name qualifier = node.getQualifier();
     qualifier.accept(this);
     buffer.append("->");
