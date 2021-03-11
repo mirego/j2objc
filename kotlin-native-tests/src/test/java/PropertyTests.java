@@ -14,27 +14,24 @@ public class PropertyTests extends TestCase {
     BackingFieldWithCustomGetter backingFieldWithCustomGetter = new BackingFieldWithCustomGetter();
     assert(backingFieldWithCustomGetter.main(args) == "backed field");
   }
-
-
+  
+  @Test
+  public void testBackingFieldWithCustomSetter() {
+    BackingFieldWithCustomSetter backingFieldWithCustomSetter = new BackingFieldWithCustomSetter();
+    assert(backingFieldWithCustomSetter.main(args) == "backed field");
+  }
+  
  @Test
- public void testBackingFieldWithCustomSetter() {
-   BackingFieldWithCustomSetter backingFieldWithCustomSetter = new BackingFieldWithCustomSetter();
-   assert(backingFieldWithCustomSetter.main(args) == "backed field");
+ public void testBackingPropertyWithCustomGetter() {
+   BackingPropertyWithCustomGetter backingPropertyWithCustomGetter = new BackingPropertyWithCustomGetter();
+   assert(backingPropertyWithCustomGetter.main(args) == "backed property");
  }
-
-// todo getter not found
-//  @Test
-//  public void testBackingPropertyWithCustomGetter() {
-//    BackingPropertyWithCustomGetter backingPropertyWithCustomGetter = new BackingPropertyWithCustomGetter();
-//    assert(backingPropertyWithCustomGetter.main(args) == "xxxxxx");
-//  }
-
-// todo Setter not found
-//  @Test
-//  public void testBackingPropertyWithCustomSetter() {
-//    BackingPropertyWithCustomSetter backingPropertyWithCustomSetter = new BackingPropertyWithCustomSetter();
-//    assert(backingPropertyWithCustomSetter.main(args) == "xxxxxx");
-//  }
+ 
+ @Test
+ public void testBackingPropertyWithCustomSetter() {
+   BackingPropertyWithCustomSetter backingPropertyWithCustomSetter = new BackingPropertyWithCustomSetter();
+   assert(backingPropertyWithCustomSetter.main(args) == "backed property");
+ }
 
  @Test
  public void testBooleanProperty() {
@@ -116,6 +113,12 @@ public class PropertyTests extends TestCase {
    assert(stringProperty.main(args) == "testString");
  }
 
+  @Test
+  public void testCharSequenceProperty() {
+    CharSequenceProperty charSequenceProperty = new CharSequenceProperty();
+    assert(charSequenceProperty.main(args) == "1000");
+  }
+
 // todo this throw because j2objc adds a nilcheck ...
 @Test
  public void testNullableBooleanProperty() {
@@ -140,11 +143,10 @@ public class PropertyTests extends TestCase {
    PublicImmutablePropertyWithGeneratedGetter publicImmutablePropertyWithGeneratedGetter = new PublicImmutablePropertyWithGeneratedGetter();
    assert(publicImmutablePropertyWithGeneratedGetter.main(args) == "immutableProperty");
  }
-
-// todo param names
- @Test
- public void testPublicMutablePropertyWithGeneratedSetter() {
-   PublicMutablePropertyWithGeneratedSetter publicMutablePropertyWithGeneratedSetter = new PublicMutablePropertyWithGeneratedSetter();
-   assert(publicMutablePropertyWithGeneratedSetter.main(args) == "mutatedMutableProperty");
- }
+ 
+  @Test
+  public void testPublicMutablePropertyWithGeneratedSetter() {
+    PublicMutablePropertyWithGeneratedSetter publicMutablePropertyWithGeneratedSetter = new PublicMutablePropertyWithGeneratedSetter();
+    assert(publicMutablePropertyWithGeneratedSetter.main(args) == "mutatedMutableProperty");
+  }
 }

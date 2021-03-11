@@ -64,6 +64,7 @@ import com.google.devtools.j2objc.ast.ParenthesizedExpression;
 import com.google.devtools.j2objc.ast.PostfixExpression;
 import com.google.devtools.j2objc.ast.PrefixExpression;
 import com.google.devtools.j2objc.ast.PrimitiveType;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.QualifiedType;
 import com.google.devtools.j2objc.ast.ReturnStatement;
@@ -554,8 +555,9 @@ public class StatementGenerator extends UnitTreeVisitor {
     // Object receiving the message, or null if it's a method in this class.
     Expression receiver = node.getExpression();
     buffer.append('[');
-    // mirego kotlin interop
-    if (ElementUtil.isStatic(element) && !ElementUtil.isKotlinType(element)) {
+    if (ElementUtil.isStatic(element) &&
+        !ElementUtil.isKotlinType(element))    // MIREGO kotlin interop
+    {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
       receiver.accept(this);
@@ -644,6 +646,14 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(nameTable.getFullName((TypeElement) element));
       return false;
     }
+
+    // MIREGO kotlin interop >>
+//    if (ElementUtil.isKotlinType(element)) {
+//      buffer.append(node.getFullyQualifiedName());
+//      return false;
+//    }
+    // MIREGO <<
+
     Name qualifier = node.getQualifier();
     qualifier.accept(this);
     buffer.append("->");
@@ -998,4 +1008,14 @@ public class StatementGenerator extends UnitTreeVisitor {
     });
     return hasComma[0];
   }
+
+  // MIREGO kotlin interop >>
+
+  @Override
+  public boolean visit(PropertyAccess node) {
+    buffer.append(node.getAccessStatement());
+    return false;
+  }
+
+  // MIREGO <<
 }

@@ -12,7 +12,7 @@ public class FunctionTests extends TestCase {
   @Test
   public void testPublicExtensionFunction() {
     PublicExtensionFunction publicExtensionFunction = new PublicExtensionFunction();
-    assert(publicExtensionFunction.main(args) == "extension");
+    assert(publicExtensionFunction.main(args) == "xtension");
   }
 
   @Test
