@@ -54,7 +54,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
-import kotlin.Metadata;
 import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmClassifier;
@@ -63,8 +62,6 @@ import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
 import kotlinx.metadata.KmValueParameter;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Singleton service for type/method/variable name support.

@@ -23,7 +23,6 @@ import com.google.devtools.j2objc.ast.ClassInstanceCreation;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.ConstructorInvocation;
 import com.google.devtools.j2objc.ast.Expression;
-import com.google.devtools.j2objc.ast.ExpressionMethodReference;
 import com.google.devtools.j2objc.ast.ExpressionStatement;
 import com.google.devtools.j2objc.ast.FieldAccess;
 import com.google.devtools.j2objc.ast.FunctionDeclaration;
@@ -56,8 +55,6 @@ import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
-import com.strobel.assembler.metadata.MemberReference;
-import com.strobel.decompiler.languages.java.ast.MemberReferenceExpression;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,18 +66,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import kotlin.Metadata;
-import kotlinx.metadata.Flag;
-import kotlinx.metadata.Flag.Common;
-import kotlinx.metadata.Flag.Function;
-import kotlinx.metadata.Flag.Property;
-import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
-import kotlinx.metadata.KmTypeParameter;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Converts methods that don't need dynamic dispatch to C functions. This optimization

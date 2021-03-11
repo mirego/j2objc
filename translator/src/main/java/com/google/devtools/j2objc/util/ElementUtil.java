@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -68,7 +67,6 @@ import kotlinx.metadata.Flag.Common;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
-import kotlinx.metadata.KmTypeParameter;
 import kotlinx.metadata.jvm.KotlinClassHeader;
 import kotlinx.metadata.jvm.KotlinClassMetadata;
 
