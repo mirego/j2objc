@@ -3,10 +3,12 @@ package com.google.devtools.j2objc.kotlin;
 import com.google.devtools.j2objc.GenerationTest;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomGetter;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomSetter;
+import com.mirego.interop.java.test.property.BackingPropertyWithCustomGetter;
 import com.mirego.interop.java.test.property.BackingPropertyWithCustomSetter;
 import com.mirego.interop.java.test.property.BooleanProperty;
 import com.mirego.interop.java.test.property.ByteProperty;
 import com.mirego.interop.java.test.property.CharProperty;
+import com.mirego.interop.java.test.property.CharSequenceProperty;
 import com.mirego.interop.java.test.property.DoubleProperty;
 import com.mirego.interop.java.test.property.EscapedStringProperty;
 import com.mirego.interop.java.test.property.FloatProperty;
@@ -32,7 +34,7 @@ public class PropertyTest extends GenerationTest {
     String className = BackingFieldWithCustomGetter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithBackingFieldCustomGetter backedField]");
+    assertTranslation(translation, "return classWithBackingFieldCustomGetter.backedField;");
   }
 
   // todo param names
@@ -42,29 +44,30 @@ public class PropertyTest extends GenerationTest {
     String className = BackingFieldWithCustomSetter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "  [classWithBackingFieldCustomGetter setBackedField:@\"backed\"];\n"
-                                          + "  return [classWithBackingFieldCustomGetter backedField];");
+    assertTranslation(translation, "  classWithBackingFieldCustomGetter.backedField = @\"backed\";\n"
+        + "  return classWithBackingFieldCustomGetter.backedField;");
   }
 
   // todo getter not found
-//  @Test
-//  public void testBackingPropertyWithCustomGetter() throws IOException {
-//
-//    String className = BackingPropertyWithCustomGetter.class.getSimpleName();
-//    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//    assertTranslation(translation, "xxxxxxx");
-//  }
+  @Test
+  public void testBackingPropertyWithCustomGetter() throws IOException {
+
+    String className = BackingPropertyWithCustomGetter.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return classWithBackingPropertyCustomGetter.backedProperty;");
+  }
 
   // todo setter not found
-//  @Test
-//  public void testBackingPropertyWithCustomSetter() throws IOException {
-//
-//    String className = BackingPropertyWithCustomSetter.class.getSimpleName();
-//    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//    assertTranslation(translation, "xxxxxxx");
-//  }
+  @Test
+  public void testBackingPropertyWithCustomSetter() throws IOException {
+
+    String className = BackingPropertyWithCustomSetter.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "  classWithBackingPropertyCustomSetter.backedProperty = @\"backed property\";\n"
+        + "  return classWithBackingPropertyCustomSetter.backedProperty;");
+  }
 
   @Test
   public void testBooleanProperty() throws IOException {
@@ -72,7 +75,7 @@ public class PropertyTest extends GenerationTest {
     String className = BooleanProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithBooleanProperty boolean]");
+    assertTranslation(translation, "return classWithBooleanProperty.booleanProperty;");
   }
 
   @Test
@@ -81,7 +84,7 @@ public class PropertyTest extends GenerationTest {
     String className = ByteProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithByteProperty byte]");
+    assertTranslation(translation, "return classWithByteProperty.byteProperty;");
   }
 
   @Test
@@ -90,7 +93,7 @@ public class PropertyTest extends GenerationTest {
     String className = CharProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithCharProperty char]");
+    assertTranslation(translation, "return classWithCharProperty.charProperty;");
   }
 
   @Test
@@ -99,7 +102,7 @@ public class PropertyTest extends GenerationTest {
     String className = DoubleProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[classWithDoubleProperty double]");
+    assertTranslation(translation, "return classWithDoubleProperty.doubleProperty;");
   }
 
   @Test
@@ -108,7 +111,7 @@ public class PropertyTest extends GenerationTest {
     String className = EscapedStringProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "xxxxxxx");
+    assertTranslation(translation, "return classWithEscapedStringProperty.escapedString;");
   }
 
   @Test
@@ -117,7 +120,7 @@ public class PropertyTest extends GenerationTest {
     String className = FloatProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithFloatProperty float]");
+    assertTranslation(translation, "return classWithFloatProperty.floatProperty;");
   }
 
   @Test
@@ -126,7 +129,7 @@ public class PropertyTest extends GenerationTest {
     String className = IntProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithIntProperty int]");
+    assertTranslation(translation, "return classWithIntProperty.intProperty;");
   }
 
   @Test
@@ -135,7 +138,7 @@ public class PropertyTest extends GenerationTest {
     String className = LongProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithLongProperty long]");
+    assertTranslation(translation, "return classWithLongProperty.longProperty;");
   }
 
   @Test
@@ -144,7 +147,7 @@ public class PropertyTest extends GenerationTest {
     String className = ShortProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithShortProperty short]");
+    assertTranslation(translation, "return classWithShortProperty.shortProperty;");
   }
 
   @Test
@@ -153,7 +156,16 @@ public class PropertyTest extends GenerationTest {
     String className = StringProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithStringProperty string]");
+    assertTranslation(translation, "return classWithStringProperty.stringProperty;");
+  }
+
+  @Test
+  public void testCharSequenceProperty() throws IOException {
+
+    String className = CharSequenceProperty.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return classWithCharSequenceProperty.charSequenceProperty;");
   }
 
   @Test
@@ -162,7 +174,7 @@ public class PropertyTest extends GenerationTest {
     String className = LateInitializedProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [classWithBackingPropertyCustomSetter lateInitializedProperty]");
+    assertTranslation(translation, "return classWithBackingPropertyCustomSetter.lateInitializedProperty;");
   }
 
   // todo throws in native test ... need to investigate
@@ -191,7 +203,7 @@ public class PropertyTest extends GenerationTest {
     String className = NullableBooleanProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [((JavaLangBoolean *) nil_chk([classWithNullableBooleanProperty boolean])) booleanValue]");
+    assertTranslation(translation, "return [((JavaLangBoolean *) nil_chk(classWithNullableBooleanProperty.nullableBoolean)) booleanValue];");
   }
 
   @Test
@@ -200,7 +212,7 @@ public class PropertyTest extends GenerationTest {
     String className = NullableProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [nullablePropertyClass nullableProperty]");
+    assertTranslation(translation, "return nullablePropertyClass.nullableProperty;");
   }
 
   @Test
@@ -209,17 +221,16 @@ public class PropertyTest extends GenerationTest {
     String className = PublicImmutablePropertyWithGeneratedGetter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [immutablePropertyClass immutableProperty]");
+    assertTranslation(translation, "return immutablePropertyClass.immutableProperty;");
   }
 
-  // todo param names
   @Test
   public void testPublicMutablePropertyWithGeneratedSetter() throws IOException {
 
     String className = PublicMutablePropertyWithGeneratedSetter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "  [mutablePropertyClass setMutableProperty:@\"mutatedMutableProperty\"];\n"
-                                          + "  return [mutablePropertyClass mutableProperty];");
+    assertTranslation(translation, "  mutablePropertyClass.mutableProperty = @\"mutatedMutableProperty\";\n"
+        + "  return mutablePropertyClass.mutableProperty;");
   }
 }

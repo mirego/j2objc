@@ -16,6 +16,7 @@ package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
 import com.google.devtools.j2objc.ast.AnnotationTypeDeclaration;
+import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.Block;
 import com.google.devtools.j2objc.ast.BodyDeclaration;
 import com.google.devtools.j2objc.ast.ClassInstanceCreation;
@@ -30,6 +31,7 @@ import com.google.devtools.j2objc.ast.MethodDeclaration;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.NativeStatement;
 import com.google.devtools.j2objc.ast.NormalAnnotation;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.ReturnStatement;
 import com.google.devtools.j2objc.ast.SimpleName;
@@ -64,6 +66,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmProperty;
 
 /**
  * Converts methods that don't need dynamic dispatch to C functions. This optimization
@@ -248,11 +252,12 @@ public class Functionizer extends UnitTreeVisitor {
   public void endVisit(MethodInvocation node) {
     ExecutableElement method = node.getExecutableElement();
 
-    // mirego kotlin interop
+    // MIREGO kotlin interop >>
     if (ElementUtil.isKotlinType(method)) {
       endVisitKotlin(node, method);
       return;
     }
+    // MIREGO <<
 
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
@@ -320,11 +325,12 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement element = node.getExecutableElement();
     TypeElement type = ElementUtil.getDeclaringClass(element);
 
-    // mirego kotlin interop
+    // MIREGO kotlin interop >>
     if(ElementUtil.isKotlinType(element)) {
       endVisitKotlin(node, element);
       return;
     }
+    // MIREGO <<
 
     FunctionElement funcElement = newAllocatingConstructorElement(element);
     FunctionInvocation invocation = new FunctionInvocation(funcElement, node.getTypeMirror());
@@ -663,7 +669,7 @@ public class Functionizer extends UnitTreeVisitor {
     return false;
   }
 
-  // mirego kotlin interop
+  // MIREGO kotlin interop >>
 
   private void endVisitKotlin(ClassInstanceCreation node,
                               ExecutableElement element) {
@@ -689,6 +695,7 @@ public class Functionizer extends UnitTreeVisitor {
 
   private void endVisitKotlin(MethodInvocation node,
                               ExecutableElement element) {
+
     if (ElementUtil.isStatic(element)) {
       String fullName = nameTable.getFullFunctionName(element);
       fullName = fullName.substring(0, fullName.indexOf("_"));
@@ -696,16 +703,13 @@ public class Functionizer extends UnitTreeVisitor {
       TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
       String instanceSelector = NameTable.uncapitalize(node.getExpression().toString());
 
-      GeneratedExecutableElement classElement = GeneratedExecutableElement
-          .newMethodWithSelector(fullName, typeMirror, ElementUtil.getDeclaringClass(element));
-
       GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
           .newMethodWithSelector(instanceSelector, typeMirror,
               ElementUtil.getDeclaringClass(element));
 
       ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
 
-      SimpleName simpleName = new SimpleName(classElement);
+      SimpleName simpleName = new SimpleName(fullName);
 
       MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, simpleName);
 
@@ -713,6 +717,39 @@ public class Functionizer extends UnitTreeVisitor {
       TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
 
       node.replaceWith(staticMethod);
+      return;
     }
+
+    KmClass kmClass = ElementUtil.getKotlinMetaData(element);
+
+    KmProperty getterOrSetterProperty = ElementUtil.getKotlinGetterOrSetter(element, kmClass);
+    if (getterOrSetterProperty != null) {
+
+      TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
+
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
+          .newMethodWithSelector(getterOrSetterProperty.getName(), typeMirror,
+              ElementUtil.getDeclaringClass(element));
+
+      SimpleName simpleName = new SimpleName(node.getExpression().toString());
+
+      PropertyAccess propertyAccess = new PropertyAccess(getInstanceElement, typeMirror,
+          simpleName);
+
+      if (ElementUtil.isKotlinGetter(element)) {
+        node.replaceWith(propertyAccess);
+        return;
+      }
+
+      List<Expression> arguments = node.getArguments();
+      if (arguments.size() != 1) {
+        throw new RuntimeException("Kotlin interop assumes 1 argument when handling auto generated setter .... " + node.toString());
+      }
+      Assignment assignment = new Assignment(propertyAccess, arguments.get(0).copy());
+      node.replaceWith(assignment);
+    }
+
   }
+
+  // MIREGO >>
 }

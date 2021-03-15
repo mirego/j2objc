@@ -30,12 +30,10 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	PublicVariableArgumentsFunction.m \
 	PublicStaticFunction.h \
 	PublicStaticFunction.m \
-	BackingPropertyWithCustomSetter.h \
-	BackingPropertyWithCustomSetter.m \
-	BackingPropertyWithCustomGetter.h \
-	BackingPropertyWithCustomGetter.m \
 	StaticMethodWithListParamWithAnnotation.h \
-	StaticMethodWithListParamWithAnnotation.m
+	StaticMethodWithListParamWithAnnotation.m \
+	PublicFunctionWithDefaultArguments.h \
+	PublicFunctionWithDefaultArguments.m
 
 KOTLIN_INTEROP_JAVA_SOURCES_DIR = $(KOTLIN_INTEROP_DIR)/src/commonMain/kotlin/com/mirego/interop/java/test
 KOTLIN_INTEROP_JAVA_SOURCES = $(shell find $(KOTLIN_INTEROP_JAVA_SOURCES_DIR) -name '*.java')
@@ -64,7 +62,7 @@ kotlin_interop: kotlin_clean_native
 kotlin_clean_native:
 	@rm -rf $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)
 
-kotlin_native_tests: kotlin_translate_tests kotlin_compile_tests kotlin_run_tests
+kotlin_native_tests: kotlin_translate_tests kotlin_remove_disabled_tests kotlin_copy_header_wrapper kotlin_compile_tests kotlin_run_tests
 
 kotlin_native_deps: 
 	@cd $(TRANSLATOR_DIR) && $(MAKE) translator
@@ -96,7 +94,7 @@ kotlin_copy_header_wrapper:
 kotlin_remove_disabled_tests:
 	@cd $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) && rm -r $(KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS)
 
-kotlin_compile_tests: kotlin_remove_disabled_tests kotlin_copy_header_wrapper
+kotlin_compile_tests:
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \

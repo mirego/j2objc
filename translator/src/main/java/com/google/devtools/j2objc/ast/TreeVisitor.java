@@ -566,4 +566,14 @@ public class TreeVisitor {
   }
 
   public void endVisit(WhileStatement node) {}
+
+  // MIREGO kotlin interop >>
+
+  public boolean visit(PropertyAccess node) {
+    return true;
+  }
+
+  public void endVisit(PropertyAccess node) {}
+
+  // MIREGO <<
 }

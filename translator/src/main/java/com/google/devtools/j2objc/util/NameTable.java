@@ -54,7 +54,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
-import kotlin.Metadata;
 import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmClassifier;
@@ -63,8 +62,6 @@ import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
 import kotlinx.metadata.KmValueParameter;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Singleton service for type/method/variable name support.
@@ -405,10 +402,11 @@ public class NameTable {
       }
     }
 
-    // mirego kotlin interop
+    // MIREGO kotlin interop >>
     if (ElementUtil.isKotlinType(method)) {
       return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
     }
+    // MIREGO <<
 
     for (VariableElement param : method.getParameters()) {
       first = appendParamKeyword(sb, param.asType(), delim, first);
@@ -424,6 +422,7 @@ public class NameTable {
   public String getMethodSelector(ExecutableElement method) {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
+
       // mirego kotlin interop
       if (selector.startsWith("get") && ElementUtil.isKotlinType(method)) {
         return getMethodSelectorKotlin(method, selector);
@@ -785,10 +784,7 @@ public class NameTable {
                                      StringBuilder sb,
                                      TypeElement declaringClass) {
 
-    Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
-    KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-    KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-    KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
+    KmClass kmClass = ElementUtil.getKotlinMetaData(method);
     List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
 
     String methodName = method.getSimpleName().toString();
