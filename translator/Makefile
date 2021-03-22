@@ -360,7 +360,7 @@ COMMON_TEST_FLAGS = \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner
 
-test: compile-tests copy-test-resources kotlin
+test: compile-tests copy-test-resources kotlin_run_tests
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
 

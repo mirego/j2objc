@@ -51,8 +51,6 @@ kotlin_clean: kotlin_clean_interop kotlin_clean_native
 kotlin_clean_interop:
 	@rm -rf $(KOTLIN_INTEROP_BUILD_OUTPUT_DIR)
 
-kotlin: kotlin_interop kotlin_native_tests
-
 kotlin_interop: kotlin_clean_native
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) jvmJar
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) copyFrameworkNative
@@ -62,13 +60,11 @@ kotlin_interop: kotlin_clean_native
 kotlin_clean_native:
 	@rm -rf $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)
 
-kotlin_native_tests: kotlin_translate_tests kotlin_remove_disabled_tests kotlin_copy_header_wrapper kotlin_compile_tests kotlin_run_tests
-
 kotlin_native_deps: 
 	@cd $(TRANSLATOR_DIR) && $(MAKE) translator
 	@cd $(JRE_EMUL_DIR) && $(MAKE) ../dist/j2objcc
 
-kotlin_translate_tests:
+kotlin_translate_tests: kotlin_interop
 	$(J2OBJC_EXE) \
 	-classpath $(TEST_CLASSPATH)  \
 	-encoding UTF-8 \
@@ -88,13 +84,13 @@ kotlin_translate_tests:
 
 KOTLIN_NATIVE_TESTS_J2OBJC_OUTPUT_SOURCES = $(shell find $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) -name '*.m')
 
-kotlin_copy_header_wrapper:
-	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
-
-kotlin_remove_disabled_tests:
+kotlin_remove_disabled_tests: kotlin_translate_tests
 	@cd $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR) && rm -r $(KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS)
 
-kotlin_compile_tests:
+kotlin_copy_header_wrapper: kotlin_remove_disabled_tests
+	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
+
+kotlin_compile_tests: kotlin_copy_header_wrapper
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \
@@ -102,5 +98,5 @@ kotlin_compile_tests:
 	-o $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/nativeTests \
 	$(KOTLIN_NATIVE_TESTS_J2OBJC_OUTPUT_SOURCES)
 
-kotlin_run_tests:
+kotlin_run_tests: kotlin_compile_tests
 	$(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/nativeTests org.junit.runner.JUnitCore NativeTestSuite
