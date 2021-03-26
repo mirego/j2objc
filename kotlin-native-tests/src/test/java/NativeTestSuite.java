@@ -9,12 +9,13 @@ public class NativeTestSuite {
 
     private static final Class<?>[] nativeTests =
         new Class<?>[]{
-            ConstructorTests.class,
-            InterfacesTests.class,
-            FunctionTests.class,
-            PropertyTests.class,
-            ObjectsTests.class,
-            NullSafetyTests.class,
+                ConstructorTests.class,
+                InterfacesTests.class,
+                FunctionTests.class,
+                PropertyTests.class,
+                ObjectsTests.class,
+                NullSafetyTests.class,
+                DataClassTests.class,
         };
 
     public static Test suite() {
