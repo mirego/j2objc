@@ -368,7 +368,8 @@ regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
 	    com.google.devtools.j2objc.regression.LambdaExpressionsTest
 
-compile-tests: $(J2OBJC_JAR)
+# MIREGO kotlin interop added kotlin_interop dependency
+compile-tests: $(J2OBJC_JAR) kotlin_interop
 	@mkdir -p $(TEST_DIR)
 	@$(JAVAC) -Xlint:unchecked -sourcepath src/test/java \
 	    -classpath $(TEST_CLASSPATH) -encoding UTF-8 -d $(TEST_DIR) \

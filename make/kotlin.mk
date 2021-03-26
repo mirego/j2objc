@@ -90,7 +90,7 @@ kotlin_remove_disabled_tests: kotlin_translate_tests
 kotlin_copy_header_wrapper: kotlin_remove_disabled_tests
 	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 
-kotlin_compile_tests: kotlin_copy_header_wrapper
+kotlin_compile_tests: kotlin_copy_header_wrapper junit_dist
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \
