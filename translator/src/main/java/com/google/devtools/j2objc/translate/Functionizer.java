@@ -54,7 +54,10 @@ import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
+import com.sun.tools.javac.code.Symbol;
+
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,6 +67,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -96,7 +100,7 @@ public class Functionizer extends UnitTreeVisitor {
   static class MethodInfo {
 
     private Boolean functionizable = null;
-    private Set<ExecutableElement> superCalls = new HashSet<>();
+    private final Set<ExecutableElement> superCalls = new HashSet<>();
 
     private boolean resolveFunctionizable(Map<ExecutableElement, MethodInfo> infoMap) {
       for (ExecutableElement superCall : superCalls) {
@@ -124,8 +128,8 @@ public class Functionizer extends UnitTreeVisitor {
 
     // Don't need a stack here because local types have already been extracted.
     private MethodInfo currentMethod = null;
-    private Map<ExecutableElement, MethodInfo> infoMap = new HashMap<>();
-    private Set<ExecutableElement> invocations = new HashSet<>();
+    private final Map<ExecutableElement, MethodInfo> infoMap = new HashMap<>();
+    private final Set<ExecutableElement> invocations = new HashSet<>();
 
     @Override
     public boolean visit(MethodDeclaration node) {
@@ -188,12 +192,8 @@ public class Functionizer extends UnitTreeVisitor {
 
     // Don't functionize equals/hash, since they are often called by collections.
     String name = ElementUtil.getName(method);
-    if ((name.equals("hashCode") && method.getParameters().isEmpty())
-        || (name.equals("equals") && method.getParameters().size() == 1)) {
-      return false;
-    }
-
-    return true;
+    return (!name.equals("hashCode") || !method.getParameters().isEmpty())
+            && (!name.equals("equals") || method.getParameters().size() != 1);
   }
 
   private FunctionElement newFunctionElement(ExecutableElement method) {
@@ -253,36 +253,23 @@ public class Functionizer extends UnitTreeVisitor {
 
     if (ElementUtil.isKotlinType(method)) {
       String fullName = nameTable.getFullFunctionName(method);
-      String className = fullName.substring(0, fullName.indexOf("_"));
-      String methodName = fullName.substring(fullName.indexOf("_") + 1);
+      String commonClassName = fullName.substring(0, fullName.indexOf("_"));
+      Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
 
-      Expression expression =  node.getExpression();
+      GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
+              .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(nameTable.lowerCase(className.toString()),
+              node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
+      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
+      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));
+      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
 
-      ExecutablePair pair = node.getExecutablePair();
-      TypeMirror type = node.getTypeMirror();
-
-
-      GeneratedExecutableElement classElement = GeneratedExecutableElement
-              .newMethodWithSelector(className, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
-
-
-      GeneratedExecutableElement allocElement = GeneratedExecutableElement
-              .newMethodWithSelector("kotlinObject", node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
-
-
-      ExecutablePair allocPair = new ExecutablePair(allocElement, node.getExecutableType());
-
-      MethodInvocation allocMethod = new MethodInvocation(allocPair, new SimpleName(classElement));
-
-      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), allocMethod);
-
-
-//      TreeUtil.moveList(node.getVarargsType(), staticMethod.getArguments());
       TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
 
       node.replaceWith(staticMethod);
       return;
     }
+
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
       functionizeInvocation(node, method, node.getExpression(), node.getArguments());

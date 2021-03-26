@@ -47,6 +47,7 @@ public class VariableRenamer extends UnitTreeVisitor {
   }
 
   private void collectAndRenameFields(TypeElement type, Set<VariableElement> fields) {
+    
     if (type == null) {
       return;
     }
