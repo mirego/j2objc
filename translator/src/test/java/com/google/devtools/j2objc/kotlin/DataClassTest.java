@@ -50,13 +50,4 @@ public class DataClassTest extends GenerationTest {
 
         assertTranslation(translation, "return [simpleDataClass isEqual:simpleDataClass2];");
     }
-
-    @Test
-    public void testDataClassWithDefaultParametersConstructor() throws IOException {
-
-        String className = DataClassWithDefaultParametersConstructor.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-
-        assertTranslation(translation, "cxxxxxx");
-    }
 }
