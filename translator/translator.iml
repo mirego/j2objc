@@ -28,7 +28,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/test/java/com/google/devtools/j2objc/regression" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="module" module-name="annotations" />
     <orderEntry type="module-library">
       <library name="j2objc_junit.jar">
@@ -139,6 +139,42 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/../java_deps/build_result/kotlin-stdlib-1.4.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/mockito-core-3.8.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/mockito-inline-3.8.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/byte-buddy-1.10.20.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/byte-buddy-agent-1.10.20.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

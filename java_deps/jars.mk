@@ -56,8 +56,11 @@ PLUME_UTIL_JAR = plume-util-1.0.6.jar
 KOTLIN_STDLIB_JAR = kotlin-stdlib-1.4.21.jar
 KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.2.0.jar
 
-MOCKITO_JAR = mockito-core-2.23.4.jar
-MOCKITO_SOURCE_JAR = mockito-core-2.23.4-sources.jar
+MOCKITO_JAR = mockito-core-3.8.0.jar
+MOCKITO_SOURCE_JAR = mockito-core-3.8.0-sources.jar
+
+BYTE_BUDDY_JAR = byte-buddy-1.10.20.jar
+BYTE_BUDDY_AGENT_JAR = byte-buddy-agebnt-1.10.20.jar
 
 JSR305_JAR = jsr305-3.0.0.jar
 JSR305_SOURCE_JAR = jsr305-3.0.0.jar
