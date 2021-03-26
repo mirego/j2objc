@@ -2,7 +2,6 @@ package com.google.devtools.j2objc.kotlin;
 
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.dataclass.DataClassWithDefaultParametersConstructor;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassComponentGetter;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassConstructor;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassEquals;
