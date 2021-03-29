@@ -259,6 +259,13 @@ public class NameTable {
     String shortName = getVariableShortName(var);
     if (ElementUtil.isGlobalVar(var)) {
       String className = getFullName(ElementUtil.getDeclaringClass(var));
+
+// MIREGO kotlin interop >>
+      if (ElementUtil.isKotlinType(var)) {
+        return className + '.' + camelCaseEnumName(shortName);
+      }
+// MIREGO <<
+
       if (ElementUtil.isEnumConstant(var)) {
         // Enums are declared in an array, so we use a macro to shorten the
         // array access expression.
@@ -762,7 +769,7 @@ public class NameTable {
     return JAVA_CLASS_NAME_PATTERN.matcher(className).matches();
   }
 
-  // mirego kotlin interop
+// MIREGO kotlin interop >>
 
   private boolean appendParamKeywordKotlin(StringBuilder sb, Name paramName, char delim, boolean first) {
     return appendParamKeywordKotlin(sb, paramName.toString(), delim, first);
@@ -985,4 +992,16 @@ public class NameTable {
     return s.length() > 0 ? Character.toLowerCase(s.charAt(0)) + s.substring(1) : s;
   }
 
+  public static String camelCaseEnumName(String name) {
+    StringBuilder sb = new StringBuilder();
+    boolean firstPart = true;
+    String lowerCaseName = name.toLowerCase();
+    for (String part : lowerCaseName.split("_")) {
+      String partToAppend = (!firstPart) ? capitalize(part) : part;
+      sb.append(partToAppend);
+      firstPart = false;
+    }
+    return sb.toString();
+  }
+// MIREGO <<
 }

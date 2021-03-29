@@ -16,6 +16,7 @@ public class NativeTestSuite {
                 ObjectsTests.class,
                 NullSafetyTests.class,
                 DataClassTests.class,
+                EnumsTests.class,
         };
 
     public static Test suite() {

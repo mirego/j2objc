@@ -18,6 +18,7 @@ package com.google.devtools.j2objc;
 
 import com.google.devtools.j2objc.kotlin.ConstructorTest;
 import com.google.devtools.j2objc.kotlin.DataClassTest;
+import com.google.devtools.j2objc.kotlin.EnumsTest;
 import com.google.devtools.j2objc.kotlin.FunctionTest;
 import com.google.devtools.j2objc.kotlin.InterfacesTest;
 import com.google.devtools.j2objc.kotlin.ObjectsTest;
@@ -40,6 +41,7 @@ public class KotlinInteropTests {
               ObjectsTest.class,
               PropertyTest.class,
               DataClassTest.class,
+              EnumsTest.class,
       };
 
 
