@@ -258,7 +258,7 @@ public class Functionizer extends UnitTreeVisitor {
 
       GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
               .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(nameTable.lowerCase(className.toString()),
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(NameTable.lowerCase(className.toString()),
               node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
       ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
       MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));

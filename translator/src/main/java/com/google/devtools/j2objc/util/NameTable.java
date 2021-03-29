@@ -26,14 +26,6 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.j2objc.annotations.ObjectiveCName;
-import kotlin.Metadata;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmClassifier;
-import kotlinx.metadata.KmConstructor;
-import kotlinx.metadata.KmFunction;
-import kotlinx.metadata.KmValueParameter;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,7 +46,6 @@ import java.util.regex.Pattern;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -389,8 +380,7 @@ public class NameTable {
   }
 
   private boolean appendParamKeywordKotlin(
-      StringBuilder sb, Name paramName, char delim, boolean first) {
-    String keyword = paramName.toString();
+      StringBuilder sb, String keyword, char delim, boolean first) {
     if (first) {
       keyword = capitalize(keyword);
     }
@@ -418,24 +408,14 @@ public class NameTable {
     }
     for (VariableElement param : method.getParameters()) {
       if (ElementUtil.isKotlinType(method)) {
-        if (ElementUtil.isStatic(method)){
+        if (ElementUtil.isStatic(method)) {
+          List<String> functionParams = KotlinMetadataUtil.getFunctionParameterNames(method.getEnclosingElement(), method.getSimpleName().toString());
 
-          Metadata meta = method.getEnclosingElement().getAnnotation(Metadata.class);
-          KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-          KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-          KmClass kmClass = ((KotlinClassMetadata.Class) metadata).toKmClass();
-
-          for (KmFunction function : kmClass.getFunctions()) {
-            if (function.getName().equals(method.getSimpleName().toString())) {
-              for (KmValueParameter parameter:function.getValueParameters()) {
-                sb.append(NameTable.capitalize(parameter.getName()));
-              }
-            }
+          for (String parameter : functionParams) {
+            first = appendParamKeywordKotlin(sb, parameter, delim, first);
           }
-          return sb.toString();
+          break;
         }
-
-
 
         if (first && method.getSimpleName().toString().equals("<init>")) {
           sb.append("With");
@@ -446,7 +426,7 @@ public class NameTable {
           break;
         }
 
-        first = appendParamKeywordKotlin(sb, param.getSimpleName(), delim, first);
+        first = appendParamKeywordKotlin(sb, param.getSimpleName().toString(), delim, first);
       } else {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
