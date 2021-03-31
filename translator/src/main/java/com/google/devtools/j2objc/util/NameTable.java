@@ -959,7 +959,19 @@ public class NameTable {
   private String toJavaType(KmType kmType,
                             List<KmTypeParameter> kmClassTypeParameters) {
     boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
-    String kotlinType = ((KmClassifier.Class) kmType.getClassifier()).getName();
+
+    KmClassifier classifier = kmType.getClassifier();
+    String kotlinType;
+    if (classifier instanceof KmClassifier.Class) {
+      kotlinType = ((KmClassifier.Class) classifier).getName();
+    } else if (classifier instanceof  KmClassifier.TypeAlias) {
+      kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
+    } else if (classifier instanceof  KmClassifier.TypeParameter) {
+      int typeId = ((KmClassifier.TypeParameter) classifier).getId();
+      kotlinType = kmClassTypeParameters.get(typeId).getName();
+    } else {
+      throw new RuntimeException(String.format("Unsupported Kotlin KmClassifier : %s", classifier.getClass().getSimpleName()));
+    }
 
     String javaType = null;
     if (isKotlinType(kotlinType)) {

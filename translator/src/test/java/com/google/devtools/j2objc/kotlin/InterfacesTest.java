@@ -1,6 +1,7 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
+import com.mirego.interop.java.test.interfaces.WithGenerics;
 import com.mirego.interop.java.test.interfaces.WithInt;
 import com.mirego.interop.java.test.interfaces.WithList;
 import com.mirego.interop.java.test.interfaces.WithNullableInt;
@@ -46,6 +47,15 @@ public class InterfacesTest extends GenerationTest {
     assertTranslation(translation, "- (id<JavaUtilList>)convertInputList:(id<JavaUtilList>)inputList {\n"
         + "  return inputList;\n"
         + "}");
+  }
+
+  @Test
+  public void testInterfaceWithGenerics() throws IOException {
+
+    String className = WithGenerics.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return [((JavaLangInteger *) nil_chk([((id<CommonInterfaceWithGenerics>) nil_chk(process)) convertInput:JavaLangInteger_valueOfWithInt_(5)])) intValue];");
   }
 
 }
