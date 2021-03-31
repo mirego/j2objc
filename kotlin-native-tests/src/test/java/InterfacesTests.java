@@ -28,4 +28,10 @@ public class InterfacesTests extends TestCase {
         assert (list.get(0) == Integer.valueOf(1));
     }
 
+    @Test
+    public void testInterfaceWithGenerics() {
+        WithGenerics withGenerics = new WithGenerics();
+        assert (withGenerics.main(args) == Integer.valueOf(5));
+    }
+
 }
