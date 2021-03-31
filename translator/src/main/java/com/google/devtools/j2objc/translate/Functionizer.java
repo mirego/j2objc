@@ -81,7 +81,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class Functionizer extends UnitTreeVisitor {
 
-  private final CaptureInfo captureInfo;
+  private CaptureInfo captureInfo;
   private Set<ExecutableElement> functionizableMethods;
 
   public Functionizer(CompilationUnit unit) {
@@ -100,7 +100,7 @@ public class Functionizer extends UnitTreeVisitor {
   static class MethodInfo {
 
     private Boolean functionizable = null;
-    private final Set<ExecutableElement> superCalls = new HashSet<>();
+    private Set<ExecutableElement> superCalls = new HashSet<>();
 
     private boolean resolveFunctionizable(Map<ExecutableElement, MethodInfo> infoMap) {
       for (ExecutableElement superCall : superCalls) {
@@ -128,8 +128,8 @@ public class Functionizer extends UnitTreeVisitor {
 
     // Don't need a stack here because local types have already been extracted.
     private MethodInfo currentMethod = null;
-    private final Map<ExecutableElement, MethodInfo> infoMap = new HashMap<>();
-    private final Set<ExecutableElement> invocations = new HashSet<>();
+    private Map<ExecutableElement, MethodInfo> infoMap = new HashMap<>();
+    private Set<ExecutableElement> invocations = new HashSet<>();
 
     @Override
     public boolean visit(MethodDeclaration node) {
@@ -192,8 +192,12 @@ public class Functionizer extends UnitTreeVisitor {
 
     // Don't functionize equals/hash, since they are often called by collections.
     String name = ElementUtil.getName(method);
-    return (!name.equals("hashCode") || !method.getParameters().isEmpty())
-            && (!name.equals("equals") || method.getParameters().size() != 1);
+    if ((name.equals("hashCode") && method.getParameters().isEmpty())
+        || (name.equals("equals") && method.getParameters().size() == 1)) {
+      return false;
+    }
+
+    return true;
   }
 
   private FunctionElement newFunctionElement(ExecutableElement method) {
