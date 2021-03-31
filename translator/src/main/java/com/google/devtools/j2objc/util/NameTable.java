@@ -964,9 +964,9 @@ public class NameTable {
     String kotlinType;
     if (classifier instanceof KmClassifier.Class) {
       kotlinType = ((KmClassifier.Class) classifier).getName();
-    } else if (classifier instanceof  KmClassifier.TypeAlias) {
+    } else if (classifier instanceof KmClassifier.TypeAlias) {
       kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
-    } else if (classifier instanceof  KmClassifier.TypeParameter) {
+    } else if (classifier instanceof KmClassifier.TypeParameter) {
       int typeId = ((KmClassifier.TypeParameter) classifier).getId();
       kotlinType = kmClassTypeParameters.get(typeId).getName();
     } else {
