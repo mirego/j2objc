@@ -30,4 +30,11 @@ public class DataClassTests extends TestCase {
         SimpleDataClassEquals simpleDataClassEquals = new SimpleDataClassEquals();
         assert (simpleDataClassEquals.main(args) == true);
     }
+
+// todo method is doCopy not copy__
+//    @Test
+//    public void testSimpleDataCopy() {
+//        SimpleDataClassCopy simpleDataClassCopy = new SimpleDataClassCopy();
+//        assert (simpleDataClassCopy.main(args) == false);
+//    }
 }

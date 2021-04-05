@@ -4,6 +4,7 @@ package com.google.devtools.j2objc.kotlin;
 import com.google.devtools.j2objc.GenerationTest;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassComponentGetter;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassConstructor;
+import com.mirego.interop.java.test.dataclass.SimpleDataClassCopy;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassEquals;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassGetter;
 
@@ -49,4 +50,14 @@ public class DataClassTest extends GenerationTest {
 
         assertTranslation(translation, "return [simpleDataClass isEqual:simpleDataClass2];");
     }
+
+// todo method is doCopy not copy__
+//    @Test
+//    public void testSimpleDataClassCopy() throws IOException {
+//
+//        String className = SimpleDataClassCopy.class.getSimpleName();
+//        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+//
+//        assertTranslation(translation, "xxx");
+//    }
 }
