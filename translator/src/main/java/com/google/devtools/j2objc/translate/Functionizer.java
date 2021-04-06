@@ -81,7 +81,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class Functionizer extends UnitTreeVisitor {
 
-  private final CaptureInfo captureInfo;
+  private CaptureInfo captureInfo;
   private Set<ExecutableElement> functionizableMethods;
 
   public Functionizer(CompilationUnit unit) {
@@ -256,21 +256,38 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement method = node.getExecutableElement();
 
     if (ElementUtil.isKotlinType(method)) {
+
       String fullName = nameTable.getFullFunctionName(method);
-      String commonClassName = fullName.substring(0, fullName.indexOf("_"));
-      Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
 
-      GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
-              .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(NameTable.lowerCase(className.toString()),
-              node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
-      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
-      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));
-      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
+      if (ElementUtil.isStatic(method)) {
+        String commonClassName = fullName.substring(0, fullName.indexOf("_"));
+        Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
 
-      TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
+        GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
+            .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+        GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(NameTable.lowerCase(className.toString()),
+            node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
+        ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
+        MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));
+        MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
 
-      node.replaceWith(staticMethod);
+        TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
+
+        node.replaceWith(staticMethod);
+      } else {
+        Expression expression = node.getExpression();
+        String variableName = expression.toString();
+
+        GeneratedExecutableElement variableElement = GeneratedExecutableElement
+            .newMethodWithSelector(variableName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+
+        MethodInvocation instanceMethod = new MethodInvocation(node.getExecutablePair(), new SimpleName(variableElement));
+
+        TreeUtil.moveList(node.getArguments(), instanceMethod.getArguments());
+
+        node.replaceWith(instanceMethod);
+      }
+
       return;
     }
 

@@ -4,15 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 
 import kotlin.Metadata;
 import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmConstructor;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmValueParameter;
 import kotlinx.metadata.jvm.KotlinClassHeader;
 import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 public class KotlinMetadataUtil {
+
+  public static List<String> getParameterNames(ExecutableElement element, String elementName) {
+    Element enclosingElement = element.getEnclosingElement();
+
+    List<String> parameters = new ArrayList<>();
+    if (ElementUtil.isConstructor(element)) {
+      KmClass kmClass = getClass(enclosingElement);
+      List<KmConstructor> constructors = kmClass.getConstructors();
+      for (KmValueParameter parameter : constructors.get(0).getValueParameters()) {
+        parameters.add(parameter.getName());
+      }
+    } else {
+      parameters = getFunctionParameterNames(enclosingElement, element.getSimpleName().toString());
+    }
+
+    return parameters;
+  }
 
   public static List<String> getFunctionParameterNames(Element enclosingElement, String functionName) {
     KmClass kmClass = getClass(enclosingElement);
