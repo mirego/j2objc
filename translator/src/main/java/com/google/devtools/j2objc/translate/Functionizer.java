@@ -81,7 +81,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class Functionizer extends UnitTreeVisitor {
 
-  private CaptureInfo captureInfo;
+  private final CaptureInfo captureInfo;
   private Set<ExecutableElement> functionizableMethods;
 
   public Functionizer(CompilationUnit unit) {
