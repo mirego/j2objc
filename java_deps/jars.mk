@@ -54,7 +54,7 @@ SCENELIB_JAR = scenelib.jar
 PLUME_UTIL_JAR = plume-util-1.0.6.jar
 
 # mirego kotlin interop
-KOTLIN_STDLIB_JAR = kotlin-stdlib-1.4.30.jar
+KOTLIN_STDLIB_JAR = kotlin-stdlib-1.4.32.jar
 KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.2.0.jar
 JETBRAIN_ANNOTATION_JAR = annotations-20.1.0.jar
 
