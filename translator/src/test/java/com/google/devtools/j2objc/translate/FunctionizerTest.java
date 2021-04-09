@@ -18,6 +18,8 @@ import com.google.devtools.j2objc.GenerationTest;
 import com.google.devtools.j2objc.Options.MemoryManagementOption;
 import com.google.devtools.j2objc.util.ElementUtil;
 import org.mockito.MockedStatic;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 
@@ -33,6 +35,8 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.RETURNS_DEFAULTS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
 
@@ -655,21 +659,14 @@ public class FunctionizerTest extends GenerationTest {
   }
 
   public void testKotlinType() throws  IOException {
-      try(MockedStatic<ElementUtil> ElementUtilMock = mockStatic(ElementUtil.class, CALLS_REAL_METHODS)) {
-        ElementUtilMock.when(() -> ElementUtil.isKotlinType(any(TypeElement.class))).thenReturn(true);
-        ElementUtilMock.when(() -> ElementUtil.isKotlinType(any(Element.class))).thenReturn(true);
-        String translation = translateSourceFile("class KotlinObject {\n" +
-                        "   public static final String staticMethodNoParamsWithAnnotation() {return \"return\";\n} " +
-                        "} \n" +
-                        "class Test {\n" +
-                        "public static void testStatic() {\n" +
-                        "\n" +
-                        "        final String value1 = KotlinObject.staticMethodNoParamsWithAnnotation();\n" +
-                        "}\n" +
-                        "}",
-                "Test", "Test.m");
+        String translation = translateSourceFile(
+          "class Test {\n" +
+          "public static void testStatic() {\n" +
+          "\n" +
+          "        final String value1 = KotlinObject.staticMethodNoParamsWithAnnotation();\n" +
+          "}\n" +
+          "}",
+  "Test", "Test.m");
         assertTranslation(translation, "staticMethodNoParamsWithAnnotation");
-        assertTrue(ElementUtil.isKotlinType(any(ExecutableElement.class)));
-      }
   }
 }

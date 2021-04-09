@@ -60,7 +60,7 @@ MOCKITO_JAR = mockito-core-3.8.0.jar
 MOCKITO_SOURCE_JAR = mockito-core-3.8.0-sources.jar
 
 BYTE_BUDDY_JAR = byte-buddy-1.10.20.jar
-BYTE_BUDDY_AGENT_JAR = byte-buddy-agebnt-1.10.20.jar
+BYTE_BUDDY_AGENT_JAR = byte-buddy-agent-1.10.20.jar
 
 JSR305_JAR = jsr305-3.0.0.jar
 JSR305_SOURCE_JAR = jsr305-3.0.0.jar

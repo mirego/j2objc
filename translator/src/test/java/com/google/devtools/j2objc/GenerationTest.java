@@ -121,7 +121,7 @@ public class GenerationTest extends TestCase {
     options.load(new String[]{
         "-d", tempPath,
         "-sourcepath", tempPath,
-        "-classpath", tempPath,
+        "-classpath", tempPath + ":/Users/louis-philippedupuis/Documents/mirego-kotlin-interop-sandbox/common/build/libs/common-jvm-0.0.1.jar",
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
     });
