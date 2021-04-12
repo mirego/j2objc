@@ -6,6 +6,8 @@ import com.mirego.interop.java.test.enums.SimpleEnumAccessValue2;
 import com.mirego.interop.java.test.enums.SimpleEnumAccessValue3;
 import com.mirego.interop.java.test.enums.SimpleEnumOrdinal;
 import com.mirego.interop.java.test.enums.SimpleEnumValues;
+import com.mirego.interop.java.test.enums.SimpleEnumSwitchCase;
+import com.mirego.interop.java.test.enums.EnumWithPropertyAccessProperty;
 
 import java.io.IOException;
 import org.junit.Test;
@@ -58,5 +60,23 @@ public class EnumsTest extends GenerationTest {
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
         assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) ordinal];");
+    }
+
+    @Test
+    public void testSimpleEnumSwitchCase() throws IOException {
+
+        String className = SimpleEnumSwitchCase.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+        assertTranslation(translation, "xxx");
+    }
+
+    @Test
+    public void testEnumWithPropertyAccessProperty() throws IOException {
+
+        String className = EnumWithPropertyAccessProperty.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+        assertTranslation(translation, "xxx");
     }
 }

@@ -39,4 +39,16 @@ public class EnumsTests extends TestCase {
         SimpleEnumOrdinal simpleEnumOrdinal = new SimpleEnumOrdinal();
         assert (simpleEnumOrdinal.main(args) == 0);
     }
+
+    @Test
+    public void testSimpleEnumSwitchCase() throws IOException {
+        SimpleEnumSwitchCase simpleEnumSwitchCase = new SimpleEnumSwitchCase();
+        assert (simpleEnumSwitchCase.main(args) == 0);
+    }
+
+    @Test
+    public void testEnumWithPropertyAccessProperty() throws IOException {
+        EnumWithPropertyAccessProperty enumWithPropertyAccessProperty = new EnumWithPropertyAccessProperty();
+        assert (enumWithPropertyAccessProperty.main(args) == "xx");
+    }
 }
