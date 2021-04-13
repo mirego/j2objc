@@ -328,4 +328,12 @@ public class NameTableTest extends GenerationTest {
         "            withInt:(jint)stdin_",
         "            withInt:(jint)aReservedParamName_;");
   }
+
+  public void testLowerCaseFirstLetterOfString() {
+    String upperCaseWord = "WordOne";
+
+    String result = NameTable.lowerCase(upperCaseWord);
+
+    assertEquals("wordOne", result);
+  }
 }

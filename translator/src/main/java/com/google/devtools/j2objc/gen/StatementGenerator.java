@@ -555,7 +555,11 @@ public class StatementGenerator extends UnitTreeVisitor {
     Expression receiver = node.getExpression();
     buffer.append('[');
     if (ElementUtil.isStatic(element)) {
-      buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
+      if (ElementUtil.isKotlinType(element) && receiver != null) {
+        receiver.accept(this);
+      } else {
+        buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
+      }
     } else if (receiver != null) {
       receiver.accept(this);
     } else {

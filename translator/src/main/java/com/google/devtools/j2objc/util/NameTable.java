@@ -26,6 +26,7 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.j2objc.annotations.ObjectiveCName;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,10 +42,10 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -98,13 +99,13 @@ public class NameTable {
   // Regex pattern for fully-qualified Java class or package names.
   private static final String JAVA_CLASS_NAME_REGEX
       = "(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*"
-          + "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
+      + "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
   private static final Pattern JAVA_CLASS_NAME_PATTERN = Pattern.compile(JAVA_CLASS_NAME_REGEX);
 
 
   private static ImmutableSet<String> loadReservedNames(Supplier<InputStream> inputStream) {
     try (InputStream stream = inputStream.get();
-        BufferedReader lines = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+         BufferedReader lines = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
       ImmutableSet.Builder<String> builder = ImmutableSet.builder();
       String line;
       while ((line = lines.readLine()) != null) {
@@ -272,6 +273,13 @@ public class NameTable {
   }
 
   /**
+   * Lowercase the first letter of a String
+   */
+  public static String lowerCase(String s) {
+    return s.length() > 0 ? Character.toLowerCase(s.charAt(0)) + s.substring(1) : s;
+  }
+
+  /**
    * Given a period-separated name, return as a camel-cased type name.  For
    * example, java.util.logging.Level is returned as JavaUtilLoggingLevel.
    */
@@ -298,7 +306,7 @@ public class NameTable {
       Pattern.compile("^[_]*(new|copy|alloc|init|mutableCopy).*");
 
   public static boolean needsObjcMethodFamilyNoneAttribute(String name) {
-     return FAMILY_METHOD_REGEX.matcher(name).matches();
+    return FAMILY_METHOD_REGEX.matcher(name).matches();
   }
 
   private String getParameterTypeKeyword(TypeMirror type) {
@@ -371,24 +379,23 @@ public class NameTable {
     return false;
   }
 
-    private boolean appendParamKeywordKotlin(
-        StringBuilder sb, Name paramName, char delim, boolean first) {
-        String keyword = paramName.toString();
-        if (first) {
-            keyword = capitalize(keyword);
-        }
-        sb.append(keyword).append(delim);
-        return false;
+  private boolean appendParamKeywordKotlin(
+      StringBuilder sb, String keyword, char delim, boolean first) {
+    if (first) {
+      keyword = capitalize(keyword);
     }
+    sb.append(keyword).append(delim);
+    return false;
+  }
 
-    private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
-        for(Element x : elements) {
-            if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
-                return Optional.of(x.getSimpleName().toString());
-            }
-        }
-        return Optional.empty();
+  private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
+    for (Element x : elements) {
+      if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
+        return Optional.of(x.getSimpleName().toString());
+      }
     }
+    return Optional.empty();
+  }
 
   private String addParamNames(ExecutableElement method, String name, char delim) {
     StringBuilder sb = new StringBuilder(name);
@@ -400,18 +407,26 @@ public class NameTable {
       }
     }
     for (VariableElement param : method.getParameters()) {
-      if(ElementUtil.isKotlinType(method)) {
+      if (ElementUtil.isKotlinType(method)) {
+        if (ElementUtil.isStatic(method)) {
+          List<String> functionParams = KotlinMetadataUtil.getFunctionParameterNames(method.getEnclosingElement(), method.getSimpleName().toString());
 
-        if(first && method.getSimpleName().toString().equals("<init>")) {
+          for (String parameter : functionParams) {
+            first = appendParamKeywordKotlin(sb, parameter, delim, first);
+          }
+          break;
+        }
+
+        if (first && method.getSimpleName().toString().equals("<init>")) {
           sb.append("With");
         }
 
-        if(name.startsWith("set") &&
+        if (name.startsWith("set") &&
             checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
           break;
         }
 
-        first = appendParamKeywordKotlin(sb, param.getSimpleName(), delim, first);
+        first = appendParamKeywordKotlin(sb, param.getSimpleName().toString(), delim, first);
       } else {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
@@ -427,15 +442,15 @@ public class NameTable {
   public String getMethodSelector(ExecutableElement method) {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
-        if(selector.startsWith("get") && ElementUtil.isKotlinType(method)) {
-            Optional<String> getterName =
-                checkEnclosedElementsForField(ElementUtil.getDeclaringClass(method).getEnclosedElements(),
-                    selector.substring(3));
-            if(getterName.isPresent()) {
-                return getterName.get();
-            }
-
+      if (selector.startsWith("get") && ElementUtil.isKotlinType(method)) {
+        Optional<String> getterName =
+            checkEnclosedElementsForField(ElementUtil.getDeclaringClass(method).getEnclosedElements(),
+                selector.substring(3));
+        if (getterName.isPresent()) {
+          return getterName.get();
         }
+
+      }
       return selector;
     }
     selector = getMethodSelectorInner(method);
@@ -727,21 +742,23 @@ public class NameTable {
     return prefixMap.getPrefix(packageElement);
   }
 
-    private String getPrefixKotlin(PackageElement packageElement) {
-        String prefix = prefixMap.getPrefix(packageElement);
-        StringBuilder kotlinPrefix = new StringBuilder();
+  private String getPrefixKotlin(PackageElement packageElement) {
+    String prefix = prefixMap.getPrefix(packageElement);
+    StringBuilder kotlinPrefix = new StringBuilder();
 
-        for(int i = 0; i < prefix.length(); i++) {
-            char current = prefix.charAt(i);
-            if(Character.isUpperCase(current)) {
-                kotlinPrefix.append(current);
-            }
-        }
-
-        return kotlinPrefix.toString();
+    for (int i = 0; i < prefix.length(); i++) {
+      char current = prefix.charAt(i);
+      if (Character.isUpperCase(current)) {
+        kotlinPrefix.append(current);
+      }
     }
 
-  /** Ignores the ObjectiveCName annotation. */
+    return kotlinPrefix.toString();
+  }
+
+  /**
+   * Ignores the ObjectiveCName annotation.
+   */
   private String getDefaultObjectiveCName(TypeElement element) {
     String binaryName = elementUtil.getBinaryName(element);
     return camelCaseQualifiedName(binaryName).replace('$', '_');
