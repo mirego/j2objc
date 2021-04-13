@@ -254,6 +254,7 @@ public class Functionizer extends UnitTreeVisitor {
   @Override
   public void endVisit(MethodInvocation node) {
     ExecutableElement method = node.getExecutableElement();
+
     if (ElementUtil.isKotlinType(method)) {
       String fullName = nameTable.getFullFunctionName(method);
       String commonClassName = fullName.substring(0, fullName.indexOf("_"));
