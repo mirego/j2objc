@@ -36,7 +36,9 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	SimpleEnumValues.h \
 	SimpleEnumValues.m \
 	SimpleDataClassCopy.h \
-	SimpleDataClassCopy.m
+	SimpleDataClassCopy.m \
+	EnumWithPropertyAccessProperty.h \
+	EnumWithPropertyAccessProperty.m
 
 KOTLIN_INTEROP_JAVA_SOURCES_DIR = $(KOTLIN_INTEROP_DIR)/src/commonMain/kotlin/com/mirego/interop/java/test
 KOTLIN_INTEROP_JAVA_SOURCES = $(shell find $(KOTLIN_INTEROP_JAVA_SOURCES_DIR) -name '*.java')
