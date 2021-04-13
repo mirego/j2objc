@@ -668,7 +668,7 @@ public class FunctionizerTest extends GenerationTest {
                     "}\n" +
                     "}",
             "Test", "Test.m");
-    assertTranslation(translation, "__unused NSString *value1 = [[CommonKotlinObject kotlinObject] staticMethodNoParamsWithAnnotation];");
+    assertTranslation(translation, "NSString *value1 = [[CommonKotlinObject kotlinObject] staticMethodNoParamsWithAnnotation];");
   }
 
   public void testKotlinStaticMethodWithMultipleParams() throws IOException {
@@ -681,6 +681,6 @@ public class FunctionizerTest extends GenerationTest {
                     "}\n" +
                     "}",
             "Test", "Test.m");
-    assertTranslation(translation, "__unused NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
+    assertTranslation(translation, "NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
   }
 }

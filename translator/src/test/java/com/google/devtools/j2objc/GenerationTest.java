@@ -124,6 +124,7 @@ public class GenerationTest extends TestCase {
     String jarRelativePath = "../common/build/libs/common-jvm-0.0.1.jar";
     String jarAbsolutePath = FileSystems.getDefault().getPath(jarRelativePath).normalize().toAbsolutePath().toString();
     jarAbsolutePath = jarAbsolutePath.replace("submodules/j2objc/translator/../", "");
+    options.getPackagePrefixes().addPrefix("com.mirego.interop.*", "Common");
 
     options.load(new String[]{
         "-d", tempPath,
