@@ -101,14 +101,19 @@ import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
+
 import java.util.Iterator;
 import java.util.List;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+
+import kotlinx.metadata.Flag;
+import kotlinx.metadata.KmClass;
 
 /**
  * Returns an Objective-C equivalent of a Java AST node.
@@ -766,8 +771,16 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append("  default:\n");
     } else {
       buffer.append("  case ");
-      node.getExpression().accept(this);
-      buffer.append(":\n");
+
+      // MIREGO kotlin interop >>
+      Expression expression = node.getExpression();
+      if (isKotlinExpression(expression)) {
+        convertCaseKotlin(expression);
+      } else {
+        expression.accept(this);
+        buffer.append(":\n");
+      }
+      // MIREGO <<
     }
     return false;
   }
@@ -1008,6 +1021,43 @@ public class StatementGenerator extends UnitTreeVisitor {
   public boolean visit(PropertyAccess node) {
     buffer.append(node.getAccessStatement());
     return false;
+  }
+
+  private static Element getElementFromExpression(Expression expression) {
+    return expression != null ? TreeUtil.getVariableElement(expression) : null;
+  }
+
+  private static boolean isKotlinExpression(Expression expression) {
+    Element element = getElementFromExpression(expression);
+    return element != null && ElementUtil.isKotlinType(element);
+  }
+
+  private static int findOrdinalForEnumValue(KmClass kotlinMetaData, String enumValue) {
+    return  kotlinMetaData.getEnumEntries().indexOf(enumValue);
+  }
+
+  private void convertCaseKotlin(Expression expression) {
+    Element element = getElementFromExpression(expression);
+    KmClass kotlinMetaData = ElementUtil.getKotlinMetaData(element);
+
+    int flags = kotlinMetaData.getFlags();
+    if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {
+      if (expression instanceof SimpleName) {
+        SimpleName caseEnumValue = (SimpleName) expression;
+        String caseEnumValueName = caseEnumValue.getIdentifier();
+
+        int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
+        buffer.append(ordinalForEnumValue + ":");
+
+        // add comment so a human reading the code knows what each ordinals match to what enum values
+        buffer.append(" // " + caseEnumValueName + "\n");
+      } else {
+        throw new RuntimeException("In kotlin switch case only SimpleName enum cases supported: " + expression.getClass());
+      }
+    } else {
+      expression.accept(this);
+      buffer.append(":\n");
+    }
   }
 
   // MIREGO <<
