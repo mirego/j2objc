@@ -9,7 +9,6 @@ KOTLIN_NATIVE_DIR = $(J2OBJC_ROOT)/kotlin-native-tests
 KOTLIN_NATIVE_BUILD_OUTPUT_DIR = $(KOTLIN_NATIVE_DIR)/build_result
 KOTLIN_NATIVE_SOURCE_DIR = $(KOTLIN_NATIVE_DIR)/src/test/java
 TRANSLATOR_DIR = $(J2OBJC_ROOT)/translator
-JRE_EMUL_DIR = $(J2OBJC_ROOT)/jre_emul
 KOTLIN_NATIVE_HEADER_WRAPPER = $(KOTLIN_NATIVE_DIR)/Common_wrapper.h
 
 # files here are disabled for j2objc jira to fix is noted after
@@ -65,10 +64,12 @@ kotlin_clean_native:
 	@rm -rf $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)
 
 kotlin_native_deps: 
-	@cd $(TRANSLATOR_DIR) && $(MAKE) translator
-	@cd $(JRE_EMUL_DIR) && $(MAKE) ../dist/j2objcc
+	@cd $(J2OBJC_ROOT) && $(MAKE) junit_dist
 
-kotlin_translate_tests: kotlin_interop
+kotlin_translator:
+	@cd $(TRANSLATOR_DIR) && $(MAKE) translator
+
+kotlin_translate_tests: kotlin_interop kotlin_translator
 	$(J2OBJC_EXE) \
 	-classpath $(TEST_CLASSPATH)  \
 	-encoding UTF-8 \
@@ -94,7 +95,7 @@ kotlin_remove_disabled_tests: kotlin_translate_tests
 kotlin_copy_header_wrapper: kotlin_remove_disabled_tests
 	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 
-kotlin_compile_tests: kotlin_copy_header_wrapper junit_dist
+kotlin_compile_tests: kotlin_copy_header_wrapper
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \

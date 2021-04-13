@@ -68,7 +68,16 @@ public class EnumsTest extends GenerationTest {
         String className = SimpleEnumSwitchCase.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "xxx");
+        assertTranslation(translation, "switch ([testEnum ordinal]) {\n" +
+                "    case 0: // ENUMVALUE1\n" +
+                "    return 1;\n" +
+                "    case 1: // ENUM_VALUE2\n" +
+                "    return 2;\n" +
+                "    case 2: // ENUM_VALUE_3\n" +
+                "    return 3;\n" +
+                "    default:\n" +
+                "    return 4;\n" +
+                "  }");
     }
 
     @Test
