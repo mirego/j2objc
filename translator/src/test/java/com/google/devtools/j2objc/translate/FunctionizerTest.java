@@ -660,7 +660,8 @@ public class FunctionizerTest extends GenerationTest {
 
   public void testKotlinStaticMethodWithNoParams() throws IOException {
     String translation = translateSourceFile(
-            "import com.mirego.interop.KotlinObject;" +
+            "import com.mirego.interop.KotlinObject;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
                     "class Test {\n" +
                     "public static void testStatic() {\n" +
                     "\n" +
@@ -668,12 +669,13 @@ public class FunctionizerTest extends GenerationTest {
                     "}\n" +
                     "}",
             "Test", "Test.m");
-    assertTranslation(translation, "NSString *value1 = [[CommonKotlinObject kotlinObject] staticMethodNoParamsWithAnnotation];");
+    assertTranslation(translation, "__unused NSString *value1 = [[CommonKotlinObject kotlinObject] staticMethodNoParamsWithAnnotation];");
   }
 
   public void testKotlinStaticMethodWithMultipleParams() throws IOException {
     String translation = translateSourceFile(
-            "import com.mirego.interop.KotlinObject;" +
+            "import com.mirego.interop.KotlinObject;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
                     "class Test {\n" +
                     "public static void testStatic() {\n" +
                     "\n" +
@@ -681,6 +683,6 @@ public class FunctionizerTest extends GenerationTest {
                     "}\n" +
                     "}",
             "Test", "Test.m");
-    assertTranslation(translation, "NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
+    assertTranslation(translation, "__unused NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
   }
 }
