@@ -886,7 +886,14 @@ public class StatementGenerator extends UnitTreeVisitor {
     } else if (type.getKind().isPrimitive() || TypeUtil.isVoid(type)) {
       buffer.append(UnicodeUtils.format("[IOSClass %sClass]", TypeUtil.getName(type)));
     } else {
-      buffer.append(nameTable.getFullName(TypeUtil.asTypeElement(type))).append("_class_()");
+      TypeElement typeElement = TypeUtil.asTypeElement(type);
+      // MIREGO Kotlin Interop >>
+      if (ElementUtil.isKotlinType(typeElement)) {
+        buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
+        // MIREGO <<
+      } else {
+        buffer.append(nameTable.getFullName(typeElement)).append("_class_()");
+      }
     }
     return false;
   }
