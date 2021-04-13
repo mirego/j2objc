@@ -658,16 +658,29 @@ public class FunctionizerTest extends GenerationTest {
     assertTranslation(translation, "+ (IOSObjectArray *)values {");
   }
 
-  public void testKotlinType() throws  IOException {
-        String translation = translateSourceFile(
-          "import com.mirego.interop.KotlinObject;" +
-                  "class Test {\n" +
-          "public static void testStatic() {\n" +
-          "\n" +
-          "        final String value1 = KotlinObject.staticMethodNoParamsWithAnnotation();\n" +
-          "}\n" +
-          "}",
-  "Test", "Test.m");
-        assertTranslation(translation, "staticMethodNoParamsWithAnnotation");
+  public void testKotlinStaticMethodWithNoParams() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.KotlinObject;" +
+                    "class Test {\n" +
+                    "public static void testStatic() {\n" +
+                    "\n" +
+                    "        final String value1 = KotlinObject.staticMethodNoParamsWithAnnotation();\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "__unused NSString *value1 = [[CommonKotlinObject kotlinObject] staticMethodNoParamsWithAnnotation];");
+  }
+
+  public void testKotlinStaticMethodWithMultipleParams() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.KotlinObject;" +
+                    "class Test {\n" +
+                    "public static void testStatic() {\n" +
+                    "\n" +
+                    "        final String value4 = KotlinObject.staticMethodWithAnnotationMultipleParams(\"param\", 1, 1, true);\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "__unused NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
   }
 }
