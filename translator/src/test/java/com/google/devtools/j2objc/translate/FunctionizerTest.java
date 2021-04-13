@@ -660,7 +660,8 @@ public class FunctionizerTest extends GenerationTest {
 
   public void testKotlinType() throws  IOException {
         String translation = translateSourceFile(
-          "class Test {\n" +
+          "import com.mirego.interop.KotlinObject;" +
+                  "class Test {\n" +
           "public static void testStatic() {\n" +
           "\n" +
           "        final String value1 = KotlinObject.staticMethodNoParamsWithAnnotation();\n" +
