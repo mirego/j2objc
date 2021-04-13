@@ -64,7 +64,7 @@ import javax.tools.JavaFileObject;
 /**
  * Utility methods for working with elements.
  */
-public class ElementUtil {
+public final class ElementUtil {
 
   // Flags defined in JVM spec, table 4.1. These constants are also defined in
   // java.lang.reflect.Modifier, but aren't public.
