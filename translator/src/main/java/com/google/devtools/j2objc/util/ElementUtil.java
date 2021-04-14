@@ -18,8 +18,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.devtools.j2objc.Options;
+import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.SimpleName;
+import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.types.GeneratedElement;
 import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedTypeElement;
@@ -902,18 +904,6 @@ public final class ElementUtil {
     return false;
   }
 
-//  public static boolean isKotlinGetter(Element node, KmClass kotlinClass) {
-//
-//    if (!isKotlinGetterOrSetter(node, kotlinClass)) {
-//      return false;
-//    }
-//    return true;
-//  }
-//
-//  public static boolean isKotlinSetter(Element node, KmClass kotlinClass) {
-//    return false;
-//  }
-
   public static boolean isKotlinGetter(Element node) {
     return node.getSimpleName().toString().startsWith(GETTER_PREFIX);
   }
@@ -968,6 +958,36 @@ public final class ElementUtil {
     KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
     KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
     return ((KotlinClassMetadata.Class) metadata).toKmClass();
+  }
+
+  public static Element getElementFromExpression(Expression expression) {
+    if (expression == null) {
+      return null;
+    }
+
+    Element element = TreeUtil.getVariableElement(expression);
+    if (element == null) {
+      element = TreeUtil.getExecutableElement(expression);
+    }
+
+    return element;
+  }
+
+  public static boolean isKotlinExpression(Expression expression) {
+    Element element = getElementFromExpression(expression);
+    return element != null && ElementUtil.isKotlinType(element);
+  }
+
+  public static boolean isKotlinEnum(Expression expression) {
+    Element elementFromExpression = getElementFromExpression(expression);
+    return elementFromExpression != null && isKotlinEnum(elementFromExpression);
+  }
+
+  public static boolean isKotlinEnum(Element element) {
+
+    KmClass kotlinMetaData = getKotlinMetaData(element);
+    int flags = kotlinMetaData.getFlags();
+    return Flag.Class.IS_ENUM_CLASS.invoke(flags);
   }
 
   // MIREGO <<

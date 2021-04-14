@@ -33,8 +33,6 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	StaticMethodWithListParamWithAnnotation.m \
 	PublicFunctionWithDefaultArguments.h \
 	PublicFunctionWithDefaultArguments.m \
-	SimpleEnumValues.h \
-	SimpleEnumValues.m \
 	SimpleDataClassCopy.h \
 	SimpleDataClassCopy.m \
 	EnumWithPropertyAccessProperty.h \

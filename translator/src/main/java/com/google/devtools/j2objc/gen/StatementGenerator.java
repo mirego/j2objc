@@ -1024,7 +1024,15 @@ public class StatementGenerator extends UnitTreeVisitor {
   }
 
   private static Element getElementFromExpression(Expression expression) {
-    return expression != null ? TreeUtil.getVariableElement(expression) : null;
+    if (expression == null) {
+      return null;
+    }
+
+    Element element = TreeUtil.getVariableElement(expression);
+    if (element == null) {
+      element = TreeUtil.getExecutableElement(expression);
+    }
+    return element;
   }
 
   private static boolean isKotlinExpression(Expression expression) {

@@ -24,6 +24,7 @@ import com.google.devtools.j2objc.ast.LabeledStatement;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.PostfixExpression;
 import com.google.devtools.j2objc.ast.PrefixExpression;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.SingleVariableDeclaration;
 import com.google.devtools.j2objc.ast.Statement;
@@ -32,21 +33,34 @@ import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.types.ExecutablePair;
+import com.google.devtools.j2objc.types.GeneratedExecutableElement;
+import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.AutoreleasePool;
 import com.google.j2objc.annotations.LoopTranslation;
 import com.google.j2objc.annotations.LoopTranslation.LoopStyle;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.SymbolMetadata;
+import com.sun.tools.javac.code.Type;
+
 import java.util.List;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+
+import kotlinx.metadata.KmClass;
 
 /**
  * Rewrites Java enhanced for loops into appropriate C constructs.
@@ -68,6 +82,14 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     if (ElementUtil.hasAnnotation(loopVariable, AutoreleasePool.class)) {
       makeBlock(node.getBody()).setHasAutoreleasePool(true);
     }
+
+    // MIREGO kotlin interop >>
+    if (ElementUtil.isKotlinExpression(expression)){
+      if (endVisitKotlin(node)) {
+        return;
+      }
+    }
+    // MIREGO <<
 
     if (TypeUtil.isArray(expressionType)) {
       handleArrayIteration(node);
@@ -218,4 +240,101 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     block.addStatement(stmt);
     return block;
   }
+
+  // MIREGO kotlin interop >>
+
+  private boolean endVisitKotlin(EnhancedForStatement node) {
+    if (ElementUtil.isKotlinEnum(node.getExpression())) {
+      convertToKotlinLoopIterator(node);
+      return true;
+    }
+
+    return false;
+  }
+
+  /*
+
+      CommonKotlinArray *array = CommonSimpleEnum.values;
+    id<CommonKotlinIterator> iterator = [array iterator];
+
+    while([iterator hasNext])
+    {
+       CommonSimpleEnum *next = [iterator next];
+        JreStrAppend(&combinedEnumNames, "$", [((CommonSimpleEnum *) nil_chk(next)) name]);
+    }
+   */
+
+  private void convertToKotlinLoopIterator(EnhancedForStatement node) {
+    Expression expression = node.getExpression();
+    VariableElement loopVariable = node.getParameter().getVariableElement();
+    Element elementFromExpression = ElementUtil.getElementFromExpression(expression);
+
+    Name simpleName = elementFromExpression.getSimpleName();
+    if (!simpleName.contentEquals("values") &&  elementFromExpression instanceof ExecutableElement) {
+      throw new RuntimeException("looping on an enum without using values not supported yet: " + simpleName.toString());
+    }
+
+    GeneratedTypeElement commonKotlinArray = GeneratedTypeElement.newIosClass("CommonKotlinArray", null, null);
+    GeneratedTypeElement commonKotlinIterator = GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
+
+    String enumName = nameTable.getFullFunctionName((ExecutableElement)elementFromExpression);
+    enumName = enumName.substring(0, enumName.indexOf("_"));
+    SimpleName enumSimpleName = new SimpleName(enumName);
+    SimpleName iteratorSimpleName = new SimpleName("iterator");
+    SimpleName arraySimpleName = new SimpleName("values");
+
+    GeneratedTypeElement enumType = GeneratedTypeElement.newIosClass(enumName, null, null);
+    GeneratedVariableElement kotlinArrayVariable = GeneratedVariableElement
+            .newLocalVar(arraySimpleName.getIdentifier(), commonKotlinArray.asType(), commonKotlinArray);
+    GeneratedVariableElement kotlinArrayIterator = GeneratedVariableElement
+            .newLocalVar(iteratorSimpleName.getIdentifier(), TypeUtil.ID_TYPE, commonKotlinIterator);
+
+    PropertyAccess propertyAccess = new PropertyAccess(elementFromExpression, commonKotlinArray.asType(), enumSimpleName);
+    TreeUtil.remove(expression);
+    VariableDeclarationStatement kotlinArrayDecl =
+            new VariableDeclarationStatement(kotlinArrayVariable, propertyAccess);
+
+    GeneratedExecutableElement getIteratorElement = GeneratedExecutableElement
+            .newMethodWithSelector("iterator", kotlinArrayIterator.asType(),
+                    commonKotlinArray);
+
+    ExecutablePair getIteratorPair = new ExecutablePair(getIteratorElement);
+
+    MethodInvocation iteratorInvocation =
+            new MethodInvocation(getIteratorPair, arraySimpleName);
+
+    VariableDeclarationStatement kotlinArrayIteratorDecl =
+            new VariableDeclarationStatement(kotlinArrayIterator, iteratorInvocation);
+
+    GeneratedExecutableElement hasNextKotlinIterator = GeneratedExecutableElement
+            .newMethodWithSelector("hasNext", typeUtil.getBoolean(),
+                    commonKotlinIterator);
+    ExecutablePair hasNextPair = new ExecutablePair(hasNextKotlinIterator);
+    MethodInvocation hasNextIteratorInvocation =
+            new MethodInvocation(hasNextPair, iteratorSimpleName);
+
+    GeneratedExecutableElement nextKotlinIterator = GeneratedExecutableElement
+            .newMethodWithSelector("next", enumType.asType(),
+                    commonKotlinIterator);
+    ExecutablePair nextPair = new ExecutablePair(nextKotlinIterator);
+    MethodInvocation nextIteratorInvocation =
+            new MethodInvocation(nextPair, iteratorSimpleName.copy());
+
+    Block newLoopBody = makeBlock(TreeUtil.remove(node.getBody()));
+    newLoopBody.addStatement(
+            0, new VariableDeclarationStatement(loopVariable, nextIteratorInvocation));
+
+    WhileStatement whileLoop = new WhileStatement();
+    whileLoop.setExpression(hasNextIteratorInvocation);
+    whileLoop.setBody(newLoopBody);
+
+    Block block = new Block();
+    List<Statement> stmts = block.getStatements();
+    stmts.add(kotlinArrayDecl);
+    stmts.add(kotlinArrayIteratorDecl);
+    stmts.add(whileLoop);
+    replaceLoop(node, block, whileLoop);
+  }
+
+  // MIREGO <<
 }

@@ -43,15 +43,14 @@ public class EnumsTest extends GenerationTest {
         assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue3)) description];");
     }
 
-    // not working need to fix enum .values() access and return value in for loop is IOSObjectArray with does not seem to match KotlinArray
-//    @Test
-//    public void testSimpleEnumValues() throws IOException {
-//
-//        String className = SimpleEnumValues.class.getSimpleName();
-//        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//        assertTranslation(translation, "xxxxx");
-//    }
+    @Test
+    public void testSimpleEnumValues() throws IOException {
+
+        String className = SimpleEnumValues.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+        assertTranslation(translation, "xxxxx");
+    }
 
     @Test
     public void testSimpleEnumOrdinal() throws IOException {
