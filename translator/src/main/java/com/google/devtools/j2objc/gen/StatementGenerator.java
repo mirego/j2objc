@@ -98,6 +98,7 @@ import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
@@ -1045,7 +1046,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   private void convertCaseKotlin(Expression expression) {
     Element element = getElementFromExpression(expression);
-    KmClass kotlinMetaData = ElementUtil.getKotlinMetaData(element);
+    KmClass kotlinMetaData = KotlinUtil.getKotlinMetaData(element);
 
     int flags = kotlinMetaData.getFlags();
     if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {

@@ -30,6 +30,7 @@
 #import "java/lang/Throwable.h"
 #import "java/util/logging/Level.h"
 #import "java/util/logging/Logger.h"
+#import "java/util/ArrayList.h"
 #import "objc/runtime.h"
 
 id JreThrowNullPointerException() {
@@ -447,3 +448,18 @@ NSUInteger JreDefaultFastEnumeration(
   }
   return objCount;
 }
+//MIREGO kotlin interop >>
+
+id <JavaUtilList> toJavaUtilList( NSArray<id> *sourceArray){
+    id <JavaUtilList> list = [[JavaUtilArrayList alloc] initWithInt:(jint)sourceArray.count];
+    NSEnumerator *enumerator = [sourceArray objectEnumerator];
+    id contentObject;
+
+    while (contentObject = [enumerator nextObject]) {
+       [list addWithId:contentObject];
+    }
+
+    return list;
+}
+
+//MIREGO <<

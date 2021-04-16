@@ -25,6 +25,7 @@
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
+@protocol JavaUtilList;
 
 #ifndef __has_feature
 #define __has_feature(x) 0  // Compatibility with non-clang compilers.
@@ -279,5 +280,12 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
     ((__bridge Class)&(J2OBJC_CLASS_SYMBOL(name)))
 #define J2OBJC_CLASS_DECLARATION(name) \
     extern const J2ObjCClass_t J2OBJC_CLASS_SYMBOL(name)
+
+
+//MIREGO kotlin interop >>
+
+id <JavaUtilList> toJavaUtilList(NSArray<id>*);
+
+//MIREGO <<
 
 #endif // _J2OBJC_COMMON_H_
