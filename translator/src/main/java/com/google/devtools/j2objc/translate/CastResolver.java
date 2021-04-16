@@ -32,6 +32,7 @@ import com.google.devtools.j2objc.ast.InstanceofExpression;
 import com.google.devtools.j2objc.ast.MethodDeclaration;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.ParenthesizedExpression;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.ReturnStatement;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.SuperConstructorInvocation;
@@ -229,6 +230,10 @@ public class CastResolver extends UnitTreeVisitor {
             invocation.getExecutableElement(),
             TreeUtil.getEnclosingTypeElement(invocation).getSuperclass());
       }
+      // MIREGO Kotlin Interop >>
+      case PROPERTY_ACCESS:
+        return expr.getTypeMirror();
+      // MIREGO Kotlin Interop <<
       default:
         return null;
     }
@@ -482,4 +487,12 @@ public class CastResolver extends UnitTreeVisitor {
     }
     return true;
   }
+
+  // MIREGO Kotlin Interop >>
+  @Override
+  public void endVisit(PropertyAccess node) {
+    maybeAddCast(node.getReceiver(), null, true);
+  }
+  // MIREGO Kotlin Interop <<
+
 }

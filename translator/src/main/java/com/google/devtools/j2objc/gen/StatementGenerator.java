@@ -1026,7 +1026,10 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   @Override
   public boolean visit(PropertyAccess node) {
-    buffer.append(node.getAccessStatement());
+    node.getReceiver().accept(this);
+    buffer.append(".");
+    node.getPropertyName().accept(this);
+
     return false;
   }
 
