@@ -60,6 +60,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -118,10 +121,15 @@ public class GenerationTest extends TestCase {
   protected void loadOptions() throws IOException {
     options = new Options();
     String tempPath = tempDir.getAbsolutePath();
+    String jarRelativePath = "../common/build/libs/common-jvm-0.0.1.jar";
+    String jarAbsolutePath = FileSystems.getDefault().getPath(jarRelativePath).normalize().toAbsolutePath().toString();
+    jarAbsolutePath = jarAbsolutePath.replace("submodules/j2objc/translator/../", "");
+    options.getPackagePrefixes().addPrefix("com.mirego.interop.*", "Common");
+
     options.load(new String[]{
         "-d", tempPath,
         "-sourcepath", tempPath,
-        "-classpath", tempPath,
+        "-classpath", tempPath + ":" + jarAbsolutePath,
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
     });
@@ -134,6 +142,9 @@ public class GenerationTest extends TestCase {
   protected static Parser initializeParser(File tempDir, Options options) {
     Parser parser = Parser.newParser(options);
     parser.addClasspathEntries(getComGoogleDevtoolsJ2objcPath());
+    for (String classpath: options.fileUtil().getClassPathEntries()) {
+      parser.addClasspathEntries(classpath);
+    }
     parser.addSourcepathEntry(tempDir.getAbsolutePath());
     return parser;
   }

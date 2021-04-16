@@ -15,5 +15,9 @@
 	<classpathentry kind="lib" path="../java_deps/build_result/plume-util-1.0.6.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/kotlin-stdlib-1.4.21.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/kotlinx-metadata-jvm-0.2.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/mockito-inline-3.8.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/mockito-core-3.8.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/byte-buddy-1.10.20.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/byte-buddy-agent-1.10.20.jar"/>
 	<classpathentry kind="output" path="build_result/eclipse"/>
 </classpath>
