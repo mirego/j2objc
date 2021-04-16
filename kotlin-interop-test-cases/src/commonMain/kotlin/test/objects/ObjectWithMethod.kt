@@ -19,4 +19,9 @@ object ObjectWithMethod {
     fun staticMethodWithListParamWithAnnotation(input: List<Int>): List<Int> {
         return input
     }
+
+    @JvmStatic
+    fun <T> staticMethodWithGenericParam(input: T): T {
+        return input
+    }
 }

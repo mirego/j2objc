@@ -14,10 +14,20 @@ public class WithGenerics {
         public U convert(T input) {
             return (U)input;
         }
+
+        @Override
+        public <V> V convertWithFunctionGeneric(V v) {
+            return v;
+        }
+
+        @Override
+        public <W> W convertWithAnotherFunctionGeneric(W w) {
+            return w;
+        }
     }
 
-    public static int main(String[] args) {
+    public static Integer main(String[] args) {
         InterfaceWithGenerics<Integer, Integer> process = process();
-        return process.convert(5);
+        return process.convert(5) + process.convertWithFunctionGeneric(3) + process.convertWithAnotherFunctionGeneric(1);
     }
 }

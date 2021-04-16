@@ -12,13 +12,19 @@ public class ObjectsTests extends TestCase {
     @Test
     public void testStaticMethodWithoutParamsWithAnnotation() {
         StaticMethodWithoutParamWithAnnotation staticWithouParam = new StaticMethodWithoutParamWithAnnotation();
-        assert(staticWithouParam.main(args) == "return");
+        assertEquals("return", staticWithouParam.main(args));
     }
 
     @Test
     public void testStaticMethodWithStringParamsWithAnnotation() {
         StaticMethodWithStringParamWithAnnotation staticWithStringParam = new StaticMethodWithStringParamWithAnnotation();
-        assert(staticWithStringParam.main(args) == "stringAsParam");
+        assertEquals("stringAsParam", staticWithStringParam.main(args));
+    }
+
+    @Test
+    public void testStaticMethodWithGenericParamsWithAnnotation() {
+        StaticMethodWithGenericParamWithAnnotation staticMethodWithGenericParam = new StaticMethodWithGenericParamWithAnnotation();
+        assertEquals("stringGeneric", staticMethodWithGenericParam.main(args));
     }
 
     // todo javautilList vs NSArray
