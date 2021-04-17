@@ -1,6 +1,7 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
+import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithListParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
@@ -27,6 +28,15 @@ public class ObjectsTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "NSString *returnValue = [[CommonObjectWithMethod objectWithMethod] staticMethodWithStringParamWithAnnotationInput:@\"stringAsParam\"];");
+  }
+
+  @Test
+  public void testStaticMethodWitGenericParamsWithAnnotation() throws IOException {
+
+    String className = StaticMethodWithGenericParamWithAnnotation.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return [[CommonObjectWithMethod objectWithMethod] staticMethodWithGenericParamInput:testString];");
   }
 
   // todo javautillist vs  NSarray
