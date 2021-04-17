@@ -725,17 +725,9 @@ public class Functionizer extends UnitTreeVisitor {
 
     KmProperty getterOrSetterProperty = ElementUtil.getKotlinGetterOrSetter(element, kmClass);
     if (getterOrSetterProperty != null) {
-
-      TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
-          .newMethodWithSelector(getterOrSetterProperty.getName(), typeMirror,
-              ElementUtil.getDeclaringClass(element));
-
-      SimpleName simpleName = new SimpleName(node.getExpression().toString());
-
-      PropertyAccess propertyAccess = new PropertyAccess(getInstanceElement, typeMirror,
-          simpleName);
+      SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
+      simpleName.setTypeMirror(element.getReturnType());
+      PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
 
       if (ElementUtil.isKotlinGetter(element)) {
         node.replaceWith(propertyAccess);
