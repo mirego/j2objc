@@ -1052,9 +1052,10 @@ public class StatementGenerator extends UnitTreeVisitor {
 
     int flags = kotlinMetaData.getFlags();
     if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {
-      if (expression instanceof SimpleName) {
-        SimpleName caseEnumValue = (SimpleName) expression;
-        String caseEnumValueName = caseEnumValue.getIdentifier();
+
+      if (expression instanceof Name) {
+        Name caseEnumValue = (Name) expression;
+        String caseEnumValueName = caseEnumValue.toString();
 
         int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
         buffer.append(ordinalForEnumValue + ":");
@@ -1062,7 +1063,7 @@ public class StatementGenerator extends UnitTreeVisitor {
         // add comment so a human reading the code knows what each ordinals match to what enum values
         buffer.append(" // " + caseEnumValueName + "\n");
       } else {
-        throw new RuntimeException("In kotlin switch case only SimpleName enum cases supported: " + expression.getClass());
+        throw new RuntimeException("In kotlin switch case only instanceof Name classes enum cases supported: " + expression.getClass());
       }
     } else {
       expression.accept(this);
