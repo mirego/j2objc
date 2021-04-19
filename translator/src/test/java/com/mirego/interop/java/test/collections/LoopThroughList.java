@@ -12,7 +12,7 @@ public class LoopThroughList {
 
         List<String> list = kotlinLists.getList();
         String output = "";
-        for(String element: list) {
+        for (String element : list) {
             output += element;
         }
         return output;

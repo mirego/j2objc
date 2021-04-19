@@ -3,7 +3,13 @@
 #ifndef _NSArrayToJavaUtilListAdapter_H_
 #define _NSArrayToJavaUtilListAdapter_H_
 
-#import "J2ObjC_header.h"
+#import "J2ObjC_common.h"
+
+#if __has_feature(nullability)
+#pragma clang diagnostic push
+#pragma GCC diagnostic ignored "-Wnullability"
+#pragma GCC diagnostic ignored "-Wnullability-completeness"
+#endif
 
 #define RESTRICT_JavaUtilList 1
 #define INCLUDE_JavaUtilList 1

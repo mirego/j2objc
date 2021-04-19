@@ -3399,6 +3399,7 @@
 		7A98C18924E20C8F00774306 /* Files2Test.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A98C18624E20C8E00774306 /* Files2Test.m */; };
 		7A98C18A24E20C8F00774306 /* FilesTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A98C18724E20C8E00774306 /* FilesTest.m */; };
 		7A98C18C24E20CAF00774306 /* FileTypeDetectorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A98C18B24E20CAF00774306 /* FileTypeDetectorTest.m */; };
+		B19F4EC8262DB54B003B9F32 /* NSArrayToJavaUtilListAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = B19F4EC6262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.m */; };
 		DE94F86A1F69A3B2006C59E4 /* InvocationTargetExceptionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE94F8691F69A3B2006C59E4 /* InvocationTargetExceptionTest.m */; };
 		DE94F86C1F69A3D6006C59E4 /* ProxyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE94F86B1F69A3D6006C59E4 /* ProxyTest.m */; };
 		FA1DD7A82154124E00D0B800 /* SSLSocketTest.m in Sources */ = {isa = PBXBuildFile; fileRef = FA1DD7A62154124E00D0B800 /* SSLSocketTest.m */; };
@@ -9332,6 +9333,8 @@
 		7A98C18624E20C8E00774306 /* Files2Test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Files2Test.m; path = libcore/java/nio/file/Files2Test.m; sourceTree = "<group>"; };
 		7A98C18724E20C8E00774306 /* FilesTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FilesTest.m; path = libcore/java/nio/file/FilesTest.m; sourceTree = "<group>"; };
 		7A98C18B24E20CAF00774306 /* FileTypeDetectorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileTypeDetectorTest.m; path = libcore/java/nio/file/spi/FileTypeDetectorTest.m; sourceTree = "<group>"; };
+		B19F4EC6262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSArrayToJavaUtilListAdapter.m; sourceTree = "<group>"; };
+		B19F4EC7262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSArrayToJavaUtilListAdapter.h; sourceTree = "<group>"; };
 		DE94F8691F69A3B2006C59E4 /* InvocationTargetExceptionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = InvocationTargetExceptionTest.m; path = org/apache/harmony/tests/java/lang/reflect/InvocationTargetExceptionTest.m; sourceTree = "<group>"; };
 		DE94F86B1F69A3D6006C59E4 /* ProxyTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProxyTest.m; path = org/apache/harmony/tests/java/lang/reflect/ProxyTest.m; sourceTree = "<group>"; };
 		DE9C53841F6ADFAF000E8C71 /* ThreadPoolExecutorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ThreadPoolExecutorTest.m; path = libcore/java/util/concurrent/ThreadPoolExecutorTest.m; sourceTree = "<group>"; };
@@ -9738,6 +9741,8 @@
 		0661938A155848D70004DAFE /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B19F4EC7262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.h */,
+				B19F4EC6262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.m */,
 				069FC49D1AF2A2290095A289 /* AbstractStringBuilder.h */,
 				0661AA7F19F848C800EFD1F5 /* AbstractStringBuilder.m */,
 				067228F9158FB0B3005318BD /* AccessibleObject.h */,
@@ -16666,6 +16671,7 @@
 				063BD7E9250597BD000819BB /* FilePermission.m in Sources */,
 				063BD7EA250597BD000819BB /* FileReader.m in Sources */,
 				063BD7EB250597BD000819BB /* FileURLConnection.m in Sources */,
+				B19F4EC8262DB54B003B9F32 /* NSArrayToJavaUtilListAdapter.m in Sources */,
 				063BD7EC250597BD000819BB /* FileWriter.m in Sources */,
 				063BD7ED250597BD000819BB /* Filter.m in Sources */,
 				063BDEDA2505BD43000819BB /* PathMatcher.m in Sources */,
