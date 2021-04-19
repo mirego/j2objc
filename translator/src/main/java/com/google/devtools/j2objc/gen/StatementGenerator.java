@@ -1043,7 +1043,11 @@ public class StatementGenerator extends UnitTreeVisitor {
   }
 
   private static int findOrdinalForEnumValue(KmClass kotlinMetaData, String enumValue) {
-    return  kotlinMetaData.getEnumEntries().indexOf(enumValue);
+    int ordinal = kotlinMetaData.getEnumEntries().indexOf(enumValue);
+    if (ordinal == -1) {
+      throw new RuntimeException("Could not find ordinal for enumValue: " + enumValue);
+    }
+    return ordinal;
   }
 
   private void convertCaseKotlin(Expression expression) {
@@ -1052,19 +1056,12 @@ public class StatementGenerator extends UnitTreeVisitor {
 
     int flags = kotlinMetaData.getFlags();
     if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {
+      String caseEnumValueName = element.toString();
+      int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
 
-      if (expression instanceof Name) {
-        Name caseEnumValue = (Name) expression;
-        String caseEnumValueName = caseEnumValue.toString();
-
-        int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
-        buffer.append(ordinalForEnumValue + ":");
-
-        // add comment so a human reading the code knows what each ordinals match to what enum values
-        buffer.append(" // " + caseEnumValueName + "\n");
-      } else {
-        throw new RuntimeException("In kotlin switch case only instanceof Name classes enum cases supported: " + expression.getClass());
-      }
+      buffer.append(ordinalForEnumValue + ":");
+      // add comment so a human reading the code knows which ordinal matches to which enum value
+      buffer.append(" // " + caseEnumValueName + "\n");
     } else {
       expression.accept(this);
       buffer.append(":\n");
