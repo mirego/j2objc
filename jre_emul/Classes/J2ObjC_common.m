@@ -465,7 +465,7 @@ void unsupportedAdapterCallWithName(NSString *name) {
 }
 
 id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray){
-    return [[NSArrayToJavaUtilsListAdapter alloc ] initWithSourceArray:sourceArray];
+    return [[NSArrayToJavaUtilsListAdapter alloc] initWithSourceArray:sourceArray];
 }
 
 id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>* sourceArray) {
