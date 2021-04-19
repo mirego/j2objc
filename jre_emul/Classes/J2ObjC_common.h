@@ -25,6 +25,7 @@
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
+@protocol JavaUtilListIterator;
 @protocol JavaUtilList;
 
 #ifndef __has_feature
@@ -283,6 +284,7 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
 
 //MIREGO kotlin interop >>
     id <JavaUtilList> toJavaUtilList(NSArray<id>*);
+    id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>*);
  //MIREGO <<
 
 #endif // _J2OBJC_COMMON_H_

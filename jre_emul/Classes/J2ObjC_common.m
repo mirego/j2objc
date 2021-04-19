@@ -33,6 +33,7 @@
 #import "java/util/ArrayList.h"
 #import "objc/runtime.h"
 #import "NSArrayToJavaUtilListAdapter.h"
+#import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
 
 id JreThrowNullPointerException() {
   @throw create_JavaLangNullPointerException_init(); // NOLINT
@@ -451,18 +452,14 @@ NSUInteger JreDefaultFastEnumeration(
 }
 //MIREGO kotlin interop >>
 
-id <JavaUtilList> toJavaUtilList( NSArray<id> *sourceArray){
- //   id <JavaUtilList> list = [[JavaUtilArrayList alloc] initWithInt:(jint)sourceArray.count];
-//    NSEnumerator *enumerator = [sourceArray objectEnumerator];
-//    id contentObject;
+id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray){
+    return [[NSArrayToJavaUtilsListAdapter alloc ] initWithSourceArray:sourceArray];
+}
 
- //   while (contentObject = [enumerator nextObject]) {
-//       [list addWithId:contentObject];
- //   }
-
- //   return list;
-
-    return [[ NSArrayToJavaUtilsListAdapter alloc ] initWithSourceArray:sourceArray];
+id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>* sourceArray) {
+    return [[NSEnumeratorToJavaUtilListIteratorAdapter alloc]
+            initWithSourceEnumerator:[sourceArray objectEnumerator]
+            sourceSize:sourceArray.count];
 }
 
 //MIREGO <<

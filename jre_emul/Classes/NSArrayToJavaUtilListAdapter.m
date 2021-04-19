@@ -1,5 +1,7 @@
 
 #import "NSArrayToJavaUtilListAdapter.h"
+#import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
+#include "java/lang/Exception.h"
 
 @implementation NSArrayToJavaUtilsListAdapter
 
@@ -12,129 +14,156 @@
 }
 
 - (jint)size {
-  return 0;
+    return (jint)_sourceArray.count;
 }
 
 - (jboolean)isEmpty {
-  return false;
+    return _sourceArray.count == 0;
 }
 
 - (jboolean)containsWithId:(id)o {
-  return false;
+    return [_sourceArray containsObject:o];
 }
 
 - (id<JavaUtilIterator>)iterator {
-  return nil;
+    return toJavaUtilListIterator(_sourceArray);
 }
 
 - (IOSObjectArray *)toArray {
-  return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
+    [self unsupportedCallWithName:@"toArray"];
+    return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
 - (jboolean)addWithId:(id)o {
-  return false;
+    [self illegalCallWithName:@"addWithId"];
+    return false;
 }
 
 - (jboolean)removeWithId:(id)o {
-  return false;
+    [self illegalCallWithName:@"removeWithId"];
+    return false;
 }
 
 - (jboolean)addAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-  return false;
+    [self illegalCallWithName:@"addAllWithJavaUtilCollection"];
+    return false;
 }
 
 - (jboolean)addAllWithInt:(jint)i
    withJavaUtilCollection:(id<JavaUtilCollection>)collection {
-  return false;
+    [self illegalCallWithName:@"addAllWithInt"];
+    return false;
 }
 
 - (void)clear {
+    [self illegalCallWithName:@"clear"];
 }
 
 - (id)getWithInt:(jint)i {
-  return nil;
+    return [_sourceArray objectAtIndex:i];
 }
 
 - (id)setWithInt:(jint)i
           withId:(id)o {
-  return nil;
+    [self illegalCallWithName:@"setWithInt"];
+    return nil;
 }
 
 - (void)addWithInt:(jint)i
             withId:(id)o {
+    [self illegalCallWithName:@"addWithInt"];
 }
 
 - (id)removeWithInt:(jint)i {
-  return nil;
+    [self illegalCallWithName:@"removeWithInt"];
+    return nil;
 }
 
 - (jint)indexOfWithId:(id)o {
-  return 0;
+    return (jint)[_sourceArray indexOfObject:o];
 }
 
 - (jint)lastIndexOfWithId:(id)o {
-  return 0;
+    [self unsupportedCallWithName:@"lastIndexOfWithId"];
+    return 0;
 }
 
 - (id<JavaUtilListIterator>)listIterator {
-  return nil;
+    return toJavaUtilListIterator(_sourceArray);
 }
 
 - (id<JavaUtilListIterator>)listIteratorWithInt:(jint)i {
-  return nil;
+    [self unsupportedCallWithName:@"listIteratorWithInt"];
+    return nil;
 }
 
 - (id<JavaUtilList>)subListWithInt:(jint)i
                            withInt:(jint)i1 {
-  return nil;
+    NSArray *subArray = [_sourceArray subarrayWithRange:NSMakeRange(i, i1 - i)];
+    return toJavaUtilList(subArray);
 }
 
 - (jboolean)retainAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-  return false;
+    [self illegalCallWithName:@"retainAllWithJavaUtilCollection"];
+    return false;
 }
 
 - (jboolean)removeAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-  return false;
+    [self illegalCallWithName:@"removeAllWithJavaUtilCollection"];
+    return false;
 }
 
 - (jboolean)containsAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-  return false;
+    [self unsupportedCallWithName:@"containsAllWithJavaUtilCollection"];
+    return false;
 }
 
 - (IOSObjectArray *)toArrayWithNSObjectArray:(IOSObjectArray *)objects {
-  return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
+    [self unsupportedCallWithName:@"toArrayWithNSObjectArray"];
+    return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
 - (void)replaceAllWithJavaUtilFunctionUnaryOperator:(id<JavaUtilFunctionUnaryOperator>)arg0 {
-  JavaUtilList_replaceAllWithJavaUtilFunctionUnaryOperator_(self, arg0);
+    JavaUtilList_replaceAllWithJavaUtilFunctionUnaryOperator_(self, arg0);
 }
 
 - (void)sortWithJavaUtilComparator:(id<JavaUtilComparator>)arg0 {
-  JavaUtilList_sortWithJavaUtilComparator_(self, arg0);
+    JavaUtilList_sortWithJavaUtilComparator_(self, arg0);
 }
 
 - (id<JavaUtilSpliterator>)spliterator {
-  return JavaUtilList_spliterator(self);
+    return JavaUtilList_spliterator(self);
 }
 
 - (jboolean)removeIfWithJavaUtilFunctionPredicate:(id<JavaUtilFunctionPredicate>)arg0 {
-  return JavaUtilCollection_removeIfWithJavaUtilFunctionPredicate_(self, arg0);
+    [self illegalCallWithName:@"removeIfWithJavaUtilFunctionPredicate"];
+    return JavaUtilCollection_removeIfWithJavaUtilFunctionPredicate_(self, arg0);
 }
 
 - (id<JavaUtilStreamStream>)stream {
-  return JavaUtilCollection_stream(self);
+    return JavaUtilCollection_stream(self);
 }
 
 - (id<JavaUtilStreamStream>)parallelStream {
-  return JavaUtilCollection_parallelStream(self);
+    return JavaUtilCollection_parallelStream(self);
 }
 
 - (void)forEachWithJavaUtilFunctionConsumer:(id<JavaUtilFunctionConsumer>)arg0 {
-  JavaLangIterable_forEachWithJavaUtilFunctionConsumer_(self, arg0);
+    JavaLangIterable_forEachWithJavaUtilFunctionConsumer_(self, arg0);
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id *)stackbuf count:(NSUInteger)len {
-  return JreDefaultFastEnumeration(self, state, stackbuf);
+    return JreDefaultFastEnumeration(self, state, stackbuf);
+}
+
+- (void) illegalCallWithName:(NSString*)name {
+    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, use NSMutableArrayToJavaUtilListAdapter", name];
+    @throw create_JavaLangException_initWithNSString_(message);
+}
+
+- (void) unsupportedCallWithName:(NSString*)name {
+    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, not implemented yet", name];
+    @throw create_JavaLangException_initWithNSString_(message);
 }
 
 @end
