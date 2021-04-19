@@ -70,7 +70,8 @@ NATIVE_JRE_SOURCES_CORE = \
   libcore_icu_ICU.m \
   libcore_io_Memory.m \
   objc-sync.m \
-  sun_misc_Unsafe.m
+  sun_misc_Unsafe.m \
+  NSArrayToJavaUtilListAdapter.m
 
 # Java sources to be translated normally and included in the core library.
 # TypeKind is needed by the Checker Framework (https://checkerframework.org/).
@@ -2407,7 +2408,8 @@ PUBLIC_NATIVE_HEADERS = \
   java/lang/reflect/Executable.h \
   java/lang/reflect/Field.h \
   java/lang/reflect/Method.h \
-  jni.h
+  jni.h \
+  NSArrayToJavaUtilListAdapter.h
 
 JRE_PUBLIC_PACKAGES = \
   java.awt.font \

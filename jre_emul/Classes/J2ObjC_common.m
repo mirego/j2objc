@@ -32,6 +32,7 @@
 #import "java/util/logging/Logger.h"
 #import "java/util/ArrayList.h"
 #import "objc/runtime.h"
+#import "NSArrayToJavaUtilListAdapter.h"
 
 id JreThrowNullPointerException() {
   @throw create_JavaLangNullPointerException_init(); // NOLINT
@@ -451,15 +452,17 @@ NSUInteger JreDefaultFastEnumeration(
 //MIREGO kotlin interop >>
 
 id <JavaUtilList> toJavaUtilList( NSArray<id> *sourceArray){
-    id <JavaUtilList> list = [[JavaUtilArrayList alloc] initWithInt:(jint)sourceArray.count];
-    NSEnumerator *enumerator = [sourceArray objectEnumerator];
-    id contentObject;
+ //   id <JavaUtilList> list = [[JavaUtilArrayList alloc] initWithInt:(jint)sourceArray.count];
+//    NSEnumerator *enumerator = [sourceArray objectEnumerator];
+//    id contentObject;
 
-    while (contentObject = [enumerator nextObject]) {
-       [list addWithId:contentObject];
-    }
+ //   while (contentObject = [enumerator nextObject]) {
+//       [list addWithId:contentObject];
+ //   }
 
-    return list;
+ //   return list;
+
+    return [[ NSArrayToJavaUtilsListAdapter alloc ] initWithSourceArray:sourceArray];
 }
 
 //MIREGO <<
