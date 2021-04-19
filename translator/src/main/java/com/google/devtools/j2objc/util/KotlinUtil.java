@@ -1,16 +1,11 @@
 package com.google.devtools.j2objc.util;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import com.google.devtools.j2objc.ast.Expression;
+import com.google.devtools.j2objc.ast.MethodInvocation;
+import com.google.devtools.j2objc.ast.TreeUtil;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import kotlin.Metadata;
@@ -36,143 +31,36 @@ public final class KotlinUtil {
         return KotlinCollectionType.NONE;
     }
 
-    private static boolean isJavaCollectionType(TypeMirror returnType) {
-        if (returnType.getKind() == TypeKind.ARRAY) {
-            return true;
-        }
-
-        return false;
-    }
-
     public static KmClass getKotlinMetaData(Element element) {
         Metadata meta = element.getEnclosingElement().getAnnotation(Metadata.class);
         KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
         KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
         return ((KotlinClassMetadata.Class) metadata).toKmClass();
     }
-}
 
+    public static Element getElementFromExpression(Expression expression) {
+        if (expression == null) {
+            return null;
+        }
 
-class KotlinTestList implements List {
-
-    @Override
-    public int size() {
-        return 0;
+        Element element = TreeUtil.getVariableElement(expression);
+        if (element == null) {
+            element = TreeUtil.getExecutableElement(expression);
+        }
+        return element;
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
+    public static boolean isKotlinExpression(Expression expression) {
+        Element element = getElementFromExpression(expression);
+        return element != null && ElementUtil.isKotlinType(element);
     }
 
-    @Override
-    public boolean contains(Object o) {
-        return false;
-    }
+    public static KotlinCollectionType getExpressionKotlinReturnType(Expression expression) {
+        if (expression instanceof MethodInvocation) {
+            MethodInvocation methodInvocation = (MethodInvocation) expression;
+            return getKotlinReturnType(methodInvocation.getExecutablePair().element().getReturnType());
+        }
 
-    @NotNull
-    @Override
-    public Iterator iterator() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public Object[] toArray() {
-        return new Object[0];
-    }
-
-    @Override
-    public boolean add(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(@NotNull Collection collection) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(int i, @NotNull Collection collection) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
-
-    }
-
-    @Override
-    public Object get(int i) {
-        return null;
-    }
-
-    @Override
-    public Object set(int i, Object o) {
-        return null;
-    }
-
-    @Override
-    public void add(int i, Object o) {
-
-    }
-
-    @Override
-    public Object remove(int i) {
-        return null;
-    }
-
-    @Override
-    public int indexOf(Object o) {
-        return 0;
-    }
-
-    @Override
-    public int lastIndexOf(Object o) {
-        return 0;
-    }
-
-    @NotNull
-    @Override
-    public ListIterator listIterator() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public ListIterator listIterator(int i) {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public List subList(int i, int i1) {
-        return null;
-    }
-
-    @Override
-    public boolean retainAll(@NotNull Collection collection) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(@NotNull Collection collection) {
-        return false;
-    }
-
-    @Override
-    public boolean containsAll(@NotNull Collection collection) {
-        return false;
-    }
-
-    @NotNull
-    @Override
-    public Object[] toArray(@NotNull Object[] objects) {
-        return new Object[0];
+        return KotlinCollectionType.NONE;
     }
 }

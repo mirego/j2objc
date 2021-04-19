@@ -286,8 +286,11 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
     extern const J2ObjCClass_t J2OBJC_CLASS_SYMBOL(name)
 
 //MIREGO kotlin interop >>
-    id <JavaUtilList> toJavaUtilList(NSArray<id>*);
-    id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>*);
- //MIREGO <<
+void illegalAdapterMutableCallWithName(NSString *name);
+void unsupportedAdapterCallWithName(NSString *name);
+
+id <JavaUtilList> toJavaUtilList(NSArray<id>*);
+id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>*);
+//MIREGO <<
 
 #endif // _J2OBJC_COMMON_H_

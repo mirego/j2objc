@@ -32,33 +32,33 @@
 }
 
 - (IOSObjectArray *)toArray {
-    [self unsupportedCallWithName:@"toArray"];
+    unsupportedAdapterCallWithName(@"toArray");
     return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
 - (jboolean)addWithId:(id)o {
-    [self illegalCallWithName:@"addWithId"];
+    illegalAdapterMutableCallWithName(@"addWithId");
     return false;
 }
 
 - (jboolean)removeWithId:(id)o {
-    [self illegalCallWithName:@"removeWithId"];
+    illegalAdapterMutableCallWithName(@"removeWithId");
     return false;
 }
 
 - (jboolean)addAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    [self illegalCallWithName:@"addAllWithJavaUtilCollection"];
+    illegalAdapterMutableCallWithName(@"addAllWithJavaUtilCollection");
     return false;
 }
 
 - (jboolean)addAllWithInt:(jint)i
    withJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    [self illegalCallWithName:@"addAllWithInt"];
+    illegalAdapterMutableCallWithName(@"addAllWithInt");
     return false;
 }
 
 - (void)clear {
-    [self illegalCallWithName:@"clear"];
+    illegalAdapterMutableCallWithName(@"clear");
 }
 
 - (id)getWithInt:(jint)i {
@@ -67,17 +67,17 @@
 
 - (id)setWithInt:(jint)i
           withId:(id)o {
-    [self illegalCallWithName:@"setWithInt"];
+    illegalAdapterMutableCallWithName(@"setWithInt");
     return nil;
 }
 
 - (void)addWithInt:(jint)i
             withId:(id)o {
-    [self illegalCallWithName:@"addWithInt"];
+    illegalAdapterMutableCallWithName(@"addWithInt");
 }
 
 - (id)removeWithInt:(jint)i {
-    [self illegalCallWithName:@"removeWithInt"];
+    illegalAdapterMutableCallWithName(@"removeWithInt");
     return nil;
 }
 
@@ -86,7 +86,7 @@
 }
 
 - (jint)lastIndexOfWithId:(id)o {
-    [self unsupportedCallWithName:@"lastIndexOfWithId"];
+    unsupportedAdapterCallWithName(@"lastIndexOfWithId");
     return 0;
 }
 
@@ -95,7 +95,7 @@
 }
 
 - (id<JavaUtilListIterator>)listIteratorWithInt:(jint)i {
-    [self unsupportedCallWithName:@"listIteratorWithInt"];
+    unsupportedAdapterCallWithName(@"listIteratorWithInt");
     return nil;
 }
 
@@ -106,22 +106,22 @@
 }
 
 - (jboolean)retainAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    [self illegalCallWithName:@"retainAllWithJavaUtilCollection"];
+    illegalAdapterMutableCallWithName(@"retainAllWithJavaUtilCollection");
     return false;
 }
 
 - (jboolean)removeAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    [self illegalCallWithName:@"removeAllWithJavaUtilCollection"];
+    illegalAdapterMutableCallWithName(@"removeAllWithJavaUtilCollection");
     return false;
 }
 
 - (jboolean)containsAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    [self unsupportedCallWithName:@"containsAllWithJavaUtilCollection"];
+    unsupportedAdapterCallWithName(@"containsAllWithJavaUtilCollection");
     return false;
 }
 
 - (IOSObjectArray *)toArrayWithNSObjectArray:(IOSObjectArray *)objects {
-    [self unsupportedCallWithName:@"toArrayWithNSObjectArray"];
+    unsupportedAdapterCallWithName(@"toArrayWithNSObjectArray");
     return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
@@ -138,7 +138,7 @@
 }
 
 - (jboolean)removeIfWithJavaUtilFunctionPredicate:(id<JavaUtilFunctionPredicate>)arg0 {
-    [self illegalCallWithName:@"removeIfWithJavaUtilFunctionPredicate"];
+    illegalAdapterMutableCallWithName(@"removeIfWithJavaUtilFunctionPredicate");
     return JavaUtilCollection_removeIfWithJavaUtilFunctionPredicate_(self, arg0);
 }
 
@@ -158,15 +158,7 @@
     return JreDefaultFastEnumeration(self, state, stackbuf);
 }
 
-- (void) illegalCallWithName:(NSString*)name {
-    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, use NSMutableArrayToJavaUtilListAdapter", name];
-    @throw create_JavaLangException_initWithNSString_(message);
-}
 
-- (void) unsupportedCallWithName:(NSString*)name {
-    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, not implemented yet", name];
-    @throw create_JavaLangException_initWithNSString_(message);
-}
 
 @end
 

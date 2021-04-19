@@ -2,6 +2,8 @@ package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.CompilationUnit;
+import com.google.devtools.j2objc.ast.EnhancedForStatement;
+import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.ExpressionStatement;
 import com.google.devtools.j2objc.ast.FunctionInvocation;
 import com.google.devtools.j2objc.ast.MethodInvocation;
@@ -45,33 +47,20 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
     public boolean visit(ExpressionStatement node) {
         return super.visit(node);
     }
-
-    @Override
-    public void endVisit(ExpressionStatement node) {
         super.endVisit(node);
-    }
-
-    @Override
-    public boolean visit(MethodInvocation node) {
-        return super.visit(node);
     }
 
     @Override
     public void endVisit(MethodInvocation node) {
         ExecutableElement executableElement = node.getExecutableElement();
-        if (!ElementUtil.isKotlinType(executableElement)) {
-            return;
+        if (ElementUtil.isKotlinType(executableElement)) {
+            KotlinCollectionType kotlinReturnType = KotlinUtil.getKotlinReturnType(executableElement.getReturnType());
+            if (kotlinReturnType != KotlinCollectionType.NONE) {
+                addTypeConversion(node, kotlinReturnType);
+                return;
+            }
         }
-
-        // we need to determine if we are returning a collection type that needs
-        // conversion
-
-        KotlinCollectionType kotlinReturnType = KotlinUtil.getKotlinReturnType(executableElement.getReturnType());
-        if (kotlinReturnType == KotlinCollectionType.NONE) {
-            return;
-        }
-
-        addTypeConversion(node, kotlinReturnType);
+        super.endVisit(node);
     }
 
     private void addTypeConversion(MethodInvocation node, KotlinCollectionType kotlinReturnType) {
