@@ -1,4 +1,6 @@
 
+//MIREGO kotlin interop >>
+
 #import "NSArrayToJavaUtilListAdapter.h"
 #import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
 #include "java/lang/Exception.h"
@@ -167,3 +169,5 @@
 }
 
 @end
+
+//MIREGO <<

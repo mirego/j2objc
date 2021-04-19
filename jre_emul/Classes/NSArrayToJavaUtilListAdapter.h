@@ -1,7 +1,8 @@
+
 //MIREGO kotlin interop >>
 
-#ifndef _NSArrayToJavaUtilListAdapter_H_
-#define _NSArrayToJavaUtilListAdapter_H_
+#ifndef _NSArrayToJavaUtilListAdapter_h_
+#define _NSArrayToJavaUtilListAdapter_h_
 
 #import "J2ObjC_common.h"
 
@@ -87,6 +88,6 @@
 @end
 
 
-#endif // _NSArrayToJavaUtilListAdapter_H_
+#endif /* _NSArrayToJavaUtilListAdapter_h_ */
 
 //MIREGO <<

@@ -1,12 +1,8 @@
-//
-//  NSEnumeratorToJavaUtilIteratorAdapter.h
-//  jre_emul
-//
-//  Created by Guillaume Audet on 2021-04-19.
-//
 
-#ifndef NSEnumeratorToJavaUtilListIteratorAdapter_h
-#define NSEnumeratorToJavaUtilListIteratorAdapter_h
+//MIREGO kotlin interop >>
+
+#ifndef _NSEnumeratorToJavaUtilListIteratorAdapter_h
+#define _NSEnumeratorToJavaUtilListIteratorAdapter_h
 
 #import "J2ObjC_common.h"
 
@@ -51,4 +47,6 @@
 
 @end
 
-#endif /* NSEnumeratorToJavaUtilListIteratorAdapter_h */
+#endif /* _NSEnumeratorToJavaUtilListIteratorAdapter_h */
+
+//MIREGO <<

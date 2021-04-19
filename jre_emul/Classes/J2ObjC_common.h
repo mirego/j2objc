@@ -25,8 +25,11 @@
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
+
+//MIREGO kotlin interop >>
 @protocol JavaUtilListIterator;
 @protocol JavaUtilList;
+//MIREGO <<
 
 #ifndef __has_feature
 #define __has_feature(x) 0  // Compatibility with non-clang compilers.
