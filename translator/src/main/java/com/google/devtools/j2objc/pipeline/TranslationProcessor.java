@@ -40,6 +40,7 @@ import com.google.devtools.j2objc.translate.InitializationNormalizer;
 import com.google.devtools.j2objc.translate.InnerClassExtractor;
 import com.google.devtools.j2objc.translate.JavaCloneWriter;
 import com.google.devtools.j2objc.translate.JavaToIOSMethodTranslator;
+import com.google.devtools.j2objc.translate.KotlinCollectionsConverter;
 import com.google.devtools.j2objc.translate.LabelRewriter;
 import com.google.devtools.j2objc.translate.LambdaRewriter;
 import com.google.devtools.j2objc.translate.LambdaTypeElementAdder;
@@ -186,6 +187,9 @@ public class TranslationProcessor extends FileProcessor {
 
     new ZeroingWeakRewriter(unit).run();
     ticker.tick("ZeroingWeakRewriter");
+
+    new KotlinCollectionsConverter(unit).run();
+    ticker.tick("KotlinCollectionsConverter");
 
     // Rewrite enhanced for loops into correct C code.
     new EnhancedForRewriter(unit).run();
