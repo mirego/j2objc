@@ -38,29 +38,23 @@ import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.devtools.j2objc.util.ElementUtil;
-import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.AutoreleasePool;
 import com.google.j2objc.annotations.LoopTranslation;
 import com.google.j2objc.annotations.LoopTranslation.LoopStyle;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.SymbolMetadata;
-import com.sun.tools.javac.code.Type;
 
 import java.util.List;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-
-import kotlinx.metadata.KmClass;
 
 /**
  * Rewrites Java enhanced for loops into appropriate C constructs.
@@ -85,7 +79,7 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
 
     // MIREGO kotlin interop >>
     if (ElementUtil.isKotlinExpression(expression)){
-      if (endVisitKotlin(node)) {
+      if (endVisitKotlin(node, expressionType)) {
         return;
       }
     }
@@ -243,8 +237,8 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
 
   // MIREGO kotlin interop >>
 
-  private boolean endVisitKotlin(EnhancedForStatement node) {
-    if (ElementUtil.isKotlinEnum(node.getExpression())) {
+  private boolean endVisitKotlin(EnhancedForStatement node, TypeMirror expressionType) {
+    if (TypeUtil.isArray(expressionType)) {
       convertToKotlinLoopIterator(node);
       return true;
     }
@@ -269,30 +263,41 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     VariableElement loopVariable = node.getParameter().getVariableElement();
     Element elementFromExpression = ElementUtil.getElementFromExpression(expression);
 
-    Name simpleName = elementFromExpression.getSimpleName();
-    if (!simpleName.contentEquals("values") &&  elementFromExpression instanceof ExecutableElement) {
-      throw new RuntimeException("looping on an enum without using values not supported yet: " + simpleName.toString());
+    if (!(elementFromExpression instanceof ExecutableElement)) {
+      throw new RuntimeException("Expecting expression element to be instance of ExecutableElement but was : "
+              + elementFromExpression.getClass().getSimpleName());
     }
 
-    GeneratedTypeElement commonKotlinArray = GeneratedTypeElement.newIosClass("CommonKotlinArray", null, null);
-    GeneratedTypeElement commonKotlinIterator = GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
+    GeneratedTypeElement commonKotlinIterator = getKotlinIteratorTypeElement();
 
-    String enumName = nameTable.getFullFunctionName((ExecutableElement)elementFromExpression);
-    enumName = enumName.substring(0, enumName.indexOf("_"));
-    SimpleName enumSimpleName = new SimpleName(enumName);
-    SimpleName iteratorSimpleName = new SimpleName("iterator");
-    SimpleName arraySimpleName = new SimpleName("values");
+    // create store array in local variable statement
+    GeneratedTypeElement commonKotlinArray = getKotlinArrayTypeElement();
+    String arraySourceElementName = getKotlinElementName((ExecutableElement)elementFromExpression);
 
-    GeneratedTypeElement enumType = GeneratedTypeElement.newIosClass(enumName, null, null);
+    SimpleName arraySourceElementSimpleName = new SimpleName(arraySourceElementName);
+    SimpleName arraySimpleName = new SimpleName("_array");
+
+    GeneratedTypeElement enumType = GeneratedTypeElement.newIosClass(arraySourceElementName, null, null);
     GeneratedVariableElement kotlinArrayVariable = GeneratedVariableElement
             .newLocalVar(arraySimpleName.getIdentifier(), commonKotlinArray.asType(), commonKotlinArray);
+    GeneratedExecutableElement getArrayElement = GeneratedExecutableElement
+            .newMethodWithSelector(elementFromExpression.getSimpleName().toString(), kotlinArrayIterator.asType(),
+                    commonKotlinArray);
+
+    ExecutablePair getArrayPair = new ExecutablePair(getArrayElement);
+    MethodInvocation arrayInvocation =
+            new MethodInvocation(getArrayPair, arraySourceElementSimpleName);
+
+    // create iterator
+
+    SimpleName iteratorSimpleName = new SimpleName("_iterator");
     GeneratedVariableElement kotlinArrayIterator = GeneratedVariableElement
             .newLocalVar(iteratorSimpleName.getIdentifier(), TypeUtil.ID_TYPE, commonKotlinIterator);
 
-    PropertyAccess propertyAccess = new PropertyAccess(elementFromExpression, commonKotlinArray.asType(), enumSimpleName);
+
     TreeUtil.remove(expression);
     VariableDeclarationStatement kotlinArrayDecl =
-            new VariableDeclarationStatement(kotlinArrayVariable, propertyAccess);
+            new VariableDeclarationStatement(kotlinArrayVariable, arrayInvocation);
 
     GeneratedExecutableElement getIteratorElement = GeneratedExecutableElement
             .newMethodWithSelector("iterator", kotlinArrayIterator.asType(),
@@ -301,7 +306,7 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     ExecutablePair getIteratorPair = new ExecutablePair(getIteratorElement);
 
     MethodInvocation iteratorInvocation =
-            new MethodInvocation(getIteratorPair, arraySimpleName);
+            new MethodInvocation(getIteratorPair, arraySimpleName.copy());
 
     VariableDeclarationStatement kotlinArrayIteratorDecl =
             new VariableDeclarationStatement(kotlinArrayIterator, iteratorInvocation);
@@ -336,5 +341,17 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     replaceLoop(node, block, whileLoop);
   }
 
+  private String getKotlinElementName(ExecutableElement element) {
+    String elementName = nameTable.getFullFunctionName(element);
+    return elementName.substring(0, elementName.indexOf("_"));
+  }
+
+  private GeneratedTypeElement getKotlinArrayTypeElement() {
+    return GeneratedTypeElement.newIosClass("CommonKotlinArray", null, null);
+  }
+
+  private GeneratedTypeElement getKotlinIteratorTypeElement() {
+    return GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
+  }
   // MIREGO <<
 }

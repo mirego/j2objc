@@ -6,3 +6,5 @@ com.mirego.interop.kotlin.test.objects=Common_wrapper.h
 com.mirego.interop.kotlin.test.nullsafety=Common_wrapper.h
 com.mirego.interop.kotlin.test.dataclass=Common_wrapper.h
 com.mirego.interop.kotlin.test.enums=Common_wrapper.h
+CommonKotlinArray=
+CommonKotlinIterator=
