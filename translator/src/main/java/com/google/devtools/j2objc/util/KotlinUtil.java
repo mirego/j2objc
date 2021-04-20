@@ -15,9 +15,13 @@ import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 public final class KotlinUtil {
 
+    private KotlinUtil() {
+        // DISABLED
+    }
+
     public enum KotlinCollectionType {
-        LIST,
         NONE,
+        LIST,
     }
 
     public static KotlinCollectionType getKotlinReturnType(TypeMirror type) {
