@@ -406,28 +406,22 @@ public class NameTable {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
     }
-    for (VariableElement param : method.getParameters()) {
-      if (ElementUtil.isKotlinType(method)) {
-        if (ElementUtil.isStatic(method)) {
-          List<String> functionParams = KotlinMetadataUtil.getFunctionParameterNames(method.getEnclosingElement(), method.getSimpleName().toString());
+    if (ElementUtil.isKotlinType(method)) {
+      if (first && method.getSimpleName().toString().equals("<init>")) {
+        sb.append("With");
+      }
 
-          for (String parameter : functionParams) {
-            first = appendParamKeywordKotlin(sb, parameter, delim, first);
-          }
-          break;
-        }
+      List<String> functionParams = KotlinMetadataUtil.getParameterNames(method, method.getSimpleName().toString());
 
-        if (first && method.getSimpleName().toString().equals("<init>")) {
-          sb.append("With");
-        }
-
+      for (String parameter : functionParams) {
         if (name.startsWith("set") &&
             checkEnclosedElementsForField(declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
           break;
         }
-
-        first = appendParamKeywordKotlin(sb, param.getSimpleName().toString(), delim, first);
-      } else {
+        first = appendParamKeywordKotlin(sb, parameter, delim, first);
+      }
+    } else {
+      for (VariableElement param : method.getParameters()) {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
     }

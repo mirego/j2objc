@@ -256,28 +256,43 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement method = node.getExecutableElement();
 
     if (ElementUtil.isKotlinType(method)) {
-      String fullName = nameTable.getFullFunctionName(method);
-      String commonClassName = fullName.substring(0, fullName.indexOf("_"));
-      Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
-
-      GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
-              .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(NameTable.lowerCase(className.toString()),
-              node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
-      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
-      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));
-      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
-
-      TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
-
-      node.replaceWith(staticMethod);
+      MethodInvocation methodCall = functionizeKotlinInvocation(node, method);
+      TreeUtil.moveList(node.getArguments(), methodCall.getArguments());
+      node.replaceWith(methodCall);
       return;
     }
-
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
       functionizeInvocation(node, method, node.getExpression(), node.getArguments());
     }
+  }
+
+  private MethodInvocation functionizeKotlinInvocation(MethodInvocation node, ExecutableElement method) {
+    String fullName = nameTable.getFullFunctionName(method);
+    MethodInvocation functionizedMethod;
+
+    if (ElementUtil.isStatic(method)) {
+      String commonClassName = fullName.substring(0, fullName.indexOf("_"));
+      Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
+
+      GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
+          .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement.newMethodWithSelector(NameTable.lowerCase(className.toString()),
+          node.getExecutableType().getReturnType(), ElementUtil.getDeclaringClass(method));
+      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement, node.getExecutableType());
+      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, new SimpleName(commonClassElement));
+      functionizedMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
+    } else {
+      Expression expression = node.getExpression();
+      String variableName = expression.toString();
+
+      GeneratedExecutableElement variableElement = GeneratedExecutableElement
+          .newMethodWithSelector(variableName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
+
+      functionizedMethod = new MethodInvocation(node.getExecutablePair(), new SimpleName(variableElement));
+    }
+
+    return functionizedMethod;
   }
 
   @Override
