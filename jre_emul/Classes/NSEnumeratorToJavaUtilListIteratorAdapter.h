@@ -1,4 +1,3 @@
-
 //MIREGO kotlin interop >>
 
 #ifndef _NSEnumeratorToJavaUtilListIteratorAdapter_h

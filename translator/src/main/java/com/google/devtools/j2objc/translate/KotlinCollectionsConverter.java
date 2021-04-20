@@ -34,23 +34,6 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
     }
 
     @Override
-    public boolean visit(Assignment node) {
-        return super.visit(node);
-    }
-
-    @Override
-    public void endVisit(Assignment node) {
-        super.endVisit(node);
-    }
-
-    @Override
-    public boolean visit(ExpressionStatement node) {
-        return super.visit(node);
-    }
-        super.endVisit(node);
-    }
-
-    @Override
     public void endVisit(MethodInvocation node) {
         ExecutableElement executableElement = node.getExecutableElement();
         if (ElementUtil.isKotlinType(executableElement)) {

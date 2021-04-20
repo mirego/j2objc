@@ -1,4 +1,3 @@
-
 //MIREGO kotlin interop >>
 
 #import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
@@ -27,12 +26,12 @@
 }
 
 - (jboolean)hasPrevious {
-    unsupportedAdapterCallWithName(@"hasPrevious");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (id)previous {
-    unsupportedAdapterCallWithName(@"previous");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return nil;
 }
 
@@ -41,20 +40,20 @@
 }
 
 - (jint)previousIndex {
-    unsupportedAdapterCallWithName(@"previousIndex");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return 0;
 }
 
 - (void)remove {
-    illegalAdapterMutableCallWithName(@"remove");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
 }
 
 - (void)setWithId:(id)o {
-    illegalAdapterMutableCallWithName(@"setWithId");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
 }
 
 - (void)addWithId:(id)o {
-    illegalAdapterMutableCallWithName(@"addWithId");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
 }
 
 - (void)forEachRemainingWithJavaUtilFunctionConsumer:(id<JavaUtilFunctionConsumer>)arg0 {

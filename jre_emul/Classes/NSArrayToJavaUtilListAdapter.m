@@ -1,4 +1,3 @@
-
 //MIREGO kotlin interop >>
 
 #import "NSArrayToJavaUtilListAdapter.h"
@@ -32,33 +31,33 @@
 }
 
 - (IOSObjectArray *)toArray {
-    unsupportedAdapterCallWithName(@"toArray");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
 - (jboolean)addWithId:(id)o {
-    illegalAdapterMutableCallWithName(@"addWithId");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (jboolean)removeWithId:(id)o {
-    illegalAdapterMutableCallWithName(@"removeWithId");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (jboolean)addAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    illegalAdapterMutableCallWithName(@"addAllWithJavaUtilCollection");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (jboolean)addAllWithInt:(jint)i
    withJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    illegalAdapterMutableCallWithName(@"addAllWithInt");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (void)clear {
-    illegalAdapterMutableCallWithName(@"clear");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
 }
 
 - (id)getWithInt:(jint)i {
@@ -67,17 +66,17 @@
 
 - (id)setWithInt:(jint)i
           withId:(id)o {
-    illegalAdapterMutableCallWithName(@"setWithInt");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return nil;
 }
 
 - (void)addWithInt:(jint)i
             withId:(id)o {
-    illegalAdapterMutableCallWithName(@"addWithInt");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
 }
 
 - (id)removeWithInt:(jint)i {
-    illegalAdapterMutableCallWithName(@"removeWithInt");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return nil;
 }
 
@@ -86,7 +85,7 @@
 }
 
 - (jint)lastIndexOfWithId:(id)o {
-    unsupportedAdapterCallWithName(@"lastIndexOfWithId");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return 0;
 }
 
@@ -95,7 +94,7 @@
 }
 
 - (id<JavaUtilListIterator>)listIteratorWithInt:(jint)i {
-    unsupportedAdapterCallWithName(@"listIteratorWithInt");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return nil;
 }
 
@@ -106,22 +105,22 @@
 }
 
 - (jboolean)retainAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    illegalAdapterMutableCallWithName(@"retainAllWithJavaUtilCollection");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (jboolean)removeAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    illegalAdapterMutableCallWithName(@"removeAllWithJavaUtilCollection");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (jboolean)containsAllWithJavaUtilCollection:(id<JavaUtilCollection>)collection {
-    unsupportedAdapterCallWithName(@"containsAllWithJavaUtilCollection");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return false;
 }
 
 - (IOSObjectArray *)toArrayWithNSObjectArray:(IOSObjectArray *)objects {
-    unsupportedAdapterCallWithName(@"toArrayWithNSObjectArray");
+    unsupportedAdapterCallWithName(NSStringFromSelector(_cmd));
     return [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
 }
 
@@ -138,7 +137,7 @@
 }
 
 - (jboolean)removeIfWithJavaUtilFunctionPredicate:(id<JavaUtilFunctionPredicate>)arg0 {
-    illegalAdapterMutableCallWithName(@"removeIfWithJavaUtilFunctionPredicate");
+    illegalAdapterMutableCallWithName(NSStringFromSelector(_cmd));
     return JavaUtilCollection_removeIfWithJavaUtilFunctionPredicate_(self, arg0);
 }
 
@@ -157,8 +156,6 @@
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id *)stackbuf count:(NSUInteger)len {
     return JreDefaultFastEnumeration(self, state, stackbuf);
 }
-
-
 
 @end
 

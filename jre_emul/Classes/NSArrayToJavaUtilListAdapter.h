@@ -1,4 +1,3 @@
-
 //MIREGO kotlin interop >>
 
 #ifndef _NSArrayToJavaUtilListAdapter_h_
@@ -86,7 +85,6 @@
 - (IOSObjectArray * __nonnull)toArrayWithNSObjectArray:(IOSObjectArray * __nonnull)objects;
 
 @end
-
 
 #endif /* _NSArrayToJavaUtilListAdapter_h_ */
 
