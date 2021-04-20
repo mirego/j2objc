@@ -55,7 +55,9 @@ public class InterfacesTest extends GenerationTest {
     String className = WithGenerics.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [((JavaLangInteger *) nil_chk([((id<CommonInterfaceWithGenerics>) nil_chk(process)) convertInput:JavaLangInteger_valueOfWithInt_(5)])) intValue];");
+    assertTranslation(translation, "convertInput:JavaLangInteger_valueOfWithInt_(5)])) intValue]");
+    assertTranslation(translation, "[process convertWithFunctionGenericOtherInput:JavaLangInteger_valueOfWithInt_(3)])) intValue]");
+    assertTranslation(translation, "[process convertWithAnotherFunctionGenericAnotherInput:JavaLangInteger_valueOfWithInt_(1)])) intValue]");
   }
 
 }

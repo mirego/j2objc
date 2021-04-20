@@ -12,26 +12,26 @@ public class InterfacesTests extends TestCase {
     // @Test
     public void testInterfaceWithInt() {
         WithInt withInt = new WithInt();
-        assert (withInt.main(args) == 1);
+        assertEquals(1, withInt.main(args));
     }
 
     @Test
     public void testInterfaceWithNullableInt() {
         WithNullableInt withNullableInt = new WithNullableInt();
-        assert (withNullableInt.main(args) == Integer.valueOf(1));
+        assertEquals(Integer.valueOf(1), withNullableInt.main(args));
     }
 
     // @Test
     public void testInterfaceWithList() {
         WithList withList = new WithList();
         List list = withList.main(args);
-        assert (list.get(0) == Integer.valueOf(1));
+        assertEquals(Integer.valueOf(1), list.get(0));
     }
 
     @Test
     public void testInterfaceWithGenerics() {
         WithGenerics withGenerics = new WithGenerics();
-        assert (withGenerics.main(args) == Integer.valueOf(5));
+        assertEquals(Integer.valueOf(9), withGenerics.main(args));
     }
 
 }

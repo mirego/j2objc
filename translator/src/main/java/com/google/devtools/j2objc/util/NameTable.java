@@ -28,6 +28,7 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.j2objc.annotations.ObjectiveCName;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,6 +47,7 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -54,6 +57,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
+
 import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmClassifier;
@@ -795,7 +799,8 @@ public class NameTable {
     List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
 
     String methodName = method.getSimpleName().toString();
-    Multimap<String, List<KmValueParameter>> potentialMethodParameters = ArrayListMultimap.create();
+    Multimap<String, List<KmValueParameter>> potentialValueParameters = ArrayListMultimap.create();
+    Multimap<String, List<KmTypeParameter>> potentialTypeParameters = ArrayListMultimap.create();
     List<KmValueParameter> matchingParams = null;
 
     List<String> jvmArgumentTypes = method.getParameters().stream()
@@ -804,25 +809,32 @@ public class NameTable {
 
     if (ElementUtil.isConstructor(method)) {
       for (KmConstructor loopConstructor : kmClass.getConstructors()) {
-        potentialMethodParameters.put(methodName, loopConstructor.getValueParameters());
+        potentialValueParameters.put(methodName, loopConstructor.getValueParameters());
+        potentialTypeParameters.put(methodName, null);
       }
     } else {
       for (KmFunction loopFunction : kmClass.getFunctions()) {
-        potentialMethodParameters.put(loopFunction.getName(), loopFunction.getValueParameters());
+        String functionName = loopFunction.getName();
+        potentialValueParameters.put(functionName, loopFunction.getValueParameters());
+        potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
       }
     }
 
-    for (Entry<String, List<KmValueParameter>> methodParamsEntry : potentialMethodParameters.entries()) {
-      List<KmValueParameter> methodParams = methodParamsEntry.getValue();
-      List<String> kmArgumentTypes = methodParams.stream()
-          .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters))
-          .collect(Collectors.toList());
+    Iterator<Entry<String, List<KmValueParameter>>> valueParametersIterator = potentialValueParameters.entries().iterator();
+    Iterator<Entry<String, List<KmTypeParameter>>> typeParametersIterator = potentialTypeParameters.entries().iterator();
+    while(valueParametersIterator.hasNext() && typeParametersIterator.hasNext()) {
+      Entry<String, List<KmValueParameter>> methodEntry = valueParametersIterator.next();
+      List<KmValueParameter> valueParams = methodEntry.getValue();
+      List<KmTypeParameter> typeParams = typeParametersIterator.next().getValue();
+      List<String> kmArgumentTypes = valueParams.stream()
+              .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters, typeParams))
+              .collect(Collectors.toList());
 
-      if (methodParamsEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
+      if (methodEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
         if (matchingParams != null) {
           throw new RuntimeException(String.format("Found more that one matching method %s for class %s", methodName, kmClass.name));
         }
-        matchingParams = methodParams;
+        matchingParams = valueParams;
       }
     }
 
@@ -957,7 +969,8 @@ public class NameTable {
   }
 
   private String toJavaType(KmType kmType,
-                            List<KmTypeParameter> kmClassTypeParameters) {
+                            List<KmTypeParameter> kmClassTypeParameters,
+                            List<KmTypeParameter> kmFunctionTypeParams) {
     boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
 
     KmClassifier classifier = kmType.getClassifier();
@@ -967,8 +980,8 @@ public class NameTable {
     } else if (classifier instanceof KmClassifier.TypeAlias) {
       kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
     } else if (classifier instanceof KmClassifier.TypeParameter) {
-      int typeId = ((KmClassifier.TypeParameter) classifier).getId();
-      kotlinType = kmClassTypeParameters.get(typeId).getName();
+      KmClassifier.TypeParameter typeParameter = (KmClassifier.TypeParameter) classifier;
+      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters,kmFunctionTypeParams);
     } else {
       throw new RuntimeException(String.format("Unsupported Kotlin KmClassifier : %s", classifier.getClass().getSimpleName()));
     }
@@ -991,6 +1004,22 @@ public class NameTable {
       throw new RuntimeException(String.format("Could not find mapping for kotlin type : %s", kotlinType));
     }
     return javaType;
+  }
+
+  private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
+                                               List<KmTypeParameter> kmClassTypeParameters,
+                                               List<KmTypeParameter> kmFunctionTypeParams) {
+      int id = typeParameter.getId();
+      if (id < kmClassTypeParameters.size()) {
+        return kmClassTypeParameters.get(id).getName();
+      }
+
+      id -= kmClassTypeParameters.size();
+      if (id >= kmFunctionTypeParams.size()) {
+        throw new RuntimeException("could not map type id with know type parameters ....");
+      }
+
+      return kmFunctionTypeParams.get(id).getName();
   }
 
   private boolean isKotlinType(String type) {
