@@ -10,6 +10,7 @@ public class NativeTestSuite {
     private static final Class<?>[] nativeTests =
         new Class<?>[]{
                 ClassTests.class,
+                CollectionsTests.class,
                 ConstructorTests.class,
                 InterfacesTests.class,
                 FunctionTests.class,

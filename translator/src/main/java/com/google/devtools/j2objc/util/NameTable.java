@@ -795,7 +795,7 @@ public class NameTable {
                                      StringBuilder sb,
                                      TypeElement declaringClass) {
 
-    KmClass kmClass = ElementUtil.getKotlinMetaData(method);
+    KmClass kmClass = KotlinUtil.getKotlinMetaData(method);
     List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
 
     String methodName = method.getSimpleName().toString();

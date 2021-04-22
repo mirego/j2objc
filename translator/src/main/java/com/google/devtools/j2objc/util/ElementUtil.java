@@ -32,6 +32,7 @@ import com.google.j2objc.annotations.RetainedWith;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.lang.model.AnnotatedConstruct;
@@ -63,14 +65,11 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
-import kotlin.Metadata;
+
 import kotlinx.metadata.Flag;
-import kotlinx.metadata.Flag.Common;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Utility methods for working with elements.
@@ -951,43 +950,6 @@ public final class ElementUtil {
       }
     }
     return null;
-  }
-
-  public static KmClass getKotlinMetaData(Element element) {
-    Metadata meta = element.getEnclosingElement().getAnnotation(Metadata.class);
-    KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-    KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-    return ((KotlinClassMetadata.Class) metadata).toKmClass();
-  }
-
-  public static Element getElementFromExpression(Expression expression) {
-    if (expression == null) {
-      return null;
-    }
-
-    Element element = TreeUtil.getVariableElement(expression);
-    if (element == null) {
-      element = TreeUtil.getExecutableElement(expression);
-    }
-
-    return element;
-  }
-
-  public static boolean isKotlinExpression(Expression expression) {
-    Element element = getElementFromExpression(expression);
-    return element != null && ElementUtil.isKotlinType(element);
-  }
-
-  public static boolean isKotlinEnum(Expression expression) {
-    Element elementFromExpression = getElementFromExpression(expression);
-    return elementFromExpression != null && isKotlinEnum(elementFromExpression);
-  }
-
-  public static boolean isKotlinEnum(Element element) {
-
-    KmClass kotlinMetaData = getKotlinMetaData(element);
-    int flags = kotlinMetaData.getFlags();
-    return Flag.Class.IS_ENUM_CLASS.invoke(flags);
   }
 
   // MIREGO <<
