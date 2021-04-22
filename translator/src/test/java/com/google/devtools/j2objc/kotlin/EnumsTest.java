@@ -49,7 +49,10 @@ public class EnumsTest extends GenerationTest {
         String className = SimpleEnumValues.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "xxxxx");
+        assertTranslation(translation, "CommonKotlinArray *_array = JreRetainedLocalValue([CommonSimpleEnum values]);");
+        assertTranslation(translation, "id _iterator = JreRetainedLocalValue([_array iterator]);");
+        assertTranslation(translation, "[_iterator hasNext]");
+        assertTranslation(translation, "CommonSimpleEnum *value = JreRetainedLocalValue([_iterator next]);");
     }
 
     @Test

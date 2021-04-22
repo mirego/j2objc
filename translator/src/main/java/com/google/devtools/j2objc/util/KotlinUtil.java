@@ -3,8 +3,11 @@ package com.google.devtools.j2objc.util;
 import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.TreeUtil;
+import com.google.devtools.j2objc.types.GeneratedTypeElement;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -66,5 +69,18 @@ public final class KotlinUtil {
         }
 
         return KotlinCollectionType.NONE;
+    }
+
+    public static String getKotlinElementName(ExecutableElement element, NameTable nameTable) {
+        String elementName =  nameTable.getFullFunctionName(element);
+        return elementName.substring(0, elementName.indexOf("_"));
+    }
+
+    public static GeneratedTypeElement getKotlinArrayTypeElement() {
+        return GeneratedTypeElement.newIosClass("CommonKotlinArray", null, null);
+    }
+
+    public static GeneratedTypeElement getKotlinIteratorTypeElement() {
+        return GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
     }
 }

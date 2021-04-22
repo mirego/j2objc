@@ -24,7 +24,6 @@ import com.google.devtools.j2objc.ast.LabeledStatement;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.PostfixExpression;
 import com.google.devtools.j2objc.ast.PrefixExpression;
-import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.SingleVariableDeclaration;
 import com.google.devtools.j2objc.ast.Statement;
@@ -38,6 +37,7 @@ import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.AutoreleasePool;
 import com.google.j2objc.annotations.LoopTranslation;
@@ -47,7 +47,6 @@ import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -78,7 +77,7 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     }
 
     // MIREGO kotlin interop >>
-    if (ElementUtil.isKotlinExpression(expression)){
+    if (KotlinUtil.isKotlinExpression(expression)){
       if (endVisitKotlin(node, expressionType)) {
         return;
       }
@@ -260,20 +259,17 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
 
   private void convertToKotlinLoopIterator(EnhancedForStatement node) {
     Expression expression = node.getExpression();
-    VariableElement loopVariable = node.getParameter().getVariableElement();
-    Element elementFromExpression = ElementUtil.getElementFromExpression(expression);
+    Element elementFromExpression = KotlinUtil.getElementFromExpression(expression);
 
     if (!(elementFromExpression instanceof ExecutableElement)) {
       throw new RuntimeException("Expecting expression element to be instance of ExecutableElement but was : "
               + elementFromExpression.getClass().getSimpleName());
     }
 
-    GeneratedTypeElement commonKotlinIterator = getKotlinIteratorTypeElement();
-
-    // create store array in local variable statement
-    GeneratedTypeElement commonKotlinArray = getKotlinArrayTypeElement();
-    String arraySourceElementName = getKotlinElementName((ExecutableElement)elementFromExpression);
-
+    // create a local variable to store the array for example getting values array from an enum.
+    // example code : CommonKotlinArray *_array = CommonSimpleEnum.values;
+    GeneratedTypeElement commonKotlinArray = KotlinUtil.getKotlinArrayTypeElement();
+    String arraySourceElementName = KotlinUtil.getKotlinElementName((ExecutableElement)elementFromExpression, nameTable);
     SimpleName arraySourceElementSimpleName = new SimpleName(arraySourceElementName);
     SimpleName arraySimpleName = new SimpleName("_array");
 
@@ -281,28 +277,27 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     GeneratedVariableElement kotlinArrayVariable = GeneratedVariableElement
             .newLocalVar(arraySimpleName.getIdentifier(), commonKotlinArray.asType(), commonKotlinArray);
     GeneratedExecutableElement getArrayElement = GeneratedExecutableElement
-            .newMethodWithSelector(elementFromExpression.getSimpleName().toString(), kotlinArrayIterator.asType(),
+            .newMethodWithSelector(elementFromExpression.getSimpleName().toString(), commonKotlinArray.asType(),
                     commonKotlinArray);
 
     ExecutablePair getArrayPair = new ExecutablePair(getArrayElement);
     MethodInvocation arrayInvocation =
             new MethodInvocation(getArrayPair, arraySourceElementSimpleName);
 
-    // create iterator
-
-    SimpleName iteratorSimpleName = new SimpleName("_iterator");
-    GeneratedVariableElement kotlinArrayIterator = GeneratedVariableElement
-            .newLocalVar(iteratorSimpleName.getIdentifier(), TypeUtil.ID_TYPE, commonKotlinIterator);
-
-
-    TreeUtil.remove(expression);
     VariableDeclarationStatement kotlinArrayDecl =
             new VariableDeclarationStatement(kotlinArrayVariable, arrayInvocation);
 
+    // create a local variable to store the array iterator
+    // example code : id _iterator = [array iterator];
+
+    GeneratedTypeElement commonKotlinIterator = KotlinUtil.getKotlinIteratorTypeElement();
+    SimpleName iteratorSimpleName = new SimpleName("_iterator");
+
+    GeneratedVariableElement kotlinArrayIterator = GeneratedVariableElement
+            .newLocalVar(iteratorSimpleName.getIdentifier(), TypeUtil.ID_TYPE, commonKotlinIterator);
     GeneratedExecutableElement getIteratorElement = GeneratedExecutableElement
             .newMethodWithSelector("iterator", kotlinArrayIterator.asType(),
                     commonKotlinArray);
-
     ExecutablePair getIteratorPair = new ExecutablePair(getIteratorElement);
 
     MethodInvocation iteratorInvocation =
@@ -311,6 +306,8 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     VariableDeclarationStatement kotlinArrayIteratorDecl =
             new VariableDeclarationStatement(kotlinArrayIterator, iteratorInvocation);
 
+    // create the method invocation used as a condition for the while loop that runs through the array
+    // example code : [_iterator hasNext]
     GeneratedExecutableElement hasNextKotlinIterator = GeneratedExecutableElement
             .newMethodWithSelector("hasNext", typeUtil.getBoolean(),
                     commonKotlinIterator);
@@ -318,6 +315,8 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     MethodInvocation hasNextIteratorInvocation =
             new MethodInvocation(hasNextPair, iteratorSimpleName);
 
+    // create the method invocation used in the while loop that fetches the next element to process
+    // example code : CommonSimpleEnum *value = [_iterator next];
     GeneratedExecutableElement nextKotlinIterator = GeneratedExecutableElement
             .newMethodWithSelector("next", enumType.asType(),
                     commonKotlinIterator);
@@ -325,6 +324,9 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     MethodInvocation nextIteratorInvocation =
             new MethodInvocation(nextPair, iteratorSimpleName.copy());
 
+    TreeUtil.remove(expression);
+
+    VariableElement loopVariable = node.getParameter().getVariableElement();
     Block newLoopBody = makeBlock(TreeUtil.remove(node.getBody()));
     newLoopBody.addStatement(
             0, new VariableDeclarationStatement(loopVariable, nextIteratorInvocation));
@@ -341,17 +343,5 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
     replaceLoop(node, block, whileLoop);
   }
 
-  private String getKotlinElementName(ExecutableElement element) {
-    String elementName = nameTable.getFullFunctionName(element);
-    return elementName.substring(0, elementName.indexOf("_"));
-  }
-
-  private GeneratedTypeElement getKotlinArrayTypeElement() {
-    return GeneratedTypeElement.newIosClass("CommonKotlinArray", null, null);
-  }
-
-  private GeneratedTypeElement getKotlinIteratorTypeElement() {
-    return GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
-  }
   // MIREGO <<
 }

@@ -30,7 +30,7 @@ public class EnumsTests extends TestCase {
     @Test
     public void testSimpleEnumValues() throws IOException {
         SimpleEnumValues simpleEnumValues = new SimpleEnumValues();
-        assertEquals ("x", simpleEnumValues.main(args));
+        assertEquals ("ENUMVALUE1ENUM_VALUE2ENUM_VALUE_3", simpleEnumValues.main(args));
     }
 
     @Test
