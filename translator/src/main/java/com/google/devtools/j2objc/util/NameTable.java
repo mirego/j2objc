@@ -943,6 +943,7 @@ public class NameTable {
 //    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
 //    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
     kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+    kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
 //    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
 //    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
 //    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");

@@ -2,9 +2,6 @@ package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.CompilationUnit;
-import com.google.devtools.j2objc.ast.EnhancedForStatement;
-import com.google.devtools.j2objc.ast.Expression;
-import com.google.devtools.j2objc.ast.ExpressionStatement;
 import com.google.devtools.j2objc.ast.FunctionInvocation;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
@@ -31,6 +28,11 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
 
     public KotlinCollectionsConverter(CompilationUnit unit) {
         super(unit);
+    }
+
+    @Override
+    public void endVisit(Assignment node) {
+        super.endVisit(node);
     }
 
     @Override

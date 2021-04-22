@@ -1,6 +1,9 @@
 package com.google.devtools.j2objc.util;
 
+import com.google.common.collect.Streams;
 import com.google.devtools.j2objc.ast.Expression;
+import com.google.devtools.j2objc.ast.FieldAccess;
+import com.google.devtools.j2objc.ast.FunctionInvocation;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.types.GeneratedTypeElement;
@@ -50,10 +53,24 @@ public final class KotlinUtil {
             return null;
         }
 
-        Element element = TreeUtil.getVariableElement(expression);
-        if (element == null) {
-            element = TreeUtil.getExecutableElement(expression);
+        Element element = null;
+        if (expression instanceof FieldAccess) {
+            FieldAccess fieldAccess = (FieldAccess)expression;
+            Expression fieldAccessExpression = fieldAccess.getExpression();
+
+            if (fieldAccessExpression.toString().contains("nil_chk")) {
+                FunctionInvocation invocation = (FunctionInvocation) fieldAccessExpression;
+                invocation.getArgument(0);
+            }
         }
+
+        if (element == null) {
+            element = TreeUtil.getVariableElement(expression);
+            if (element == null) {
+                element = TreeUtil.getExecutableElement(expression);
+            }
+        }
+
         return element;
     }
 
