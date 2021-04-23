@@ -16,29 +16,11 @@ package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.GenerationTest;
 import com.google.devtools.j2objc.Options.MemoryManagementOption;
-import com.google.devtools.j2objc.util.ElementUtil;
-import org.mockito.MockedStatic;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+
+import junit.framework.Test;
 
 import java.io.IOException;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-
-import kotlin.jvm.JvmStatic;
-import scenelib.annotations.el.ATypeElement;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.RETURNS_DEFAULTS;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests for {@link Functionizer}.
@@ -684,5 +666,33 @@ public class FunctionizerTest extends GenerationTest {
                     "}",
             "Test", "Test.m");
     assertTranslation(translation, "__unused NSString *value4 = [[CommonKotlinObject kotlinObject] staticMethodWithAnnotationMultipleParamsStringParam:@\"param\" numParam:1 intParam:1 boolParam:true];");
+  }
+
+  public void testKotlinCompanionWithNoName() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.ConcreteClassWithConstructor;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
+                    "class Test {\n" +
+                    "public static void testCompanion() {\n" +
+                    "\n" +
+                    "        final String companionValue3 = ConcreteClassWithConstructor.Companion.unnamedCompanionMethod();\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "__unused NSString *companionValue3 = [[CommonConcreteClassWithConstructorCompanion companion] unnamedCompanionMethod];");
+  }
+
+  public void testKotlinCompanionWithName() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.ConcreteClassWithoutConstructor;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
+                    "class Test {\n" +
+                    "public static void testCompanion() {\n" +
+                    "\n" +
+                    "        final String companionValue2 = ConcreteClassWithoutConstructor.KotlinCompanion.companionMethod();\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "__unused NSString *companionValue2 = [[CommonConcreteClassWithoutConstructorKotlinCompanion kotlinCompanion] companionMethod];");
   }
 }
