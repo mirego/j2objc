@@ -315,12 +315,6 @@ public class ArrayRewriter extends UnitTreeVisitor {
   private void maybeRewriteArrayLength(Expression node, SimpleName name, Expression expr) {
     TypeMirror exprType = expr.getTypeMirror();
     if (name.getIdentifier().equals("length") && TypeUtil.isArray(exprType)) {
-      // MIREGO kotlin interop >>
-      if (KotlinUtil.isKotlinExpression(node)) {
-        rewriteArrayLengthKotlin(node, name, expr);
-        return;
-      }
-      // MIREGO <<
 
       VariableElement sizeField = GeneratedVariableElement.newField(
           "size", typeUtil.getInt(),
@@ -345,12 +339,4 @@ public class ArrayRewriter extends UnitTreeVisitor {
     node.replaceWith(invocation);
   }
 
-  // MIREGO kotlin interop >>
-  private void rewriteArrayLengthKotlin(Expression node, SimpleName name, Expression expr) {
-    VariableElement sizeField = GeneratedVariableElement.newField(
-            "size", typeUtil.getInt(),
-            KotlinUtil.getKotlinArrayTypeElement());
-    node.replaceWith(new FieldAccess(sizeField, TreeUtil.remove(expr)));
-  }
-  //MIREGO <<
 }

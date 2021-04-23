@@ -1,6 +1,5 @@
 package com.google.devtools.j2objc.translate;
 
-import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.FunctionInvocation;
 import com.google.devtools.j2objc.ast.MethodInvocation;
@@ -26,13 +25,12 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
             new FunctionElement("toJavaUtilList", TypeUtil.ID_TYPE, null)
                     .addParameters(TypeUtil.ID_TYPE);
 
+    private static final FunctionElement TO_IOS_OBJECT_ARRAY =
+            new FunctionElement("toIOSObjectArray", TypeUtil.ID_TYPE, null)
+                    .addParameters(TypeUtil.ID_TYPE);
+
     public KotlinCollectionsConverter(CompilationUnit unit) {
         super(unit);
-    }
-
-    @Override
-    public void endVisit(Assignment node) {
-        super.endVisit(node);
     }
 
     @Override
@@ -51,9 +49,11 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
     private void addTypeConversion(MethodInvocation node, KotlinCollectionType kotlinReturnType) {
         FunctionElement functionElement = null;
         switch (kotlinReturnType) {
-
             case LIST:
                 functionElement = TO_JAVA_LIST;
+                break;
+            case ARRAY:
+                functionElement = TO_IOS_OBJECT_ARRAY;
                 break;
             case NONE:
             default:

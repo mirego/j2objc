@@ -65,6 +65,7 @@ import kotlinx.metadata.KmConstructor;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
+import kotlinx.metadata.KmTypeProjection;
 import kotlinx.metadata.KmValueParameter;
 
 /**
@@ -989,14 +990,24 @@ public class NameTable {
 
     String javaType = null;
     if (isKotlinType(kotlinType)) {
-      if (!isNullable) {
-        javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+      if (isKotlinArrayType(kotlinType)) {
+        // go fetch it's an array of what
+        List<KmTypeProjection> arguments = kmType.getArguments();
+        if (arguments.size() == 1) {
+          KmType type = arguments.get(0).getType();
+          javaType = toJavaType(type, kmClassTypeParameters, kmFunctionTypeParams);
+          javaType += "[]";
+        } else {
+          throw new RuntimeException(String.format("multi dimensionnal arrays not yet supported : %s", arguments.size()));
+        }
+      } else {
+        if (!isNullable) {
+          javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+        }
+        if (javaType == null) {
+          javaType = kotlinToJavaType.get(kotlinType);
+        }
       }
-
-      if (javaType == null) {
-        javaType = kotlinToJavaType.get(kotlinType);
-      }
-
     } else {
       javaType = kotlinType.replace('/', '.');
     }
@@ -1025,6 +1036,10 @@ public class NameTable {
 
   private boolean isKotlinType(String type) {
     return type.indexOf("kotlin/") == 0;
+  }
+
+  private boolean isKotlinArrayType(String type) {
+    return type.equals("kotlin/Array");
   }
 
   /**

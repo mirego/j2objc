@@ -37,7 +37,11 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	SimpleDataClassCopy.h \
 	SimpleDataClassCopy.m \
 	EnumWithPropertyAccessProperty.h \
-	EnumWithPropertyAccessProperty.m
+	EnumWithPropertyAccessProperty.m \
+	SimpleEnumValues.h \
+	SimpleEnumValues.m \
+	Array4_enhancedForLoop.h \
+	Array4_enhancedForLoop.m
 
 KOTLIN_JAVA_SOURCES = $(shell find $(KOTLIN_JAVA_TEST_DIR) -name '*.java')
 KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_objc/test_cases

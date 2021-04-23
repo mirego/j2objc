@@ -27,11 +27,15 @@ public final class KotlinUtil {
 
     public enum KotlinCollectionType {
         NONE,
+        ARRAY,
         LIST,
     }
 
     public static KotlinCollectionType getKotlinReturnType(TypeMirror type) {
         TypeElement typeElement = TypeUtil.asTypeElement(type);
+        if (TypeUtil.isArray(type)) {
+            return KotlinCollectionType.ARRAY;
+        }
         if (typeElement != null) {
             if (typeElement.getQualifiedName().contentEquals("java.util.List")) {
                 return KotlinCollectionType.LIST;

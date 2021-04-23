@@ -2411,7 +2411,8 @@ PUBLIC_NATIVE_HEADERS = \
   java/lang/reflect/Method.h \
   jni.h \
   NSArrayToJavaUtilListAdapter.h \
-  NSEnumeratorToJavaUtilListIteratorAdapter.h
+  NSEnumeratorToJavaUtilListIteratorAdapter.h \
+  J2ObjC_kotlinTypes.h
 
 JRE_PUBLIC_PACKAGES = \
   java.awt.font \

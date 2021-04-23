@@ -22,6 +22,10 @@
 
 #import "J2ObjC_types.h"
 
+//MIREGO kotlin interop >>
+#import "J2ObjC_kotlinTypes.h"
+//MIREGO <<
+
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
@@ -29,6 +33,7 @@
 //MIREGO kotlin interop >>
 @protocol JavaUtilListIterator;
 @protocol JavaUtilList;
+@class IOSObjectArray;
 //MIREGO <<
 
 #ifndef __has_feature
@@ -291,6 +296,8 @@ void unsupportedAdapterCallWithName(NSString *name);
 
 id <JavaUtilList> toJavaUtilList(NSArray<id>*);
 id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>*);
+
+IOSObjectArray* toIOSObjectArray(id);
 //MIREGO <<
 
 #endif // _J2OBJC_COMMON_H_

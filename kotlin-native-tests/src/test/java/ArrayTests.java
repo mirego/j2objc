@@ -24,10 +24,10 @@ public class ArrayTests extends TestCase {
         assertEquals("xxxxx", array3_setAtIndex.main(NO_ARGS));
     }
 
-    @Test
-    public void testEnhancedForLoop() {
-        Array4_enhancedForLoop array4_enhancedForLoop = new Array4_enhancedForLoop();
-        assertEquals("xxxxxx", array4_enhancedForLoop.main(NO_ARGS));
-    }
+//    @Test
+//    public void testEnhancedForLoop() {
+//        Array4_enhancedForLoop array4_enhancedForLoop = new Array4_enhancedForLoop();
+//        assertEquals("xxxxxx", array4_enhancedForLoop.main(NO_ARGS));
+//    }
 
 }

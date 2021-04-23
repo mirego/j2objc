@@ -9334,6 +9334,7 @@
 		7A98C18624E20C8E00774306 /* Files2Test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Files2Test.m; path = libcore/java/nio/file/Files2Test.m; sourceTree = "<group>"; };
 		7A98C18724E20C8E00774306 /* FilesTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FilesTest.m; path = libcore/java/nio/file/FilesTest.m; sourceTree = "<group>"; };
 		7A98C18B24E20CAF00774306 /* FileTypeDetectorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileTypeDetectorTest.m; path = libcore/java/nio/file/spi/FileTypeDetectorTest.m; sourceTree = "<group>"; };
+		B11D5CDF2633175500AAE403 /* J2ObjC_kotlinTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = J2ObjC_kotlinTypes.h; sourceTree = "<group>"; };
 		B19F4EC6262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSArrayToJavaUtilListAdapter.m; sourceTree = "<group>"; };
 		B19F4EC7262DB54A003B9F32 /* NSArrayToJavaUtilListAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSArrayToJavaUtilListAdapter.h; sourceTree = "<group>"; };
 		B19F4ECF262DD384003B9F32 /* NSEnumeratorToJavaUtilListIteratorAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSEnumeratorToJavaUtilListIteratorAdapter.m; sourceTree = "<group>"; };
@@ -9919,6 +9920,7 @@
 				063BDAD12505A181000819BB /* UnixNativeDispatcher.m */,
 				063BDAE42505A184000819BB /* zip_util.h */,
 				0628B42B23D10F84008ADB82 /* zip_util.m */,
+				B11D5CDF2633175500AAE403 /* J2ObjC_kotlinTypes.h */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
