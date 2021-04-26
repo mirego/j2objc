@@ -698,7 +698,7 @@ public class Functionizer extends UnitTreeVisitor {
                               ExecutableElement element) {
 
     if (ElementUtil.isStatic(element)) {
-      String fullName = KotlinUtil.getKotlinElementName(element, nameTable)
+      String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
 
       TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
       SimpleName simpleName = new SimpleName(fullName)

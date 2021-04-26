@@ -983,7 +983,7 @@ public class NameTable {
       kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
     } else if (classifier instanceof KmClassifier.TypeParameter) {
       KmClassifier.TypeParameter typeParameter = (KmClassifier.TypeParameter) classifier;
-      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters,kmFunctionTypeParams);
+      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters, kmFunctionTypeParams);
     } else {
       throw new RuntimeException(String.format("Unsupported Kotlin KmClassifier : %s", classifier.getClass().getSimpleName()));
     }
@@ -991,15 +991,7 @@ public class NameTable {
     String javaType = null;
     if (isKotlinType(kotlinType)) {
       if (isKotlinArrayType(kotlinType)) {
-        // go fetch it's an array of what
-        List<KmTypeProjection> arguments = kmType.getArguments();
-        if (arguments.size() == 1) {
-          KmType type = arguments.get(0).getType();
-          javaType = toJavaType(type, kmClassTypeParameters, kmFunctionTypeParams);
-          javaType += "[]";
-        } else {
-          throw new RuntimeException(String.format("multi dimensionnal arrays not yet supported : %s", arguments.size()));
-        }
+        javaType = toJavaArrayType(kmType, kmClassTypeParameters, kmFunctionTypeParams);
       } else {
         if (!isNullable) {
           javaType = kotlinToJavaPrimitiveType.get(kotlinType);
@@ -1016,6 +1008,20 @@ public class NameTable {
       throw new RuntimeException(String.format("Could not find mapping for kotlin type : %s", kotlinType));
     }
     return javaType;
+  }
+
+  private String toJavaArrayType(KmType kmType,
+                                 List<KmTypeParameter> kmClassTypeParameters,
+                                 List<KmTypeParameter> kmFunctionTypeParams) {
+    List<KmTypeProjection> arguments = kmType.getArguments();
+    if (arguments.size() == 1) {
+      KmType type = arguments.get(0).getType();
+      String javaType = toJavaType(type, kmClassTypeParameters, kmFunctionTypeParams);
+      javaType += "[]";
+      return javaType;
+    } else {
+      throw new RuntimeException(String.format("multi dimensionnal arrays not yet supported : %s", arguments.size()));
+    }
   }
 
   private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
