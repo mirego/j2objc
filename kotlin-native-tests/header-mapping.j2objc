@@ -8,5 +8,3 @@ com.mirego.interop.kotlin.test.dataclass=Common_wrapper.h
 com.mirego.interop.kotlin.test.enums=Common_wrapper.h
 com.mirego.interop.kotlin.test.collections=Common_wrapper.h
 com.mirego.interop.kotlin.test.arrays=Common_wrapper.h
-CommonKotlinArray=
-CommonKotlinIterator=

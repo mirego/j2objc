@@ -1,7 +1,8 @@
+// MIREGO kotlin interop >>
 #ifndef J2ObjC_kotlinTypes_h
 #define J2ObjC_kotlinTypes_h
 
-//@class CommonKotlinArray<T>;
+//these must match the types defined in the IOS Framework exposed by Kotlin.
 
 @interface J2ObjCKotlinBase : NSObject
 - (instancetype)init __attribute__((unavailable));
@@ -65,3 +66,4 @@
 
 
 #endif /* J2ObjC_kotlinTypes_h */
+// MIREGO <<
