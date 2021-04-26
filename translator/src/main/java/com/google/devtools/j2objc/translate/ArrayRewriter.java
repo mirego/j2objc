@@ -37,10 +37,10 @@ import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.devtools.j2objc.util.ElementUtil;
-import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
+
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -315,7 +315,6 @@ public class ArrayRewriter extends UnitTreeVisitor {
   private void maybeRewriteArrayLength(Expression node, SimpleName name, Expression expr) {
     TypeMirror exprType = expr.getTypeMirror();
     if (name.getIdentifier().equals("length") && TypeUtil.isArray(exprType)) {
-
       VariableElement sizeField = GeneratedVariableElement.newField(
           "size", typeUtil.getInt(),
           typeUtil.getIosArray(((ArrayType) exprType).getComponentType()));
@@ -338,5 +337,4 @@ public class ArrayRewriter extends UnitTreeVisitor {
     invocation.addArgument(TreeUtil.remove(node.getLeftOperand()));
     node.replaceWith(invocation);
   }
-
 }
