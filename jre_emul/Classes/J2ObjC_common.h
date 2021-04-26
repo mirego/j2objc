@@ -298,6 +298,7 @@ id <JavaUtilList> toJavaUtilList(NSArray<id>*);
 id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>*);
 
 IOSObjectArray* toIOSObjectArray(id);
+id toKotlinArray(IOSObjectArray*);
 //MIREGO <<
 
 #endif // _J2OBJC_COMMON_H_

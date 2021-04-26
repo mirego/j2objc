@@ -10,7 +10,7 @@ public class Array3_setAtIndex {
         String[] manyItemArray = arrayBasics.manyItemArray();
         String originalValue = manyItemArray[3];
 
-        arrayBasics.manyItemArray()[3] = "ZZZ";
+        manyItemArray[3] = "ZZZ";
 
         // Direct read from java
         String result = "From Java --> Item at index[3]: " + manyItemArray[3];

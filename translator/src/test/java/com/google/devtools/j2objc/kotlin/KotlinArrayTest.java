@@ -16,28 +16,31 @@ public class KotlinArrayTest extends GenerationTest {
     public void testArrayLength() throws Exception {
         String className = Array1_length.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-        assertTranslation(translation, "xxxxx");
+        assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics emptyArray]))->size_");
+        assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics singleItemArray]))->size_");
+        assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics manyItemArray]))->size_");
     }
 
     @Test
     public void testArrayGet() throws Exception {
         String className = Array2_getAtIndex.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-        assertTranslation(translation, "xxxx");
+        assertTranslation(translation, "IOSObjectArray_Get(toIOSObjectArray([arrayBasics manyItemArray])");
     }
 
     @Test
     public void testArraySet() throws Exception {
         String className = Array3_setAtIndex.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-        assertTranslation(translation, "xxxxxx");
+        assertTranslation(translation, "toIOSObjectArray([arrayBasics manyItemArray])");
+        assertTranslation(translation, "IOSObjectArray_Set(manyItemArray, 3, @\"ZZZ\")");
     }
 
     @Test
     public void testEnhancedForLoop() throws Exception {
         String className = Array4_enhancedForLoop.class.getSimpleName();
         String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-        assertTranslation(translation, "xxxxx");
+        assertTranslation(translation, "toIOSObjectArray([arrayBasics manyItemArray])");
     }
 
 }

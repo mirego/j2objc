@@ -11,6 +11,7 @@ KOTLIN_NATIVE_SOURCE_DIR = $(KOTLIN_NATIVE_DIR)/src/test/java
 TRANSLATOR_DIR = $(J2OBJC_ROOT)/translator
 KOTLIN_JAVA_TEST_DIR = $(TRANSLATOR_DIR)/src/test/java/com/mirego/interop/java/test
 KOTLIN_NATIVE_HEADER_WRAPPER = $(KOTLIN_NATIVE_DIR)/Common_wrapper.h
+KOTLIN_NATIVE_HEADER_WRAPPER_IMPL = $(KOTLIN_NATIVE_DIR)/Common_wrapper.m
 
 # files here are disabled for j2objc jira to fix is noted after
 KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
@@ -37,11 +38,7 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	SimpleDataClassCopy.h \
 	SimpleDataClassCopy.m \
 	EnumWithPropertyAccessProperty.h \
-	EnumWithPropertyAccessProperty.m \
-	SimpleEnumValues.h \
-	SimpleEnumValues.m \
-	Array4_enhancedForLoop.h \
-	Array4_enhancedForLoop.m
+	EnumWithPropertyAccessProperty.m
 
 KOTLIN_JAVA_SOURCES = $(shell find $(KOTLIN_JAVA_TEST_DIR) -name '*.java')
 KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_objc/test_cases
@@ -98,6 +95,7 @@ kotlin_remove_disabled_tests: kotlin_translate_tests
 
 kotlin_copy_header_wrapper: kotlin_remove_disabled_tests
 	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
+	@cp $(KOTLIN_NATIVE_HEADER_WRAPPER_IMPL) $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 
 kotlin_compile_tests: kotlin_copy_header_wrapper
 	$(J2OBJCC_EXE) \

@@ -1,6 +1,5 @@
 package com.google.devtools.j2objc.util;
 
-import com.google.common.collect.Streams;
 import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.FieldAccess;
 import com.google.devtools.j2objc.ast.FunctionInvocation;
@@ -15,6 +14,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 import kotlin.Metadata;
+import kotlinx.metadata.Flag;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.jvm.KotlinClassHeader;
 import kotlinx.metadata.jvm.KotlinClassMetadata;
@@ -25,24 +25,24 @@ public final class KotlinUtil {
         // DISABLED
     }
 
-    public enum KotlinCollectionType {
+    public enum KotlinWrappedTypes {
         NONE,
         ARRAY,
         LIST,
     }
 
-    public static KotlinCollectionType getKotlinReturnType(TypeMirror type) {
+    public static KotlinWrappedTypes getKotlinType(TypeMirror type) {
         TypeElement typeElement = TypeUtil.asTypeElement(type);
         if (TypeUtil.isArray(type)) {
-            return KotlinCollectionType.ARRAY;
+            return KotlinWrappedTypes.ARRAY;
         }
         if (typeElement != null) {
             if (typeElement.getQualifiedName().contentEquals("java.util.List")) {
-                return KotlinCollectionType.LIST;
+                return KotlinWrappedTypes.LIST;
             }
         }
 
-        return KotlinCollectionType.NONE;
+        return KotlinWrappedTypes.NONE;
     }
 
     public static KmClass getKotlinMetaData(Element element) {
@@ -83,13 +83,13 @@ public final class KotlinUtil {
         return element != null && ElementUtil.isKotlinType(element);
     }
 
-    public static KotlinCollectionType getExpressionKotlinReturnType(Expression expression) {
+    public static KotlinWrappedTypes getExpressionKotlinReturnType(Expression expression) {
         if (expression instanceof MethodInvocation) {
             MethodInvocation methodInvocation = (MethodInvocation) expression;
-            return getKotlinReturnType(methodInvocation.getExecutablePair().element().getReturnType());
+            return getKotlinType(methodInvocation.getExecutablePair().element().getReturnType());
         }
 
-        return KotlinCollectionType.NONE;
+        return KotlinWrappedTypes.NONE;
     }
 
     public static String getKotlinElementName(ExecutableElement element, NameTable nameTable) {
@@ -103,5 +103,11 @@ public final class KotlinUtil {
 
     public static GeneratedTypeElement getKotlinIteratorTypeElement() {
         return GeneratedTypeElement.newIosType("CommonKotlinIterator", ElementKind.INTERFACE, null, null);
+    }
+
+    public static boolean isKotlinEnum(Element element) {
+        KmClass kotlinMetaData = getKotlinMetaData(element);
+        int flags = kotlinMetaData.getFlags();
+        return Flag.Class.IS_ENUM_CLASS.invoke(flags);
     }
 }

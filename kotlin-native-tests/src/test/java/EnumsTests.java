@@ -27,11 +27,11 @@ public class EnumsTests extends TestCase {
         assertEquals ("ENUM_VALUE_3", simpleEnumAccessValue3.main(args));
     }
     
-//    @Test
-//    public void testSimpleEnumValues() throws IOException {
-//        SimpleEnumValues simpleEnumValues = new SimpleEnumValues();
-//        assertEquals ("ENUMVALUE1ENUM_VALUE2ENUM_VALUE_3", simpleEnumValues.main(args));
-//    }
+    @Test
+    public void testSimpleEnumValues() throws IOException {
+        SimpleEnumValues simpleEnumValues = new SimpleEnumValues();
+        assertEquals ("ENUMVALUE1ENUM_VALUE2ENUM_VALUE_3", simpleEnumValues.main(args));
+    }
 
     @Test
     public void testSimpleEnumOrdinal() throws IOException {
