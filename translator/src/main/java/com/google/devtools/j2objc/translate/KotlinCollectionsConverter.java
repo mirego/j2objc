@@ -80,21 +80,6 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
         node.setArguments(newArguments);
     }
 
-    @Override
-    public void endVisit(ExpressionMethodReference node) {
-        super.endVisit(node);
-    }
-
-    @Override
-    public void endVisit(ExpressionStatement node) {
-        super.endVisit(node);
-    }
-
-    @Override
-    public void endVisit(ParameterizedType node) {
-        super.endVisit(node);
-    }
-
     private void addReturnValueTypeConversion(MethodInvocation node, KotlinWrappedTypes kotlinReturnType) {
         FunctionElement functionElement;
         switch (kotlinReturnType) {
