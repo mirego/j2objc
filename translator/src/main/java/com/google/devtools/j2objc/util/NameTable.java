@@ -65,6 +65,7 @@ import kotlinx.metadata.KmConstructor;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
+import kotlinx.metadata.KmTypeProjection;
 import kotlinx.metadata.KmValueParameter;
 
 /**
@@ -943,6 +944,7 @@ public class NameTable {
 //    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
 //    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
     kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+    kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
 //    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
 //    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
 //    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
@@ -981,21 +983,23 @@ public class NameTable {
       kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
     } else if (classifier instanceof KmClassifier.TypeParameter) {
       KmClassifier.TypeParameter typeParameter = (KmClassifier.TypeParameter) classifier;
-      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters,kmFunctionTypeParams);
+      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters, kmFunctionTypeParams);
     } else {
       throw new RuntimeException(String.format("Unsupported Kotlin KmClassifier : %s", classifier.getClass().getSimpleName()));
     }
 
     String javaType = null;
     if (isKotlinType(kotlinType)) {
-      if (!isNullable) {
-        javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+      if (isKotlinArrayType(kotlinType)) {
+        javaType = toJavaArrayType(kmType, kmClassTypeParameters, kmFunctionTypeParams);
+      } else {
+        if (!isNullable) {
+          javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+        }
+        if (javaType == null) {
+          javaType = kotlinToJavaType.get(kotlinType);
+        }
       }
-
-      if (javaType == null) {
-        javaType = kotlinToJavaType.get(kotlinType);
-      }
-
     } else {
       javaType = kotlinType.replace('/', '.');
     }
@@ -1004,6 +1008,20 @@ public class NameTable {
       throw new RuntimeException(String.format("Could not find mapping for kotlin type : %s", kotlinType));
     }
     return javaType;
+  }
+
+  private String toJavaArrayType(KmType kmType,
+                                 List<KmTypeParameter> kmClassTypeParameters,
+                                 List<KmTypeParameter> kmFunctionTypeParams) {
+    List<KmTypeProjection> arguments = kmType.getArguments();
+    if (arguments.size() == 1) {
+      KmType type = arguments.get(0).getType();
+      String javaType = toJavaType(type, kmClassTypeParameters, kmFunctionTypeParams);
+      javaType += "[]";
+      return javaType;
+    } else {
+      throw new RuntimeException(String.format("multi dimensionnal arrays not supported : %s", arguments.size()));
+    }
   }
 
   private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
@@ -1024,6 +1042,10 @@ public class NameTable {
 
   private boolean isKotlinType(String type) {
     return type.indexOf("kotlin/") == 0;
+  }
+
+  private boolean isKotlinArrayType(String type) {
+    return type.equals("kotlin/Array");
   }
 
   /**

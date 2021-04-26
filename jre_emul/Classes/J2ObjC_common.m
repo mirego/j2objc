@@ -474,4 +474,18 @@ id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>* sourceArray) {
             sourceSize:sourceArray.count];
 }
 
+IOSObjectArray* toIOSObjectArray(id sourceArray) {
+    J2ObjCKotlinArray<id> *kotlinSourceArray = (J2ObjCKotlinArray<id> *)sourceArray;
+    IOSObjectArray* destArray = [IOSObjectArray newArrayWithLength:kotlinSourceArray.size type:NSObject_class_()];
+    id <J2ObjCKotlinIterator> iterator = kotlinSourceArray.iterator;
+    
+    NSInteger index = 0;
+    while ([iterator hasNext]) {
+        id nextItem = iterator.next;
+        IOSObjectArray_Set(destArray, index++, nextItem);
+    }
+    
+   return destArray;
+}
+
 //MIREGO <<

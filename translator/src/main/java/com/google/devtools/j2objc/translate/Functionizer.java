@@ -698,10 +698,17 @@ public class Functionizer extends UnitTreeVisitor {
                               ExecutableElement element) {
 
     if (ElementUtil.isStatic(element)) {
-      String fullName = nameTable.getFullFunctionName(element);
-      fullName = fullName.substring(0, fullName.indexOf("_"));
+      String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
 
       TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
+      SimpleName simpleName = new SimpleName(fullName)
+              .setTypeMirror(typeMirror);
+
+      if (KotlinUtil.isKotlinEnum(element)) {
+        node.setExpression(simpleName);
+        return;
+      }
+
       String instanceSelector = NameTable.uncapitalize(node.getExpression().toString());
 
       GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
@@ -709,8 +716,6 @@ public class Functionizer extends UnitTreeVisitor {
               ElementUtil.getDeclaringClass(element));
 
       ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
-
-      SimpleName simpleName = new SimpleName(fullName);
 
       MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, simpleName);
 

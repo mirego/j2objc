@@ -901,18 +901,6 @@ public final class ElementUtil {
     return false;
   }
 
-//  public static boolean isKotlinGetter(Element node, KmClass kotlinClass) {
-//
-//    if (!isKotlinGetterOrSetter(node, kotlinClass)) {
-//      return false;
-//    }
-//    return true;
-//  }
-//
-//  public static boolean isKotlinSetter(Element node, KmClass kotlinClass) {
-//    return false;
-//  }
-
   public static boolean isKotlinGetter(Element node) {
     return node.getSimpleName().toString().startsWith(GETTER_PREFIX);
   }

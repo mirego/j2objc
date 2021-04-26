@@ -26,13 +26,12 @@ public class EnumsTests extends TestCase {
         SimpleEnumAccessValue3 simpleEnumAccessValue3 = new SimpleEnumAccessValue3();
         assertEquals ("ENUM_VALUE_3", simpleEnumAccessValue3.main(args));
     }
-
-    // not working need to fix enum .values() access and return value in for loop is IOSObjectArray with does not seem to match KotlinArray
-//    @Test
-//    public void testSimpleEnumValues() throws IOException {
-//        SimpleEnumValues simpleEnumValues = new SimpleEnumValues();
-//        assertEquals ("xxxxx", simpleEnumValues.main(args));
-//    }
+    
+    @Test
+    public void testSimpleEnumValues() throws IOException {
+        SimpleEnumValues simpleEnumValues = new SimpleEnumValues();
+        assertEquals ("ENUMVALUE1ENUM_VALUE2ENUM_VALUE_3", simpleEnumValues.main(args));
+    }
 
     @Test
     public void testSimpleEnumOrdinal() throws IOException {
