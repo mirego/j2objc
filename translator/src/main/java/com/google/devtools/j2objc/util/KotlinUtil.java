@@ -32,10 +32,10 @@ public final class KotlinUtil {
     }
 
     public static KotlinWrappedTypes getKotlinType(TypeMirror type) {
-        TypeElement typeElement = TypeUtil.asTypeElement(type);
         if (TypeUtil.isArray(type)) {
             return KotlinWrappedTypes.ARRAY;
         }
+        TypeElement typeElement = TypeUtil.asTypeElement(type);
         if (typeElement != null) {
             if (typeElement.getQualifiedName().contentEquals("java.util.List")) {
                 return KotlinWrappedTypes.LIST;
@@ -57,22 +57,9 @@ public final class KotlinUtil {
             return null;
         }
 
-        Element element = null;
-        if (expression instanceof FieldAccess) {
-            FieldAccess fieldAccess = (FieldAccess)expression;
-            Expression fieldAccessExpression = fieldAccess.getExpression();
-
-            if (fieldAccessExpression.toString().contains("nil_chk")) {
-                FunctionInvocation invocation = (FunctionInvocation) fieldAccessExpression;
-                invocation.getArgument(0);
-            }
-        }
-
+        Element element = TreeUtil.getVariableElement(expression);
         if (element == null) {
-            element = TreeUtil.getVariableElement(expression);
-            if (element == null) {
-                element = TreeUtil.getExecutableElement(expression);
-            }
+            element = TreeUtil.getExecutableElement(expression);
         }
 
         return element;
