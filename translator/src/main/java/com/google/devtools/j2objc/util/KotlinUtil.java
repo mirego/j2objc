@@ -80,7 +80,7 @@ public final class KotlinUtil {
     }
 
     public static String getKotlinElementName(ExecutableElement element, NameTable nameTable) {
-        String elementName =  nameTable.getFullFunctionName(element);
+        String elementName = nameTable.getFullFunctionName(element);
         return elementName.substring(0, elementName.indexOf("_"));
     }
 

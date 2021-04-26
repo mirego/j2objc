@@ -1020,7 +1020,7 @@ public class NameTable {
       javaType += "[]";
       return javaType;
     } else {
-      throw new RuntimeException(String.format("multi dimensionnal arrays not yet supported : %s", arguments.size()));
+      throw new RuntimeException(String.format("multi dimensionnal arrays not supported : %s", arguments.size()));
     }
   }
 
