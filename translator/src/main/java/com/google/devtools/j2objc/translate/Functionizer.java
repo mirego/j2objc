@@ -51,6 +51,7 @@ import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.util.CaptureInfo;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinMetadataUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
@@ -274,6 +275,9 @@ public class Functionizer extends UnitTreeVisitor {
     if (ElementUtil.isStatic(method)) {
       String commonClassName = fullName.substring(0, fullName.indexOf("_"));
       Name className =  ElementUtil.getDeclaringClass(method).getSimpleName();
+      if(KotlinMetadataUtil.isCompanionMethod(method)) {
+        commonClassName += className.toString();
+      }
 
       GeneratedExecutableElement commonClassElement = GeneratedExecutableElement
           .newMethodWithSelector(commonClassName, node.getExecutableType(), ElementUtil.getDeclaringClass(method));
