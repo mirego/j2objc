@@ -28,6 +28,7 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.types.PointerType;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.TranslationUtil;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -59,7 +60,7 @@ public class StaticVarRewriter extends UnitTreeVisitor {
     }
 
 // MIREGO kotlin interop >>
-    if (ElementUtil.isKotlinType(var)) {
+    if (KotlinUtil.isKotlinType(var)) {
       return;
     }
 // MIREGO <<

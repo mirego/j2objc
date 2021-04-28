@@ -562,7 +562,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     Expression receiver = node.getExpression();
     buffer.append('[');
     if (ElementUtil.isStatic(element) &&
-        !ElementUtil.isKotlinType(element))    // MIREGO kotlin interop
+        !KotlinUtil.isKotlinType(element))    // MIREGO kotlin interop
     {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
@@ -889,7 +889,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     } else {
       // MIREGO Kotlin Interop >>
       TypeElement typeElement = TypeUtil.asTypeElement(type);
-      if (ElementUtil.isKotlinType(typeElement)) {
+      if (KotlinUtil.isKotlinType(typeElement)) {
         buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
         // MIREGO <<
       } else {
@@ -1044,7 +1044,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   private void convertCaseKotlin(Expression expression) {
     Element element = KotlinUtil.getElementFromExpression(expression);
-    KmClass kotlinMetaData = KotlinUtil.getKotlinMetaData(element);
+    KmClass kotlinMetaData = KotlinUtil.getExecutableElementKotlinMetaData(element);
 
     int flags = kotlinMetaData.getFlags();
     if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {

@@ -166,7 +166,7 @@ public class HeaderMap {
     String name = inferSourceName(type);
     PackageElement pkg = ElementUtil.getPackage(type);
 
-    if(ElementUtil.isKotlinType(type)) {
+    if(KotlinUtil.isKotlinType(type)) {
       mappedHeader = map.get(pkg.toString());
       if (mappedHeader != null) {
         return mappedHeader;
