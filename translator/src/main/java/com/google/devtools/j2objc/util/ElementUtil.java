@@ -346,7 +346,6 @@ public final class ElementUtil {
   }
 
   private static boolean hasModifier(Element element, Modifier modifier) {
-    Set<Modifier> modifiers = element.getModifiers();
     return element.getModifiers().contains(modifier);
   }
 
