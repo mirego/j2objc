@@ -56,6 +56,7 @@ import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
+
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -254,7 +255,7 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement method = node.getExecutableElement();
 
     // MIREGO kotlin interop >>
-    if (ElementUtil.isKotlinType(method)) {
+    if (KotlinUtil.isKotlinType(method)) {
       endVisitKotlin(node, method);
       return;
     }
@@ -327,7 +328,7 @@ public class Functionizer extends UnitTreeVisitor {
     TypeElement type = ElementUtil.getDeclaringClass(element);
 
     // MIREGO kotlin interop >>
-    if(ElementUtil.isKotlinType(element)) {
+    if(KotlinUtil.isKotlinType(element)) {
       endVisitKotlin(node, element);
       return;
     }
@@ -694,51 +695,35 @@ public class Functionizer extends UnitTreeVisitor {
     node.replaceWith(initMethod);
   }
 
-  private void endVisitKotlin(MethodInvocation node,
-                              ExecutableElement element) {
+  private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
 
-    if (ElementUtil.isStatic(element)) {
-      String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
-
-      TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-      SimpleName simpleName = new SimpleName(fullName)
-              .setTypeMirror(typeMirror);
-
-      if (KotlinUtil.isKotlinEnum(element)) {
-        node.setExpression(simpleName);
-        return;
-      }
-
-      String instanceSelector = NameTable.uncapitalize(node.getExpression().toString());
-
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
-          .newMethodWithSelector(instanceSelector, typeMirror,
-              ElementUtil.getDeclaringClass(element));
-
-      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
-
-      MethodInvocation getInstanceMethod = new MethodInvocation(getInstancePair, simpleName);
-
-      MethodInvocation staticMethod = new MethodInvocation(node.getExecutablePair(), getInstanceMethod);
-      TreeUtil.moveList(node.getArguments(), staticMethod.getArguments());
-
-      node.replaceWith(staticMethod);
+    if (KotlinUtil.isKotlinEnum(element)) {
+      Expression expression = convertEnumExpression(node, element);
+      node.setExpression(expression);
       return;
     }
 
-    KmClass kmClass = KotlinUtil.getKotlinMetaData(element);
+    if (KotlinUtil.isKotlinCompanionObjectOrObject(element)) {
+      Expression expression = convertCompanionObjectOrObjectExpression(node, element);
+      node.setExpression(expression);
+    }
 
-    KmProperty getterOrSetterProperty = ElementUtil.getKotlinGetterOrSetter(element, kmClass);
+    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
+    KmProperty getterOrSetterProperty = KotlinUtil.getKotlinGetterOrSetter(element, kmClass);
     if (getterOrSetterProperty != null) {
-      SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
-      simpleName.setTypeMirror(element.getReturnType());
-      PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
+      convertPropertyAccessExpression(node, element, getterOrSetterProperty);
+    }
+  }
 
-      if (ElementUtil.isKotlinGetter(element)) {
-        node.replaceWith(propertyAccess);
-        return;
-      }
+  private void convertPropertyAccessExpression(MethodInvocation node, ExecutableElement element,
+                                               KmProperty getterOrSetterProperty) {
+    SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
+    simpleName.setTypeMirror(element.getReturnType());
+    PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
 
+    if (KotlinUtil.isKotlinGetter(element)) {
+      node.replaceWith(propertyAccess);
+    } else {
       List<Expression> arguments = node.getArguments();
       if (arguments.size() != 1) {
         throw new RuntimeException("Kotlin interop assumes 1 argument when handling auto generated setter .... " + node.toString());
@@ -746,7 +731,47 @@ public class Functionizer extends UnitTreeVisitor {
       Assignment assignment = new Assignment(propertyAccess, arguments.get(0).copy());
       node.replaceWith(assignment);
     }
+  }
 
+  private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element) {
+
+    String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
+    TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
+    String nodeExpression = node.getExpression().toString();
+
+    String instanceSelector;
+    SimpleName executableExpression;
+    if (ElementUtil.isStatic(element)) {
+      instanceSelector = NameTable.uncapitalize(nodeExpression);
+      executableExpression = new SimpleName(executableElementName);
+    } else {
+      instanceSelector = getCompanionObjectOrObjectInstanceSelector(nodeExpression);
+      executableExpression = new SimpleName(executableElementName + NameTable.capitalize(instanceSelector));
+    }
+    executableExpression.setTypeMirror(typeMirror);
+
+    GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
+            .newMethodWithSelector(instanceSelector, typeMirror,
+                    ElementUtil.getDeclaringClass(element));
+
+    ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
+    return new MethodInvocation(getInstancePair, executableExpression);
+  }
+
+  private String getCompanionObjectOrObjectInstanceSelector(String nodeExpression) {
+    String[] nodeExpressionSplit = nodeExpression.split("\\.");
+
+    if (nodeExpressionSplit.length < 2 || nodeExpressionSplit.length > 3) {
+      throw new RuntimeException("Expected a instance selector with the pattern Class.Companion or Class.Object.INSTANCE: " + nodeExpression);
+    }
+    return NameTable.uncapitalize(nodeExpressionSplit[1]);
+  }
+
+  private Expression convertEnumExpression(MethodInvocation node, ExecutableElement element) {
+    String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
+    TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
+    return new SimpleName(fullName)
+            .setTypeMirror(typeMirror);
   }
 
   // MIREGO >>

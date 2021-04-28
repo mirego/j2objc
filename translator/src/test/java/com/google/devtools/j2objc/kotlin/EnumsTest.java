@@ -1,12 +1,7 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.enums.SimpleEnumAccessValue1;
-import com.mirego.interop.java.test.enums.SimpleEnumAccessValue2;
-import com.mirego.interop.java.test.enums.SimpleEnumAccessValue3;
-import com.mirego.interop.java.test.enums.SimpleEnumOrdinal;
-import com.mirego.interop.java.test.enums.SimpleEnumSwitchCase;
-import com.mirego.interop.java.test.enums.SimpleEnumValues;
+import com.mirego.interop.java.test.enums.*;
 
 import org.junit.Test;
 

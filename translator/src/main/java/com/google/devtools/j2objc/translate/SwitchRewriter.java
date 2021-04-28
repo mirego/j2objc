@@ -36,6 +36,7 @@ import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.types.ExecutablePair;
 import com.google.devtools.j2objc.types.FunctionElement;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import java.util.List;
@@ -85,7 +86,7 @@ public class SwitchRewriter extends UnitTreeVisitor {
     TypeMirror type = var.asType();
     if (TypeUtil.isEnum(type)) {
       // MIREGO kotlin interop >>
-      if (ElementUtil.isKotlinType(var)) {
+      if (KotlinUtil.isKotlinType(var)) {
         return;
       }
       // MIREGO <<

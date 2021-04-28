@@ -5,6 +5,10 @@ import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnno
 import com.mirego.interop.java.test.objects.StaticMethodWithListParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
+import com.mirego.interop.java.test.objects.WithCompanionObject;
+import com.mirego.interop.java.test.objects.WithNamedCompanionObject;
+import com.mirego.interop.java.test.objects.WithObject;
+
 import java.io.IOException;
 import org.junit.Test;
 
@@ -48,4 +52,33 @@ public class ObjectsTest extends GenerationTest {
 //
 //    assertTranslation(translation, "xxxx");
 //  }
+
+
+  @Test
+  public void testWithCompanionObject() throws IOException {
+
+    String className = WithCompanionObject.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "[CommonClassWithCompanionObjectCompanion companion].companionString");
+    assertTranslation(translation, "[[CommonClassWithCompanionObjectCompanion companion] companionFunction]");
+  }
+
+  @Test
+  public void testWithNamedCompanionObject() throws IOException {
+
+    String className = WithNamedCompanionObject.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "[CommonClassWithNamedCompanionObjectNamed named].companionString");
+  }
+
+  @Test
+  public void testWithObject() throws IOException {
+
+    String className = WithObject.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "[CommonClassWithObjectNamed named].objectString");
+  }
 }

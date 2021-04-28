@@ -63,5 +63,8 @@ public class PropertyAccess extends Expression {
         return new PropertyAccess(this);
     }
 
-
+    @Override
+    public String toString() {
+        return receiver.toString() + "." + propertyName.toString();
+    }
 }

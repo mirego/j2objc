@@ -266,7 +266,7 @@ public class NameTable {
       String className = getFullName(ElementUtil.getDeclaringClass(var));
 
 // MIREGO kotlin interop >>
-      if (ElementUtil.isKotlinType(var)) {
+      if (KotlinUtil.isKotlinType(var)) {
         return className + '.' + camelCaseEnumName(shortName);
       }
 // MIREGO <<
@@ -415,7 +415,7 @@ public class NameTable {
     }
 
     // MIREGO kotlin interop >>
-    if (ElementUtil.isKotlinType(method)) {
+    if (KotlinUtil.isKotlinType(method)) {
       return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
     }
     // MIREGO <<
@@ -435,8 +435,8 @@ public class NameTable {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
 
-      // mirego kotlin interop
-      if (selector.startsWith("get") && ElementUtil.isKotlinType(method)) {
+      // MIREGO kotlin interop
+      if (selector.startsWith("get") && KotlinUtil.isKotlinType(method)) {
         return getMethodSelectorKotlin(method, selector);
       }
       return selector;
@@ -796,7 +796,7 @@ public class NameTable {
                                      StringBuilder sb,
                                      TypeElement declaringClass) {
 
-    KmClass kmClass = KotlinUtil.getKotlinMetaData(method);
+    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(method);
     List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
 
     String methodName = method.getSimpleName().toString();

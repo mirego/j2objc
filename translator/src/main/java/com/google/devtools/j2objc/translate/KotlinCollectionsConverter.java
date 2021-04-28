@@ -50,8 +50,8 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
     @Override
     public void endVisit(MethodInvocation node) {
         ExecutableElement executableElement = node.getExecutableElement();
-        if (ElementUtil.isKotlinType(executableElement)) {
-            convertInputParameters(node, executableElement);
+        if (KotlinUtil.isKotlinType(executableElement)) {
+            convertInputParameters(node);
             convertReturnType(node, executableElement);
 
         }
@@ -65,7 +65,7 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
         }
     }
 
-    private void convertInputParameters(MethodInvocation node, ExecutableElement executableElement) {
+    private void convertInputParameters(MethodInvocation node) {
         List<Expression> arguments = node.getArguments();
         int numberOfArguments = arguments.size();
         if (numberOfArguments == 0) {
