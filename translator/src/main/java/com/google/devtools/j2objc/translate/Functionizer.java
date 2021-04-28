@@ -698,25 +698,25 @@ public class Functionizer extends UnitTreeVisitor {
   private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
 
     if (KotlinUtil.isKotlinEnum(element)) {
-      Expression kotlinExpression = convertKotlinEnumExpression(node, element);
-      node.setExpression(kotlinExpression);
+      Expression expression = convertEnumExpression(node, element);
+      node.setExpression(expression);
       return;
     }
 
     if (KotlinUtil.isKotlinCompanionObjectOrObject(element)) {
-      Expression kotlinExpression = convertKotlinCompanionObjectOrObjectExpression(node, element);
-      node.setExpression(kotlinExpression);
+      Expression expression = convertCompanionObjectOrObjectExpression(node, element);
+      node.setExpression(expression);
     }
 
     KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
     KmProperty getterOrSetterProperty = KotlinUtil.getKotlinGetterOrSetter(element, kmClass);
     if (getterOrSetterProperty != null) {
-      convertKotlinPropertyAccessExpression(node, element, getterOrSetterProperty);
+      convertPropertyAccessExpression(node, element, getterOrSetterProperty);
     }
   }
 
-  private void convertKotlinPropertyAccessExpression(MethodInvocation node, ExecutableElement element,
-                                                     KmProperty getterOrSetterProperty) {
+  private void convertPropertyAccessExpression(MethodInvocation node, ExecutableElement element,
+                                               KmProperty getterOrSetterProperty) {
     SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
     simpleName.setTypeMirror(element.getReturnType());
     PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
@@ -733,7 +733,7 @@ public class Functionizer extends UnitTreeVisitor {
     }
   }
 
-  private Expression convertKotlinCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element) {
+  private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element) {
 
     String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
@@ -767,7 +767,7 @@ public class Functionizer extends UnitTreeVisitor {
     return NameTable.uncapitalize(nodeExpressionSplit[1]);
   }
 
-  private Expression convertKotlinEnumExpression(MethodInvocation node, ExecutableElement element) {
+  private Expression convertEnumExpression(MethodInvocation node, ExecutableElement element) {
     String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
     return new SimpleName(fullName)
