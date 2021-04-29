@@ -121,15 +121,18 @@ public class GenerationTest extends TestCase {
   protected void loadOptions() throws IOException {
     options = new Options();
     String tempPath = tempDir.getAbsolutePath();
-    String jarRelativePath = "../common/build/libs/common-jvm-0.0.1.jar";
-    String jarAbsolutePath = FileSystems.getDefault().getPath(jarRelativePath).normalize().toAbsolutePath().toString();
-    jarAbsolutePath = jarAbsolutePath.replace("submodules/j2objc/translator/../", "");
+    String kotlinJarRelativePath = "../common/build/libs/common-jvm-0.0.1.jar";
+    String annotationJarRelativePath = "../java_deps/build_result/annotations-20.1.0.jar";
+    String annotationJarAbsolutePath = FileSystems.getDefault().getPath(annotationJarRelativePath).normalize().toAbsolutePath().toString();
+    String kotlinJarAbsolutePath = FileSystems.getDefault().getPath(kotlinJarRelativePath).normalize().toAbsolutePath().toString();
+    annotationJarAbsolutePath = annotationJarAbsolutePath.replace("translator/../", "");
+    kotlinJarAbsolutePath = kotlinJarAbsolutePath.replace("submodules/j2objc/translator/../", "");
     options.getPackagePrefixes().addPrefix("com.mirego.interop.*", "Common");
 
     options.load(new String[]{
         "-d", tempPath,
         "-sourcepath", tempPath,
-        "-classpath", tempPath + ":" + jarAbsolutePath,
+        "-classpath", tempPath + ":" + kotlinJarAbsolutePath + ":" + annotationJarAbsolutePath,
         "-q", // Suppress console output.
         "-encoding", "UTF-8" // Translate strings correctly when encodings are nonstandard.
     });

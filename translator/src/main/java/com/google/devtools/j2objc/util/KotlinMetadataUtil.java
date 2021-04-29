@@ -7,6 +7,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 
 import kotlin.Metadata;
+import kotlinx.metadata.Flag;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmConstructor;
 import kotlinx.metadata.KmFunction;
@@ -52,6 +53,11 @@ public class KotlinMetadataUtil {
     return kmClass;
   }
 
+  public static boolean isCompanionMethod(Element element) {
+    Element enclosingElement = element.getEnclosingElement();
+    KmClass kmClass = getClass(enclosingElement);
+    return Flag.Class.IS_COMPANION_OBJECT.invoke(kmClass.getFlags());
+  }
   private static List<KmValueParameter> findMatchingFunction(KmClass kotlinClass, String functionName) {
     List<KmValueParameter> parameters = new ArrayList<>();
 

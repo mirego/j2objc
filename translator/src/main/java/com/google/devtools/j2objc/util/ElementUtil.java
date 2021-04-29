@@ -111,7 +111,11 @@ public final class ElementUtil {
   }
 
   public static boolean isStatic(Element element) {
-    return hasModifier(element, Modifier.STATIC);
+    boolean isCompanion = false;
+    if(isKotlinType(element) && isExecutableElement(element)) {
+      isCompanion = KotlinMetadataUtil.isCompanionMethod(element);
+    }
+    return hasModifier(element, Modifier.STATIC) || isCompanion;
   }
 
   public static boolean isDefault(Element element) {
