@@ -74,13 +74,22 @@ public class EnumsTest extends GenerationTest {
                 "  }");
     }
 
-    // todo need to cast access to property
-//    @Test
-//    public void testEnumWithPropertyAccessProperty() throws IOException {
-//
-//        String className = EnumWithPropertyAccessProperty.class.getSimpleName();
-//        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//        assertTranslation(translation, "xxx");
-//    }
+    @Test
+    public void testEnumWithPropertyAccessProperty() throws IOException {
+
+        String className = EnumWithPropertyAccessProperty.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+        assertTranslation(translation, "((CommonEnumWithProperty *) nil_chk(enumWithProperty)).content");
+    }
+
+
+    @Test
+    public void testEnumWithPropertyWithFunction() throws IOException {
+
+        String className = EnumWithPropertyWithFunction.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+        assertTranslation(translation, "[((CommonEnumWithProperty *) nil_chk(enumWithProperty)) testFun]");
+    }
 }

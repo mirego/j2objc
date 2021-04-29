@@ -69,6 +69,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
 
 /**
@@ -697,21 +698,29 @@ public class Functionizer extends UnitTreeVisitor {
 
   private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
 
-    if (KotlinUtil.isKotlinEnum(element)) {
+    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
+    KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, kmClass);
+    KmProperty propertyAccessor = null;
+    if (kotlinFunction == null) {
+      propertyAccessor = KotlinUtil.getKotlinPropertyAccessor(element, kmClass);
+    }
+
+    // Enum property access or function calls do not happen on the Enum but on an instance
+    // so we don't need any special handling
+    if (kotlinFunction == null && propertyAccessor == null
+            && KotlinUtil.isKotlinEnum(kmClass)) {
       Expression expression = convertEnumExpression(node, element);
       node.setExpression(expression);
       return;
     }
 
-    if (KotlinUtil.isKotlinCompanionObjectOrObject(element)) {
+    if (KotlinUtil.isKotlinCompanionObjectOrObject(kmClass)) {
       Expression expression = convertCompanionObjectOrObjectExpression(node, element);
       node.setExpression(expression);
     }
 
-    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
-    KmProperty getterOrSetterProperty = KotlinUtil.getKotlinGetterOrSetter(element, kmClass);
-    if (getterOrSetterProperty != null) {
-      convertPropertyAccessExpression(node, element, getterOrSetterProperty);
+    if (propertyAccessor != null) {
+      convertPropertyAccessExpression(node, element, propertyAccessor);
     }
   }
 

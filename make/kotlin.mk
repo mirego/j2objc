@@ -36,9 +36,7 @@ KOTLIN_NATIVE_J2OBJC_DISABLED_TESTS = \
 	PublicFunctionWithDefaultArguments.h \
 	PublicFunctionWithDefaultArguments.m \
 	SimpleDataClassCopy.h \
-	SimpleDataClassCopy.m \
-	EnumWithPropertyAccessProperty.h \
-	EnumWithPropertyAccessProperty.m
+	SimpleDataClassCopy.m
 
 KOTLIN_JAVA_SOURCES = $(shell find $(KOTLIN_JAVA_TEST_DIR) -name '*.java')
 KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR = $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/generated_objc/test_cases

@@ -45,10 +45,16 @@ public class EnumsTests extends TestCase {
         assertEquals (1, simpleEnumSwitchCase.main(args));
     }
 
-    // todo need to cast access to property
-//    @Test
-//    public void testEnumWithPropertyAccessProperty() throws IOException {
-//        EnumWithPropertyAccessProperty enumWithPropertyAccessProperty = new EnumWithPropertyAccessProperty();
-//        assertEquals ("xx", enumWithPropertyAccessProperty.main(args));
-//    }
+    @Test
+    public void testEnumWithPropertyAccessProperty() throws IOException {
+        EnumWithPropertyAccessProperty enumWithPropertyAccessProperty = new EnumWithPropertyAccessProperty();
+        assertEquals ("ENUMVALUE1_TEST", enumWithPropertyAccessProperty.main(args));
+    }
+
+    @Test
+    public void testEnumWithPropertyWithFunction() throws IOException {
+        EnumWithPropertyWithFunction enumWithPropertyWithFunction = new EnumWithPropertyWithFunction();
+        assertEquals ("ENUMVALUE1_TESTFUN", enumWithPropertyWithFunction.main(args));
+    }
+
 }
