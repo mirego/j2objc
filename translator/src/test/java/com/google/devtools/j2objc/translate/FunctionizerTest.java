@@ -695,4 +695,66 @@ public class FunctionizerTest extends GenerationTest {
             "Test", "Test.m");
     assertTranslation(translation, "__unused NSString *companionValue2 = [[CommonConcreteClassWithoutConstructorKotlinCompanion kotlinCompanion] companionMethod];");
   }
+
+  public void testInstanceMethodWithParams() throws IOException {
+    String translation = translateSourceFile(
+        "import com.mirego.interop.ConcreteClassWithoutConstructor;\n" +
+            "@SuppressWarnings(\"unused\")\n" +
+            "class Test {\n" +
+            "public static void testMethod() {\n" +
+            "\n" +
+            "        final ConcreteClassWithoutConstructor concreteClassWithoutConstructor = new ConcreteClassWithoutConstructor();\n" +
+            "        concreteClassWithoutConstructor.methodNativeParameters(5, false, 0.5);\n" +
+            "}\n" +
+            "}",
+        "Test", "Test.m");
+
+    assertTranslation(translation, "[concreteClassWithoutConstructor methodNativeParametersIntParam:5 boolParam:false doubleParam:0.5];");
+  }
+
+  public void testInstanceMethodNoParams() throws IOException {
+    String translation = translateSourceFile(
+        "import com.mirego.interop.ConcreteClassWithoutConstructor;\n" +
+            "@SuppressWarnings(\"unused\")\n" +
+            "class Test {\n" +
+            "public static void testMethod() {\n" +
+            "\n" +
+            "        final ConcreteClassWithoutConstructor concreteClassWithoutConstructor = new ConcreteClassWithoutConstructor();\n" +
+            "        final String returnValue = concreteClassWithoutConstructor.methodReturnValue();\n" +
+            "}\n" +
+            "}",
+        "Test", "Test.m");
+
+    assertTranslation(translation, "__unused NSString *returnValue = [concreteClassWithoutConstructor methodReturnValue];");
+  }
+
+  public void testConstructorNativeParams() throws IOException {
+    String translation = translateSourceFile(
+        "import com.mirego.interop.ConcreteClassWithConstructor;\n" +
+            "@SuppressWarnings(\"unused\")\n" +
+            "class Test {\n" +
+            "public static void testConstructor() {\n" +
+            "\n" +
+            "        final ConcreteClassWithConstructor concreteClassWithConstructor = new ConcreteClassWithConstructor(5);\n" +
+            "}\n" +
+            "}",
+        "Test", "Test.m");
+
+    assertTranslation(translation, "__unused CommonConcreteClassWithConstructor *concreteClassWithConstructor = [[CommonConcreteClassWithConstructor alloc] initWithIntParam:5];");
+  }
+
+  public void testEnum() throws IOException {
+    String translation = translateSourceFile(
+        "import com.mirego.interop.KotlinEnum;\n" +
+            "@SuppressWarnings(\"unused\")\n" +
+            "class Test {\n" +
+            "public static void testEnum() {\n" +
+            "\n" +
+            "        final KotlinEnum enumValue = KotlinEnum.VALUE1;\n" +
+            "}\n" +
+            "}",
+        "Test", "Test.m");
+
+    assertTranslation(translation, "__unused CommonKotlinEnum *enumValue = [CommonKotlinEnum value1];");
+  }
 }
