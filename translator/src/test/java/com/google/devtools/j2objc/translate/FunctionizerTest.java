@@ -757,4 +757,34 @@ public class FunctionizerTest extends GenerationTest {
 
     assertTranslation(translation, "__unused CommonKotlinEnum *enumValue = [CommonKotlinEnum value1];");
   }
+
+  public void testKotlinGetProperty() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.ConcreteClassWithConstructor;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
+                    "class Test {\n" +
+                    "public static void testProperties() {\n" +
+                    "\n" +
+                    "        final ConcreteClassWithConstructor concreteClassWithConstructor = new ConcreteClassWithConstructor(5);\n" +
+                    "        int propertyVar = concreteClassWithConstructor.getPropertyVar();\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "jint propertyVar = [concreteClassWithConstructor propertyVar];");
+  }
+
+  public void testKotlinSetProperty() throws IOException {
+    String translation = translateSourceFile(
+            "import com.mirego.interop.ConcreteClassWithConstructor;\n" +
+                    "@SuppressWarnings(\"unused\")\n" +
+                    "class Test {\n" +
+                    "public static void testProperties() {\n" +
+                    "\n" +
+                    "        final ConcreteClassWithConstructor concreteClassWithConstructor = new ConcreteClassWithConstructor(5);\n" +
+                    "        concreteClassWithConstructor.setPropertyVar(2);\n" +
+                    "}\n" +
+                    "}",
+            "Test", "Test.m");
+    assertTranslation(translation, "[concreteClassWithConstructor setPropertyVar:2];");
+  }
 }
