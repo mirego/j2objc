@@ -60,8 +60,9 @@ public class StaticVarRewriter extends UnitTreeVisitor {
 
     TypeElement declaringClass = ElementUtil.getDeclaringClass(var);
     boolean assignable = TranslationUtil.isAssigned(node);
+    boolean isKotlinType = ElementUtil.isKotlinType(var);
     StringBuilder code = new StringBuilder(
-        ElementUtil.isKotlinType(var) ? "" :
+        isKotlinType ? "" :
         ElementUtil.isEnumConstant(var) ? "JreLoadEnum" : "JreLoadStatic");
     TypeMirror exprType = var.asType();
     if (assignable) {
@@ -69,7 +70,7 @@ public class StaticVarRewriter extends UnitTreeVisitor {
       exprType = new PointerType(exprType);
     }
     
-    if (ElementUtil.isKotlinType(var)) {
+    if (isKotlinType) {
       code.append("[");
       code.append(nameTable.getFullName(declaringClass));
       code.append(" ");
