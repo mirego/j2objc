@@ -61,17 +61,28 @@ public class StaticVarRewriter extends UnitTreeVisitor {
     TypeElement declaringClass = ElementUtil.getDeclaringClass(var);
     boolean assignable = TranslationUtil.isAssigned(node);
     StringBuilder code = new StringBuilder(
+        ElementUtil.isKotlinType(var) ? "" :
         ElementUtil.isEnumConstant(var) ? "JreLoadEnum" : "JreLoadStatic");
     TypeMirror exprType = var.asType();
     if (assignable) {
       code.append("Ref");
       exprType = new PointerType(exprType);
     }
-    code.append("(");
-    code.append(nameTable.getFullName(declaringClass));
-    code.append(", ");
-    code.append(nameTable.getVariableShortName(var));
-    code.append(")");
+    
+    if (ElementUtil.isKotlinType(var)) {
+      code.append("[");
+      code.append(nameTable.getFullName(declaringClass));
+      code.append(" ");
+      code.append(nameTable.getVariableShortName(var).toLowerCase());
+      code.append("]");
+    } else {
+      code.append("(");
+      code.append(nameTable.getFullName(declaringClass));
+      code.append(", ");
+      code.append(nameTable.getVariableShortName(var));
+      code.append(")");
+    }
+    
     NativeExpression nativeExpr = new NativeExpression(code.toString(), exprType);
     nativeExpr.addImportType(declaringClass.asType());
     Expression newNode = nativeExpr;
