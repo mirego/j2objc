@@ -746,15 +746,19 @@ public class Functionizer extends UnitTreeVisitor {
 
     String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-    String nodeExpression = node.getExpression().toString();
+    Expression nodeExpression = node.getExpression();
 
     String instanceSelector;
     SimpleName executableExpression;
     if (ElementUtil.isStatic(element)) {
-      instanceSelector = NameTable.uncapitalize(nodeExpression);
+      instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
+      executableExpression = new SimpleName(executableElementName);
+    } else if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(nodeExpression)) {
+      FieldAccess fieldAccess = (FieldAccess)nodeExpression;
+      instanceSelector = NameTable.uncapitalize(fieldAccess.getExpression().toString());
       executableExpression = new SimpleName(executableElementName);
     } else {
-      instanceSelector = getCompanionObjectOrObjectInstanceSelector(nodeExpression);
+      instanceSelector = getCompanionObjectOrObjectInstanceSelector(nodeExpression.toString());
       executableExpression = new SimpleName(executableElementName + NameTable.capitalize(instanceSelector));
     }
     executableExpression.setTypeMirror(typeMirror);

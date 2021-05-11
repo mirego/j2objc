@@ -4,6 +4,11 @@ import kotlin.jvm.JvmStatic
 import kotlin.js.JsName
 
 object ObjectWithMethod {
+
+    fun staticMethodWithoutParam(): String {
+        return "return"
+    }
+
     @JvmStatic
     fun staticMethodWithoutParamWithAnnotation(): String {
         return "return"
