@@ -1,6 +1,7 @@
 package com.google.devtools.j2objc.util;
 
 import com.google.devtools.j2objc.ast.Expression;
+import com.google.devtools.j2objc.ast.FieldAccess;
 import com.google.devtools.j2objc.ast.TreeUtil;
 
 import javax.annotation.Nullable;
@@ -31,13 +32,16 @@ public final class KotlinUtil {
         LIST,
     }
 
+    private static final String JAVA_UTIL_LIST = "java.util.List";
+    private static final String KOTIN_JVM_INSTANCE_IDENTIFIER = "INSTANCE";
+
     public static KotlinWrappedTypes getKotlinType(TypeMirror type) {
         if (TypeUtil.isArray(type)) {
             return KotlinWrappedTypes.ARRAY;
         }
         TypeElement typeElement = TypeUtil.asTypeElement(type);
         if (typeElement != null) {
-            if (typeElement.getQualifiedName().contentEquals("java.util.List")) {
+            if (typeElement.getQualifiedName().contentEquals(JAVA_UTIL_LIST)) {
                 return KotlinWrappedTypes.LIST;
             }
         }
@@ -100,6 +104,14 @@ public final class KotlinUtil {
 
     public static boolean isKotlinCompanionObjectOrObject(KmClass kotlinMetaData) {
         return isCompanionObjectKmClass(kotlinMetaData) || isObjectKmClass(kotlinMetaData);
+    }
+
+    public static boolean isKotlinObjectWithoutJvmStaticAnnotation(Expression expression) {
+        if (expression instanceof FieldAccess) {
+            FieldAccess fieldAccess = (FieldAccess) expression;
+            return fieldAccess.getName().getIdentifier().equals(KOTIN_JVM_INSTANCE_IDENTIFIER);
+        }
+        return false;
     }
 
     private static boolean isEnumKmClass(KmClass kotlinMetaData) {

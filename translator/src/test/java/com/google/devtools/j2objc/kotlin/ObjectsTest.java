@@ -1,13 +1,7 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
-import com.mirego.interop.java.test.objects.StaticMethodWithListParamWithAnnotation;
-import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
-import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
-import com.mirego.interop.java.test.objects.WithCompanionObject;
-import com.mirego.interop.java.test.objects.WithNamedCompanionObject;
-import com.mirego.interop.java.test.objects.WithObject;
+import com.mirego.interop.java.test.objects.*;
 
 import java.io.IOException;
 import org.junit.Test;
@@ -80,5 +74,14 @@ public class ObjectsTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "[CommonClassWithObjectNamed named].objectString");
+  }
+
+  @Test
+  public void testStaticMethodWithoutParams() throws IOException {
+
+    String className = StaticMethodWithoutParam.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "[[CommonObjectWithMethod objectWithMethod] staticMethodWithoutParam]");
   }
 }

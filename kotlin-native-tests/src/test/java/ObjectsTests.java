@@ -53,4 +53,10 @@ public class ObjectsTests extends TestCase {
         WithObject withObject = new WithObject();
         assertEquals("objectString", withObject.main(NO_ARGS));
     }
+
+    @Test
+    public void testStaticMethodWithoutParams() {
+        StaticMethodWithoutParam staticMethodWithoutParam = new StaticMethodWithoutParam();
+        assertEquals("return", staticMethodWithoutParam.main(NO_ARGS));
+    }
 }
