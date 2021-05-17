@@ -13,8 +13,8 @@
 	<classpathentry kind="lib" path="../java_deps/build_result/procyon-decompiler.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/scenelib.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/plume-util-1.0.6.jar"/>
-	<classpathentry kind="lib" path="../java_deps/build_result/kotlin-stdlib-1.4.32.jar"/>
-	<classpathentry kind="lib" path="../java_deps/build_result/kotlinx-metadata-jvm-0.2.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/kotlin-stdlib-1.5.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/kotlinx-metadata-jvm-0.3.0.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/annotations-20.1.0.jar"/>
 	<classpathentry kind="output" path="build_result/eclipse"/>
 </classpath>
