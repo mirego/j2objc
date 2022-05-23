@@ -46,6 +46,7 @@ fi
 
 declare CC_FLAGS="-Werror -Wno-parentheses -fno-strict-overflow -Wno-compare-distinct-pointer-types"
 CC_FLAGS="${CC_FLAGS} -Wno-nullability-completeness"
+CC_FLAGS="${CC_FLAGS} -Wno-unused-but-set-variable"
 declare STD_FLAG="c11"
 declare OTHER_LIBS="-l iconv -l z -l j2objc_main -l c++"
 declare SYSROOT_PATH="none"
