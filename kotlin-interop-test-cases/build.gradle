@@ -1,9 +1,8 @@
 plugins {
     id "org.jetbrains.kotlin.multiplatform" version "$kotlin_version"
-    id 'mirego.publish' version '1.5'
 }
 
-def iosArchLibrarySuffix = System.getenv('SDK_NAME')?.startsWith("iphoneos") ? "iosarm64" : "iosx64"
+def iosArchLibrarySuffix = System.getenv("SDK_NAME")?.startsWith("iphoneos") ? "iosarm64" : "iosx64"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -11,28 +10,27 @@ targetCompatibility = 1.8
 repositories {
     mavenLocal()
     mavenCentral()
-    delegate.miregoPublic()
 }
 
 kotlin {
     targets {
-        fromPreset(presets.jvm, 'jvm')
+        fromPreset(presets.jvm, "jvm")
 
         final def iOSTarget = iosArchLibrarySuffix == "iosarm64" ? presets.iosArm64 : presets.iosX64
         fromPreset(iOSTarget, "ios") {
             binaries {
                 framework {
                     embedBitcode("bitcode")
-                    baseName = 'Common'
+                    baseName = "Common"
                 }
             }
         }
 
-        macosX64('native') {
+        macosX64("native") {
             binaries {
                 framework {
                     embedBitcode("bitcode")
-                    baseName = 'Common'
+                    baseName = "Common"
                     isStatic = true
                 }
             }
@@ -42,12 +40,12 @@ kotlin {
     sourceSets {
         all {
             languageSettings {
-                optIn('kotlin.Experimental')
-                optIn('kotlin.time.ExperimentalTime')
+                optIn("kotlin.Experimental")
+                optIn("kotlin.time.ExperimentalTime")
             }
             kotlin {
-                srcDir 'src'
-                exclude '**/*.java'
+                srcDir "src"
+                exclude "**/*.java"
             }
         }
 
@@ -73,19 +71,20 @@ task copyFramework() {
     doLast {
         def frameworkFilename = "Common.framework"
         def srcFile = kotlin.targets.ios.binaries.getFramework(buildType).outputFile
-
         def targetDir = file("build/bin/ios").toString()
+        def j2objcTarget = file("../core/generated-objc").toString()
+
         copy {
             from srcFile.parent
             into targetDir
             include "${frameworkFilename}/**"
             include "${frameworkFilename}.dSYM"
         }
-        def j2objcTarget = file("../core/generated-objc").toString()
+        
         copy {
             from "${srcFile}/headers"
             into j2objcTarget
-            include '**/*.h'
+            include "**/*.h"
         }
     }
 }
@@ -98,8 +97,8 @@ task copyFrameworkNative() {
     doLast {
         def frameworkFilename = "Common.framework"
         def srcFile = kotlin.targets.native.binaries.getFramework(buildType).outputFile
-
         def targetDir = file("build/bin/native").toString()
+
         copy {
             from srcFile.parent
             into targetDir
