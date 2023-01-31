@@ -1,5 +1,4 @@
-
-#kotlin subsection
+# kotlin subsection
 KOTLIN_INTEROP_DIR = $(J2OBJC_ROOT)/kotlin-interop-test-cases
 KOTLIN_INTEROP_JVM_JAR = $(KOTLIN_INTEROP_DIR)/build/libs/kotlin-interop-test-cases-jvm.jar
 KOTLIN_NATIVE_FRAMEWORK = $(KOTLIN_INTEROP_DIR)/build/bin/native/Common.framework
@@ -68,7 +67,7 @@ kotlin_native_deps:
 kotlin_translator:
 	@cd $(TRANSLATOR_DIR) && $(MAKE) translator
 
-kotlin_translate_tests: kotlin_interop kotlin_translator
+kotlin_translate_tests: kotlin_interop kotlin_native_deps kotlin_translator
 	$(J2OBJC_EXE) \
 	-classpath $(TEST_CLASSPATH)  \
 	-encoding UTF-8 \
