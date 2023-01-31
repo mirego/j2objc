@@ -1,6 +1,6 @@
 plugins {
     id "org.jetbrains.kotlin.multiplatform" version "$kotlin_version"
-    id 'mirego.publish' version '1.0'
+    id 'mirego.publish' version '1.5'
 }
 
 def iosArchLibrarySuffix = System.getenv('SDK_NAME')?.startsWith("iphoneos") ? "iosarm64" : "iosx64"
@@ -10,7 +10,7 @@ targetCompatibility = 1.8
 
 repositories {
     mavenLocal()
-    jcenter()
+    mavenCentral()
     delegate.miregoPublic()
 }
 
@@ -27,6 +27,7 @@ kotlin {
                 }
             }
         }
+
         macosX64('native') {
             binaries {
                 framework {
@@ -41,21 +42,24 @@ kotlin {
     sourceSets {
         all {
             languageSettings {
-                useExperimentalAnnotation('kotlin.Experimental')
-                useExperimentalAnnotation('kotlin.time.ExperimentalTime')
+                optIn('kotlin.Experimental')
+                optIn('kotlin.time.ExperimentalTime')
             }
             kotlin {
                 srcDir 'src'
                 exclude '**/*.java'
             }
         }
+
         commonMain {
             dependencies {
                 implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
             }
         }
+
         iosMain {
         }
+
         nativeMain {
         }
     }
@@ -85,6 +89,7 @@ task copyFramework() {
         }
     }
 }
+
 task copyFrameworkNative() {
     def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
 
@@ -103,4 +108,3 @@ task copyFrameworkNative() {
         }
     }
 }
-
