@@ -56,7 +56,6 @@ import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
-
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
