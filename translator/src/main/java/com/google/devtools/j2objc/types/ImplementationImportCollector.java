@@ -35,6 +35,7 @@ import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.NativeDeclaration;
 import com.google.devtools.j2objc.ast.NativeExpression;
 import com.google.devtools.j2objc.ast.NormalAnnotation;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.ReturnStatement;
 import com.google.devtools.j2objc.ast.SimpleName;
@@ -215,6 +216,16 @@ public class ImplementationImportCollector extends UnitTreeVisitor {
   public boolean visit(NormalAnnotation node) {
     return false;
   }
+
+  // kotlin interop >>
+
+  @Override
+  public boolean visit(PropertyAccess node) {
+    addImports(node.getReceiver().getTypeMirror());
+    return true;
+  }
+
+  // kotlin interop <<
 
   @Override
   public boolean visit(QualifiedName node) {

@@ -19,8 +19,10 @@ package com.google.devtools.j2objc.util;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.devtools.j2objc.J2ObjC;
 import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
@@ -35,19 +37,33 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
+import kotlinx.metadata.Flag.Type;
+import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmClassifier;
+import kotlinx.metadata.KmConstructor;
+import kotlinx.metadata.KmFunction;
+import kotlinx.metadata.KmType;
+import kotlinx.metadata.KmTypeParameter;
+import kotlinx.metadata.KmTypeProjection;
+import kotlinx.metadata.KmValueParameter;
 
 /**
  * Singleton service for type/method/variable name support.
@@ -251,6 +267,13 @@ public class NameTable {
     String shortName = getVariableShortName(var);
     if (ElementUtil.isGlobalVar(var)) {
       String className = getFullName(ElementUtil.getDeclaringClass(var));
+
+      // kotlin interop >>
+      if (KotlinUtil.isKotlinType(var)) {
+        return className + '.' + camelCaseEnumName(shortName);
+      }
+      // kotlin interop <<
+
       if (ElementUtil.isEnumConstant(var)) {
         // Enums are declared in an array, so we use a macro to shorten the
         // array access expression.
@@ -375,6 +398,19 @@ public class NameTable {
     return false;
   }
 
+  // kotlin interop >>
+
+  private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
+    for (Element x : elements) {
+      if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
+        return Optional.of(x.getSimpleName().toString());
+      }
+    }
+    return Optional.empty();
+  }
+
+  // kotlin interop <<
+
   private String addParamNames(ExecutableElement method, String name, char delim) {
     StringBuilder sb = new StringBuilder(name);
     boolean first = true;
@@ -384,6 +420,13 @@ public class NameTable {
         first = appendParamKeyword(sb, param.asType(), delim, first);
       }
     }
+
+    // kotlin interop >>
+    if (KotlinUtil.isKotlinType(method)) {
+      return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
+    }
+    // kotlin interop <<
+
     for (VariableElement param : method.getParameters()) {
       first = appendParamKeyword(sb, param.asType(), delim, first);
     }
@@ -398,6 +441,11 @@ public class NameTable {
   public String getMethodSelector(ExecutableElement method) {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
+
+      // MIREGO kotlin interop
+      if (selector.startsWith("get") && KotlinUtil.isKotlinType(method)) {
+        return getMethodSelectorKotlin(method, selector);
+      }
       return selector;
     }
     selector = getMethodSelectorInner(method);
@@ -686,6 +734,14 @@ public class NameTable {
       return mappedName;
     }
 
+    // kotlin interop >>
+    // This was in the original fork we got this from, not sure why : https://github.com/dhwitz/j2objc/tree/kotlin-native
+    // but we want the full prefix
+    // if(ElementUtil.isKotlinType(element)) {
+    //   return getPrefixKotlin(ElementUtil.getPackage(element)) + getTypeSubName(element);
+    // }
+    // kotlin interop <<
+
     // Use camel-cased package+class name.
     return getPrefix(ElementUtil.getPackage(element)) + getTypeSubName(element);
   }
@@ -755,4 +811,298 @@ public class NameTable {
   public static boolean isValidClassName(String className) {
     return JAVA_CLASS_NAME_PATTERN.matcher(className).matches();
   }
+
+  // kotlin interop >>
+
+  private boolean appendParamKeywordKotlin(StringBuilder sb, Name paramName, char delim, boolean first) {
+    return appendParamKeywordKotlin(sb, paramName.toString(), delim, first);
+  }
+
+  private boolean appendParamKeywordKotlin( StringBuilder sb, String paramName, char delim, boolean first) {
+    String keyword = paramName;
+    if (first) {
+      keyword = capitalize(keyword);
+    }
+    sb.append(keyword).append(delim);
+    return false;
+  }
+
+  private String addParamNamesKotlin(ExecutableElement method,
+                                     String name,
+                                     char delim,
+                                     boolean first,
+                                     StringBuilder sb,
+                                     TypeElement declaringClass) {
+
+    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(method);
+    List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
+
+    String methodName = method.getSimpleName().toString();
+    Multimap<String, List<KmValueParameter>> potentialValueParameters = ArrayListMultimap.create();
+    Multimap<String, List<KmTypeParameter>> potentialTypeParameters = ArrayListMultimap.create();
+    List<KmValueParameter> matchingParams = null;
+
+    List<String> jvmArgumentTypes = method.getParameters().stream()
+        .map(variableElement -> getCleanedJvmParameter(variableElement))
+        .collect(Collectors.toList());
+
+    if (ElementUtil.isConstructor(method)) {
+      for (KmConstructor loopConstructor : kmClass.getConstructors()) {
+        potentialValueParameters.put(methodName, loopConstructor.getValueParameters());
+        potentialTypeParameters.put(methodName, null);
+      }
+    } else {
+      for (KmFunction loopFunction : kmClass.getFunctions()) {
+        String functionName = loopFunction.getName();
+        potentialValueParameters.put(functionName, loopFunction.getValueParameters());
+        potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+      }
+    }
+
+    Iterator<Entry<String, List<KmValueParameter>>> valueParametersIterator = potentialValueParameters.entries().iterator();
+    Iterator<Entry<String, List<KmTypeParameter>>> typeParametersIterator = potentialTypeParameters.entries().iterator();
+    while(valueParametersIterator.hasNext() && typeParametersIterator.hasNext()) {
+      Entry<String, List<KmValueParameter>> methodEntry = valueParametersIterator.next();
+      List<KmValueParameter> valueParams = methodEntry.getValue();
+      List<KmTypeParameter> typeParams = typeParametersIterator.next().getValue();
+      List<String> kmArgumentTypes = valueParams.stream()
+              .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters, typeParams))
+              .collect(Collectors.toList());
+
+      if (methodEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
+        if (matchingParams != null) {
+          throw new RuntimeException(String.format("Found more that one matching method %s for class %s", methodName, kmClass.name));
+        }
+        matchingParams = valueParams;
+      }
+    }
+
+    int idx = 0;
+    for (VariableElement param : method.getParameters()) {
+
+      if (first && ElementUtil.isConstructor(method)) {
+        sb.append("With");
+      }
+
+      if (name.startsWith("set") && checkEnclosedElementsForField(
+          declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
+        break;
+      }
+
+      String paramName = param.getSimpleName().toString();
+      if (matchingParams != null) {
+        paramName = matchingParams.get(idx).getName();
+      }
+
+      first = appendParamKeywordKotlin(sb, paramName, delim, first);
+      idx++;
+    }
+
+    return sb.toString();
+  }
+
+  private String getCleanedJvmParameter(VariableElement element) {
+    // todo gaudet there must be a way to get the list type directly instead of removing it the hard way
+    String elementType = element.asType().toString();
+    int startIndex = elementType.indexOf('<');
+    if (startIndex > 0) {
+      return elementType.substring( 0, startIndex);
+    }
+
+    return element.asType().toString();
+
+  }
+
+  private String getMethodSelectorKotlin(ExecutableElement method, String selector) {
+      Optional<String> getterName =
+          checkEnclosedElementsForField(
+              ElementUtil.getDeclaringClass(method).getEnclosedElements(),
+              selector.substring(3));
+      if (getterName.isPresent()) {
+        return getterName.get();
+      }
+
+      return selector;
+  }
+
+  private String getPrefixKotlin(PackageElement packageElement) {
+    String prefix = prefixMap.getPrefix(packageElement);
+    StringBuilder kotlinPrefix = new StringBuilder();
+
+    for (int i = 0; i < prefix.length(); i++) {
+      char current = prefix.charAt(i);
+      if (Character.isUpperCase(current)) {
+        kotlinPrefix.append(current);
+      }
+    }
+
+    return kotlinPrefix.toString();
+  }
+
+  private static final Map<String, String> kotlinToJavaPrimitiveType = new HashMap<>();
+  static {
+    // java primitive types
+    kotlinToJavaPrimitiveType.put("kotlin/Byte", "byte");
+    kotlinToJavaPrimitiveType.put("kotlin/Short", "short");
+    kotlinToJavaPrimitiveType.put("kotlin/Int", "int");
+    kotlinToJavaPrimitiveType.put("kotlin/Long", "long");
+    kotlinToJavaPrimitiveType.put("kotlin/Char", "char");
+    kotlinToJavaPrimitiveType.put("kotlin/Float", "float");
+    kotlinToJavaPrimitiveType.put("kotlin/Double", "double");
+    kotlinToJavaPrimitiveType.put("kotlin/Boolean", "boolean");
+  }
+
+  private static final Map<String, String> kotlinToJavaType = new HashMap<>();
+  static {
+    // java non-primitive types
+    kotlinToJavaType.put("kotlin/Any", "java.lang.Object");
+    kotlinToJavaType.put("kotlin/Cloneable", "java.lang.Cloneable");
+    kotlinToJavaType.put("kotlin/Comparable", "java.lang.Comparable");
+    kotlinToJavaType.put("kotlin/Enum", "java.lang.Enum");
+    kotlinToJavaType.put("kotlin/Annotation", "java.lang.Annotation");
+    kotlinToJavaType.put("kotlin/Deprecated", "java.lang.Deprecated");
+    kotlinToJavaType.put("kotlin/CharSequence", "java.lang.CharSequence");
+    kotlinToJavaType.put("kotlin/String", "java.lang.String");
+    kotlinToJavaType.put("kotlin/Number", "java.lang.Number");
+    kotlinToJavaType.put("kotlin/Throwable", "java.lang.Throwable");
+
+    // java boxed primitive types
+    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
+    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
+    kotlinToJavaType.put("kotlin/Int", "java.lang.Integer");
+    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
+    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
+    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
+    kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
+    kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
+
+    // TODO this is so varargs method parsing works, but not tested yet since varargs don't work
+    // TODO Need to test all types of var args types possible
+    // kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
+    // kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
+    kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+    kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
+    // kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
+    // kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
+    // kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
+    // kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
+    // kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
+
+    // java collection types
+    kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");
+    kotlinToJavaType.put("kotlin/collections/MutableIterator", "java.util.Iterator");
+    kotlinToJavaType.put("kotlin/collections/Iterable", "java.util.Iterable");
+    kotlinToJavaType.put("kotlin/collections/MutableIterable", "java.util.Iterable");
+    kotlinToJavaType.put("kotlin/collections/Collection", "java.util.Collection");
+    kotlinToJavaType.put("kotlin/collections/MutableCollection", "java.util.Collection");
+    kotlinToJavaType.put("kotlin/collections/Set", "java.util.Set");
+    kotlinToJavaType.put("kotlin/collections/MutableSet", "java.util.Set");
+    kotlinToJavaType.put("kotlin/collections/List", "java.util.List");
+    kotlinToJavaType.put("kotlin/collections/MutableList", "java.util.List");
+    kotlinToJavaType.put("kotlin/collections/ListIterator", "java.util.ListIterator");
+    kotlinToJavaType.put("kotlin/collections/MutableListIterator", "java.util.ListIterator");
+    kotlinToJavaType.put("kotlin/collections/Map", "java.util.Map");
+    kotlinToJavaType.put("kotlin/collections/MutableMap", "java.util.Map");
+    kotlinToJavaType.put("kotlin/collections/Map.Entry", "java.util.Map.Entry");
+    kotlinToJavaType.put("kotlin/collections/MutableMap.MutableEntry", "java.util.Map.Entry");
+  }
+
+  private String toJavaType(KmType kmType,
+                            List<KmTypeParameter> kmClassTypeParameters,
+                            List<KmTypeParameter> kmFunctionTypeParams) {
+    boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
+
+    KmClassifier classifier = kmType.getClassifier();
+    String kotlinType;
+    if (classifier instanceof KmClassifier.Class) {
+      kotlinType = ((KmClassifier.Class) classifier).getName();
+    } else if (classifier instanceof KmClassifier.TypeAlias) {
+      kotlinType = ((KmClassifier.TypeAlias) classifier).getName();
+    } else if (classifier instanceof KmClassifier.TypeParameter) {
+      KmClassifier.TypeParameter typeParameter = (KmClassifier.TypeParameter) classifier;
+      kotlinType = findParamNameInTypeParameters(typeParameter, kmClassTypeParameters, kmFunctionTypeParams);
+    } else {
+      throw new RuntimeException(String.format("Unsupported Kotlin KmClassifier : %s", classifier.getClass().getSimpleName()));
+    }
+
+    String javaType = null;
+    if (isKotlinType(kotlinType)) {
+      if (isKotlinArrayType(kotlinType)) {
+        javaType = toJavaArrayType(kmType, kmClassTypeParameters, kmFunctionTypeParams);
+      } else {
+        if (!isNullable) {
+          javaType = kotlinToJavaPrimitiveType.get(kotlinType);
+        }
+        if (javaType == null) {
+          javaType = kotlinToJavaType.get(kotlinType);
+        }
+      }
+    } else {
+      javaType = kotlinType.replace('/', '.');
+    }
+
+    if (javaType == null) {
+      throw new RuntimeException(String.format("Could not find mapping for kotlin type : %s", kotlinType));
+    }
+    return javaType;
+  }
+
+  private String toJavaArrayType(KmType kmType,
+                                 List<KmTypeParameter> kmClassTypeParameters,
+                                 List<KmTypeParameter> kmFunctionTypeParams) {
+    List<KmTypeProjection> arguments = kmType.getArguments();
+    if (arguments.size() == 1) {
+      KmType type = arguments.get(0).getType();
+      String javaType = toJavaType(type, kmClassTypeParameters, kmFunctionTypeParams);
+      javaType += "[]";
+      return javaType;
+    } else {
+      throw new RuntimeException(String.format("multi dimensionnal arrays not supported : %s", arguments.size()));
+    }
+  }
+
+  private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
+                                               List<KmTypeParameter> kmClassTypeParameters,
+                                               List<KmTypeParameter> kmFunctionTypeParams) {
+      int id = typeParameter.getId();
+      if (id < kmClassTypeParameters.size()) {
+        return kmClassTypeParameters.get(id).getName();
+      }
+
+      id -= kmClassTypeParameters.size();
+      if (id >= kmFunctionTypeParams.size()) {
+        throw new RuntimeException("could not map type id with know type parameters ....");
+      }
+
+      return kmFunctionTypeParams.get(id).getName();
+  }
+
+  private boolean isKotlinType(String type) {
+    return type.indexOf("kotlin/") == 0;
+  }
+
+  private boolean isKotlinArrayType(String type) {
+    return type.equals("kotlin/Array");
+  }
+
+  /**
+   * Uncapitalize the first letter of a string.
+   */
+  public static String uncapitalize(String s) {
+    return s.isEmpty() ? s : Character.toLowerCase(s.charAt(0)) + s.substring(1);
+  }
+
+  public static String camelCaseEnumName(String name) {
+    StringBuilder sb = new StringBuilder();
+    boolean firstPart = true;
+    String lowerCaseName = name.toLowerCase();
+    for (String part : lowerCaseName.split("_")) {
+      String partToAppend = (!firstPart) ? capitalize(part) : part;
+      sb.append(partToAppend);
+      firstPart = false;
+    }
+    return sb.toString();
+  }
+
+  // kotlin interop <<
 }

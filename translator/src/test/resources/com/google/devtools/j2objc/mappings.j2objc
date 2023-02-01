@@ -1,1 +1,4 @@
 unit.mapping.Test=my/mapping/Test.h
+// kotlin interop >>
+com.mirego.interop.kotlin.test.constructor=Common.h
+// kotlin interop <<

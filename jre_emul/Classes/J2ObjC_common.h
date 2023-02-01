@@ -20,9 +20,19 @@
 
 #import "J2ObjC_types.h"
 
+// kotlin interop >>
+#import "J2ObjC_kotlinTypes.h"
+// kotlin interop <<
+
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
+
+// kotlin interop >>
+@protocol JavaUtilListIterator;
+@protocol JavaUtilList;
+@class IOSObjectArray;
+// kotlin interop <<
 
 #ifndef __has_feature
 #define __has_feature(x) 0  // Compatibility with non-clang compilers.
@@ -296,5 +306,18 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
     ((__bridge Class)&(J2OBJC_CLASS_SYMBOL(name)))
 #define J2OBJC_CLASS_DECLARATION(name) \
     extern const J2ObjCClass_t J2OBJC_CLASS_SYMBOL(name)
+
+// kotlin interop >>
+
+void illegalAdapterMutableCallWithName(NSString *name);
+void unsupportedAdapterCallWithName(NSString *name);
+
+id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray);
+id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id> *sourceArray);
+
+IOSObjectArray *toIOSObjectArray(id sourceArray);
+id toKotlinArray(IOSObjectArray *sourceArray);
+
+// kotlin interop <<
 
 #endif // _J2OBJC_COMMON_H_

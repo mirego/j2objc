@@ -60,6 +60,7 @@ import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.types.FunctionElement;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import java.util.Collections;
 import java.util.HashMap;
@@ -418,6 +419,13 @@ public class NilCheckResolver extends UnitTreeVisitor {
     VariableElement var = TreeUtil.getVariableElement(node);
     if (var != null) {
       addSafeVar(var);
+
+      // kotlin interop >>
+      if (KotlinUtil.isKotlinType(var)
+              && KotlinUtil.isElementKotlinCompanionObjectOrObject(TypeUtil.asTypeElement(var.asType()))) {
+        return;
+      }
+      // kotlin interop <<
     }
     FunctionInvocation nilChkInvocation =
         new FunctionInvocation(NIL_CHK_ELEM, node.getTypeMirror());

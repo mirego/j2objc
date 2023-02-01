@@ -13,5 +13,10 @@
 	<classpathentry kind="lib" path="../java_deps/build_result/procyon-decompiler.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/scenelib.jar"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/plume-util-1.0.6.jar"/>
+	<!-- kotlin interop >> -->
+	<classpathentry kind="lib" path="../java_deps/build_result/kotlin-stdlib-1.6.10.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/kotlinx-metadata-jvm-0.4.0.jar"/>
+	<classpathentry kind="lib" path="../java_deps/build_result/annotations-23.0.0.jar"/>
+	<!-- kotlin interop << -->
 	<classpathentry kind="output" path="build_result/eclipse"/>
 </classpath>

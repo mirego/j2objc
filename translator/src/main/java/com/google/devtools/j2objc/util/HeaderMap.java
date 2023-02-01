@@ -165,6 +165,16 @@ public class HeaderMap {
 
     String name = inferSourceName(type);
     PackageElement pkg = ElementUtil.getPackage(type);
+
+    // kotlin interop >>
+    if (KotlinUtil.isKotlinType(type)) {
+      mappedHeader = map.get(pkg.toString());
+      if (mappedHeader != null) {
+        return mappedHeader;
+      }
+    }
+    // kotlin interop <<
+
     return outputDirFromPackage(pkg) + name + ".h";
   }
 

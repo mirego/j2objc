@@ -64,6 +64,7 @@ import com.google.devtools.j2objc.ast.ParenthesizedExpression;
 import com.google.devtools.j2objc.ast.PostfixExpression;
 import com.google.devtools.j2objc.ast.PrefixExpression;
 import com.google.devtools.j2objc.ast.PrimitiveType;
+import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.QualifiedType;
 import com.google.devtools.j2objc.ast.ReturnStatement;
@@ -97,6 +98,7 @@ import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
@@ -108,6 +110,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import kotlinx.metadata.Flag;
+import kotlinx.metadata.KmClass;
 
 /**
  * Returns an Objective-C equivalent of a Java AST node.
@@ -536,7 +540,9 @@ public class StatementGenerator extends UnitTreeVisitor {
     // Object receiving the message, or null if it's a method in this class.
     Expression receiver = node.getExpression();
     buffer.append('[');
-    if (ElementUtil.isStatic(element)) {
+    if (ElementUtil.isStatic(element) &&
+      !KotlinUtil.isKotlinType(element)) // kotlin interop
+    {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
       receiver.accept(this);
@@ -610,6 +616,18 @@ public class StatementGenerator extends UnitTreeVisitor {
     buffer.append(NameTable.getPrimitiveObjCType(node.getTypeMirror()));
     return false;
   }
+
+  // kotlin interop >>
+
+  @Override
+  public boolean visit(PropertyAccess node) {
+    node.getReceiver().accept(this);
+    buffer.append(".");
+    node.getPropertyName().accept(this);
+    return false;
+  }
+
+  // kotlin interop <<
 
   @Override
   public boolean visit(QualifiedName node) {
@@ -744,8 +762,16 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append("  default:\n");
     } else {
       buffer.append("  case ");
-      node.getExpression().accept(this);
-      buffer.append(":\n");
+
+      // kotlin interop >>
+      Expression expression = node.getExpression();
+      if (!KotlinUtil.isKotlinExpression(expression)) {
+        expression.accept(this);
+        buffer.append(":\n");
+      } else {
+        convertCaseKotlin(expression);
+      }
+      // kotlin interop <<
     }
     return false;
   }
@@ -851,7 +877,14 @@ public class StatementGenerator extends UnitTreeVisitor {
     } else if (type.getKind().isPrimitive() || TypeUtil.isVoid(type)) {
       buffer.append(UnicodeUtils.format("[IOSClass %sClass]", TypeUtil.getName(type)));
     } else {
-      buffer.append(nameTable.getFullName(TypeUtil.asTypeElement(type))).append("_class_()");
+      // kotlin interop >>
+      TypeElement typeElement = TypeUtil.asTypeElement(type);
+      if (!KotlinUtil.isKotlinType(typeElement)) {
+        buffer.append(nameTable.getFullName(typeElement)).append("_class_()");
+      } else {
+        buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
+      }
+      // kotlin interop <<
     }
     return false;
   }
@@ -979,4 +1012,34 @@ public class StatementGenerator extends UnitTreeVisitor {
     });
     return hasComma[0];
   }
+
+  // kotlin interop >>
+
+  private static int findOrdinalForEnumValue(KmClass kotlinMetaData, String enumValue) {
+    int ordinal = kotlinMetaData.getEnumEntries().indexOf(enumValue);
+    if (ordinal == -1) {
+      throw new RuntimeException("Could not find ordinal for enumValue: " + enumValue);
+    }
+    return ordinal;
+  }
+
+  private void convertCaseKotlin(Expression expression) {
+    Element element = KotlinUtil.getElementFromExpression(expression);
+    KmClass kotlinMetaData = KotlinUtil.getExecutableElementKotlinMetaData(element);
+
+    int flags = kotlinMetaData.getFlags();
+    if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {
+      String caseEnumValueName = element.toString();
+      int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
+
+      buffer.append(ordinalForEnumValue + ":");
+      // add comment so a human reading the code knows which ordinal matches to which enum value
+      buffer.append(" // " + caseEnumValueName + "\n");
+    } else {
+      expression.accept(this);
+      buffer.append(":\n");
+    }
+  }
+
+  // kotlin interop <<
 }

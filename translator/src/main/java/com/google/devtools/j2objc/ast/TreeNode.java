@@ -208,6 +208,9 @@ public abstract class TreeNode {
     POSTFIX_EXPRESSION,
     PREFIX_EXPRESSION,
     PRIMITIVE_TYPE,
+    // kotlin interop >>
+    PROPERTY_ACCESS,
+    // kotlin interop <<
     PROPERTY_ANNOTATION,
     QUALIFIED_NAME,
     QUALIFIED_TYPE,
