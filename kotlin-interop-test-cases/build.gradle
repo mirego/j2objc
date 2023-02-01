@@ -1,11 +1,14 @@
 plugins {
-    id "org.jetbrains.kotlin.multiplatform" version "$kotlin_version"
+    id("java")
+    id("org.jetbrains.kotlin.multiplatform") version "$kotlin_version"
 }
 
 def iosArchLibrarySuffix = System.getenv("SDK_NAME")?.startsWith("iphoneos") ? "iosarm64" : "iosx64"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 repositories {
     mavenLocal()
@@ -38,20 +41,20 @@ kotlin {
     }
 
     sourceSets {
-        all {
+        configureEach {
             languageSettings {
                 optIn("kotlin.Experimental")
                 optIn("kotlin.time.ExperimentalTime")
             }
             kotlin {
-                srcDir "src"
-                exclude "**/*.java"
+                srcDir("src")
+                exclude("**/*.java")
             }
         }
 
         commonMain {
             dependencies {
-                implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+                implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version")
             }
         }
 
@@ -63,10 +66,10 @@ kotlin {
     }
 }
 
-task copyFramework() {
+tasks.register("copyFramework") {
     def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
 
-    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkIos"
+    dependsOn("link${buildType.toLowerCase().capitalize()}FrameworkIos")
 
     doLast {
         def frameworkFilename = "Common.framework"
@@ -75,24 +78,24 @@ task copyFramework() {
         def j2objcTarget = file("../core/generated-objc").toString()
 
         copy {
-            from srcFile.parent
-            into targetDir
-            include "${frameworkFilename}/**"
-            include "${frameworkFilename}.dSYM"
+            from(srcFile.parent)
+            into(targetDir)
+            include("${frameworkFilename}/**")
+            include("${frameworkFilename}.dSYM")
         }
-        
+
         copy {
-            from "${srcFile}/headers"
-            into j2objcTarget
-            include "**/*.h"
+            from("${srcFile}/headers")
+            into(j2objcTarget)
+            include("**/*.h")
         }
     }
 }
 
-task copyFrameworkNative() {
+tasks.register("copyFrameworkNative") {
     def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
 
-    dependsOn "link${buildType.toLowerCase().capitalize()}FrameworkNative"
+    dependsOn("link${buildType.toLowerCase().capitalize()}FrameworkNative")
 
     doLast {
         def frameworkFilename = "Common.framework"
@@ -100,10 +103,10 @@ task copyFrameworkNative() {
         def targetDir = file("build/bin/native").toString()
 
         copy {
-            from srcFile.parent
-            into targetDir
-            include "${frameworkFilename}/**"
-            include "${frameworkFilename}.dSYM"
+            from(srcFile.parent)
+            into(targetDir)
+            include("${frameworkFilename}/**")
+            include("${frameworkFilename}.dSYM")
         }
     }
 }
