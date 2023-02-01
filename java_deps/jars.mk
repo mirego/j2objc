@@ -57,9 +57,9 @@ SCENELIB_JAR = scenelib.jar
 PLUME_UTIL_JAR = plume-util-1.0.6.jar
 
 # kotlin interop >>
-KOTLIN_STDLIB_JAR = kotlin-stdlib-1.6.10.jar
-KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.4.0.jar
-JETBRAIN_ANNOTATION_JAR = annotations-23.0.0.jar
+KOTLIN_STDLIB_JAR = kotlin-stdlib-1.8.0.jar
+KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.6.0.jar
+JETBRAIN_ANNOTATION_JAR = annotations-24.0.0.jar
 # kotlin interop <<
 
 MOCKITO_JAR = mockito-core-2.23.4.jar

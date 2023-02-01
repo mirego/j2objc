@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
-    <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/guava-25.1-jre.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/guava-31.1-jre.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/javac.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/scenelib.jar!/" />
     <src_description expected_position="0">
@@ -24,9 +24,9 @@
     <orderEntry type="module" module-name="translator" />
     <orderEntry type="module" module-name="annotations" />
     <orderEntry type="module-library">
-      <library name="guava-31.0.1-jre.jar">
+      <library name="guava-31.1-jre.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../java_deps/build_result/guava-31.0.1-jre.jar!/" />
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/guava-31.1-jre.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -35,7 +35,7 @@
     <orderEntry type="module-library">
       <library name="junit4">
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.12.jar!/" />
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.13.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

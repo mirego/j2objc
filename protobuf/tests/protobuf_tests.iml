@@ -23,7 +23,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../java_deps/build_result/protobuf-java-3.17.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../java_deps/build_result/protobuf-java-3.21.7.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
