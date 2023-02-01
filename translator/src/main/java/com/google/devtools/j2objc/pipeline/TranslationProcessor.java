@@ -188,8 +188,10 @@ public class TranslationProcessor extends FileProcessor {
     new ZeroingWeakRewriter(unit).run();
     ticker.tick("ZeroingWeakRewriter");
 
+    // kotlin interop >>
     new KotlinCollectionsConverter(unit).run();
     ticker.tick("KotlinCollectionsConverter");
+    // kotlin interop <<
 
     // Rewrite enhanced for loops into correct C code.
     new EnhancedForRewriter(unit).run();

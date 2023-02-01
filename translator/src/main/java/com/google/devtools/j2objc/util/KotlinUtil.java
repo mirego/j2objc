@@ -1,3 +1,5 @@
+// kotlin interop >>
+
 package com.google.devtools.j2objc.util;
 
 import com.google.devtools.j2objc.ast.Expression;
@@ -39,6 +41,7 @@ public final class KotlinUtil {
         if (TypeUtil.isArray(type)) {
             return KotlinWrappedTypes.ARRAY;
         }
+
         TypeElement typeElement = TypeUtil.asTypeElement(type);
         if (typeElement != null) {
             if (typeElement.getQualifiedName().contentEquals(JAVA_UTIL_LIST)) {
@@ -111,6 +114,7 @@ public final class KotlinUtil {
             FieldAccess fieldAccess = (FieldAccess) expression;
             return fieldAccess.getName().getIdentifier().equals(KOTIN_JVM_INSTANCE_IDENTIFIER);
         }
+
         return false;
     }
 
@@ -134,13 +138,11 @@ public final class KotlinUtil {
      */
     public static boolean isKotlinType(Element node) {
         TypeElement decClass = ElementUtil.getDeclaringClass(node);
-
         if (decClass == null) {
             return false;
         }
 
         String sourceName = ElementUtil.getSourceFile(decClass);
-
         if (sourceName == null) {
             return false;
         }
@@ -153,10 +155,11 @@ public final class KotlinUtil {
      */
     public static boolean isKotlinType(TypeElement node) {
         for (Element elem : node.getEnclosedElements()) {
-            if(isKotlinType(elem)) {
+            if (isKotlinType(elem)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -210,6 +213,9 @@ public final class KotlinUtil {
                 }
             }
         }
+
         return null;
     }
 }
+
+// kotlin interop <<

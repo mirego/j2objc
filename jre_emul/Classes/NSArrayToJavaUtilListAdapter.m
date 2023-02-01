@@ -1,4 +1,4 @@
-//MIREGO kotlin interop >>
+// kotlin interop >>
 
 #import "NSArrayToJavaUtilListAdapter.h"
 #import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
@@ -159,4 +159,4 @@
 
 @end
 
-//MIREGO <<
+// kotlin interop <<

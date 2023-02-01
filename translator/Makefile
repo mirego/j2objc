@@ -25,6 +25,9 @@ J2OBJC_ROOT = ..
 include ../make/common.mk
 include ../make/j2objc_deps.mk
 include ../java_deps/jars.mk
+# kotlin interop >>
+include ../make/kotlin.mk
+# kotlin interop <<
 
 CLASS_DIR = $(BUILD_DIR)/classes
 TEST_DIR = $(BUILD_DIR)/test
@@ -34,20 +37,27 @@ BASE_PACKAGE = com/google/devtools/j2objc
 
 DIST_DEPS = $(JSR305_JAR) j2objc_annotations.jar
 
-# mirego kotlin interop
 INTERNAL_DEPS = $(GUAVA_JAR) $(JSR305_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) \
-    $(PLUME_UTIL_JAR) $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR) $(JETBRAIN_ANNOTATION_JAR)
+    $(PLUME_UTIL_JAR)
+# kotlin interop >>
+INTERNAL_DEPS += $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR) $(JETBRAIN_ANNOTATION_JAR)
+# kotlin interop <<
 ifdef JAVA_8
 INTERNAL_DEPS += $(JAVAC_JAR)
 endif
 JAR_DEPS_DIST = $(DIST_DEPS:%=$(DIST_JAR_DIR)/%) $(INTERNAL_DEPS:%=$(JAVA_DEPS_JAR_DIR)/%)
 JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST)))
 JUNIT_JAR_DIST = $(DIST_JAR_DIR)/$(JUNIT_JAR)
-KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-interop-test-cases-jvm.jar
 
-CLASSPATH = $(CLASS_DIR):$(JAR_DEPS_PATH):$(KOTLIN_DEPS_PATH)
-TEST_CLASSPATH = $(TEST_DIR):$(CLASS_DIR):$(JAR_DEPS_PATH):$(JUNIT_JAR_DIST):$(KOTLIN_DEPS_PATH)
+CLASSPATH = $(CLASS_DIR):$(JAR_DEPS_PATH)
+TEST_CLASSPATH = $(TEST_DIR):$(CLASS_DIR):$(JAR_DEPS_PATH):$(JUNIT_JAR_DIST)
 TEST_BOOT_CLASSPATH = $(DIST_JAR_DIR)/jre_emul.jar
+
+# kotlin interop >>
+KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-interop-test-cases-jvm.jar
+CLASSPATH := $(CLASSPATH):$(KOTLIN_DEPS_PATH)
+TEST_CLASSPATH := $(TEST_CLASSPATH):$(KOTLIN_DEPS_PATH)
+# kotlin interop <<
 
 MAIN_CLASS = com.google.devtools.j2objc.J2ObjC
 MANIFEST = $(BUILD_DIR)/manifest.mf
@@ -296,6 +306,7 @@ TEST_RESOURCES = \
 TEST_RESOURCE_FILES = $(TEST_RESOURCES:%=$(TEST_DIR)/%)
 
 # Files in dependent jars that aren't needed in combined jar.
+# kotlin interop - removed `$(CLASS_DIR)/[A-Z]` to keep `META-INF`
 UNUSED_JAR_CONTENTS = \
   $(CLASS_DIR)/[ahp]* \
   $(CLASS_DIR)/about_files \
@@ -308,9 +319,6 @@ PRUNE_CMD = bash -O globasciiranges -c "rm -rf $(UNUSED_JAR_CONTENTS)"
 else
 PRUNE_CMD = rm -rf $(UNUSED_JAR_CONTENTS)
 endif
-
-# mirego kotlin interop
-include ../make/kotlin.mk
 
 default: $(J2OBJC_JAR)
 	@: # suppress make's "nothing to be done" message
@@ -352,7 +360,7 @@ $(J2OBJC_SH_DIST): $(J2OBJC_SH) $(J2OBJC_JAR_DIST)
 dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 	@:
 
-clean: kotlin_clean
+clean: kotlin_clean # kotlin interop
 	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
@@ -360,16 +368,15 @@ COMMON_TEST_FLAGS = \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner
 
-test: compile-tests copy-test-resources kotlin_run_tests
+test: compile-tests copy-test-resources kotlin_run_tests # kotlin interop
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
-	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests # kotlin interop
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
 	    com.google.devtools.j2objc.regression.LambdaExpressionsTest
 
-# MIREGO kotlin interop added kotlin_interop dependency
-compile-tests: $(J2OBJC_JAR) kotlin_interop
+compile-tests: $(J2OBJC_JAR) kotlin_interop # kotlin interop
 	@mkdir -p $(TEST_DIR)
 	@$(JAVAC) -Xlint:unchecked -sourcepath src/test/java \
 	    -classpath $(TEST_CLASSPATH) -encoding UTF-8 -d $(TEST_DIR) \

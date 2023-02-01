@@ -52,8 +52,9 @@ INTERNAL_DEPS = $(GUAVA_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) $(PLUME_UTIL_JAR)
 ifdef JAVA_8
 INTERNAL_DEPS += $(JAVAC_JAR)
 endif
-# mirego kotlin interop
+# kotlin interop >>
 INTERNAL_DEPS += $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR)
+# kotlin interop <<
 JAR_DEPS_DIST = $(DIST_DEPS:%=$(DIST_JAR_DIR)/%) $(INTERNAL_DEPS:%=$(JAVA_DEPS_JAR_DIR)/%)
 JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST)))
 JUNIT_JAR_DIST = $(DIST_JAR_DIR)/$(JUNIT_JAR)

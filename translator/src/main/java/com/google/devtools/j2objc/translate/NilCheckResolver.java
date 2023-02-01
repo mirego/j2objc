@@ -421,12 +421,12 @@ public class NilCheckResolver extends UnitTreeVisitor {
     if (var != null) {
       addSafeVar(var);
 
-      // MIREGO kotlin interop >>
+      // kotlin interop >>
       if (KotlinUtil.isKotlinType(var)
               && KotlinUtil.isElementKotlinCompanionObjectOrObject(TypeUtil.asTypeElement(var.asType()))) {
         return;
       }
-      // MIREGO <<
+      // kotlin interop <<
     }
     FunctionInvocation nilChkInvocation =
         new FunctionInvocation(NIL_CHK_ELEM, node.getTypeMirror());

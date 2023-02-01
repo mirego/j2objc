@@ -255,12 +255,12 @@ public class Functionizer extends UnitTreeVisitor {
   public void endVisit(MethodInvocation node) {
     ExecutableElement method = node.getExecutableElement();
 
-    // MIREGO kotlin interop >>
+    // kotlin interop >>
     if (KotlinUtil.isKotlinType(method)) {
       endVisitKotlin(node, method);
       return;
     }
-    // MIREGO <<
+    // kotlin interop <<
 
     if (ElementUtil.isStatic(method) || ElementUtil.isPrivate(method)
         || (functionizableMethods.contains(method) && ElementUtil.isFinal(method))) {
@@ -328,12 +328,12 @@ public class Functionizer extends UnitTreeVisitor {
     ExecutableElement element = node.getExecutableElement();
     TypeElement type = ElementUtil.getDeclaringClass(element);
 
-    // MIREGO kotlin interop >>
+    // kotlin interop >>
     if(KotlinUtil.isKotlinType(element)) {
       endVisitKotlin(node, element);
       return;
     }
-    // MIREGO <<
+    // kotlin interop <<
 
     FunctionElement funcElement = newAllocatingConstructorElement(element);
     FunctionInvocation invocation = new FunctionInvocation(funcElement, node.getTypeMirror());
@@ -672,7 +672,7 @@ public class Functionizer extends UnitTreeVisitor {
     return false;
   }
 
-  // MIREGO kotlin interop >>
+  // kotlin interop >>
 
   private void endVisitKotlin(ClassInstanceCreation node,
                               ExecutableElement element) {
@@ -697,7 +697,6 @@ public class Functionizer extends UnitTreeVisitor {
   }
 
   private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
-
     KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
     KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, kmClass);
     KmProperty propertyAccessor = null;
@@ -735,7 +734,7 @@ public class Functionizer extends UnitTreeVisitor {
     } else {
       List<Expression> arguments = node.getArguments();
       if (arguments.size() != 1) {
-        throw new RuntimeException("Kotlin interop assumes 1 argument when handling auto generated setter .... " + node.toString());
+        throw new RuntimeException("Kotlin interop assumes 1 argument when handling auto generated setter ... " + node.toString());
       }
       Assignment assignment = new Assignment(propertyAccess, arguments.get(0).copy());
       node.replaceWith(assignment);
@@ -743,7 +742,6 @@ public class Functionizer extends UnitTreeVisitor {
   }
 
   private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element) {
-
     String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
     Expression nodeExpression = node.getExpression();
@@ -787,5 +785,5 @@ public class Functionizer extends UnitTreeVisitor {
             .setTypeMirror(typeMirror);
   }
 
-  // MIREGO >>
+  // kotlin interop <<
 }

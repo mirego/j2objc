@@ -1,3 +1,5 @@
+// kotlin interop >>
+
 package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.ast.CompilationUnit;
@@ -23,12 +25,11 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Adds support for convertin Collections comming for Kotlin Native Code
- * to Java Collections to ensure compatibility
+ * Adds support for converting Collections coming from Kotlin Native Code
+ * to Java Collections for compatibility
  *
- * @author Mirego 2021
+ * @author Mirego
  */
-
 public class KotlinCollectionsConverter extends UnitTreeVisitor {
 
     private static final FunctionElement TO_JAVA_LIST =
@@ -120,3 +121,5 @@ public class KotlinCollectionsConverter extends UnitTreeVisitor {
     }
 
 }
+
+// kotlin interop <<

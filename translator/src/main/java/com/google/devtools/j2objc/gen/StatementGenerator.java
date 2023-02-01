@@ -562,7 +562,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     Expression receiver = node.getExpression();
     buffer.append('[');
     if (ElementUtil.isStatic(element) &&
-        !KotlinUtil.isKotlinType(element))    // MIREGO kotlin interop
+      !KotlinUtil.isKotlinType(element)) // kotlin interop
     {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
@@ -638,6 +638,18 @@ public class StatementGenerator extends UnitTreeVisitor {
     return false;
   }
 
+  // kotlin interop >>
+
+  @Override
+  public boolean visit(PropertyAccess node) {
+    node.getReceiver().accept(this);
+    buffer.append(".");
+    node.getPropertyName().accept(this);
+    return false;
+  }
+
+  // kotlin interop <<
+
   @Override
   public boolean visit(QualifiedName node) {
     Element element = node.getElement();
@@ -652,7 +664,6 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(nameTable.getFullName((TypeElement) element));
       return false;
     }
-
     Name qualifier = node.getQualifier();
     qualifier.accept(this);
     buffer.append("->");
@@ -773,15 +784,15 @@ public class StatementGenerator extends UnitTreeVisitor {
     } else {
       buffer.append("  case ");
 
-      // MIREGO kotlin interop >>
+      // kotlin interop >>
       Expression expression = node.getExpression();
-      if (KotlinUtil.isKotlinExpression(expression)) {
-        convertCaseKotlin(expression);
-      } else {
+      if (!KotlinUtil.isKotlinExpression(expression)) {
         expression.accept(this);
         buffer.append(":\n");
+      } else {
+        convertCaseKotlin(expression);
       }
-      // MIREGO <<
+      // kotlin interop <<
     }
     return false;
   }
@@ -887,14 +898,14 @@ public class StatementGenerator extends UnitTreeVisitor {
     } else if (type.getKind().isPrimitive() || TypeUtil.isVoid(type)) {
       buffer.append(UnicodeUtils.format("[IOSClass %sClass]", TypeUtil.getName(type)));
     } else {
-      // MIREGO Kotlin Interop >>
+      // kotlin interop >>
       TypeElement typeElement = TypeUtil.asTypeElement(type);
-      if (KotlinUtil.isKotlinType(typeElement)) {
-        buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
-        // MIREGO <<
-      } else {
+      if (!KotlinUtil.isKotlinType(typeElement)) {
         buffer.append(nameTable.getFullName(typeElement)).append("_class_()");
+      } else {
+        buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
       }
+      // kotlin interop <<
     }
     return false;
   }
@@ -1023,16 +1034,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     return hasComma[0];
   }
 
-  // MIREGO kotlin interop >>
-
-  @Override
-  public boolean visit(PropertyAccess node) {
-    node.getReceiver().accept(this);
-    buffer.append(".");
-    node.getPropertyName().accept(this);
-
-    return false;
-  }
+  // kotlin interop >>
 
   private static int findOrdinalForEnumValue(KmClass kotlinMetaData, String enumValue) {
     int ordinal = kotlinMetaData.getEnumEntries().indexOf(enumValue);
@@ -1060,5 +1062,5 @@ public class StatementGenerator extends UnitTreeVisitor {
     }
   }
 
-  // MIREGO <<
+  // kotlin interop <<
 }

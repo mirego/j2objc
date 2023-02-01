@@ -59,11 +59,11 @@ public class StaticVarRewriter extends UnitTreeVisitor {
       return;
     }
 
-// MIREGO kotlin interop >>
+    // kotlin interop >>
     if (KotlinUtil.isKotlinType(var)) {
       return;
     }
-// MIREGO <<
+    // kotlin interop <<
 
     TypeElement declaringClass = ElementUtil.getDeclaringClass(var);
     boolean assignable = TranslationUtil.isAssigned(node);

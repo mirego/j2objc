@@ -1,4 +1,4 @@
-//MIREGO kotlin interop >>
+// kotlin interop >>
 
 #ifndef _NSArrayToJavaUtilListAdapter_h_
 #define _NSArrayToJavaUtilListAdapter_h_
@@ -88,4 +88,4 @@
 
 #endif /* _NSArrayToJavaUtilListAdapter_h_ */
 
-//MIREGO <<
+// kotlin interop <<

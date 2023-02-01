@@ -1,8 +1,9 @@
-// MIREGO kotlin interop >>
+// kotlin interop >>
+
 #ifndef J2ObjC_kotlinTypes_h
 #define J2ObjC_kotlinTypes_h
 
-//these must match the types defined in the IOS Framework exposed by Kotlin.
+// These must match the types defined in the IOS Framework exposed by Kotlin
 
 @interface J2ObjCKotlinBase : NSObject
 - (instancetype)init __attribute__((unavailable));
@@ -64,6 +65,6 @@
 @property (readonly) int32_t size __attribute__((swift_name("size")));
 @end;
 
-
 #endif /* J2ObjC_kotlinTypes_h */
-// MIREGO <<
+
+// kotlin interop <<

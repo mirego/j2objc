@@ -1,4 +1,3 @@
-
 import com.mirego.interop.java.test.constructor.*;
 import junit.framework.TestCase;
 import org.junit.Test;

@@ -85,11 +85,12 @@ public class SwitchRewriter extends UnitTreeVisitor {
     }
     TypeMirror type = var.asType();
     if (TypeUtil.isEnum(type)) {
-      // MIREGO kotlin interop >>
+      // kotlin interop >>
       if (KotlinUtil.isKotlinType(var)) {
         return;
       }
-      // MIREGO <<
+      // kotlin interop <<
+      
       String enumValue =
           NameTable.getNativeEnumName(nameTable.getFullName(TypeUtil.asTypeElement(type))) + "_"
           + nameTable.getVariableBaseName(var);

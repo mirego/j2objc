@@ -55,6 +55,7 @@ import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.util.ElementUtil;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
@@ -126,9 +127,9 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
     currentMethod = null;
   }
 
-  private ImmutableList<VariableAccess> getUnsequencedAccesses() {
+  private List<VariableAccess> getUnsequencedAccesses() {
     if (!hasModification) {
-      return ImmutableList.of();
+      return Collections.emptyList();
     }
     ListMultimap<VariableElement, VariableAccess> accessesByVar =
         MultimapBuilder.hashKeys().arrayListValues().build();
@@ -146,7 +147,7 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
         orderedUnsequencedAccesses.add(access);
       }
     }
-    return ImmutableList.copyOf(orderedUnsequencedAccesses);
+    return orderedUnsequencedAccesses;
   }
 
   private void extractUnsequenced(Statement stmt) {
@@ -408,7 +409,7 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
     }
     // If either access is executed in a conditional branch that does not
     // contain the other access, then they are not unsequenced.
-    if (isConditional(commonAncestor)
+    if (isConditional(commonAncestor) // kotlin interop
         && (isWithinConditionalBranch(modification.expression, commonAncestor)
             || isWithinConditionalBranch(access.expression, commonAncestor))) {
       return false;

@@ -1,3 +1,5 @@
+# kotlin interop >>
+
 # kotlin subsection
 KOTLIN_INTEROP_DIR = $(J2OBJC_ROOT)/kotlin-interop-test-cases
 KOTLIN_INTEROP_JVM_JAR = $(KOTLIN_INTEROP_DIR)/build/libs/kotlin-interop-test-cases-jvm.jar
@@ -104,3 +106,5 @@ kotlin_compile_tests: kotlin_copy_header_wrapper
 
 kotlin_run_tests: kotlin_compile_tests
 	$(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/nativeTests org.junit.runner.JUnitCore NativeTestSuite
+
+# kotlin interop <<

@@ -265,11 +265,11 @@ public class NameTable {
     if (ElementUtil.isGlobalVar(var)) {
       String className = getFullName(ElementUtil.getDeclaringClass(var));
 
-// MIREGO kotlin interop >>
+      // kotlin interop >>
       if (KotlinUtil.isKotlinType(var)) {
         return className + '.' + camelCaseEnumName(shortName);
       }
-// MIREGO <<
+      // kotlin interop <<
 
       if (ElementUtil.isEnumConstant(var)) {
         // Enums are declared in an array, so we use a macro to shorten the
@@ -395,6 +395,8 @@ public class NameTable {
     return false;
   }
 
+  // kotlin interop >>
+
   private Optional<String> checkEnclosedElementsForField(List<? extends Element> elements, String fieldName) {
     for (Element x : elements) {
       if (x.getSimpleName().toString().compareToIgnoreCase(fieldName) == 0) {
@@ -403,6 +405,8 @@ public class NameTable {
     }
     return Optional.empty();
   }
+
+  // kotlin interop <<
 
   private String addParamNames(ExecutableElement method, String name, char delim) {
     StringBuilder sb = new StringBuilder(name);
@@ -414,11 +418,11 @@ public class NameTable {
       }
     }
 
-    // MIREGO kotlin interop >>
+    // kotlin interop >>
     if (KotlinUtil.isKotlinType(method)) {
       return addParamNamesKotlin(method, name, delim, first, sb, declaringClass);
     }
-    // MIREGO <<
+    // kotlin interop <<
 
     for (VariableElement param : method.getParameters()) {
       first = appendParamKeyword(sb, param.asType(), delim, first);
@@ -697,12 +701,13 @@ public class NameTable {
       return mappedName;
     }
 
-    // mirego kotlin interop
-//  this was in the original fork we got this from, not sure why : https://github.com/dhwitz/j2objc/tree/kotlin-native
-//  but we want the full prefix
-//  if(ElementUtil.isKotlinType(element)) {
-//     return getPrefixKotlin(ElementUtil.getPackage(element)) + getTypeSubName(element);
-//  }
+    // kotlin interop >>
+    // This was in the original fork we got this from, not sure why : https://github.com/dhwitz/j2objc/tree/kotlin-native
+    // but we want the full prefix
+    // if(ElementUtil.isKotlinType(element)) {
+    //   return getPrefixKotlin(ElementUtil.getPackage(element)) + getTypeSubName(element);
+    // }
+    // kotlin interop <<
 
     // Use camel-cased package+class name.
     return getPrefix(ElementUtil.getPackage(element)) + getTypeSubName(element);
@@ -774,7 +779,7 @@ public class NameTable {
     return JAVA_CLASS_NAME_PATTERN.matcher(className).matches();
   }
 
-// MIREGO kotlin interop >>
+  // kotlin interop >>
 
   private boolean appendParamKeywordKotlin(StringBuilder sb, Name paramName, char delim, boolean first) {
     return appendParamKeywordKotlin(sb, paramName.toString(), delim, first);
@@ -916,7 +921,6 @@ public class NameTable {
 
   private static final Map<String, String> kotlinToJavaType = new HashMap<>();
   static {
-
     // java non-primitive types
     kotlinToJavaType.put("kotlin/Any", "java.lang.Object");
     kotlinToJavaType.put("kotlin/Cloneable", "java.lang.Cloneable");
@@ -939,17 +943,17 @@ public class NameTable {
     kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
     kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
 
-    // todo this is so varargs method parsing works ... but not tested yet since varargs don't work.
-    // need to test all types of var args types possible
-//    kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
-//    kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
+    // TODO this is so varargs method parsing works, but not tested yet since varargs don't work
+    // TODO Need to test all types of var args types possible
+    // kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
+    // kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
     kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
     kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
-//    kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
-//    kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
-//    kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
-//    kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
-//    kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
+    // kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
+    // kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
+    // kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
+    // kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
+    // kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
 
     // java collection types
     kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");
@@ -1052,7 +1056,7 @@ public class NameTable {
    * Uncapitalize the first letter of a string.
    */
   public static String uncapitalize(String s) {
-    return s.length() > 0 ? Character.toLowerCase(s.charAt(0)) + s.substring(1) : s;
+    return s.isEmpty() ? s : Character.toLowerCase(s.charAt(0)) + s.substring(1);
   }
 
   public static String camelCaseEnumName(String name) {
@@ -1066,5 +1070,6 @@ public class NameTable {
     }
     return sb.toString();
   }
-// MIREGO <<
+
+  // kotlin interop <<
 }

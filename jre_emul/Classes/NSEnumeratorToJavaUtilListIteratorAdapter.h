@@ -1,4 +1,4 @@
-//MIREGO kotlin interop >>
+// kotlin interop >>
 
 #ifndef _NSEnumeratorToJavaUtilListIteratorAdapter_h
 #define _NSEnumeratorToJavaUtilListIteratorAdapter_h
@@ -48,4 +48,4 @@
 
 #endif /* _NSEnumeratorToJavaUtilListIteratorAdapter_h */
 
-//MIREGO <<
+// kotlin interop <<

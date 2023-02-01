@@ -230,10 +230,10 @@ public class CastResolver extends UnitTreeVisitor {
             invocation.getExecutableElement(),
             TreeUtil.getEnclosingTypeElement(invocation).getSuperclass());
       }
-      // MIREGO Kotlin Interop >>
+      // kotlin interop >>
       case PROPERTY_ACCESS:
         return expr.getTypeMirror();
-      // MIREGO Kotlin Interop <<
+      // kotlin interop <<
       default:
         return null;
     }
@@ -345,6 +345,15 @@ public class CastResolver extends UnitTreeVisitor {
       addCast(node);
     }
   }
+
+  // kotlin interop >>
+
+  @Override
+  public void endVisit(PropertyAccess node) {
+    maybeAddCast(node.getReceiver(), null, true);
+  }
+  
+  // kotlin interop <<
 
   @Override
   public void endVisit(ReturnStatement node) {
@@ -487,12 +496,4 @@ public class CastResolver extends UnitTreeVisitor {
     }
     return true;
   }
-
-  // MIREGO Kotlin Interop >>
-  @Override
-  public void endVisit(PropertyAccess node) {
-    maybeAddCast(node.getReceiver(), null, true);
-  }
-  // MIREGO Kotlin Interop <<
-
 }

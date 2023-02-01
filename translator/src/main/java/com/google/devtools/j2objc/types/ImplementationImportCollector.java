@@ -217,6 +217,16 @@ public class ImplementationImportCollector extends UnitTreeVisitor {
     return false;
   }
 
+  // kotlin interop >>
+
+  @Override
+  public boolean visit(PropertyAccess node) {
+    addImports(node.getReceiver().getTypeMirror());
+    return true;
+  }
+
+  // kotlin interop <<
+
   @Override
   public boolean visit(QualifiedName node) {
     VariableElement var = TreeUtil.getVariableElement(node);
@@ -298,12 +308,4 @@ public class ImplementationImportCollector extends UnitTreeVisitor {
     addImports(node.getTypeMirror());
     return true;
   }
-
-  // MIREGO kotlin interop >>
-  @Override
-  public boolean visit(PropertyAccess node) {
-    addImports(node.getReceiver().getTypeMirror());
-    return true;
-  }
-  // MIREGO <<
 }

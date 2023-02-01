@@ -19,5 +19,4 @@ public class ClassVariableTest extends GenerationTest {
 
         assertTranslation(translation, "IOSClass_fromClass(CommonClassWithDefaultConstructor.class)");
     }
-
 }

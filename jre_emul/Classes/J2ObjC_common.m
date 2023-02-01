@@ -32,10 +32,10 @@
 #import "java/util/logging/Logger.h"
 #import "objc/runtime.h"
 
-//MIREGO kotlin interop >>
+// kotlin interop >>
 #import "NSArrayToJavaUtilListAdapter.h"
 #import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
-//MIREGO <<
+// kotlin interop <<
 
 id JreThrowNullPointerException() {
   @throw create_JavaLangNullPointerException_init(); // NOLINT
@@ -452,40 +452,41 @@ NSUInteger JreDefaultFastEnumeration(
   }
   return objCount;
 }
-//MIREGO kotlin interop >>
+
+// kotlin interop >>
 
 void illegalAdapterMutableCallWithName(NSString *name) {
-    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, is not mutable", name];
-    @throw create_JavaLangException_initWithNSString_(message);
+  NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, is not mutable", name];
+  @throw create_JavaLangException_initWithNSString_(message);
 }
 
 void unsupportedAdapterCallWithName(NSString *name) {
-    NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, not implemented yet", name];
-    @throw create_JavaLangException_initWithNSString_(message);
+  NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, not implemented yet", name];
+  @throw create_JavaLangException_initWithNSString_(message);
 }
 
-id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray){
-    return [[NSArrayToJavaUtilsListAdapter alloc] initWithSourceArray:sourceArray];
+id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray) {
+  return [[NSArrayToJavaUtilsListAdapter alloc] initWithSourceArray:sourceArray];
 }
 
-id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id>* sourceArray) {
-    return [[NSEnumeratorToJavaUtilListIteratorAdapter alloc]
-            initWithSourceEnumerator:[sourceArray objectEnumerator]
-            sourceSize:sourceArray.count];
+id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id> *sourceArray) {
+  return [[NSEnumeratorToJavaUtilListIteratorAdapter alloc]
+    initWithSourceEnumerator:sourceArray.objectEnumerator
+    sourceSize:sourceArray.count];
 }
 
 IOSObjectArray* toIOSObjectArray(id sourceArray) {
-    J2ObjCKotlinArray<id> *kotlinSourceArray = (J2ObjCKotlinArray<id> *)sourceArray;
-    IOSObjectArray* destArray = [IOSObjectArray newArrayWithLength:kotlinSourceArray.size type:NSObject_class_()];
-    id <J2ObjCKotlinIterator> iterator = kotlinSourceArray.iterator;
-    
-    NSInteger index = 0;
-    while ([iterator hasNext]) {
-        id nextItem = iterator.next;
-        IOSObjectArray_Set(destArray, index++, nextItem);
-    }
-    
-   return destArray;
+  J2ObjCKotlinArray<id> *kotlinSourceArray = (J2ObjCKotlinArray<id> *)sourceArray;
+  IOSObjectArray *destArray = [IOSObjectArray newArrayWithLength:kotlinSourceArray.size type:NSObject_class_()];
+  id <J2ObjCKotlinIterator> iterator = kotlinSourceArray.iterator;
+
+  NSInteger index = 0;
+  while ([iterator hasNext]) {
+    id nextItem = iterator.next;
+    IOSObjectArray_Set(destArray, index++, nextItem);
+  }
+
+  return destArray;
 }
 
-//MIREGO <<
+// kotlin interop <<
