@@ -115,8 +115,6 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "  if (!(unseq$1 + i++ < 10)) break;");
   }
 
-  // kotlin interop >>
-
   // https://github.com/google/j2objc/issues/1487
   public void testMethodConditionalParameter() throws IOException {
     String translation =
@@ -162,8 +160,6 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
             + "| (JreLShift32(((tailLen > 0 ? IOSByteArray_Get(nil_chk(tail), t++) "
             + ": IOSByteArray_Get(nil_chk(input), p++)) & (jint) 0xff), 2));");
   }
-
-  // kotlin interop <<
 
   public void testVariableDeclarationStatementIsSplit() throws IOException {
     String translation = translateSourceFile(
