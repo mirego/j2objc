@@ -83,6 +83,7 @@ public class OptionsTest extends GenerationTest {
     options.load(argsJavaTarget);
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   public void testFlagsIntermixedWithSources() throws IOException {
     File tmpDir = new File(getTempDir(), "testdir");
     tmpDir.mkdir();  // Dir must exist for Options to add it to classpath.
@@ -95,6 +96,7 @@ public class OptionsTest extends GenerationTest {
     assertTrue(options.fileUtil().getClassPathEntries().contains(tmpDir.getPath()));
   }
 
+  @SuppressWarnings("deprecation")
   public void testMultipleDeadCodeReports() throws IOException {
     File first = new File(getTempDir(), "first.cfg");
     Files.write("first line\n", first, UTF_8);

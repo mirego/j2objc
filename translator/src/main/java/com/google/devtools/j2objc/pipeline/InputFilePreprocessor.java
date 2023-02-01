@@ -62,6 +62,7 @@ public class InputFilePreprocessor {
     return strippedSourcesDir;
   }
 
+  @SuppressWarnings({"UnstableApiUsage", "deprecation"})
   private File getCreatedStrippedSourcesDir() {
     if (strippedSourcesDir == null) {
       strippedSourcesDir = Files.createTempDir();

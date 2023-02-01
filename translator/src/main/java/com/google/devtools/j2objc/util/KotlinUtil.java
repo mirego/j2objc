@@ -58,7 +58,7 @@ public final class KotlinUtil {
 
     public static KmClass getElementKotlinMetaData(Element element) {
         Metadata meta = element.getAnnotation(Metadata.class);
-        KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.bv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
+        KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
         KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
         return ((KotlinClassMetadata.Class) metadata).toKmClass();
     }

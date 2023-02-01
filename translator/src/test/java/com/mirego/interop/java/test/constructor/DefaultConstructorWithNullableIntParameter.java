@@ -8,7 +8,7 @@ public class DefaultConstructorWithNullableIntParameter {
 
         Integer nullableInteger = 1;
         ClassWithDefaultConstructorWithNullableIntParameter defaultConstructorWithNullableIntParameter =
-            new ClassWithDefaultConstructorWithNullableIntParameter(nullableInteger);
+                new ClassWithDefaultConstructorWithNullableIntParameter(nullableInteger);
 
         return defaultConstructorWithNullableIntParameter;
     }

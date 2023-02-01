@@ -2,14 +2,13 @@ package com.mirego.interop.java.test.enums;
 
 import com.mirego.interop.kotlin.test.enums.SimpleEnum;
 
-import static com.mirego.interop.kotlin.test.enums.SimpleEnum.*;
+import static com.mirego.interop.kotlin.test.enums.SimpleEnum.ENUMVALUE1;
 
 public class SimpleEnumSwitchCase {
 
     public static int main(String[] args) {
         SimpleEnum testEnum = ENUMVALUE1;
-        switch(testEnum)
-        {
+        switch (testEnum) {
             case ENUMVALUE1:
                 return 1;
 

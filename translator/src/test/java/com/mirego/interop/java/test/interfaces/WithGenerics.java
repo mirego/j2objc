@@ -11,8 +11,9 @@ public class WithGenerics {
     public static class InterfaceWithGenericsImpl<T, U> implements InterfaceWithGenerics<T, U> {
 
         @Override
+        @SuppressWarnings("unchecked")
         public U convert(T input) {
-            return (U)input;
+            return (U) input;
         }
 
         @Override

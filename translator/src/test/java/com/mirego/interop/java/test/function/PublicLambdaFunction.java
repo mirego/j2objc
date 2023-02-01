@@ -1,7 +1,6 @@
 package com.mirego.interop.java.test.function;
 
 import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
-
 import kotlin.jvm.functions.Function1;
 
 public class PublicLambdaFunction {
