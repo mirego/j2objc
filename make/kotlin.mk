@@ -100,7 +100,7 @@ kotlin_compile_tests: kotlin_copy_header_wrapper
 	$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \
-	-ljunit $(KOTLIN_NATIVE_FRAMEWORK_LIB) \
+	-ljre_emul -ljunit $(KOTLIN_NATIVE_FRAMEWORK_LIB) \
 	-o $(KOTLIN_NATIVE_BUILD_OUTPUT_DIR)/nativeTests \
 	$(KOTLIN_NATIVE_TESTS_J2OBJC_OUTPUT_SOURCES)
 
