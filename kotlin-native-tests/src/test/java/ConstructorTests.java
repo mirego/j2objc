@@ -10,17 +10,17 @@ public class ConstructorTests extends TestCase {
         assert (withoutConstructor != null);
     }
 
-     @Test
-     public void testClassWithDefaultConstructor() {
-         DefaultConstructor defaultConstructor = new DefaultConstructor();
-         assert (defaultConstructor != null);
-     }
+    @Test
+    public void testClassWithDefaultConstructor() {
+        DefaultConstructor defaultConstructor = new DefaultConstructor();
+        assert (defaultConstructor != null);
+    }
 
-     @Test
-     public void testClassWithDefaultConstructorMultipleParameters() {
-         DefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new DefaultConstructorMultipleParameters();
-         assert (defaultConstructorMultipleParameters != null);
-     }
+    @Test
+    public void testClassWithDefaultConstructorMultipleParameters() {
+        DefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new DefaultConstructorMultipleParameters();
+        assert (defaultConstructorMultipleParameters != null);
+    }
 
     //  @Test
     //  public void testClassWithDefaultConstructorWithDefaultValue() {
@@ -52,33 +52,33 @@ public class ConstructorTests extends TestCase {
          assert (secondaryConstructor != null);
      }
 
-      @Test
-      public void testClassWithDefaultConstructorWithIntParameter() {
-          DefaultConstructorWithIntParameter defaultConstructorWithIntParameter = new DefaultConstructorWithIntParameter();
-          assert (defaultConstructorWithIntParameter != null);
-      }
+    @Test
+    public void testClassWithDefaultConstructorWithIntParameter() {
+        DefaultConstructorWithIntParameter defaultConstructorWithIntParameter = new DefaultConstructorWithIntParameter();
+        assert (defaultConstructorWithIntParameter != null);
+    }
 
-    //   @Test
-    //   public void testClassWithDefaultConstructorWithNullableIntParameter() {
+    // @Test
+    // public void testClassWithDefaultConstructorWithNullableIntParameter() {
     //     DefaultConstructorWithNullableIntParameter defaultConstructorWithNullableIntParameter = new DefaultConstructorWithNullableIntParameter();
     //     assert (defaultConstructorWithNullableIntParameter != null);
-    //   }
+    // }
 
-    //   @Test
-    //   public void testClassWithDefaultConstructorWithListParameter() {
+    // @Test
+    // public void testClassWithDefaultConstructorWithListParameter() {
     //     DefaultConstructorWithListParameter defaultConstructorWithListParameter = new DefaultConstructorWithListParameter();
     //     assert (defaultConstructorWithListParameter != null);
-    //   }
+    // }
 
-    //   @Test
-    //   public void testClassWithDefaultConstructorWithMutableListParameter() {
+    // @Test
+    // public void testClassWithDefaultConstructorWithMutableListParameter() {
     //     DefaultConstructorWithMutableListParameter defaultConstructorWithMutableListParameter = new DefaultConstructorWithMutableListParameter();
     //     assert (defaultConstructorWithMutableListParameter != null);
-    //   }
+    // }
 
-      @Test
-      public void testClassWithDefaultConstructorWithUserClassParameter() {
+    @Test
+    public void testClassWithDefaultConstructorWithUserClassParameter() {
         DefaultConstructorWithUserClassParameter defaultConstructorWithUserClassParameter = new DefaultConstructorWithUserClassParameter();
         assert (defaultConstructorWithUserClassParameter != null);
-      }
+    }
 }
