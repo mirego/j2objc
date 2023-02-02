@@ -55,7 +55,6 @@ kotlin_clean_interop:
 	@rm -rf $(KOTLIN_INTEROP_BUILD_OUTPUT_DIR)
 
 kotlin_interop: kotlin_clean_native
-	@cd $(KOTLIN_INTEROP_DIR) && $(GW) jvmJar
 	@cd $(KOTLIN_INTEROP_DIR) && $(GW) copyFrameworkNative
 	@mkdir -p $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)
 	@cp $(KOTLIN_NATIVE_FRAMEWORK)/Headers/Common.h $(KOTLIN_INTEROP_J2OBJC_OUTPUT_DIR)

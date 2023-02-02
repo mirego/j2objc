@@ -54,6 +54,7 @@ kotlin {
 tasks.register("copyFrameworkNative") {
     def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
 
+    dependsOn("jvmJar")
     dependsOn("link${buildType.toLowerCase().capitalize()}FrameworkNative")
 
     doLast {
