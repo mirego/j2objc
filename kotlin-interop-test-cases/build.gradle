@@ -14,16 +14,13 @@ repositories {
 }
 
 kotlin {
-    targets {
-        fromPreset(presets.jvm, "jvm")
+    jvm()
 
-        macosArm64("native") {
-            binaries {
-                framework {
-                    embedBitcode("bitcode")
-                    baseName = "Common"
-                    isStatic = true
-                }
+    macosArm64("native") {
+        binaries {
+            framework {
+                baseName = "Common"
+                isStatic = true
             }
         }
     }
@@ -34,6 +31,7 @@ kotlin {
                 optIn("kotlin.Experimental")
                 optIn("kotlin.time.ExperimentalTime")
             }
+
             kotlin {
                 srcDir("src")
                 exclude("**/*.java")
@@ -45,14 +43,13 @@ kotlin {
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version")
             }
         }
-
-        nativeMain {
-        }
     }
 }
 
 tasks.register("copyFrameworkNative") {
-    def buildType = project.findProperty("kotlin.build.type") ?: "DEBUG"
+    description("Copy Common.framework to `build/bin/native`")
+
+    def buildType = project.findProperty("kotlin.build.type") as String ?: "DEBUG"
 
     dependsOn("jvmJar")
     dependsOn("link${buildType.toLowerCase().capitalize()}FrameworkNative")
