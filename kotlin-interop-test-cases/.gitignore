@@ -1,6 +1,6 @@
+# Build Output
+**/build_result/
+
 # Gradle
 .gradle
 build
-
-# Builds
-build_result
