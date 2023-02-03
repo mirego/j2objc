@@ -396,7 +396,8 @@ $(J2OBJC_SH_DIST): $(J2OBJC_SH) $(J2OBJC_JAR_DIST)
 dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 	@:
 
-clean: kotlin_clean # kotlin interop
+# kotlin interop - add `kotlin_clean`
+clean: kotlin_clean
 	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
@@ -404,15 +405,17 @@ COMMON_TEST_FLAGS = \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner
 
-test: compile-tests copy-test-resources kotlin_run_tests # kotlin interop
+# kotlin interop - add `kotlin_run_tests` and `KotlinInteropTests`
+test: compile-tests copy-test-resources kotlin_run_tests
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
-	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests # kotlin interop
+	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
 
 regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
 	    com.google.devtools.j2objc.regression.LambdaExpressionsTest
 
-compile-tests: $(J2OBJC_JAR) kotlin_interop # kotlin interop
+# kotlin interop - add `kotlin_interop`
+compile-tests: $(J2OBJC_JAR) kotlin_interop
 	@mkdir -p $(TEST_DIR)
 	@$(JAVAC) -Xlint:unchecked -sourcepath src/test/java \
 	    -classpath $(TEST_CLASSPATH) -encoding UTF-8 -d $(TEST_DIR) \
