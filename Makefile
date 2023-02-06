@@ -94,6 +94,11 @@ test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
 	@cd translator && $(MAKE) regression-test
 
+# kotlin interop >>
+test_kotlin: annotations_dist java_deps_dist jre_emul_dist
+	@cd translator && $(MAKE) kotlin_run_tests
+# kotlin interop <<
+
 test_jre_emul: jre_emul_dist junit_dist
 	@cd jre_emul && $(MAKE) -f tests.mk test
 
