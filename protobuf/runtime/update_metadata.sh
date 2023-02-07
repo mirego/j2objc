@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Automatically updates the metadata of hand-written runtime sources.
 
