@@ -3,6 +3,21 @@
 #ifndef J2ObjC_kotlinTypes_h
 #define J2ObjC_kotlinTypes_h
 
+#import <Foundation/NSObject.h>
+#import <Foundation/NSValue.h>
+
+NS_ASSUME_NONNULL_BEGIN
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma clang diagnostic ignored "-Wincompatible-property-type"
+#pragma clang diagnostic ignored "-Wnullability"
+
+#pragma push_macro("_Nullable_result")
+#if !__has_feature(nullability_nullable_result)
+#undef _Nullable_result
+#define _Nullable_result _Nullable
+#endif
+
 // These must match the types defined in the IOS Framework exposed by Kotlin
 
 @interface J2ObjCKotlinBase : NSObject
@@ -64,6 +79,10 @@
 - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
 @property (readonly) int32_t size __attribute__((swift_name("size")));
 @end;
+
+#pragma pop_macro("_Nullable_result")
+#pragma clang diagnostic pop
+NS_ASSUME_NONNULL_END
 
 #endif /* J2ObjC_kotlinTypes_h */
 
