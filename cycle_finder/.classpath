@@ -8,6 +8,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/annotations"/>
 	<classpathentry kind="lib" path="../java_deps/build_result/guava-31.1-jre.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="../java_deps/build_result/tools.jar"/>
 	<classpathentry kind="output" path="build_result/eclipse"/>
 </classpath>

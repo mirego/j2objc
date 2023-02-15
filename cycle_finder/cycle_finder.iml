@@ -2,7 +2,6 @@
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
     <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/guava-31.1-jre.jar!/" />
-    <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/javac.jar!/" />
     <libelement value="jar://$MODULE_DIR$/../java_deps/build_result/scenelib.jar!/" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/src/main/java" expected_position="0" />
@@ -33,23 +32,12 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="junit4">
+      <library name="junit-4.13.1.jar">
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.13.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/junit-4.13.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="tools.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../java_deps/build_result/tools.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../java_deps/build_result/tools.jar!/" />
-        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">

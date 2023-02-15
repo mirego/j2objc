@@ -25,6 +25,9 @@ J2OBJC_ROOT = .
 
 include make/common.mk
 include make/j2objc_deps.mk
+# kotlin interop >>
+include make/kotlin.mk
+# kotlin interop <<
 
 # Force test targets to be run sequentially to avoid interspersed output.
 ifdef IS_TEST_GOAL
@@ -140,3 +143,9 @@ print_environment:
 	@echo Environment:
 	@env | grep -v '^_' | grep -v '^[ }]' | grep -v '^rvm_' | sort
 	@echo
+
+# kotlin interop >>
+intellij: java_deps_dist annotations_dist
+	@cd jre_emul && $(MAKE) -f java.mk emul_jar_dist emul_src_jar_dist
+	$(MAKE) kotlin_interop
+# kotlin interop <<
