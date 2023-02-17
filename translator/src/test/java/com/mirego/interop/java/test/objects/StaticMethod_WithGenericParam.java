@@ -2,9 +2,10 @@ package com.mirego.interop.java.test.objects;
 
 import com.mirego.interop.kotlin.test.objects.ObjectWithMethod;
 
-public class StaticMethodWithoutParam {
+public class StaticMethod_WithGenericParam {
 
     public static String main(String[] args) {
-        return ObjectWithMethod.INSTANCE.staticMethodWithoutParam();
+        String testString = "stringGeneric";
+        return ObjectWithMethod.staticMethod_WithGenericParam(testString);
     }
 }

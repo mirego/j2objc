@@ -2,10 +2,10 @@ package com.mirego.interop.java.test.objects;
 
 import com.mirego.interop.kotlin.test.objects.ObjectWithMethod;
 
-public class StaticMethodWithStringParamWithAnnotation {
+public class ObjectInstanceMethod_WithoutAnnotationJvmStatic {
 
     public static String main(String[] args) {
-        String returnValue = ObjectWithMethod.staticMethodWithStringParamWithAnnotation("stringAsParam");
+        String returnValue = ObjectWithMethod.INSTANCE.objectInstanceMethod_WithoutAnnotationJvmStatic();
         return returnValue;
     }
 }

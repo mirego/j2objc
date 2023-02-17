@@ -11,30 +11,38 @@ public class ObjectsTest extends GenerationTest {
   final private static String testPackage = "objects/";
 
   @Test
-  public void testStaticMethodWithoutParamsWithAnnotation() throws IOException {
+  public void testStaticMethod_WithoutParam_WithAnnotationJvmStatic() throws IOException {
 
-    String className = StaticMethodWithoutParamWithAnnotation.class.getSimpleName();
+    String className = StaticMethod_WithoutParam_WithAnnotationJvmStatic.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "NSString *returnValue = [[CommonObjectWithMethod objectWithMethod] staticMethodWithoutParamWithAnnotation];");
+    assertTranslation(translation, "NSString *returnValue = [[CommonObjectWithMethod objectWithMethod] staticMethod_WithoutParam_WithAnnotationJvmStatic];");
   }
 
   @Test
-  public void testStaticMethodWithStringParamsWithAnnotation() throws IOException {
+  public void testStaticMethod_WithStringParam_WithAnnotationJvmStatic() throws IOException {
 
-    String className = StaticMethodWithStringParamWithAnnotation.class.getSimpleName();
+    String className = StaticMethod_WithStringParam_WithAnnotationJvmStatic.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "NSString *returnValue = [[CommonObjectWithMethod objectWithMethod] staticMethodWithStringParamWithAnnotationInput:@\"stringAsParam\"];");
+    assertTranslation(translation, "NSString *returnValue = [[CommonObjectWithMethod objectWithMethod] staticMethod_WithStringParam_WithAnnotationJvmStaticInput:@\"stringAsParam\"];");
   }
 
-  @Test
-  public void testStaticMethodWitGenericParamsWithAnnotation() throws IOException {
+    @Test
+    public void testObjectInstanceMethod_WithoutAnnotationJvmStatic() throws IOException {
+        String className = ObjectInstanceMethod_WithoutAnnotationJvmStatic.class.getSimpleName();
+        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    String className = StaticMethodWithGenericParamWithAnnotation.class.getSimpleName();
+        assertTranslation(translation, "NSString *returnValue = JreRetainedLocalValue([[CommonObjectWithMethod objectWithMethod] objectInstanceMethod_WithoutAnnotationJvmStatic]);");
+    }
+
+  @Test
+  public void testStaticMethod_WithGenericParam() throws IOException {
+
+    String className = StaticMethod_WithGenericParam.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [[CommonObjectWithMethod objectWithMethod] staticMethodWithGenericParamInput:testString];");
+    assertTranslation(translation, "return [[CommonObjectWithMethod objectWithMethod] staticMethod_WithGenericParamInput:testString];");
   }
 
   // todo javautillist vs  NSarray
@@ -74,14 +82,5 @@ public class ObjectsTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "[CommonClassWithObjectNamed named].objectString");
-  }
-
-  @Test
-  public void testStaticMethodWithoutParams() throws IOException {
-
-    String className = StaticMethodWithoutParam.class.getSimpleName();
-    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-
-    assertTranslation(translation, "[[CommonObjectWithMethod objectWithMethod] staticMethodWithoutParam]");
   }
 }
