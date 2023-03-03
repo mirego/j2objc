@@ -99,13 +99,12 @@ $(FRAMEWORK_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
 	@mkdir -p $(FRAMEWORK_DIR)
 	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $(FRAMEWORK_DIR) \
 		$(shell $(J2OBJC_ROOT)/scripts/list_framework_libraries.sh $(STATIC_LIBRARY_NAME))
-	@mkdir -p $(FRAMEWORK_DIR)/Versions/A/Headers
-	@/bin/ln -sfh A $(FRAMEWORK_DIR)/Versions/Current
-	@/bin/ln -sfh Versions/Current/Headers $(FRAMEWORK_DIR)/Headers
+	@mkdir -p $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules
 	@tar cf - -C $(STATIC_HEADERS_DIR) $(FRAMEWORK_HEADERS:$(STATIC_HEADERS_DIR)/%=%) \
-		| tar xfp - -C $(FRAMEWORK_DIR)/Versions/A/Headers
-	@install -m 0644 $(FRAMEWORK_HEADER) $(FRAMEWORK_DIR)/Versions/A/Headers
-	@install -m 0644 $(MODULE_MAP) $(FRAMEWORK_DIR)/Versions/A/Headers/
+		| tar xfp - -C $(BUILD_DIR)/Framework/Headers
+	@install -m 0644 $(FRAMEWORK_HEADER) $(BUILD_DIR)/Framework/Headers
+	@install -m 0644 $(MODULE_MAP) $(BUILD_DIR)/Framework/Modules
+	@find $(FRAMEWORK_DIR) -type d -depth 1 -exec cp -R $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules {} \;
 	@touch $@
 
 # Creates a framework "master" header file that includes all the framework's header files.

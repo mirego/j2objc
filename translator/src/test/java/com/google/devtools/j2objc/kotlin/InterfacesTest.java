@@ -3,9 +3,12 @@ package com.google.devtools.j2objc.kotlin;
 import com.google.devtools.j2objc.GenerationTest;
 import com.mirego.interop.java.test.interfaces.WithGenerics;
 import com.mirego.interop.java.test.interfaces.WithInt;
+import com.mirego.interop.java.test.interfaces.WithIntProperty;
 import com.mirego.interop.java.test.interfaces.WithList;
 import com.mirego.interop.java.test.interfaces.WithNullableInt;
 import java.io.IOException;
+
+import com.mirego.interop.java.test.interfaces.WithStringProperty;
 import org.junit.Test;
 
 public class InterfacesTest extends GenerationTest {
@@ -22,6 +25,38 @@ public class InterfacesTest extends GenerationTest {
     assertTranslation(translation, "- (jint)convertInputInt:(jint)inputInt {\n"
         + "  return inputInt;\n"
         + "}");
+  }
+
+  @Test
+  public void testInterfaceIntProperty() throws IOException {
+
+    String className = WithIntProperty.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return NSString_java_valueOfInt_([withIntPropertyImplementation getCount]);");
+    assertTranslation(translation,"- (jint)getCount {\n" +
+            "  return 42;\n" +
+            "}");
+    assertTranslation(translation,"- (jint)count {\n" +
+            "  return [self getCount];\n" +
+            "}");
+  }
+
+  @Test
+  public void testInterfaceStringProperty() throws IOException {
+
+    String className = WithStringProperty.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return [withStringPropertyImplementation getKey];");
+
+    assertTranslation(translation,"- (NSString *)getKey {\n" +
+            "  return @\"this is the value of my key\";\n" +
+            "}");
+
+    assertTranslation(translation,"- (NSString *)key {\n" +
+            "  return [self getKey];\n" +
+            "}");
   }
 
   @Test

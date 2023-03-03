@@ -2384,7 +2384,8 @@ PUBLIC_NATIVE_HEADERS = \
 PUBLIC_NATIVE_HEADERS += \
   NSArrayToJavaUtilListAdapter.h \
   NSEnumeratorToJavaUtilListIteratorAdapter.h \
-  J2ObjC_kotlinTypes.h
+  J2ObjC_kotlinTypes.h \
+  J2ObjC_version.h
 # kotlin interop <<
 
 JRE_PUBLIC_PACKAGES = \

@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -755,9 +756,9 @@ public class NameTable {
     // kotlin interop >>
     // This was in the original fork we got this from, not sure why : https://github.com/dhwitz/j2objc/tree/kotlin-native
     // but we want the full prefix
-    // if(ElementUtil.isKotlinType(element)) {
-    //   return getPrefixKotlin(ElementUtil.getPackage(element)) + getTypeSubName(element);
-    // }
+    if (KotlinUtil.isKotlinType(element)) {
+       return getPrefixKotlin(element) + getTypeSubName(element);
+    }
     // kotlin interop <<
 
     // Use camel-cased package+class name.
@@ -943,18 +944,15 @@ public class NameTable {
       return selector;
   }
 
-  private String getPrefixKotlin(PackageElement packageElement) {
-    String prefix = prefixMap.getPrefix(packageElement);
-    StringBuilder kotlinPrefix = new StringBuilder();
+  private String getPrefixKotlin(TypeElement element) {
+    String kotlinModuleName = KotlinUtil.getKotlinModuleName(element);
+    String prefix = prefixMap.getPrefix("kotlin-module/" + kotlinModuleName);
 
-    for (int i = 0; i < prefix.length(); i++) {
-      char current = prefix.charAt(i);
-      if (Character.isUpperCase(current)) {
-        kotlinPrefix.append(current);
-      }
+    if (prefix == null) {
+      throw new RuntimeException(String.format("Unable to find Kotlin module prefix for module: %s\nAll prefixes: %s", kotlinModuleName, prefixMap));
     }
 
-    return kotlinPrefix.toString();
+    return prefix;
   }
 
   private static final Map<String, String> kotlinToJavaPrimitiveType = new HashMap<>();

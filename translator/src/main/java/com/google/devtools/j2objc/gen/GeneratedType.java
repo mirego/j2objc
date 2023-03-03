@@ -20,15 +20,27 @@ import com.google.common.collect.ImmutableSet;
 import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
 import com.google.devtools.j2objc.ast.CompilationUnit;
+import com.google.devtools.j2objc.ast.NativeDeclaration;
 import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.types.HeaderImportCollector;
 import com.google.devtools.j2objc.types.ImplementationImportCollector;
 import com.google.devtools.j2objc.types.Import;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
-import java.util.List;
-import java.util.Set;
+import com.google.devtools.j2objc.util.TypeUtil;
+import com.sun.tools.javac.code.Symbol;
+import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmProperty;
+
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Contains the generated source code and additional context for a single Java
@@ -77,8 +89,14 @@ public class GeneratedType {
 
   public static GeneratedType fromTypeDeclaration(AbstractTypeDeclaration typeNode) {
     TypeElement typeElement = typeNode.getTypeElement();
+
     CompilationUnit unit = TreeUtil.getCompilationUnit(typeNode);
     NameTable nameTable = unit.getEnv().nameTable();
+
+    // kotlin interop >>
+    addMissingKotlinSpecificImplementation(typeNode, typeElement, nameTable);
+    // kotlin interop <<
+
     boolean emitLineDirectives = unit.getEnv().options().emitLineDirectives();
 
     ImmutableList.Builder<String> superTypes = ImmutableList.builder();
@@ -144,6 +162,69 @@ public class GeneratedType {
         implementationCode,
         generatedSourceMappings);
   }
+
+  // kotlin interop >>
+
+  private static void addMissingKotlinSpecificImplementation(AbstractTypeDeclaration typeNode, TypeElement typeElement, NameTable nameTable) {
+    if (typeElement.getKind().isClass()) {
+      List<? extends TypeMirror> interfaces = getAllInterfaces(typeElement);
+      interfaces.forEach(typeMirror -> {
+        if (KotlinUtil.isKotlinType(typeMirror)) {
+          addMissingKotlinPropertyAccessors(typeNode, typeMirror, nameTable);
+        }
+      });
+    }
+  }
+
+  private static void addMissingKotlinPropertyAccessors(AbstractTypeDeclaration typeNode, TypeMirror typeMirror, NameTable nameTable) {
+    TypeElement element = TypeUtil.asTypeElement(typeMirror);
+    if (element != null) {
+      KmClass elementKotlinMetaData = KotlinUtil.getElementKotlinMetaData(element);
+
+      List<KmProperty> properties;
+      if (elementKotlinMetaData != null) {
+        properties = elementKotlinMetaData.getProperties();
+        if (!properties.isEmpty()) {
+          properties.forEach(kmProperty -> {
+            generateKotlinNativeCompatiblePropertyGetter(typeNode, element, nameTable, kmProperty);
+          });
+        }
+      }
+    }
+  }
+
+  private static List<? extends TypeMirror> getAllInterfaces(TypeElement typeElement) {
+    return Stream.concat(
+      typeElement.getInterfaces().stream(),
+      typeElement.getInterfaces().stream()
+        .flatMap(typeMirror -> {
+          TypeElement element = TypeUtil.asTypeElement(typeMirror);
+          if (element != null) {
+            return getAllInterfaces(element).stream();
+          } else {
+            return Stream.empty();
+          }
+        })
+    ).collect(Collectors.toList());
+  }
+
+  private static void generateKotlinNativeCompatiblePropertyGetter(AbstractTypeDeclaration typeNode, TypeElement element, NameTable nameTable, KmProperty kmProperty) {
+    Optional<? extends Element> correspondingMethod = element.getEnclosedElements().stream()
+      .filter(element1 -> element1.getSimpleName().toString().equalsIgnoreCase("get" + kmProperty.getName())).findFirst();
+
+    if (correspondingMethod.isPresent() && (correspondingMethod.get() instanceof Symbol.MethodSymbol)) {
+      Symbol.MethodSymbol methodSymbol = (Symbol.MethodSymbol) correspondingMethod.get();
+      String returnType = nameTable.getObjCTypeDeclaration(methodSymbol.getReturnType());
+
+      NativeDeclaration nativeDeclaration = NativeDeclaration.newInnerDeclaration(null, "- (" + returnType + ")" + kmProperty.getName() + " {\n" +
+        "  return [self get" + NameTable.capitalize(kmProperty.getName()) + "];\n" +
+        "}");
+
+      typeNode.addBodyDeclaration(nativeDeclaration);
+    }
+  }
+
+  // kotlin interop <<
 
   /**
    * The name of the ObjC type declared by this GeneratedType.

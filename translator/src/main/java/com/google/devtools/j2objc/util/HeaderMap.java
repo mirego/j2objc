@@ -163,17 +163,22 @@ public class HeaderMap {
       return mappedHeader;
     }
 
-    String name = inferSourceName(type);
-    PackageElement pkg = ElementUtil.getPackage(type);
-
     // kotlin interop >>
+
     if (KotlinUtil.isKotlinType(type)) {
-      mappedHeader = map.get(pkg.toString());
+      String kotlinModuleName = KotlinUtil.getKotlinModuleName(type);
+
+      String headerMappingKey = "kotlin-module/" + kotlinModuleName;
+      mappedHeader = map.get(headerMappingKey);
       if (mappedHeader != null) {
         return mappedHeader;
       }
     }
+
     // kotlin interop <<
+
+    String name = inferSourceName(type);
+    PackageElement pkg = ElementUtil.getPackage(type);
 
     return outputDirFromPackage(pkg) + name + ".h";
   }
