@@ -66,6 +66,8 @@ J2OBJC_JAR = $(BUILD_DIR)/j2objc.jar
 J2OBJC_JAR_DIST = $(DIST_JAR_DIR)/j2objc.jar
 J2OBJC_SH = $(J2OBJC_ROOT)/scripts/j2objc.sh
 J2OBJC_SH_DIST = $(DIST_DIR)/j2objc
+J2OBJCC_SH = $(J2OBJC_ROOT)/scripts/j2objcc.sh
+J2OBJCC_SH_DIST = $(DIST_DIR)/j2objcc
 
 JAVA_SOURCES = \
 	J2ObjC.java \
@@ -393,12 +395,16 @@ $(J2OBJC_SH_DIST): $(J2OBJC_SH) $(J2OBJC_JAR_DIST)
 	@mkdir -p $(@D)
 	@install $< $@
 
-dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
+$(J2OBJCC_SH_DIST): $(J2OBJCC_SH) $(J2OBJC_JAR_DIST)
+	@mkdir -p $(@D)
+	@install $< $@
+
+dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
 	@:
 
 # kotlin interop - add `kotlin_clean`
 clean: kotlin_clean
-	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST)
+	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
   -classpath $(TEST_CLASSPATH):$(TEST_BOOT_CLASSPATH) \

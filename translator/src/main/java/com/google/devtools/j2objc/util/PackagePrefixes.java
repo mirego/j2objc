@@ -172,4 +172,16 @@ public final class PackagePrefixes {
     }
     return UnicodeUtils.format("^%s$", s.replace(".", "\\.").replace("\\*", ".*"));
   }
+
+  // kotlin interop >>
+  @Override
+  public String toString() {
+    return "PackagePrefixes{" +
+      "packageLookup=" + packageLookup +
+      ", mappedPrefixes=" + mappedPrefixes +
+      ", wildcardKeys=" + wildcardKeys +
+      ", wildcardValues=" + wildcardValues +
+      "}";
+  }
+  // kotlin interop <<
 }

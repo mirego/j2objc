@@ -150,7 +150,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../java_deps/build_result/kotlin-stdlib-1.8.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../java_deps/build_result/kotlin-stdlib-1.8.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

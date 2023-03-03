@@ -6,6 +6,8 @@ import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.FieldAccess;
 import com.google.devtools.j2objc.ast.TreeUtil;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.annotation.Nullable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -15,12 +17,18 @@ import javax.lang.model.type.TypeMirror;
 import kotlin.Metadata;
 import kotlinx.metadata.Flag;
 import kotlinx.metadata.KmClass;
+import kotlinx.metadata.KmClassExtensionVisitor;
+import kotlinx.metadata.KmClassVisitor;
+import kotlinx.metadata.KmExtensionType;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
+import kotlinx.metadata.jvm.JvmClassExtensionVisitor;
 import kotlinx.metadata.jvm.KotlinClassHeader;
 import kotlinx.metadata.jvm.KotlinClassMetadata;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class KotlinUtil {
 
@@ -56,8 +64,12 @@ public final class KotlinUtil {
         return getElementKotlinMetaData(element.getEnclosingElement());
     }
 
+    @Nullable
     public static KmClass getElementKotlinMetaData(Element element) {
         Metadata meta = element.getAnnotation(Metadata.class);
+        if (meta == null) {
+            return null;
+        }
         KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
         KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
         return ((KotlinClassMetadata.Class) metadata).toKmClass();
@@ -163,6 +175,18 @@ public final class KotlinUtil {
         return false;
     }
 
+    /**
+     * Determines if a TypeMirror is a Kotlin type
+     */
+    public static boolean isKotlinType(TypeMirror node) {
+        TypeElement typeElement = TypeUtil.asTypeElement(node);
+        if (typeElement != null) {
+            return isKotlinType(typeElement);
+        }
+
+        return false;
+    }
+
     static private final String GETTER_PREFIX = "get";
     static private final String SETTER_PREFIX = "set";
 
@@ -215,6 +239,29 @@ public final class KotlinUtil {
         }
 
         return null;
+    }
+
+    public static String getKotlinModuleName(TypeElement element) {
+        KmClass kotlinClassMetaData = Objects.requireNonNull(getElementKotlinMetaData(element),
+            "Can query for getKotlinJsModuleName name on a Kotlin class only.");
+
+        AtomicReference<String> moduleName = new AtomicReference<>();
+        kotlinClassMetaData.accept(new KmClassVisitor() {
+            @org.jetbrains.annotations.Nullable
+            @Override
+            public KmClassExtensionVisitor visitExtensions(@NotNull KmExtensionType type) {
+                return new JvmClassExtensionVisitor() {
+                    @Override
+                    public void visitModuleName(@NotNull String name) {
+                        moduleName.set(name);
+                        super.visitModuleName(name);
+                    }
+                };
+            }
+        });
+
+        return Objects.requireNonNull(moduleName.get(),
+            "Unable to extract Kotlin class module name from: " + element);
     }
 }
 
