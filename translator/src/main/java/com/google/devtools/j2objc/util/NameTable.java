@@ -16,6 +16,8 @@
 
 package com.google.devtools.j2objc.util;
 
+import static java.util.stream.Collectors.joining;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -55,6 +57,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
@@ -586,6 +589,20 @@ public class NameTable {
     return typeString;
   }
 
+  /** Convert a Java type into the equivalent JNI type. */
+  public String getJniType(TypeMirror type) {
+    if (TypeUtil.isPrimitiveOrVoid(type)) {
+      return getPrimitiveObjCType(type);
+    } else if (TypeUtil.isArray(type)) {
+      return "jarray";
+    } else if (typeUtil.isString(type)) {
+      return "jstring";
+    } else if (typeUtil.isClassType(type)) {
+      return "jclass";
+    }
+    return "jobject";
+  }
+
   /**
    * Convert a Java type to an equivalent Objective-C type with type variables resolved to their
    * bounds.
@@ -598,10 +615,6 @@ public class NameTable {
     return getObjcTypeInner(var.asType(), ElementUtil.getTypeQualifiers(var), false, false);
   }
 
-  public String getObjCGenericType(TypeMirror type) {
-    return getObjcTypeInner(type, null, true, false);
-  }
-
   public String getObjCTypeDeclaration(TypeMirror type) {
     return getObjCTypeDeclaration(type, generifyTypeDecls);
   }
@@ -610,20 +623,8 @@ public class NameTable {
     return generify ? getObjCGenericType(type) : getObjCType(type);
   }
 
-  /**
-   * Convert a Java type into the equivalent JNI type.
-   */
-  public String getJniType(TypeMirror type) {
-    if (TypeUtil.isPrimitiveOrVoid(type)) {
-      return getPrimitiveObjCType(type);
-    } else if (TypeUtil.isArray(type)) {
-      return "jarray";
-    } else if (typeUtil.isString(type)) {
-      return "jstring";
-    } else if (typeUtil.isClassType(type)) {
-      return "jclass";
-    }
-    return "jobject";
+  private String getObjCGenericType(TypeMirror type) {
+    return getObjcTypeInner(type, null, true, false);
   }
 
   // isArrayComponent: this flag is used to generate the primitive types if they are the most inner
@@ -658,6 +659,23 @@ public class NameTable {
       objcType = arrayClass + innerType;
       objcType += componentType instanceof ArrayType ? " *>" : ">";
       objcType += isArrayComponent ? "" : " *";
+    } else if (TypeUtil.isTypeVariable(type) && asObjCGenericDecl) {
+      objcType = type.toString();
+    } else if (TypeUtil.isDeclaredType(type)
+        && asObjCGenericDecl
+        && !((DeclaredType) type).getTypeArguments().isEmpty()
+        && !TypeUtil.isInterface(type)) {
+      final String finalQualifiers = qualifiers;
+      objcType =
+          String.format(
+              "%s<%s> *",
+              getFullName(typeUtil.getObjcClass(type)),
+              ((DeclaredType) type)
+                  .getTypeArguments().stream()
+                      .map(
+                          input ->
+                              getObjcTypeInner(input, finalQualifiers, asObjCGenericDecl, false))
+                      .collect(joining(", ")));
     } else {
       objcType = constructObjcTypeFromBounds(type);
     }
