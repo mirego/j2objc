@@ -32,14 +32,19 @@
 #import "java/lang/Iterable.h"
 #import "java/lang/NullPointerException.h"
 #import "java/lang/Throwable.h"
+#import "java/lang/UnsupportedOperationException.h"
 #import "java/util/logging/Level.h"
 #import "java/util/logging/Logger.h"
 #import "objc/runtime.h"
 #import "os/lock.h"
 
 // kotlin interop >>
-#import "NSArrayToJavaUtilListAdapter.h"
-#import "NSEnumeratorToJavaUtilListIteratorAdapter.h"
+#import "J2ObjC_kotlinTypes.h"
+#import "KotlinIterator+JavaIterator.h"
+#import "java/util/Collection.h"
+#import "java/util/List.h"
+#import "java/util/Map.h"
+#import "java/util/Set.h"
 // kotlin interop <<
 
 id JreThrowNullPointerException() {
@@ -515,30 +520,14 @@ NSUInteger JreDefaultFastEnumeration(
 
 // kotlin interop >>
 
-void illegalAdapterMutableCallWithName(NSString *name) {
-  NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, is not mutable", name];
-  @throw create_JavaLangException_initWithNSString_(message);
-}
-
-void unsupportedAdapterCallWithName(NSString *name) {
-  NSString *message = [NSString stringWithFormat:@"Cannot call %@ on NSArrayToJavaUtilListAdapter, not implemented yet", name];
-  @throw create_JavaLangException_initWithNSString_(message);
-}
-
-id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray) {
-  return [[NSArrayToJavaUtilsListAdapter alloc] initWithSourceArray:sourceArray];
-}
-
-id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id> *sourceArray) {
-  return [[NSEnumeratorToJavaUtilListIteratorAdapter alloc]
-    initWithSourceEnumerator:sourceArray.objectEnumerator
-    sourceSize:sourceArray.count];
+NSException* unsupportedAdapterCallWithName(NSString *name, NSString *className) {
+  @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot call %@ on %@, not implemented yet", name, className]);
 }
 
 IOSObjectArray* toIOSObjectArray(id sourceArray) {
-  J2ObjCKotlinArray<id> *kotlinSourceArray = (J2ObjCKotlinArray<id> *)sourceArray;
+  CommonKotlinArray *kotlinSourceArray = (CommonKotlinArray *)sourceArray;
   IOSObjectArray *destArray = [IOSObjectArray newArrayWithLength:kotlinSourceArray.size type:NSObject_class_()];
-  id <J2ObjCKotlinIterator> iterator = kotlinSourceArray.iterator;
+  id <CommonKotlinIterator> iterator = kotlinSourceArray.iterator;
 
   NSInteger index = 0;
   while ([iterator hasNext]) {
@@ -547,6 +536,66 @@ IOSObjectArray* toIOSObjectArray(id sourceArray) {
   }
 
   return destArray;
+}
+
+id toKotlinArray(IOSObjectArray *sourceArray) {
+  int arraySize = sourceArray.length;
+  id (^initCall)(CommonInt *) = ^(CommonInt *index) {
+    return IOSObjectArray_Get(sourceArray, index.intValue);
+  };
+
+  return [CommonKotlinArray arrayWithSize:arraySize init:initCall];
+}
+
+IOSByteArray *toIOSByteArray(id sourceArray) {
+  CommonKotlinByteArray *kotlinSourceArray = (CommonKotlinByteArray *)sourceArray;
+  return [IOSByteArray arrayWithNSData:[CommonByteArrayBridge.shared nsDataFromByteArray:kotlinSourceArray]];
+}
+
+id toKotlinArrayFromByteArray(IOSByteArray *sourceArray) {
+  return [CommonByteArrayBridge.shared byteArrayFromNsData:sourceArray.toNSData];
+}
+
+id javaWrapCollection(id<JavaUtilCollection> collection) {
+  if ([collection isKindOfClass:NSArray.class] ||
+      [collection isKindOfClass:NSSet.class]) {
+    return collection;
+  }
+
+  if (![collection conformsToProtocol:@protocol(JavaUtilCollection)]) {
+    return @[];
+  }
+
+  NSMutableArray<id> *array = [NSMutableArray arrayWithCapacity:collection.size];
+  for (id object in collection) {
+    [array addObject:object];
+  }
+
+  return array;
+}
+
+id javaListToNSMutableArray(id<JavaUtilList> list) {
+  if (![(id)list isKindOfClass:NSMutableArray.class]) {
+    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSMutableArray", list]);
+  }
+
+  return (id)list;
+}
+
+id javaSetToKotlinMutableSet(id<JavaUtilSet> set) {
+  if (![(id)set isKindOfClass:CommonMutableSet.class]) {
+    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as CommonMutableSet", set]);
+  }
+
+  return (id)set;
+}
+
+id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map) {
+  if(![(id)map isKindOfClass:CommonMutableDictionary.class]) {
+    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as CommonMutableDictionary", map]);
+  }
+
+  return (id)map;
 }
 
 // kotlin interop <<

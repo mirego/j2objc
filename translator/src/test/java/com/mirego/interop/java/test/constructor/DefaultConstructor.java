@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructor;
 
 public class DefaultConstructor {
 
-    public static ClassWithDefaultConstructor main(String[] args) {
+  public static ClassWithDefaultConstructor main(String[] args) {
 
-        ClassWithDefaultConstructor defaultConstructor = new ClassWithDefaultConstructor("ClassWithDefaultConstructor");
+    ClassWithDefaultConstructor defaultConstructor = new ClassWithDefaultConstructor("ClassWithDefaultConstructor");
 
-        return defaultConstructor;
-    }
+    return defaultConstructor;
+  }
 }

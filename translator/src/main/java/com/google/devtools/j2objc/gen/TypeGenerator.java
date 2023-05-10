@@ -34,14 +34,14 @@ import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.ErrorUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TranslationEnvironment;
+import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
 import com.google.j2objc.annotations.GenerateObjectiveCGenerics;
-import com.google.j2objc.annotations.ObjectiveCName;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -299,9 +299,10 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
     // Verify the same number of parameters are defined by the method and the annotation.
     long colonCount = selector.chars().filter(ch -> ch == ':').count();
     if (element.getParameters().size() != colonCount) {
-      AnnotationMirror annotation = ElementUtil.getAnnotation(element, ObjectiveCName.class);
-      if (annotation != null) {
-        String declaredSelector = (String) ElementUtil.getAnnotationValue(annotation, "value");
+      // kotlin interop >>
+      String declaredSelector = TranslationUtil.getObjectiveCName(element);
+      if (declaredSelector != null) {
+      // kotlin interop <<
         String methodName = ElementUtil.getName(element);
         ErrorUtil.error(m,
             "Invalid selector: @ObjectiveCName(\""
@@ -326,7 +327,11 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
       assert selParts.length == 1 && !selector.endsWith(":");
       sb.append(selParts[0]);
     } else {
-      assert params.size() == selParts.length;
+      // kotlin interop >>
+      if (selParts.length != params.size()) {
+        throw new IllegalStateException("getMethodSignature mismatch " + m.getName().toString() + " selparts=" + Arrays.toString(selParts) + " vs args=" +params);
+      }
+      // kotlin interop <<
       int baseLength = sb.length() + selParts[0].length();
       for (int i = 0; i < params.size(); i++) {
         if (i != 0) {

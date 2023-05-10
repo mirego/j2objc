@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicFunctionReturningInteger {
 
-    public static Integer main(String[] args) {
+  public static Integer main(String[] args) {
 
-        ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
+    ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
 
-        return classWithPublicFunctions.returnInt();
-    }
+    return classWithPublicFunctions.returnInt();
+  }
 }

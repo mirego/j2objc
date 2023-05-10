@@ -35,7 +35,6 @@ import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.types.ExecutablePair;
 import com.google.devtools.j2objc.types.FunctionElement;
-import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
@@ -90,7 +89,6 @@ public class SwitchRewriter extends UnitTreeVisitor {
         return;
       }
       // kotlin interop <<
-      
       String enumValue =
           NameTable.getNativeEnumName(nameTable.getFullName(TypeUtil.asTypeElement(type))) + "_"
           + nameTable.getVariableBaseName(var);

@@ -98,11 +98,11 @@
 // Functions that box a value from its field storage type into an object type.
 // For enums, the boxed type is the same as its storage type. (a Java enum
 // object)
-#define CGPBoxedValueInt(value) [JavaLangInteger valueOfWithInt:value]
-#define CGPBoxedValueLong(value) [JavaLangLong valueOfWithLong:value]
-#define CGPBoxedValueFloat(value) [JavaLangFloat valueOfWithFloat:value]
-#define CGPBoxedValueDouble(value) [JavaLangDouble valueOfWithDouble:value]
-#define CGPBoxedValueBool(value) [JavaLangBoolean valueOfWithBoolean:value]
+#define CGPBoxedValueInt(value) [CommonInt valueOfWithInt:value]
+#define CGPBoxedValueLong(value) [CommonLong valueOfWithLong:value]
+#define CGPBoxedValueFloat(value) [CommonFloat valueOfWithFloat:value]
+#define CGPBoxedValueDouble(value) [CommonDouble valueOfWithDouble:value]
+#define CGPBoxedValueBool(value) [CommonBoolean valueOfWithBoolean:value]
 #define CGPBoxedValueId(value) value
 
 // Functions that unbox a value into its primitive type.

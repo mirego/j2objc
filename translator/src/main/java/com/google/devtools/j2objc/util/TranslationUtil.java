@@ -16,6 +16,7 @@ package com.google.devtools.j2objc.util;
 
 import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
+import com.google.devtools.j2objc.ast.Annotation;
 import com.google.devtools.j2objc.ast.ArrayAccess;
 import com.google.devtools.j2objc.ast.ArrayCreation;
 import com.google.devtools.j2objc.ast.ArrayInitializer;
@@ -38,6 +39,7 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.TypeLiteral;
 import com.google.devtools.j2objc.types.FunctionElement;
+import com.google.j2objc.annotations.ObjectiveCName;
 import com.google.j2objc.annotations.ReflectionSupport;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -46,6 +48,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -79,6 +82,32 @@ public final class TranslationUtil {
     this.jreEmulLoader = getJreEmulClassPath(options);
 
   }
+
+  // kotlin interop >>
+  @Nullable
+  public static String getObjectiveCName(Element element) {
+    AnnotationMirror annotation = ElementUtil.getAnnotation(element, ObjectiveCName.class);
+    String prefix = null;
+    if (annotation != null) {
+      prefix = (String) ElementUtil.getAnnotationValue(annotation, "value");
+    }
+
+    return prefix;
+  }
+
+  @Nullable
+  public static String getObjectiveCName(PackageDeclaration pkg) {
+    Annotation objcName = TreeUtil.getAnnotation(ObjectiveCName.class, pkg.getAnnotations());
+    if (objcName != null) {
+      return (String) ElementUtil.getAnnotationValue(objcName.getAnnotationMirror(), "value");
+    }
+    return null;
+  }
+
+  public static Boolean hasObjectiveCName(Element element) {
+    return ElementUtil.hasAnnotation(element, ObjectiveCName.class);
+  }
+  // kotlin interop <<
 
   public static TypeElement getSuperType(AbstractTypeDeclaration node) {
     // Use the AST as the source of truth where possible.

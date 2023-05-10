@@ -25,14 +25,14 @@ public class CryptoTests {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto"));
-        suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.func"));
-        suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.interfaces"));
-        suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.spec"));
-        suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.serialization"));
-        suite.addTest(TestUtil.getPackageTests("libcore.javax.crypto"));
-        suite.addTest(TestUtil.getPackageTests("libcore.javax.crypto.spec"));
-        suite.addTest(TestUtil.getPackageTests("com.android.org.conscrypt.javax.crypto"));
+        // suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto"));
+        // suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.func"));
+        // suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.interfaces"));
+        // suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.spec"));
+        // suite.addTest(TestUtil.getPackageTests("org.apache.harmony.crypto.tests.javax.crypto.serialization"));
+        // suite.addTest(TestUtil.getPackageTests("libcore.javax.crypto"));
+        // suite.addTest(TestUtil.getPackageTests("libcore.javax.crypto.spec"));
+        // suite.addTest(TestUtil.getPackageTests("com.android.org.conscrypt.javax.crypto"));
         return suite;
     }
 

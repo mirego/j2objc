@@ -4,8 +4,8 @@ import com.mirego.interop.kotlin.test.objects.ClassWithObject;
 
 public class WithObject {
 
-    public static String main(String[] args) {
-        String objectString = ClassWithObject.Named.INSTANCE.getObjectString();
-        return objectString;
-    }
+  public static String main(String[] args) {
+    String objectString = ClassWithObject.Named.INSTANCE.getObjectString();
+    return objectString;
+  }
 }

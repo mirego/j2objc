@@ -37,7 +37,7 @@ jstring Java_java_lang_Long_toString(JNIEnv *env, jclass cls, jlong i, jint radi
   if (radix < JavaLangCharacter_MIN_RADIX || radix > JavaLangCharacter_MAX_RADIX)
     radix = 10;
   if (radix == 10)
-    return JavaLangLong_toStringWithLong_(i);
+    return CommonLong_toStringWithLong_(i);
   jchar buf[65];
   jint charPos = 64;
   jboolean negative = (i < 0);
@@ -47,10 +47,10 @@ jstring Java_java_lang_Long_toString(JNIEnv *env, jclass cls, jlong i, jint radi
   }
 
   while (i <= -radix) {
-    buf[charPos--] = JavaLangInteger_digits[(int)(-(i % radix))];
+    buf[charPos--] = CommonInt_digits[(int)(-(i % radix))];
     i = i / radix;
   }
-  buf[charPos] = JavaLangInteger_digits[(int)(-i)];
+  buf[charPos] = CommonInt_digits[(int)(-i)];
 
   if (negative) {
     buf[--charPos] = '-';
@@ -65,17 +65,17 @@ jstring Java_java_lang_Long_toUnsignedString0(JNIEnv *env, jclass cls, jlong i, 
   jint radix = 1 << shift;
   jlong mask = radix - 1;
   do {
-    buf[--charPos] = JavaLangInteger_digits[(int)(i & mask)];
+    buf[--charPos] = CommonInt_digits[(int)(i & mask)];
     i = (uint64_t)i >> shift;
   } while (i != 0);
   return [NSString stringWithCharacters:buf + charPos length:64 - charPos];
 }
 
 void Java_java_lang_Long_getChars(JNIEnv *env, jclass cls, jlong i, jint index, jarray buf) {
-  JavaLangLong_getCharsRaw(i, index, ((IOSCharArray *)buf)->buffer_);
+  CommonLong_getCharsRaw(i, index, ((IOSCharArray *)buf)->buffer_);
 }
 
-void JavaLangLong_getCharsRaw(jlong i, jint index, jchar *buf) {
+void CommonLong_getCharsRaw(jlong i, jint index, jchar *buf) {
   jlong q;
   jint r;
   jint charPos = index;
@@ -87,13 +87,13 @@ void JavaLangLong_getCharsRaw(jlong i, jint index, jchar *buf) {
   }
 
   // Get 2 digits/iteration using longs until quotient fits into an int
-  while (i > JavaLangInteger_MAX_VALUE) {
+  while (i > CommonInt_MAX_VALUE) {
     q = i / 100;
     // really: r = i - (q * 100);
     r = (jint)(i - ((q << 6) + (q << 5) + (q << 2)));
     i = q;
-    buf[--charPos] = JavaLangInteger_DigitOnes[r];
-    buf[--charPos] = JavaLangInteger_DigitTens[r];
+    buf[--charPos] = CommonInt_DigitOnes[r];
+    buf[--charPos] = CommonInt_DigitTens[r];
   }
 
   // Get 2 digits/iteration using ints
@@ -104,8 +104,8 @@ void JavaLangLong_getCharsRaw(jlong i, jint index, jchar *buf) {
     // really: r = i2 - (q * 100);
     r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
     i2 = q2;
-    buf[--charPos] = JavaLangInteger_DigitOnes[r];
-    buf[--charPos] = JavaLangInteger_DigitTens[r];
+    buf[--charPos] = CommonInt_DigitOnes[r];
+    buf[--charPos] = CommonInt_DigitTens[r];
   }
 
   // Fall thru to fast mode for smaller numbers
@@ -113,7 +113,7 @@ void JavaLangLong_getCharsRaw(jlong i, jint index, jchar *buf) {
   for (;;) {
     q2 = (uint32_t)(i2 * 52429) >> (16 + 3);
     r = i2 - ((q2 << 3) + (q2 << 1));  // r = i2-(q2*10) ...
-    buf[--charPos] = JavaLangInteger_digits[r];
+    buf[--charPos] = CommonInt_digits[r];
     i2 = q2;
     if (i2 == 0) break;
   }

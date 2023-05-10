@@ -29,7 +29,6 @@ import com.google.devtools.j2objc.J2ObjC;
 import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
-import com.google.j2objc.annotations.ObjectiveCName;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,21 +37,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -63,7 +60,9 @@ import kotlinx.metadata.Flag.Type;
 import kotlinx.metadata.KmClass;
 import kotlinx.metadata.KmClassifier;
 import kotlinx.metadata.KmConstructor;
+import kotlinx.metadata.KmDeclarationContainer;
 import kotlinx.metadata.KmFunction;
+import kotlinx.metadata.KmPackage;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
 import kotlinx.metadata.KmTypeProjection;
@@ -352,6 +351,10 @@ public class NameTable {
         return ID_TYPE;
       }
       name = getFullName(elem);
+
+      // kotlin interop >>
+      name = removeKotlinModulePrefix(type, name);
+      // << kotlin interop
     }
     if (arrayDimensions > 0) {
       name += "Array";
@@ -361,6 +364,15 @@ public class NameTable {
     }
     return name;
   }
+
+  // kotlin interop >>
+  private static String removeKotlinModulePrefix(TypeMirror type, String name) {
+    if (KotlinUtil.isKotlinType(type) && name.startsWith("Common")) {
+      name = name.substring("Common".length());
+    }
+    return name;
+  }
+  // << kotlin interop
 
   private String parameterKeyword(TypeMirror type) {
     return "with" + capitalize(getParameterTypeKeyword(type));
@@ -445,11 +457,11 @@ public class NameTable {
   public String getMethodSelector(ExecutableElement method) {
     String selector = methodSelectorCache.get(method);
     if (selector != null) {
-
-      // MIREGO kotlin interop
+      // kotlin interop >>
       if (selector.startsWith("get") && KotlinUtil.isKotlinType(method)) {
         return getMethodSelectorKotlin(method, selector);
       }
+      // kotlin interop <<
       return selector;
     }
     selector = getMethodSelectorInner(method);
@@ -533,12 +545,13 @@ public class NameTable {
   }
 
   public static String getMethodNameFromAnnotation(ExecutableElement method) {
-    AnnotationMirror annotation = ElementUtil.getAnnotation(method, ObjectiveCName.class);
-    if (annotation != null) {
-      String value = (String) ElementUtil.getAnnotationValue(annotation, "value");
-      validateMethodSelector(value);
-      return value;
+    // kotlin interop >>
+    String objectiveCName = TranslationUtil.getObjectiveCName(method);
+    if (objectiveCName != null) {
+      validateMethodSelector(objectiveCName);
+      return objectiveCName;
     }
+    // kotlin interop <<
     return null;
   }
 
@@ -737,9 +750,11 @@ public class NameTable {
     }
 
     // Use ObjectiveCName annotation, if it exists.
-    AnnotationMirror annotation = ElementUtil.getAnnotation(element, ObjectiveCName.class);
-    if (annotation != null) {
-      return (String) ElementUtil.getAnnotationValue(annotation, "value");
+    // kotlin interop >>
+    String objectiveCName = TranslationUtil.getObjectiveCName(element);
+    if (objectiveCName != null) {
+      return objectiveCName;
+    // kotlin interop <<
     }
 
     TypeElement outerClass = ElementUtil.getDeclaringClass(element);
@@ -759,6 +774,7 @@ public class NameTable {
     if (KotlinUtil.isKotlinType(element)) {
        return getPrefixKotlin(element) + getTypeSubName(element);
     }
+
     // kotlin interop <<
 
     // Use camel-cased package+class name.
@@ -802,9 +818,11 @@ public class NameTable {
     }
 
     // Return a class mapping only if there is a explicit rename.
-    AnnotationMirror annotation = ElementUtil.getAnnotation(typeElement, ObjectiveCName.class);
+    // kotlin interop >>
+    Boolean hasObjectiveCName = TranslationUtil.hasObjectiveCName(typeElement);
     String mappedName = classMappings.get(ElementUtil.getQualifiedName(typeElement));
-    if (annotation != null || mappedName != null) {
+    if (hasObjectiveCName || mappedName != null) {
+    // kotlin interop <<
       return Optional.of(
           String.format(mappingFormat, typeName, elementUtil.getBinaryName(typeElement), typeName));
     }
@@ -833,11 +851,7 @@ public class NameTable {
 
   // kotlin interop >>
 
-  private boolean appendParamKeywordKotlin(StringBuilder sb, Name paramName, char delim, boolean first) {
-    return appendParamKeywordKotlin(sb, paramName.toString(), delim, first);
-  }
-
-  private boolean appendParamKeywordKotlin( StringBuilder sb, String paramName, char delim, boolean first) {
+  private boolean appendParamKeywordKotlin(StringBuilder sb, String paramName, char delim, boolean first) {
     String keyword = paramName;
     if (first) {
       keyword = capitalize(keyword);
@@ -846,15 +860,8 @@ public class NameTable {
     return false;
   }
 
-  private String addParamNamesKotlin(ExecutableElement method,
-                                     String name,
-                                     char delim,
-                                     boolean first,
-                                     StringBuilder sb,
-                                     TypeElement declaringClass) {
-
-    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(method);
-    List<KmTypeParameter> kmClassTypeParameters = kmClass.getTypeParameters();
+  private String addParamNamesKotlin(ExecutableElement method, String name, char delim, boolean first, StringBuilder sb, TypeElement declaringClass) {
+    KmDeclarationContainer declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(method);
 
     String methodName = method.getSimpleName().toString();
     Multimap<String, List<KmValueParameter>> potentialValueParameters = ArrayListMultimap.create();
@@ -862,35 +869,43 @@ public class NameTable {
     List<KmValueParameter> matchingParams = null;
 
     List<String> jvmArgumentTypes = method.getParameters().stream()
-        .map(variableElement -> getCleanedJvmParameter(variableElement))
-        .collect(Collectors.toList());
+      .map(variableElement -> getCleanedJvmParameter(variableElement))
+      .collect(Collectors.toList());
+
+    List<KmTypeParameter> classTypeParameters = new ArrayList<>();
+    if (declarationContainer instanceof KmClass) {
+      classTypeParameters.addAll(((KmClass) declarationContainer).getTypeParameters());
+    }
 
     if (ElementUtil.isConstructor(method)) {
+      KmClass kmClass = (KmClass)declarationContainer;
       for (KmConstructor loopConstructor : kmClass.getConstructors()) {
         potentialValueParameters.put(methodName, loopConstructor.getValueParameters());
         potentialTypeParameters.put(methodName, null);
       }
     } else {
-      for (KmFunction loopFunction : kmClass.getFunctions()) {
+      for (KmFunction loopFunction : declarationContainer.getFunctions()) {
         String functionName = loopFunction.getName();
-        potentialValueParameters.put(functionName, loopFunction.getValueParameters());
-        potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+        if (methodName.equals(functionName)) {
+          potentialValueParameters.put(functionName, loopFunction.getValueParameters());
+          potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+        }
       }
     }
 
     Iterator<Entry<String, List<KmValueParameter>>> valueParametersIterator = potentialValueParameters.entries().iterator();
     Iterator<Entry<String, List<KmTypeParameter>>> typeParametersIterator = potentialTypeParameters.entries().iterator();
-    while(valueParametersIterator.hasNext() && typeParametersIterator.hasNext()) {
+    while (valueParametersIterator.hasNext() && typeParametersIterator.hasNext()) {
       Entry<String, List<KmValueParameter>> methodEntry = valueParametersIterator.next();
       List<KmValueParameter> valueParams = methodEntry.getValue();
       List<KmTypeParameter> typeParams = typeParametersIterator.next().getValue();
       List<String> kmArgumentTypes = valueParams.stream()
-              .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), kmClassTypeParameters, typeParams))
-              .collect(Collectors.toList());
+        .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), classTypeParameters, typeParams))
+        .collect(Collectors.toList());
 
       if (methodEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
         if (matchingParams != null) {
-          throw new RuntimeException(String.format("Found more that one matching method %s for class %s", methodName, kmClass.name));
+          throw new RuntimeException(String.format("Found more that one matching method %s for declaration container %s", methodName, declarationContainer));
         }
         matchingParams = valueParams;
       }
@@ -904,7 +919,7 @@ public class NameTable {
       }
 
       if (name.startsWith("set") && checkEnclosedElementsForField(
-          declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
+        declaringClass.getEnclosedElements(), name.substring(3)).isPresent()) {
         break;
       }
 
@@ -925,7 +940,7 @@ public class NameTable {
     String elementType = element.asType().toString();
     int startIndex = elementType.indexOf('<');
     if (startIndex > 0) {
-      return elementType.substring( 0, startIndex);
+      return elementType.substring(0, startIndex);
     }
 
     return element.asType().toString();
@@ -933,15 +948,15 @@ public class NameTable {
   }
 
   private String getMethodSelectorKotlin(ExecutableElement method, String selector) {
-      Optional<String> getterName =
-          checkEnclosedElementsForField(
-              ElementUtil.getDeclaringClass(method).getEnclosedElements(),
-              selector.substring(3));
-      if (getterName.isPresent()) {
-        return getterName.get();
-      }
+    Optional<String> getterName =
+      checkEnclosedElementsForField(
+        ElementUtil.getDeclaringClass(method).getEnclosedElements(),
+        selector.substring(3));
+    if (getterName.isPresent()) {
+      return getterName.get();
+    }
 
-      return selector;
+    return selector;
   }
 
   private String getPrefixKotlin(TypeElement element) {
@@ -956,6 +971,7 @@ public class NameTable {
   }
 
   private static final Map<String, String> kotlinToJavaPrimitiveType = new HashMap<>();
+
   static {
     // java primitive types
     kotlinToJavaPrimitiveType.put("kotlin/Byte", "byte");
@@ -969,6 +985,7 @@ public class NameTable {
   }
 
   private static final Map<String, String> kotlinToJavaType = new HashMap<>();
+
   static {
     // java non-primitive types
     kotlinToJavaType.put("kotlin/Any", "java.lang.Object");
@@ -1042,8 +1059,8 @@ public class NameTable {
     }
 
     String javaType = null;
-    if (isKotlinType(kotlinType)) {
-      if (isKotlinArrayType(kotlinType)) {
+    if (isKotlinTypeFromName(kotlinType)) {
+      if (isKotlinArrayTypeFromName(kotlinType)) {
         javaType = toJavaArrayType(kmType, kmClassTypeParameters, kmFunctionTypeParams);
       } else {
         if (!isNullable) {
@@ -1080,24 +1097,24 @@ public class NameTable {
   private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
                                                List<KmTypeParameter> kmClassTypeParameters,
                                                List<KmTypeParameter> kmFunctionTypeParams) {
-      int id = typeParameter.getId();
-      if (id < kmClassTypeParameters.size()) {
-        return kmClassTypeParameters.get(id).getName();
-      }
+    int id = typeParameter.getId();
+    if (id < kmClassTypeParameters.size()) {
+      return kmClassTypeParameters.get(id).getName();
+    }
 
-      id -= kmClassTypeParameters.size();
-      if (id >= kmFunctionTypeParams.size()) {
-        throw new RuntimeException("could not map type id with know type parameters ....");
-      }
+    id -= kmClassTypeParameters.size();
+    if (id >= kmFunctionTypeParams.size()) {
+      throw new RuntimeException("could not map type id with know type parameters ....");
+    }
 
-      return kmFunctionTypeParams.get(id).getName();
+    return kmFunctionTypeParams.get(id).getName();
   }
 
-  private boolean isKotlinType(String type) {
+  private boolean isKotlinTypeFromName(String type) {
     return type.indexOf("kotlin/") == 0;
   }
 
-  private boolean isKotlinArrayType(String type) {
+  private boolean isKotlinArrayTypeFromName(String type) {
     return type.equals("kotlin/Array");
   }
 

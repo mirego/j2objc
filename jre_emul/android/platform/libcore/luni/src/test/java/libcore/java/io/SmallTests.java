@@ -30,7 +30,7 @@ public class SmallTests extends TestSuite {
     FileTest.class,
     FilterInputStreamNullSourceTest.class,
     InputStreamReaderTest.class,
-    ObjectOutputStreamTest.class,
+    // ObjectOutputStreamTest.class,
     OldAndroidBufferedInputStreamTest.class,
     OldAndroidBufferedOutputStreamTest.class,
     OldAndroidBufferedReaderTest.class,

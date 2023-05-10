@@ -43,6 +43,9 @@ abstract class FileProcessor {
   private final Parser parser;
   protected final BuildClosureQueue closureQueue;
   protected final Options options;
+  // kotlin interop >>
+  private final Map<ProcessingContext, CompilationUnit> parsedInputs = new HashMap<>();
+  // kotlin interop <<
   private final Set<ProcessingContext> batchInputs = new HashSet<>();
   private final Set<ProcessingContext> outputs = new HashSet<>();
 
@@ -61,31 +64,74 @@ abstract class FileProcessor {
   }
 
   public void processInputs(Iterable<ProcessingContext> inputs) {
-    for (ProcessingContext input : inputs) {
-      processInput(input);
-    }
-    processBatch();
+    // kotlin interop >>
+    parseInputs(inputs);
+    processParsedInputs();
+    // kotlin interop <<
     processBuildClosureDependencies();
     processOutputs(outputs);
   }
+
+  // kotlin interop >>
+  private void performChecks() {
+    for (Map.Entry<ProcessingContext, CompilationUnit> entry : parsedInputs.entrySet()) {
+      checkCompiledSource(entry.getKey(), entry.getValue());
+    }
+  }
+
+  private void performTranslate() {
+    for (Map.Entry<ProcessingContext, CompilationUnit> entry : parsedInputs.entrySet()) {
+      translateCompiledSource(entry.getKey(), entry.getValue());
+    }
+  }
+
+  private void parseInputs(Iterable<ProcessingContext> inputs) {
+    for (ProcessingContext input : inputs) {
+      parseInput(input);
+    }
+    parseBatch();
+  }
+
+  private void processParsedInputs() {
+    performChecks();
+
+    // kotlin interop >>
+    if (ErrorUtil.errorCount() == 0) {
+      performTranslate();
+    } else {
+      System.out.println("Found " + ErrorUtil.errorCount() + " errors while performing pre translate checks");
+    }
+
+    // kotlin interop <<
+    parsedInputs.clear();
+  }
+  // kotlin interop <<
 
   private void processBuildClosureDependencies() {
     if (closureQueue != null) {
       while (true) {
         InputFile file = closureQueue.getNextFile();
         if (file == null) {
-          processBatch();
+          // kotlin interop >>
+          parseBatch();
+          processParsedInputs();
+          // kotlin interop <<
           file = closureQueue.getNextFile();
         }
         if (file == null) {
           break;
         }
-        processInput(ProcessingContext.fromFile(file, options));
+        // kotlin interop >>
+        parseInput(ProcessingContext.fromFile(file, options));
+        processParsedInputs();
+        // kotlin interop <<
       }
     }
   }
 
-  private void processInput(ProcessingContext input) {
+  // kotlin interop >>
+  private void parseInput(ProcessingContext input) {
+  // kotlin interop <<
     try {
       InputFile file = input.getFile();
 
@@ -102,17 +148,17 @@ abstract class FileProcessor {
         return;
       }
 
-      processCompiledSource(input, compilationUnit);
+      // kotlin interop >>
+      parsedInputs.put(input, compilationUnit);
+      // kotlin interop <<
     } catch (RuntimeException | Error e) {
       ErrorUtil.fatalError(e, input.getOriginalSourcePath());
     }
   }
 
-  protected boolean isBatchable(InputFile file) {
-    return file.getAbsolutePath().endsWith(".java");
-  }
-
-  private void processBatch() {
+  // kotlin interop >>
+  private void parseBatch() {
+  // kotlin interop <<
     if (batchInputs.isEmpty()) {
       return;
     }
@@ -129,11 +175,15 @@ abstract class FileProcessor {
       @Override
       public void handleParsedUnit(String path, CompilationUnit unit) {
         ProcessingContext input = inputMap.get(path);
-        processCompiledSource(input, unit);
+        // kotlin interop >>
+        parsedInputs.put(input, unit);
         batchInputs.remove(input);
+        // kotlin interop <<
       }
     };
-    logger.finest("Processing batch of size " + batchInputs.size());
+    // kotlin interop >>
+    logger.finest("Parsing batch of size " + batchInputs.size());
+    // kotlin interop <<
     parser.parseFiles(paths, handler, options.getSourceVersion());
 
     // Any remaining files in batchFiles has some kind of error.
@@ -144,9 +194,24 @@ abstract class FileProcessor {
     batchInputs.clear();
   }
 
-  private void processCompiledSource(ProcessingContext input,
-      com.google.devtools.j2objc.ast.CompilationUnit unit) {
+  // kotlin interop >>
+  protected boolean isBatchable(InputFile file) {
+    return file.getAbsolutePath().endsWith(".java");
+  }
+
+  private void checkCompiledSource(ProcessingContext input, com.google.devtools.j2objc.ast.CompilationUnit unit) {
     InputFile file = input.getFile();
+
+    try {
+      checkConvertedTree(input, unit);
+    } catch (Throwable t) {
+      ErrorUtil.fatalError(t, input.getOriginalSourcePath());
+    }
+  }
+
+  private void translateCompiledSource(ProcessingContext input, com.google.devtools.j2objc.ast.CompilationUnit unit) {
+    InputFile file = input.getFile();
+    // kotlin interop <<
     if (closureQueue != null) {
       closureQueue.addProcessedName(FileUtil.getQualifiedMainTypeName(file, unit));
     }
@@ -158,6 +223,10 @@ abstract class FileProcessor {
       ErrorUtil.fatalError(t, input.getOriginalSourcePath());
     }
   }
+
+  // kotlin interop >>
+  protected abstract void checkConvertedTree(ProcessingContext input, com.google.devtools.j2objc.ast.CompilationUnit unit);
+  // kotlin interop <<
 
   protected abstract void processConvertedTree(
       ProcessingContext input, com.google.devtools.j2objc.ast.CompilationUnit unit);

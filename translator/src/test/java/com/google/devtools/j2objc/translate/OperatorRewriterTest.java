@@ -629,25 +629,25 @@ public class OperatorRewriterTest extends GenerationTest {
             "Test",
             "Test.m");
     assertTranslation(
-        translation, "return JavaLangBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(b1, b2));");
+        translation, "return CommonBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(b1, b2));");
     assertTranslation(
         translation,
-        "return JavaLangBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(b1, b2) =="
-            + " [((JavaLangBoolean *) nil_chk(b3)) booleanValue]);");
+        "return CommonBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(b1, b2) =="
+            + " [((CommonBoolean *) nil_chk(b3)) booleanValue]);");
     assertTranslation(
         translation,
-        "return JavaLangBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2) =="
-            + " [((JavaLangBoolean *) nil_chk(b3)) booleanValue]);");
+        "return CommonBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2) =="
+            + " [((CommonBoolean *) nil_chk(b3)) booleanValue]);");
     assertTranslation(
         translation,
-        "return JavaLangBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(s1, s2) =="
-            + " [((JavaLangBoolean *) nil_chk(b3)) booleanValue]);");
+        "return CommonBoolean_valueOfWithBoolean_(JreObjectEqualsEquals(s1, s2) =="
+            + " [((CommonBoolean *) nil_chk(b3)) booleanValue]);");
     assertTranslation(
-        translation, "return JavaLangBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2));");
+        translation, "return CommonBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2));");
     assertTranslation(
         translation,
-        "return JavaLangBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2) !="
-            + " [((JavaLangBoolean *) nil_chk(b3)) booleanValue]);");
+        "return CommonBoolean_valueOfWithBoolean_(!JreObjectEqualsEquals(b1, b2) !="
+            + " [((CommonBoolean *) nil_chk(b3)) booleanValue]);");
   }
 
   /**

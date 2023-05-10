@@ -162,11 +162,11 @@ typedef struct CGPOneofData {
 // Functions that convert a value from its field storage type to the type
 // expected by a reflection accessor. (accessing with a descriptor)
 // For enums, the reflection type is a EnumValueDescriptor.
-#define CGPToReflectionTypeInt(value, field) [JavaLangInteger valueOfWithInt:value]
-#define CGPToReflectionTypeLong(value, field) [JavaLangLong valueOfWithLong:value]
-#define CGPToReflectionTypeFloat(value, field) [JavaLangFloat valueOfWithFloat:value]
-#define CGPToReflectionTypeDouble(value, field) [JavaLangDouble valueOfWithDouble:value]
-#define CGPToReflectionTypeBool(value, field) [JavaLangBoolean valueOfWithBoolean:value]
+#define CGPToReflectionTypeInt(value, field) [CommonInt valueOfWithInt:value]
+#define CGPToReflectionTypeLong(value, field) [CommonLong valueOfWithLong:value]
+#define CGPToReflectionTypeFloat(value, field) [CommonFloat valueOfWithFloat:value]
+#define CGPToReflectionTypeDouble(value, field) [CommonDouble valueOfWithDouble:value]
+#define CGPToReflectionTypeBool(value, field) [CommonBoolean valueOfWithBoolean:value]
 #define CGPToReflectionTypeEnum(value, field) \
     ((CGPEnumDescriptor *)field->valueType_)->values_->buffer_[[(JavaLangEnum *)value ordinal]]
 #define CGPToReflectionTypeRetainable(value, field) RETAIN_AND_AUTORELEASE(value)

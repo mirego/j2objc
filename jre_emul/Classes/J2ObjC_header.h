@@ -18,6 +18,9 @@
 #import "IOSObjectArray.h"
 #import "J2ObjC_common.h"
 #import "JavaObject.h"
+#import "NSMutableArray+JavaUtilList.h"
+#import "NSMutableDictionary+JavaUtilMap.h"
+#import "NSMutableSet+JavaUtilSet.h"
 #import "NSObject+JavaObject.h"
 
 CF_EXTERN_C_BEGIN
@@ -238,7 +241,7 @@ CF_EXTERN_C_END
  * @define BOXED_INC_AND_DEC
  * @param CNAME The capitalized name of the primitive type (eg. "Int").
  * @param VALUE_METHOD The method on the boxed type that returns the value.
- * @param TYPE The boxed type name (eg. "JavaLangInteger").
+ * @param TYPE The boxed type name (eg. "CommonInt").
  */
 #define BOXED_INC_AND_DEC(CNAME, VALUE_METHOD, TYPE) \
     BOXED_INC_AND_DEC_INNER(CNAME, VALUE_METHOD, TYPE, Incr, +) \
@@ -265,7 +268,7 @@ CF_EXTERN_C_END
  * @param CNAME The capitalized name of the primitive type (eg. "Int").
  * @param VALUE_METHOD The method on the boxed type that returns the value.
  * @param TYPE The primitive type name (eg. "jint").
- * @param BOXED_TYPE The boxed type name (eg. "JavaLangInteger").
+ * @param BOXED_TYPE The boxed type name (eg. "CommonInt").
  * @param RTYPE The type of the right hand side of the assignment.
  * @param OPNAME The name of the operator, used to construct the function name.
  * @param OP A macro that takes two parameters and prints the operation.

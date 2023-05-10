@@ -46,7 +46,7 @@
 @class JavaNioCharsetCharset;
 @class JavaIoInputStream;
 @class JavaIoOutputStream;
-@class JavaLangByte;
+@class CommonByte;
 @protocol ComGoogleProtobufByteString_ByteIterator;
 
 @interface ComGoogleProtobufByteString : NSObject < JavaLangIterable, JavaIoSerializable > {
@@ -118,7 +118,7 @@ J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufByteString)
 
 @protocol ComGoogleProtobufByteString_ByteIterator < JavaUtilIterator, JavaObject >
 - (jbyte)nextByte;
-- (JavaLangByte *)next;
+- (CommonByte *)next;
 @end
 
 J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufByteString_ByteIterator)

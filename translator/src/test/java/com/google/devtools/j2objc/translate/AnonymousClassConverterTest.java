@@ -204,7 +204,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
       + "    Runnable run = new Runnable() { public void run() { int j = i + i; } }; } }",
       "Test", "Test.m");
 
-    assertTranslation(translation, "initWithJavaLangInteger:(JavaLangInteger *)capture$0 {");
+    assertTranslation(translation, "initWithCommonInt:(CommonInt *)capture$0 {");
   }
 
   public void testFinalVarInEnhancedForStatement() throws IOException {
@@ -257,7 +257,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
 
     // Verify constructor takes both outer field and var.
     String translation = generateFromUnit(unit, "Test.m");
-    assertTranslation(translation, "r2 = create_Test_1_1_initWithJavaLangInteger_(i)");
+    assertTranslation(translation, "r2 = create_Test_1_1_initWithCommonInt_(i)");
   }
 
   public void testMethodVarInAnonymousClass() throws IOException {
@@ -286,7 +286,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
 
     // Verify method var is passed to constructor.
     String translation = generateFromUnit(unit, "Test.m");
-    assertTranslation(translation, "r = create_Test_1_initWithJavaLangInteger_(i)");
+    assertTranslation(translation, "r = create_Test_1_initWithCommonInt_(i)");
   }
 
   public void testMethodVarInSwitch() throws IOException {
@@ -315,7 +315,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
 
     // Verify method var is passed to constructor.
     String translation = generateFromUnit(unit, "Test.m");
-    assertTranslation(translation, "r = create_Test_1_initWithJavaLangInteger_(i)");
+    assertTranslation(translation, "r = create_Test_1_initWithCommonInt_(i)");
   }
 
   public void testAnonymousClassField() throws IOException {
@@ -329,7 +329,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
         + "          public void run() { j = i + 1; } }; } }; } }";
     String translation = translateSourceFile(source, "Test", "Test.m");
     assertTranslation(translation,
-        "this$0_->j_ = [((JavaLangInteger *) nil_chk(val$i_)) intValue] + 1;");
+        "this$0_->j_ = [((CommonInt *) nil_chk(val$i_)) intValue] + 1;");
   }
 
   public void testEnumConstantAnonymousClassNaming() throws IOException {

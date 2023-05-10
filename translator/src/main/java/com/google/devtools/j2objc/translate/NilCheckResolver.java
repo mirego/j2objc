@@ -422,7 +422,7 @@ public class NilCheckResolver extends UnitTreeVisitor {
 
       // kotlin interop >>
       if (KotlinUtil.isKotlinType(var)
-              && KotlinUtil.isElementKotlinCompanionObjectOrObject(TypeUtil.asTypeElement(var.asType()))) {
+        && KotlinUtil.isElementKotlinCompanionObjectOrObject(TypeUtil.asTypeElement(var.asType()))) {
         return;
       }
       // kotlin interop <<

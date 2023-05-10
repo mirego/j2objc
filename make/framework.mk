@@ -56,11 +56,12 @@ ifndef FRAMEWORK_PUBLIC_HEADERS
 FRAMEWORK_PUBLIC_HEADERS = $(FRAMEWORK_HEADERS)
 endif
 
+FRAMEWORK_BUILD_DIR = $(BUILD_DIR)/$(FRAMEWORK_NAME).xcframework
 FRAMEWORK_DIR = $(DIST_FRAMEWORK_DIR)/$(FRAMEWORK_NAME).xcframework
 FRAMEWORK_HEADER = $(BUILD_DIR)/$(FRAMEWORK_NAME).h
 MODULE_MAP = $(BUILD_DIR)/module.modulemap
 
-FRAMEWORK_RESOURCES_DIR = $(FRAMEWORK_DIR)/Versions/A/Resources
+FRAMEWORK_RESOURCES_DIR = $(FRAMEWORK_BUILD_DIR)/Versions/A/Resources
 RESOURCE_FILES = $(FRAMEWORK_RESOURCE_FILES:%=$(FRAMEWORK_RESOURCES_DIR)/%)
 
 # These are warnings that are suppressed for J2ObjC headers and generated code.
@@ -87,25 +88,26 @@ DISALLOWED_WARNINGS = \
 	-Wno-super-class-method-mismatch
 
 # Check that headers compile with most compiler flags.
-VERIFY_FLAGS := -I$(FRAMEWORK_DIR)/Headers -I$(DIST_INCLUDE_DIR) \
+VERIFY_FLAGS := -I$(FRAMEWORK_BUILD_DIR)/Headers -I$(DIST_INCLUDE_DIR) \
 	-Werror -Weverything $(DISALLOWED_WARNINGS)
 
-framework:: lib $(FRAMEWORK_DIR) resources
+framework:: lib $(FRAMEWORK_BUILD_DIR) resources
 	@:
 
 # Create an xcframework from all appletv, iphone, maccatalyst, macosx, simulator and watchos libs.
-$(FRAMEWORK_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
+$(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
 	@echo building $(FRAMEWORK_NAME) framework
-	@mkdir -p $(FRAMEWORK_DIR)
-	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $(FRAMEWORK_DIR) \
+	@mkdir -p $(FRAMEWORK_BUILD_DIR)
+	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $(FRAMEWORK_BUILD_DIR) \
 		$(shell $(J2OBJC_ROOT)/scripts/list_framework_libraries.sh $(STATIC_LIBRARY_NAME))
 	@mkdir -p $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules
 	@tar cf - -C $(STATIC_HEADERS_DIR) $(FRAMEWORK_HEADERS:$(STATIC_HEADERS_DIR)/%=%) \
 		| tar xfp - -C $(BUILD_DIR)/Framework/Headers
 	@install -m 0644 $(FRAMEWORK_HEADER) $(BUILD_DIR)/Framework/Headers
 	@install -m 0644 $(MODULE_MAP) $(BUILD_DIR)/Framework/Modules
-	@find $(FRAMEWORK_DIR) -type d -depth 1 -exec cp -R $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules {} \;
+	@find $(FRAMEWORK_BUILD_DIR) -type d -depth 1 -exec cp -pR $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules {} \;
 	@touch $@
+	@rsync -acI --no-times --delete $(FRAMEWORK_BUILD_DIR) $(DIST_FRAMEWORK_DIR)
 
 # Creates a framework "master" header file that includes all the framework's header files.
 # This header is then test-compiled with all allowed warnings to verify it can be included
@@ -140,7 +142,7 @@ resources: $(RESOURCE_FILES)
 
 $(FRAMEWORK_RESOURCES_DIR):
 	@mkdir -p $(FRAMEWORK_RESOURCES_DIR)
-	@/bin/ln -sfh Versions/Current/Resources $(FRAMEWORK_DIR)/Resources
+	@/bin/ln -sfh Versions/Current/Resources $(FRAMEWORK_BUILD_DIR)/Resources
 
 $(FRAMEWORK_RESOURCES_DIR)/%: % | $(FRAMEWORK_RESOURCES_DIR)
 	@mkdir -p $$(dirname $@)

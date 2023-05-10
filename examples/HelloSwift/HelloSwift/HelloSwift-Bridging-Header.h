@@ -4,7 +4,6 @@
 #import "java/lang/Long.h"
 #import "java/lang/StringBuilder.h"
 #import "java/text/NumberFormat.h"
-#import "java/util/ArrayList.h"
 #import "java/util/Calendar.h"
 #import "java/util/Date.h"
 #import "java/util/Enumeration.h"

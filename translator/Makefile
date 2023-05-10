@@ -55,7 +55,7 @@ TEST_CLASSPATH = \
 TEST_BOOT_CLASSPATH = $(DIST_JAR_DIR)/jre_emul.jar
 
 # kotlin interop >>
-KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-interop-test-cases-jvm.jar
+KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-test-cases-jvm-3.0.jar
 CLASSPATH := $(CLASSPATH):$(KOTLIN_DEPS_PATH)
 TEST_CLASSPATH := $(TEST_CLASSPATH):$(KOTLIN_DEPS_PATH)
 # kotlin interop <<
@@ -291,6 +291,11 @@ JAVA_SOURCES = \
 	util/TypeUtil.java \
 	util/UnicodeUtils.java \
 	util/Version.java
+# kotlin interop >>
+JAVA_SOURCES += \
+	translate/KotlinNativeBridgeConverter.java \
+	util/NativeObjectsUtil.java
+# kotlin interop <<
 
 RESOURCES = J2ObjC.properties JRE.mappings reserved_names.txt
 RESOURCE_DIR = $(SOURCE_DIR)/resources
@@ -381,7 +386,7 @@ $(MANIFEST): | $(BUILD_DIR)
 
 $(CLASS_DIR)/%: $(RESOURCE_DIR)/%
 	@mkdir -p $(@D)
-	@cp -f $< $@
+	@cp -fp $< $@
 
 $(CLASS_DIR) $(BUILD_DIR) $(DIST_JAR_DIR):
 	@mkdir -p $@
@@ -404,12 +409,19 @@ dist: $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
 
 # kotlin interop - add `kotlin_clean`
 clean: kotlin_clean
-	@rm -rf $(BUILD_DIR) $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
   -classpath $(TEST_CLASSPATH):$(TEST_BOOT_CLASSPATH) \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner
+# kotlin interop >>
+COMMON_TEST_FLAG += \
+  -Dkotlin.kompat.lib.path=$(KOTLIN_KOMPAT_FRAMEWORK_LIB)
+# kotlin interop <<
 
 # kotlin interop - add `kotlin_run_tests` and `KotlinInteropTests`
 test: compile-tests copy-test-resources kotlin_run_tests
@@ -420,8 +432,8 @@ regression-test: compile-tests copy-test-resources
 	$(JAVA) -Dj2objcc.path=$(ARCH_BIN_DIR)/j2objcc $(COMMON_TEST_FLAGS) \
 	    com.google.devtools.j2objc.regression.LambdaExpressionsTest
 
-# kotlin interop - add `kotlin_interop`
-compile-tests: $(J2OBJC_JAR) kotlin_interop
+# kotlin interop - add `kotlin_interop_test_cases`
+compile-tests: $(J2OBJC_JAR) kotlin_interop_test_cases
 	@mkdir -p $(TEST_DIR)
 	@$(JAVAC) -Xlint:unchecked -sourcepath src/test/java \
 	    -classpath $(TEST_CLASSPATH) -encoding UTF-8 -d $(TEST_DIR) \
@@ -431,4 +443,4 @@ copy-test-resources: $(TEST_RESOURCE_FILES)
 
 $(TEST_DIR)/%: $(TEST_RESOURCES_DIR)/%
 	@mkdir -p $(@D)
-	@cp $< $@
+	@cp -fp $< $@

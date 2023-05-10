@@ -14,7 +14,7 @@
 #
 # Author: Tom Ball
 
-.PHONY: default clean
+.PHONY: default clean_dist
 
 include environment.mk
 
@@ -97,7 +97,10 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST) $(JSR330_LICENSE_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST) $(JSR330_LICENSE_DIST)
 	@rm -rf $(ARCH_INCLUDE_DIR)/javax/inject
 	@rm -rf $(FRAMEWORK_DIR)
 

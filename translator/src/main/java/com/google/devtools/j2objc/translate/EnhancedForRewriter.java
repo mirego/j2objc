@@ -148,17 +148,19 @@ public class EnhancedForRewriter extends UnitTreeVisitor {
   }
 
   private boolean emitJavaIteratorLoop(VariableElement loopVariable) {
+    // kotlin interop - Inverted default >>
     AnnotationMirror loopTranslation =
         ElementUtil.getAnnotation(loopVariable, LoopTranslation.class);
     if (loopTranslation == null) {
-      return false;
+      return true;
     }
     Object style = ElementUtil.getAnnotationValue(loopTranslation, "value");
     if (style instanceof VariableElement
-        && ElementUtil.getName((VariableElement) style).equals(LoopStyle.JAVA_ITERATOR.name())) {
-      return true;
+        && ElementUtil.getName((VariableElement) style).equals(LoopStyle.FAST_ENUMERATION.name())) {
+      return false;
     }
-    return false;
+    return true;
+    // kotlin interop <<
   }
 
   private void convertToJavaIteratorLoop(EnhancedForStatement node) {

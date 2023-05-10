@@ -170,9 +170,11 @@ public class HeaderMap {
 
       String headerMappingKey = "kotlin-module/" + kotlinModuleName;
       mappedHeader = map.get(headerMappingKey);
-      if (mappedHeader != null) {
-        return mappedHeader;
+      if (mappedHeader == null) {
+          throw new RuntimeException(String.format("Cannot find mapped header for kotlin module name [%s] for type [%s].\nMapping headers: %s", kotlinModuleName, type, map));
       }
+      
+      return mappedHeader;
     }
 
     // kotlin interop <<

@@ -90,7 +90,7 @@ public class ArrayCreationTest extends GenerationTest {
     assertEquals(1, stmts.size());
     String result = generateStatement(stmts.get(0));
     assertEquals("IOSObjectArray *foo = [IOSObjectArray "
-        + "arrayWithLength:3 type:JavaLangInteger_class_()];",
+        + "arrayWithLength:3 type:CommonInt_class_()];",
         result);
   }
 

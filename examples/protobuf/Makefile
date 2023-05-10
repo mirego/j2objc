@@ -1,6 +1,6 @@
 # See README.txt.
 
-.PHONY: all clean
+.PHONY: all clean_dist
 
 ifndef J2OBJC_DIST
 J2OBJC_DIST = ../../dist
@@ -63,3 +63,6 @@ $(JAVA_DIR) $(OBJC_DIR):
 
 clean:
 	@rm -rf $(BUILD_DIR) $(SCRIPTS)
+
+clean_dist: clean
+	@:

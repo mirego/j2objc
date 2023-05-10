@@ -63,16 +63,16 @@ public class LambdaExpressionTest extends GenerationTest {
         "           withId:(id)b",
         "           withId:(id)c",
         "           withId:(id)d {",
-        "  return JavaLangInteger_valueOfWithInt_(1);",
+        "  return CommonInt_valueOfWithInt_(1);",
         "}");
     String mixedObjectTranslation = translateSourceFile(fourToOneHeader
         + "class Test { FourToOne<String, Double, Integer, Boolean, String> f = "
         + "(a, b, c, d) -> \"1\";}", "Test", "Test.m");
     assertTranslatedLines(mixedObjectTranslation,
         "- (id)applyWithId:(NSString *)a",
-        "           withId:(JavaLangDouble *)b",
-        "           withId:(JavaLangInteger *)c",
-        "           withId:(JavaLangBoolean *)d {",
+        "           withId:(CommonDouble *)b",
+        "           withId:(CommonInt *)c",
+        "           withId:(CommonBoolean *)d {",
         "  return @\"1\";",
         "}");
   }

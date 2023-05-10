@@ -4,8 +4,8 @@ import com.mirego.interop.kotlin.test.objects.ObjectWithMethod;
 
 public class StaticMethodWithStringParamWithAnnotation {
 
-    public static String main(String[] args) {
-        String returnValue = ObjectWithMethod.staticMethodWithStringParamWithAnnotation("stringAsParam");
-        return returnValue;
-    }
+  public static String main(String[] args) {
+    String returnValue = ObjectWithMethod.staticMethodWithStringParamWithAnnotation("stringAsParam");
+    return returnValue;
+  }
 }

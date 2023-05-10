@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: default clean
+.PHONY: default clean_dist
 
 include environment.mk
 
@@ -34,7 +34,10 @@ test: $(TEST_BIN)
 	$< org.junit.runner.JUnitCore $(TEST_CLASSES)
 
 clean:
-	rm -rf $(TESTS_DIR)
+	@rm -rf $(TESTS_DIR)
+
+clean_dist: clean
+	@:
 
 #
 $(TEST_BIN): $(TEST_OBJC_SOURCES) | $(TESTS_DIR)

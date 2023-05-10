@@ -76,7 +76,7 @@ protobuf_dist: protobuf_compiler_dist protobuf_runtime_dist
 all_dist: dist all_frameworks examples_dist
 
 clean:
-	@rm -rf $(BUILD_DIR) $(DIST_DIR)
+	@rm -rf $(BUILD_DIR)
 	@cd annotations && $(MAKE) clean
 	@cd java_deps && $(MAKE) clean
 	@cd translator && $(MAKE) clean
@@ -92,6 +92,24 @@ clean:
 	@cd protobuf/compiler && $(MAKE) clean
 	@cd protobuf/tests && $(MAKE) clean
 	@cd xalan && $(MAKE) clean
+
+clean_dist: clean
+	@rm -rf $(DIST_DIR)
+	@cd annotations && $(MAKE) clean_dist
+	@cd java_deps && $(MAKE) clean_dist
+	@cd translator && $(MAKE) clean_dist
+	@cd jre_emul && $(MAKE) clean_dist
+	@cd junit && $(MAKE) clean_dist
+	@cd jsr305 && $(MAKE) clean_dist
+	@cd inject/javax_inject && $(MAKE) clean_dist
+	@cd guava && $(MAKE) clean_dist
+	@cd testing/mockito && $(MAKE) clean_dist
+	@cd testing/truth && $(MAKE) clean_dist
+	@cd cycle_finder && $(MAKE) clean_dist
+	@cd protobuf/runtime && $(MAKE) clean_dist
+	@cd protobuf/compiler && $(MAKE) clean_dist
+	@cd protobuf/tests && $(MAKE) clean_dist
+	@cd xalan && $(MAKE) clean_dist
 
 test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
@@ -124,7 +142,7 @@ test_all: test test_protobuf
 examples_dist: install_examples
 
 copy_examples:
-	@cp -r examples $(DIST_DIR)
+	@cp -rp examples $(DIST_DIR)
 
 install_examples: copy_examples
 	@sed -i '' 's/\/dist//' $(DIST_DIR)/examples/Hello/config.xcconfig
@@ -147,5 +165,5 @@ print_environment:
 # kotlin interop >>
 intellij: java_deps_dist annotations_dist
 	@cd jre_emul && $(MAKE) -f java.mk emul_jar_dist emul_src_jar_dist
-	$(MAKE) kotlin_interop
+	$(MAKE) kotlin_interop_test_cases
 # kotlin interop <<

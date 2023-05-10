@@ -1,15 +1,18 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
+
+import org.junit.Test;
+
+import java.io.IOException;
+
+import com.mirego.interop.java.test.check.InstanceOfOnAKotlinInterface;
 import com.mirego.interop.java.test.interfaces.WithGenerics;
 import com.mirego.interop.java.test.interfaces.WithInt;
 import com.mirego.interop.java.test.interfaces.WithIntProperty;
 import com.mirego.interop.java.test.interfaces.WithList;
 import com.mirego.interop.java.test.interfaces.WithNullableInt;
-import java.io.IOException;
-
 import com.mirego.interop.java.test.interfaces.WithStringProperty;
-import org.junit.Test;
 
 public class InterfacesTest extends GenerationTest {
 
@@ -34,12 +37,12 @@ public class InterfacesTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "return NSString_java_valueOfInt_([withIntPropertyImplementation getCount]);");
-    assertTranslation(translation,"- (jint)getCount {\n" +
-            "  return 42;\n" +
-            "}");
-    assertTranslation(translation,"- (jint)count {\n" +
-            "  return [self getCount];\n" +
-            "}");
+    assertTranslation(translation, "- (jint)getCount {\n" +
+        "  return 42;\n" +
+        "}");
+    assertTranslation(translation, "- (jint)count {\n" +
+        "  return [self getCount];\n" +
+        "}");
   }
 
   @Test
@@ -50,13 +53,13 @@ public class InterfacesTest extends GenerationTest {
 
     assertTranslation(translation, "return [withStringPropertyImplementation getKey];");
 
-    assertTranslation(translation,"- (NSString *)getKey {\n" +
-            "  return @\"this is the value of my key\";\n" +
-            "}");
+    assertTranslation(translation, "- (NSString *)getKey {\n" +
+        "  return @\"this is the value of my key\";\n" +
+        "}");
 
-    assertTranslation(translation,"- (NSString *)key {\n" +
-            "  return [self getKey];\n" +
-            "}");
+    assertTranslation(translation, "- (NSString *)key {\n" +
+        "  return [self getKey];\n" +
+        "}");
   }
 
   @Test
@@ -65,8 +68,8 @@ public class InterfacesTest extends GenerationTest {
     String className = WithNullableInt.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [withNullableInt convertInputNullableInt:JavaLangInteger_valueOfWithInt_(1)];");
-    assertTranslation(translation, "- (JavaLangInteger *)convertInputNullableInt:(JavaLangInteger *)inputNullableInteger {\n"
+    assertTranslation(translation, "return [withNullableInt convertInputNullableInt:CommonInt_valueOfWithInt_(1)];");
+    assertTranslation(translation, "- (CommonInt *)convertInputNullableInt:(CommonInt *)inputNullableInteger {\n"
         + "  return inputNullableInteger;\n"
         + "}");
   }
@@ -78,7 +81,7 @@ public class InterfacesTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "return [withList convertInputList:JavaUtilArrays_asListWithNSObjectArray_([IOSObjectArray arrayWithObjects:(id[])"
-        + "{ JavaLangInteger_valueOfWithInt_(1) } count:1 type:JavaLangInteger_class_()])];");
+        + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])];");
     assertTranslation(translation, "- (id<JavaUtilList>)convertInputList:(id<JavaUtilList>)inputList {\n"
         + "  return inputList;\n"
         + "}");
@@ -90,9 +93,16 @@ public class InterfacesTest extends GenerationTest {
     String className = WithGenerics.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "convertInput:JavaLangInteger_valueOfWithInt_(5)])) intValue]");
-    assertTranslation(translation, "[process convertWithFunctionGenericOtherInput:JavaLangInteger_valueOfWithInt_(3)])) intValue]");
-    assertTranslation(translation, "[process convertWithAnotherFunctionGenericAnotherInput:JavaLangInteger_valueOfWithInt_(1)])) intValue]");
+    assertTranslation(translation, "convertInput:CommonInt_valueOfWithInt_(5)])) intValue]");
+    assertTranslation(translation, "[process convertWithFunctionGenericOtherInput:CommonInt_valueOfWithInt_(3)])) intValue]");
+    assertTranslation(translation, "[process convertWithAnotherFunctionGenericAnotherInput:CommonInt_valueOfWithInt_(1)])) intValue]");
+  }
+
+  @Test
+  public void testInstanceOfOnAKotlinInterface() throws IOException {
+    String className = InstanceOfOnAKotlinInterface.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, "check/", ".m");
+    assertTranslation(translation, "[(id) anObjectTypedAsAKotlinInterface isKindOfClass:[");
   }
 
 }

@@ -621,6 +621,7 @@ public class ArrayListTest extends junit.framework.TestCase {
     /**
      * {@link java.util.ArrayList#removeRange(int, int)}
      */
+    /* kotlin interop -- Not possible because ArrayList is now a NSMutableArray
     public void test_removeRange() {
         MockArrayList mylist = new MockArrayList();
         mylist.removeRange(0, 0);
@@ -674,6 +675,7 @@ public class ArrayListTest extends junit.framework.TestCase {
             assertNotNull(e.getMessage());
         }
     }
+    */
 
     /**
      * java.util.ArrayList#remove(int)
@@ -986,11 +988,14 @@ public class ArrayListTest extends junit.framework.TestCase {
             return 0;
         }
 
+        /* kotlin interop -- Not possible because ArrayList is now a NSMutableArray
         public void removeRange(int begin, int end) {
             super.removeRange(begin, end);
         }
+        */
     }
 
+    /* kotlin interop -- Not possible because ArrayList is now a NSMutableArray
     public void test_removeRangeII() {
         MockArrayList mal = new MockArrayList();
         mal.add("a");
@@ -1009,6 +1014,7 @@ public class ArrayListTest extends junit.framework.TestCase {
         assertTrue("Removed wrong element 3", Arrays.equals(result,
                 new String[] { "a", "b", "e", "f", "g", "h"}));
     }
+    */
 
     public static class ArrayListExtend extends ArrayList {
 

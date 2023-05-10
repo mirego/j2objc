@@ -1,9 +1,12 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.nullsafety.WithDoubleBangOperator;
-import java.io.IOException;
+
 import org.junit.Test;
+
+import java.io.IOException;
+
+import com.mirego.interop.java.test.nullsafety.WithDoubleBangOperator;
 
 public class NullSafetyTest extends GenerationTest {
 

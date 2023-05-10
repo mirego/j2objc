@@ -22,6 +22,8 @@ import com.google.devtools.j2objc.types.GeneratedArrayType;
 import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
+import com.sun.tools.javac.code.Type;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +77,40 @@ public final class TypeUtil {
       GeneratedTypeElement.newIosInterface("NSFastEnumeration", "");
   public static final TypeElement IOS_OBJECT_ARRAY =
       GeneratedTypeElement.newIosClass("IOSObjectArray", NS_OBJECT, "IOSObjectArray.h");
+  // kotlin interop >>
+  public static final TypeElement COMMON_NUMBER =
+      GeneratedTypeElement.newIosClass("CommonNumber", NS_NUMBER, "J2ObjC_kotlinTypes.h");
+  public static final TypeElement COMMON_BOOLEAN =
+      GeneratedTypeElement.newIosClass("CommonBoolean", NS_NUMBER, "java/lang/Boolean.h");
+  public static final TypeElement COMMON_BYTE =
+      GeneratedTypeElement.newIosClass("CommonByte", NS_NUMBER, "java/lang/Byte.h");
+  public static final TypeElement COMMON_DOUBLE =
+      GeneratedTypeElement.newIosClass("CommonDouble", COMMON_NUMBER, "java/lang/Double.h");
+  public static final TypeElement COMMON_FLOAT =
+      GeneratedTypeElement.newIosClass("CommonFloat", COMMON_NUMBER, "java/lang/Float.h");
+  public static final TypeElement COMMON_INT =
+      GeneratedTypeElement.newIosClass("CommonInt", COMMON_NUMBER, "java/lang/Integer.h");
+  public static final TypeElement COMMON_LONG =
+      GeneratedTypeElement.newIosClass("CommonLong", COMMON_NUMBER, "java/lang/Long.h");
+  public static final TypeElement COMMON_SHORT =
+      GeneratedTypeElement.newIosClass("CommonShort", COMMON_NUMBER, "java/lang/Short.h");
+  public static final TypeElement NS_ARRAY =
+      GeneratedTypeElement.newIosClass("NSArray", NS_OBJECT, "");
+  public static final TypeElement NS_MUTABLE_ARRAY =
+      GeneratedTypeElement.newIosClass("NSMutableArray", NS_ARRAY, "java/util/ArrayList.h");
+  public static final TypeElement NS_SET =
+      GeneratedTypeElement.newIosClass("NSSet", NS_OBJECT, "");
+  public static final TypeElement NS_MUTABLE_SET =
+      GeneratedTypeElement.newIosClass("NSMutableSet", NS_SET, "");
+  public static final TypeElement COMMON_MUTABLE_SET =
+      GeneratedTypeElement.newIosClass("CommonMutableSet", NS_MUTABLE_SET, "java/util/HashSet.h");
+  public static final TypeElement NS_DICTIONARY =
+      GeneratedTypeElement.newIosClass("NSDictionary", NS_OBJECT, "");
+  public static final TypeElement NS_MUTABLE_DICTIONARY =
+      GeneratedTypeElement.newIosClass("NSMutableDictionary", NS_DICTIONARY, "");
+  public static final TypeElement COMMON_MUTABLE_DICTIONARY =
+      GeneratedTypeElement.newIosClass("CommonMutableDictionary", NS_MUTABLE_DICTIONARY, "java/util/HashMap.h");
+  // kotlin interop <<
   public static final TypeMirror NATIVE_CHAR_PTR = new NativeType("char *");
   private static final Map<TypeKind, TypeElement> PRIMITIVE_IOS_ARRAYS;
 
@@ -102,6 +138,24 @@ public final class TypeUtil {
   private final TypeElement javaNumber;
   private final TypeElement javaThrowable;
 
+  // kotlin interop >>
+  private final TypeElement javaBoolean;
+  private final TypeElement javaByte;
+  private final TypeElement javaDouble;
+  private final TypeElement javaInteger;
+  private final TypeElement javaFloat;
+  private final TypeElement javaLong;
+  private final TypeElement javaShort;
+  private final TypeElement javaList;
+  private final TypeElement javaArrayList;
+  private final TypeElement javaSet;
+  private final TypeElement javaHashSet;
+  private final TypeElement javaLinkedHashSet;
+  private final TypeElement javaMap;
+  private final TypeElement javaHashMap;
+  private final TypeElement javaLinkedHashMap;
+  // kotlin interop <<
+
   private final Map<TypeElement, TypeElement> javaToObjcTypeMap;
 
   private static final Joiner INNER_CLASS_JOINER = Joiner.on('$');
@@ -116,6 +170,25 @@ public final class TypeUtil {
     javaClass = javacElements.getTypeElement("java.lang.Class");
     javaNumber = javacElements.getTypeElement("java.lang.Number");
     javaThrowable = javacElements.getTypeElement("java.lang.Throwable");
+
+    // kotlin interop >>
+    javaList = javacElements.getTypeElement("java.util.List");
+    javaArrayList = javacElements.getTypeElement("java.util.ArrayList");
+    javaSet = javacElements.getTypeElement("java.util.Set");
+    javaHashSet = javacElements.getTypeElement("java.util.HashSet");
+    javaLinkedHashSet = javacElements.getTypeElement("java.util.LinkedHashSet");
+    javaMap = javacElements.getTypeElement("java.util.Map");
+    javaHashMap = javacElements.getTypeElement("java.util.HashMap");
+    javaLinkedHashMap = javacElements.getTypeElement("java.util.LinkedHashMap");
+    javaBoolean = javacElements.getTypeElement("java.lang.Boolean");
+    javaByte = javacElements.getTypeElement("java.lang.Byte");
+    javaDouble = javacElements.getTypeElement("java.lang.Double");
+    javaFloat = javacElements.getTypeElement("java.lang.Float");
+    javaInteger = javacElements.getTypeElement("java.lang.Integer");
+    javaLong = javacElements.getTypeElement("java.lang.Long");
+    javaShort = javacElements.getTypeElement("java.lang.Short");
+    // kotlin interop <<
+
     TypeElement javaCloneable = javacElements.getTypeElement("java.lang.Cloneable");
 
     ImmutableMap.Builder<TypeElement, TypeElement> typeMapBuilder =
@@ -138,6 +211,21 @@ public final class TypeUtil {
       typeMapBuilder.put(typeNSFastEnumeration, NS_FASTENUMERATION);
     }
 
+    // kotlin interop >>
+    typeMapBuilder.put(javaArrayList, NS_MUTABLE_ARRAY);
+    typeMapBuilder.put(javaHashMap, COMMON_MUTABLE_DICTIONARY);
+    typeMapBuilder.put(javaHashSet, COMMON_MUTABLE_SET);
+    typeMapBuilder.put(javaLinkedHashMap, COMMON_MUTABLE_DICTIONARY);
+    typeMapBuilder.put(javaLinkedHashSet, COMMON_MUTABLE_SET);
+    typeMapBuilder.put(javaBoolean, COMMON_BOOLEAN);
+    typeMapBuilder.put(javaByte, COMMON_BYTE);
+    typeMapBuilder.put(javaDouble, COMMON_DOUBLE);
+    typeMapBuilder.put(javaFloat, COMMON_FLOAT);
+    typeMapBuilder.put(javaInteger, COMMON_INT);
+    typeMapBuilder.put(javaLong, COMMON_LONG);
+    typeMapBuilder.put(javaShort, COMMON_SHORT);
+    // kotlin interop <<
+
     javaToObjcTypeMap = typeMapBuilder.buildOrThrow();
   }
 
@@ -148,6 +236,12 @@ public final class TypeUtil {
   public TypeElement resolveJavaType(String qualifiedName) {
     return javacElements.getTypeElement(qualifiedName);
   }
+
+  // kotlin interop >>
+  public TypeElement resolveJavaClass(Class javaClass) {
+    return javacElements.getTypeElement(javaClass.getCanonicalName());
+  }
+  // kotlin interop <<
 
   public static boolean isDeclaredType(TypeMirror t) {
     return t.getKind() == TypeKind.DECLARED;
@@ -179,6 +273,12 @@ public final class TypeUtil {
     return t.getKind() == TypeKind.BOOLEAN;
   }
 
+  // kotlin interop >>
+  public static boolean isByte(TypeMirror t) {
+    return t.getKind() == TypeKind.BYTE;
+  }
+  // kotlin interop <<
+
   public static boolean isVoid(TypeMirror t) {
     return t.getKind() == TypeKind.VOID;
   }
@@ -195,6 +295,35 @@ public final class TypeUtil {
   public static boolean isArray(TypeMirror t) {
     return t.getKind() == TypeKind.ARRAY;
   }
+
+  // kotlin interop >>
+  public static boolean isCollection(TypeMirror t) {
+    return isDeclaredType(t) && getQualifiedName(t).equals("java.util.Collection");
+  }
+
+  public static boolean isList(TypeMirror t) {
+    return isDeclaredType(t) && getQualifiedName(t).equals("java.util.List");
+  }
+
+  public static boolean isSet(TypeMirror t) {
+    return isDeclaredType(t) && getQualifiedName(t).equals("java.util.Set");
+  }
+
+  public static boolean isMap(TypeMirror t) {
+    return isDeclaredType(t) && getQualifiedName(t).equals("java.util.Map");
+  }
+
+  public static boolean isCollectionSubtype(TypeMirror t) {
+    return isCollection(t)
+        || isList(t)
+        || isSet(t)
+        || isMap(t);
+  }
+
+  public static boolean isCollectionLike(TypeMirror t) {
+      return isCollectionSubtype(t) || isArray(t);
+  }
+  // kotlin interop <<
 
   public static boolean isFloatingPoint(TypeMirror t) {
     TypeKind kind = t.getKind();
@@ -251,6 +380,12 @@ public final class TypeUtil {
     }
     return dimCount;
   }
+
+  // kotlin interop >>
+  public Elements elements() {
+      return javacElements;
+  }
+  // kotlin interop <<
 
   public ExecutableType asMemberOf(DeclaredType containing, ExecutableElement method) {
     return (ExecutableType) javacTypes.asMemberOf(containing, method);
@@ -370,7 +505,16 @@ public final class TypeUtil {
   }
 
   public TypeMirror erasure(TypeMirror t) {
-    return javacTypes.erasure(t);
+    // kotlin interop >>
+    TypeMirror adjustedType;
+    if (t instanceof Type) {
+      adjustedType = javacTypes.erasure(t);
+    } else {
+      adjustedType = t;
+    }
+
+    return adjustedType;
+    // kotlin interop <<
   }
 
   public ArrayType getArrayType(TypeMirror componentType) {
@@ -420,6 +564,59 @@ public final class TypeUtil {
     return javaThrowable;
   }
 
+  // kotlin interop >>
+
+  public TypeElement getJavaBoolean() {
+    return javaBoolean;
+  }
+  public TypeElement getJavaByte() {
+    return javaByte;
+  }
+  public TypeElement getJavaDouble() {
+    return javaDouble;
+  }
+  public TypeElement getJavaFloat() {
+    return javaFloat;
+  }
+  public TypeElement getJavaInteger() {
+    return javaInteger;
+  }
+  public TypeElement getJavaLong() {
+    return javaLong;
+  }
+  public TypeElement getJavaShort() {
+    return javaShort;
+  }
+
+  public TypeElement getJavaList() {
+    return javaList;
+  }
+  public TypeElement getJavaArrayList() {
+    return javaArrayList;
+  }
+
+  public TypeElement getJavaSet() {
+    return javaSet;
+  }
+  public TypeElement getJavaHashSet() {
+    return javaHashSet;
+  }
+  public TypeElement getJavaLinkedHashSet() {
+    return javaLinkedHashSet;
+  }
+
+  public TypeElement getJavaMap() {
+    return javaMap;
+  }
+  public TypeElement getJavaHashMap() {
+    return javaHashMap;
+  }
+  public TypeElement getJavaLinkedHashMap() {
+    return javaLinkedHashMap;
+  }
+
+  // kotlin interop <<
+
   public boolean isString(TypeElement e) {
     return javaString.equals(e) || NS_STRING.equals(e);
   }
@@ -435,6 +632,42 @@ public final class TypeUtil {
   public boolean isClassType(TypeMirror t) {
     return isClassType(asTypeElement(t));
   }
+
+  // kotlin interop >>
+
+  public boolean isArrayList(TypeElement e) {
+    return javaArrayList.equals(e)
+      || NS_ARRAY.equals(e)
+      || NS_MUTABLE_ARRAY.equals(e);
+  }
+
+  public boolean isArrayList(TypeMirror t) {
+    return isArrayList(asTypeElement(t));
+  }
+
+  public boolean isHashSet(TypeElement e) {
+    return javaSet.equals(e)
+      || NS_SET.equals(e)
+      || NS_MUTABLE_SET.equals(e)
+      || COMMON_MUTABLE_SET.equals(e);
+  }
+
+  public boolean isHashSet(TypeMirror t) {
+    return isHashSet(asTypeElement(t));
+  }
+
+  public boolean isHashMap(TypeElement e) {
+    return javaMap.equals(e)
+      || NS_DICTIONARY.equals(e)
+      || NS_MUTABLE_DICTIONARY.equals(e)
+      || COMMON_MUTABLE_DICTIONARY.equals(e);
+  }
+
+  public boolean isHashMap(TypeMirror t) {
+    return isHashMap(asTypeElement(t));
+  }
+
+  // kotlin interop <<
 
   /**
    * Maps the given type to it's Objective-C equivalent. Array types are mapped to their equivalent

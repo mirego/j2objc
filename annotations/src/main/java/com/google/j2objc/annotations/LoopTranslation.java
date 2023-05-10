@@ -35,9 +35,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface LoopTranslation {
 
+  // kotlin interop - Inverted default
   /**
    * Enumerates the available translation options for enhanced for loops.
-   * FAST_ENUMERATION is the default style emitted by the translator.
+   * JAVA_ITERATOR is the default style emitted by the translator.
    */
   enum LoopStyle {
     /*

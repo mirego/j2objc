@@ -894,12 +894,12 @@ public class ObjectiveCImplementationGeneratorTest extends GenerationTest {
   }
 
   public void testForwardDeclarationForPrivateAbstractDeclaration() throws IOException {
-    // We need a forward declaration of JavaLangInteger for the type narrowing declaration of get()
+    // We need a forward declaration of CommonInt for the type narrowing declaration of get()
     // in the private class B.
     String translation = translateSourceFile(
         "class Test { static class A <T> { T get() { return null; } }"
         + "private static class B extends A<Integer> { } }", "Test", "Test.m");
-    assertTranslation(translation, "@class JavaLangInteger;");
+    assertTranslation(translation, "@class CommonInt;");
   }
 
   public void testNameMappingStripped() throws IOException {

@@ -91,14 +91,14 @@ extern int getDefaultScopeID(JNIEnv *env);
  * Returns a java.lang.Integer based on 'i'
  */
 static jobject createInteger(JNIEnv *env, int i) {
-    return create_JavaLangInteger_initWithInt_(i);
+    return create_CommonInt_initWithInt_(i);
 }
 
 /*
  * Returns a java.lang.Boolean based on 'b'
  */
 static jobject createBoolean(JNIEnv *env, int b) {
-    return JavaLangBoolean_valueOfWithBoolean_(b != 0);
+    return CommonBoolean_valueOfWithBoolean_(b != 0);
 }
 
 
@@ -1203,7 +1203,7 @@ static void setMulticastInterface(JNIEnv *env, jobject this, int fd,
       /*
          * value is a Integer (Android-changed, openJdk uses NetworkInterface)
          */
-        int index = [((JavaLangInteger *)value) intValue];
+        int index = [((CommonInt *)value) intValue];
 
         // Android-changed: Return early if mcast_set_if_by_addr_v4 threw.
         // We don't want to call into the IPV6 code with a pending exception.
@@ -1223,7 +1223,7 @@ static void mcast_set_loop_v4(JNIEnv *env, jobject this, int fd, jobject value) 
     jboolean on;
     char loopback;
 
-    on = [((JavaLangBoolean *)value) booleanValue];
+    on = [((CommonBoolean *)value) booleanValue];
     loopback = (!on ? 1 : 0);
 
     if (NET_SetSockOpt(fd, IPPROTO_IP, IP_MULTICAST_LOOP, (const void *)&loopback, sizeof(char)) < 0) {
@@ -1240,7 +1240,7 @@ static void mcast_set_loop_v6(JNIEnv *env, jobject this, int fd, jobject value) 
     jboolean on;
     int loopback;
 
-    on = [((JavaLangBoolean *)value) booleanValue];
+    on = [((CommonBoolean *)value) booleanValue];
     loopback = (!on ? 1 : 0);
 
     if (NET_SetSockOpt(fd, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, (const void *)&loopback, sizeof(int)) < 0) {
@@ -1340,7 +1340,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_socketSetOption(JNI
         case java_net_SocketOptions_SO_RCVBUF :
         case java_net_SocketOptions_IP_TOS :
             {
-                optval.i = [((JavaLangInteger *)value) intValue];
+                optval.i = [((CommonInt *)value) intValue];
                 optlen = sizeof(optval.i);
                 break;
             }
@@ -1349,7 +1349,7 @@ JNIEXPORT void JNICALL Java_java_net_PlainDatagramSocketImpl_socketSetOption(JNI
         case java_net_SocketOptions_SO_BROADCAST:
             {
                 jboolean on;
-                on = [((JavaLangBoolean *)value) booleanValue];
+                on = [((CommonBoolean *)value) booleanValue];
 
                 /* SO_REUSEADDR or SO_BROADCAST */
                 optval.i = (on ? 1 : 0);

@@ -1,6 +1,11 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
+
+import org.junit.Test;
+
+import java.io.IOException;
+
 import com.mirego.interop.java.test.function.PublicExtensionFunction;
 import com.mirego.interop.java.test.function.PublicFunctionReturningBoolean;
 import com.mirego.interop.java.test.function.PublicFunctionReturningCharacter;
@@ -12,14 +17,14 @@ import com.mirego.interop.java.test.function.PublicFunctionReturningPrimitive;
 import com.mirego.interop.java.test.function.PublicFunctionReturningShort;
 import com.mirego.interop.java.test.function.PublicFunctionReturningString;
 import com.mirego.interop.java.test.function.PublicFunctionReturningUnit;
+import com.mirego.interop.java.test.function.PublicFunctionUsingKotlinTypeAsParameter;
 import com.mirego.interop.java.test.function.PublicInnerClassFunction;
 import com.mirego.interop.java.test.function.PublicLocalFunction;
 import com.mirego.interop.java.test.function.PublicOverloadedFunction;
 import com.mirego.interop.java.test.function.PublicRecursiveFunction;
 import com.mirego.interop.java.test.function.PublicSingleExpressionFunction;
 import com.mirego.interop.java.test.function.PublicTailRecursiveFunction;
-import java.io.IOException;
-import org.junit.Test;
+import com.mirego.interop.java.test.function.UsingKotlinTopLevelFunction;
 
 public class FunctionTest extends GenerationTest {
 
@@ -41,7 +46,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "return JavaLangBoolean_valueOfWithBoolean_([classWithPublicFunctions returnBoolean])");
+        "return CommonBoolean_valueOfWithBoolean_([classWithPublicFunctions returnBoolean])");
   }
 
   @Test
@@ -61,7 +66,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "return JavaLangDouble_valueOfWithDouble_([classWithPublicFunctions returnDouble])");
+        "return CommonDouble_valueOfWithDouble_([classWithPublicFunctions returnDouble])");
   }
 
   @Test
@@ -71,7 +76,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "return JavaLangFloat_valueOfWithFloat_([classWithPublicFunctions returnFloat])");
+        "return CommonFloat_valueOfWithFloat_([classWithPublicFunctions returnFloat])");
   }
 
   @Test
@@ -81,7 +86,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "return JavaLangInteger_valueOfWithInt_([classWithPublicFunctions returnInt])");
+        "return CommonInt_valueOfWithInt_([classWithPublicFunctions returnInt])");
   }
 
   @Test
@@ -91,7 +96,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "return JavaLangLong_valueOfWithLong_([classWithPublicFunctions returnLong])");
+        "return CommonLong_valueOfWithLong_([classWithPublicFunctions returnLong])");
   }
 
   @Test
@@ -110,7 +115,7 @@ public class FunctionTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation,
-        "JavaLangShort_valueOfWithShort_([classWithPublicFunctions returnShort])");
+        "CommonShort_valueOfWithShort_([classWithPublicFunctions returnShort])");
   }
 
   @Test
@@ -128,7 +133,7 @@ public class FunctionTest extends GenerationTest {
     String className = PublicFunctionReturningUnit.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[classWithPublicFunctionReturningUnit returnUnit]");
+    assertTranslation(translation, "[classWithPublicFunction returnUnit]");
   }
 
   // todo default parameter not working ... try @JvmOverloads ?
@@ -147,7 +152,16 @@ public class FunctionTest extends GenerationTest {
     String className = PublicInnerClassFunction.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return JavaLangInteger_valueOfWithInt_([classWithPublicFunctions innerClassFunctionNumber1:1 number2:2]);");
+    assertTranslation(translation, "return CommonInt_valueOfWithInt_([classWithPublicFunctions innerClassFunctionNumber1:1 number2:2]);");
+  }
+
+  @Test
+  public void testTopLevelFunction() throws IOException {
+
+    String className = UsingKotlinTopLevelFunction.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return [CommonKotlinFileWithTopLevelFunctionKt aTopLevelFunctionParam1:@\"hello\"];");
   }
 
   // todo lambda is a property getter not working properly
@@ -184,7 +198,7 @@ public class FunctionTest extends GenerationTest {
     String className = PublicRecursiveFunction.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return JavaLangLong_valueOfWithLong_([classWithPublicFunctions recursiveFunctionNumber:4]);");
+    assertTranslation(translation, "return CommonLong_valueOfWithLong_([classWithPublicFunctions recursiveFunctionNumber:4]);");
   }
 
   @Test
@@ -212,7 +226,7 @@ public class FunctionTest extends GenerationTest {
     String className = PublicTailRecursiveFunction.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return JavaLangLong_valueOfWithLong_([classWithPublicFunctions tailRecursiveFunctionN:4 accum:1]);");
+    assertTranslation(translation, "return CommonLong_valueOfWithLong_([classWithPublicFunctions tailRecursiveFunctionN:4 accum:1]);");
   }
 
   // todo param names
@@ -224,4 +238,25 @@ public class FunctionTest extends GenerationTest {
 //
 //    assertTranslation(translation, "xxxxxx");
 //  }
+
+  @Test
+  public void testFunctionHavingAKotlinTypeAsParameter_TheKotlinTypeInMethodNameDoesNotIncludeCommon() throws IOException {
+    String className = PublicFunctionUsingKotlinTypeAsParameter.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "" +
+        "- (instancetype)initWithClassWithPublicFunctions:(CommonClassWithPublicFunctions *)constructorParam {");
+
+    assertTranslation(translation, "" +
+        "- (instancetype)initWithClassWithPublicFunctions:(CommonClassWithPublicFunctions *)constructorParam1\n" +
+        "                            withInterfaceWithInt:(id<CommonInterfaceWithInt>)constructorParam2 {\n");
+
+    assertTranslation(translation, "" +
+        "- (void)aMethodUsingASingleTypeKotlinWithClassWithPublicFunctions:(CommonClassWithPublicFunctions *)param {");
+
+    assertTranslation(translation, "" +
+        "- (void)aMethodUsingManyTypeKotlinWithClassWithPublicFunctions:(CommonClassWithPublicFunctions *)param1\n" +
+        "                                          withInterfaceWithInt:(id<CommonInterfaceWithInt>)param2 {");
+  }
+
 }

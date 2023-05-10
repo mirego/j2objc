@@ -209,10 +209,14 @@ public class Collections {
         } else {
             // Compatibility behavior for API <= 25. http://b/33482884
          */
+            // kotlin interop >>
+            /* J2ObjC removed.
             if (list.getClass() == ArrayList.class) {
                 Arrays.sort((T[]) ((ArrayList) list).elementData, 0, list.size(), c);
                 return;
             }
+            */
+            // kotlin interop <<
 
             Object[] a = list.toArray();
             Arrays.sort(a, (Comparator) c);

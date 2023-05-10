@@ -40,7 +40,7 @@
 
 - (void)testGetClass {
   // Test with class.
-  JavaUtilArrayList *one = AUTORELEASE([[JavaUtilArrayList alloc] init]);
+  NSMutableArray *one = AUTORELEASE([[NSMutableArray alloc] init]);
   IOSClass *clazz = [one java_getClass];
   jboolean result =
       ComGoogleJ2objcUtilReflectionUtil_matchClassNamePrefixWithNSString_withNSString_(
@@ -48,7 +48,7 @@
   XCTAssertTrue(result, @"incorrect class name");
 
   // Now with a protocol.
-  id<JavaUtilList> two = AUTORELEASE([[JavaUtilArrayList alloc] init]);
+  NSMutableArray *two = AUTORELEASE([[NSMutableArray alloc] init]);
   clazz = [(id<JavaObject>) two java_getClass];
   result =
       ComGoogleJ2objcUtilReflectionUtil_matchClassNamePrefixWithNSString_withNSString_(

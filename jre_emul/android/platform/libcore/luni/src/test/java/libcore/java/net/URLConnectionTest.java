@@ -496,7 +496,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
         // j2objc: URLConnection does not time out by default (i.e. getReadTimeout() returns 0).
         // When we create the native NSMutableURLRequest, we set its timeoutInterval to
-        // JavaLangDouble_MAX_VALUE to make it never time out. This is problematic if the request
+        // CommonDouble_MAX_VALUE to make it never time out. This is problematic if the request
         // uses chunked transfer encoding, as it causes the NSURLSessionDataTask to send malformed
         // chunks and never terminate the request. A definite timeout is therefore needed here.
         conn.setReadTimeout(1000);
@@ -1198,7 +1198,7 @@ public final class URLConnectionTest extends AbstractResourceLeakageDetectorTest
 
         // j2objc: URLConnection does not time out by default (i.e. getReadTimeout() returns 0).
         // When we create the native NSMutableURLRequest, we set its timeoutInterval to
-        // JavaLangDouble_MAX_VALUE to make it never time out. This is problematic if the response
+        // CommonDouble_MAX_VALUE to make it never time out. This is problematic if the response
         // uses chunked transfer encoding, as the NSURLSessionDataTask is unable to make progress
         // and the read will never finish. A definite timeout is therefore needed here.
         connection.setReadTimeout(1000);

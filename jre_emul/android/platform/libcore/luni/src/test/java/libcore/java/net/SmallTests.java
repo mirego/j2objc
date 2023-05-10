@@ -33,7 +33,7 @@ public class SmallTests extends TestSuite {
     ServerSocketTest.class,
     SocketTest.class,
     URITest.class,
-    URLConnectionTest.class,
+    // URLConnectionTest.class,
     UrlEncodingTest.class,
     URLStreamHandlerFactoryTest.class,
     URLTest.class

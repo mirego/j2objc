@@ -23,6 +23,15 @@ clean_jre:
 clean_android:
 	@$(MAKE) -C android -f android.mk clean
 
+clean_dist: clean clean_dist_jre clean_dist_android
+	@:
+
+clean_dist_jre: clean_jre
+	@$(MAKE) -f jre.mk clean_dist
+
+clean_dist_android: clean_android
+	@$(MAKE) -C android -f android.mk clean_dist
+
 dist: framework
 
 lib: dist_jre dist_android

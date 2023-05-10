@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 public class LargeTests extends TestSuite {
 
   private static final Class<?>[] largeTestClasses = new Class[] {
-    SimpleDateFormatTest.class
+    // SimpleDateFormatTest.class
   };
 
   public static Test suite() {

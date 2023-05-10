@@ -4,8 +4,8 @@ import com.mirego.interop.kotlin.test.enums.EnumWithProperty;
 
 public class EnumWithPropertyWithFunction {
 
-    public static String main(String[] args) {
-        EnumWithProperty enumWithProperty = EnumWithProperty.ENUMVALUE1;
-        return enumWithProperty.testFun();
-    }
+  public static String main(String[] args) {
+    EnumWithProperty enumWithProperty = EnumWithProperty.ENUMVALUE1;
+    return enumWithProperty.testFun();
+  }
 }

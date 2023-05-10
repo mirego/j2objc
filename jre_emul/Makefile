@@ -16,7 +16,7 @@
 #
 # Author: Tom Ball
 
-.PHONY: default clean
+.PHONY: default clean_dist
 
 include environment.mk
 include jre_sources.mk
@@ -183,12 +183,16 @@ test: libs_dist $(DIST_DIR)/j2objcc
 
 clean:
 	@rm -rf $(BUILD_DIR) $(GEN_OBJC_DIR)
+	@$(MAKE) -f java.mk clean
+	@$(MAKE) -f subset_frameworks/json_framework.mk clean
+
+clean_dist: clean
 	@rm -f $(DIST_DIR)/j2objcc $(DIST_LIBS) $(MAIN_LIB_DIST)
 	@rm -f $(DIST_INCLUDES)
 	@rm -f $(JRE_EMUL_LICENSES)
 	@rm -rf $(FRAMEWORK_DIR)
-	@$(MAKE) -f java.mk clean
-	@$(MAKE) -f subset_frameworks/json_framework.mk clean
+	@$(MAKE) -f java.mk clean_dist
+	@$(MAKE) -f subset_frameworks/json_framework.mk clean_dist
 
 dist: framework
 

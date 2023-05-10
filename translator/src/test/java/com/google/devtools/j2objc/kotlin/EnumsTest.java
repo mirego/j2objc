@@ -1,95 +1,102 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.enums.*;
 
 import org.junit.Test;
 
 import java.io.IOException;
 
+import com.mirego.interop.java.test.enums.EnumWithPropertyAccessProperty;
+import com.mirego.interop.java.test.enums.EnumWithPropertyWithFunction;
+import com.mirego.interop.java.test.enums.SimpleEnumAccessValue1;
+import com.mirego.interop.java.test.enums.SimpleEnumAccessValue2;
+import com.mirego.interop.java.test.enums.SimpleEnumAccessValue3;
+import com.mirego.interop.java.test.enums.SimpleEnumOrdinal;
+import com.mirego.interop.java.test.enums.SimpleEnumSwitchCase;
+import com.mirego.interop.java.test.enums.SimpleEnumValues;
+
 public class EnumsTest extends GenerationTest {
 
-    final private static String testPackage = "enums/";
+  final private static String testPackage = "enums/";
 
-    @Test
-    public void testSimpleEnumAccessValue1() throws IOException {
+  @Test
+  public void testSimpleEnumAccessValue1() throws IOException {
 
-        String className = SimpleEnumAccessValue1.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumAccessValue1.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) description];");
-    }
+    assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) description];");
+  }
 
-    @Test
-    public void testSimpleEnumAccessValue2() throws IOException {
+  @Test
+  public void testSimpleEnumAccessValue2() throws IOException {
 
-        String className = SimpleEnumAccessValue2.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumAccessValue2.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue2)) description];");
-    }
+    assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue2)) description];");
+  }
 
-    @Test
-    public void testSimpleEnumAccessValue3() throws IOException {
+  @Test
+  public void testSimpleEnumAccessValue3() throws IOException {
 
-        String className = SimpleEnumAccessValue3.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumAccessValue3.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue3)) description];");
-    }
+    assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue3)) description];");
+  }
 
-    @Test
-    public void testSimpleEnumValues() throws IOException {
+  @Test
+  public void testSimpleEnumValues() throws IOException {
 
-        String className = SimpleEnumValues.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumValues.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "toIOSObjectArray([CommonSimpleEnum values])");
-    }
+    assertTranslation(translation, "toIOSObjectArray([CommonSimpleEnum values])");
+  }
 
-    @Test
-    public void testSimpleEnumOrdinal() throws IOException {
+  @Test
+  public void testSimpleEnumOrdinal() throws IOException {
 
-        String className = SimpleEnumOrdinal.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumOrdinal.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) ordinal];");
-    }
+    assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) ordinal];");
+  }
 
-    @Test
-    public void testSimpleEnumSwitchCase() throws IOException {
+  @Test
+  public void testSimpleEnumSwitchCase() throws IOException {
 
-        String className = SimpleEnumSwitchCase.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = SimpleEnumSwitchCase.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "switch ([testEnum ordinal]) {\n" +
-                "    case 0: // ENUMVALUE1\n" +
-                "    return 1;\n" +
-                "    case 1: // ENUM_VALUE2\n" +
-                "    return 2;\n" +
-                "    case 2: // ENUM_VALUE_3\n" +
-                "    return 3;\n" +
-                "    default:\n" +
-                "    return 4;\n" +
-                "  }");
-    }
+    assertTranslation(translation, "switch ([testEnum ordinal]) {\n" +
+        "    case 0: // ENUMVALUE1\n" +
+        "    return 1;\n" +
+        "    case 1: // ENUM_VALUE2\n" +
+        "    return 2;\n" +
+        "    case 2: // ENUM_VALUE_3\n" +
+        "    return 3;\n" +
+        "    default:\n" +
+        "    return 4;\n" +
+        "  }");
+  }
 
-    @Test
-    public void testEnumWithPropertyAccessProperty() throws IOException {
+  @Test
+  public void testEnumWithPropertyAccessProperty() throws IOException {
 
-        String className = EnumWithPropertyAccessProperty.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    String className = EnumWithPropertyAccessProperty.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        assertTranslation(translation, "((CommonEnumWithProperty *) nil_chk(enumWithProperty)).content");
-    }
+    assertTranslation(translation, "((CommonEnumWithProperty *) nil_chk(enumWithProperty)).content");
+  }
 
+  @Test
+  public void testEnumWithPropertyWithFunction() throws IOException {
 
-    @Test
-    public void testEnumWithPropertyWithFunction() throws IOException {
+    String className = EnumWithPropertyWithFunction.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-        String className = EnumWithPropertyWithFunction.class.getSimpleName();
-        String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-
-        assertTranslation(translation, "[((CommonEnumWithProperty *) nil_chk(enumWithProperty)) testFun]");
-    }
+    assertTranslation(translation, "[((CommonEnumWithProperty *) nil_chk(enumWithProperty)) testFun]");
+  }
 }

@@ -91,13 +91,19 @@ public class GeneratedExecutableElement extends GeneratedElement implements Exec
         method.isVarArgs(), ElementUtil.isSynthetic(method));
   }
 
+  // kotlin interop >>
   public static GeneratedExecutableElement mutableCopy(String selector, ExecutableElement method) {
+    return mutableCopy(selector, method, method.getReturnType());
+  }
+  // kotlin interop <<
+
+  public static GeneratedExecutableElement mutableCopy(String selector, ExecutableElement method, TypeMirror returnType) {
     GeneratedExecutableElement generatedMethod =
         new GeneratedExecutableElement(
             method.getSimpleName().toString(),
             selector,
             method.getKind(),
-            method.getReturnType(),
+            returnType, // kotlin interop
             method.getEnclosingElement(),
             method.isVarArgs(),
             ElementUtil.isSynthetic(method));

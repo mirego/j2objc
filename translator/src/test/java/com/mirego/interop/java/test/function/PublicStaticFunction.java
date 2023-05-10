@@ -4,8 +4,8 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicStaticFunction {
 
-    public static String main(String[] args) {
+  public static String main(String[] args) {
 
-        return ClassWithPublicFunctions.Companion.staticReturnString();
-    }
+    return ClassWithPublicFunctions.Companion.staticReturnString();
+  }
 }

@@ -81,7 +81,10 @@ test: $(FAT_LIBS)
 	@$(MAKE) -f tests.mk test
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST) $(ARCH_INCLUDE_DIR)/com/google/common $(DIST_JAR)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST) $(DIST_JAR) $(ARCH_INCLUDE_DIR)/com/google/common
 	@rm -rf $(XALAN_LICENSE_DIST)
 	@rm -rf $(FRAMEWORK_DIR)
 

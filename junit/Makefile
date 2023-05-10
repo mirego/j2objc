@@ -104,7 +104,10 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST) $(JUNIT_LICENSE_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST) $(JUNIT_LICENSE_DIST)
 	@rm -rf $(ARCH_INCLUDE_DIR)/junit $(ARCH_INCLUDE_DIR)/org/junit
 	@rm -rf $(FRAMEWORK_DIR)
 

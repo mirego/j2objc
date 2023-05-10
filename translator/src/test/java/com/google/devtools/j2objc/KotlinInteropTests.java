@@ -9,6 +9,8 @@ import com.google.devtools.j2objc.kotlin.FunctionTest;
 import com.google.devtools.j2objc.kotlin.InterfacesTest;
 import com.google.devtools.j2objc.kotlin.ObjectsTest;
 import com.google.devtools.j2objc.kotlin.PropertyTest;
+import com.google.devtools.j2objc.kotlin.ShellMethodTests;
+import com.google.devtools.j2objc.kotlin.check.InstanceOfKotlinClassCheckTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -19,17 +21,18 @@ import junit.framework.TestSuite;
 public class KotlinInteropTests {
 
   private static final Class<?>[] kotlinInteropClasses =
-      new Class<?>[] {
-              ConstructorTest.class,
-              InterfacesTest.class,
-              FunctionTest.class,
-              InterfacesTest.class,
-              ObjectsTest.class,
-              PropertyTest.class,
-              DataClassTest.class,
-              EnumsTest.class,
+      new Class<?>[]{
+          ConstructorTest.class,
+          InterfacesTest.class,
+          FunctionTest.class,
+          InterfacesTest.class,
+          ObjectsTest.class,
+          PropertyTest.class,
+          DataClassTest.class,
+          EnumsTest.class,
+          ShellMethodTests.class,
+          InstanceOfKotlinClassCheckTest.class,
       };
-
 
   public static Test suite() {
     return new TestSuite(kotlinInteropClasses);

@@ -138,28 +138,28 @@ static jboolean arrayMemberEquals(IOSClass *componentType, id o1, id o2) {
   if ([componentType isAnnotation]) {
     return annotationArrayMemberEquals(o1, o2);
   }
-  if ([componentType isEqual:JavaLangByte_get_TYPE()]) {
+  if ([componentType isEqual:CommonByte_get_TYPE()]) {
     return JavaUtilArrays_equalsWithByteArray_withByteArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangShort_get_TYPE()]) {
+  if ([componentType isEqual:CommonShort_get_TYPE()]) {
     return JavaUtilArrays_equalsWithShortArray_withShortArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangInteger_get_TYPE()]) {
+  if ([componentType isEqual:CommonInt_get_TYPE()]) {
     return JavaUtilArrays_equalsWithIntArray_withIntArray_(o1, o2);
   }
   if ([componentType isEqual:JavaLangCharacter_get_TYPE()]) {
     return JavaUtilArrays_equalsWithCharArray_withCharArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangLong_get_TYPE()]) {
+  if ([componentType isEqual:CommonLong_get_TYPE()]) {
     return JavaUtilArrays_equalsWithLongArray_withLongArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangFloat_get_TYPE()]) {
+  if ([componentType isEqual:CommonFloat_get_TYPE()]) {
     return JavaUtilArrays_equalsWithFloatArray_withFloatArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangDouble_get_TYPE()]) {
+  if ([componentType isEqual:CommonDouble_get_TYPE()]) {
     return JavaUtilArrays_equalsWithDoubleArray_withDoubleArray_(o1, o2);
   }
-  if ([componentType isEqual:JavaLangBoolean_get_TYPE()]) {
+  if ([componentType isEqual:CommonBoolean_get_TYPE()]) {
     return JavaUtilArrays_equalsWithBooleanArray_withBooleanArray_(o1, o2);
   }
   return JavaUtilArrays_equalsWithNSObjectArray_withNSObjectArray_(o1, o2);
@@ -183,28 +183,28 @@ static jboolean memberEquals(IOSClass *type, id o1, id o2) {
 
 
 jint arrayMemberHash(IOSClass *componentType, id o) {
-  if ([componentType isEqual:JavaLangByte_get_TYPE()]) {
+  if ([componentType isEqual:CommonByte_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithByteArray_(o);
   }
-  if ([componentType isEqual:JavaLangShort_get_TYPE()]) {
+  if ([componentType isEqual:CommonShort_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithShortArray_(o);
   }
-  if ([componentType isEqual:JavaLangInteger_get_TYPE()]) {
+  if ([componentType isEqual:CommonInt_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithIntArray_(o);
   }
   if ([componentType isEqual:JavaLangCharacter_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithCharArray_(o);
   }
-  if ([componentType isEqual:JavaLangLong_get_TYPE()]) {
+  if ([componentType isEqual:CommonLong_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithLongArray_(o);
   }
-  if ([componentType isEqual:JavaLangFloat_get_TYPE()]) {
+  if ([componentType isEqual:CommonFloat_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithFloatArray_(o);
   }
-  if ([componentType isEqual:JavaLangDouble_get_TYPE()]) {
+  if ([componentType isEqual:CommonDouble_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithDoubleArray_(o);
   }
-  if ([componentType isEqual:JavaLangBoolean_get_TYPE()]) {
+  if ([componentType isEqual:CommonBoolean_get_TYPE()]) {
     return JavaUtilArrays_hashCodeWithBooleanArray_(o);
   }
   return JavaUtilArrays_hashCodeWithNSObjectArray_(o);

@@ -91,7 +91,7 @@ ComGoogleProtobufByteString *ComGoogleProtobufByteString_copyFromUtf8WithNSStrin
 
 - (instancetype)initWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)byteString;
 - (jboolean)hasNext;
-- (JavaLangByte *)next;
+- (CommonByte *)next;
 - (jbyte)nextByte;
 - (void)remove;
 
@@ -406,8 +406,8 @@ J2OBJC_CLASS_TYPE_LITERAL_SOURCE(ComGoogleProtobufByteString)
   return position_ < limit_;
 }
 
-- (JavaLangByte *)next {
-  return JavaLangByte_valueOfWithByte_([self nextByte]);
+- (CommonByte *)next {
+  return CommonByte_valueOfWithByte_([self nextByte]);
 }
 
 - (jbyte)nextByte {

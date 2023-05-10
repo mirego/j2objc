@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithSecondaryConstructor;
 
 public class SecondaryConstructor {
 
-    public static ClassWithSecondaryConstructor main(String[] args) {
+  public static ClassWithSecondaryConstructor main(String[] args) {
 
-        ClassWithSecondaryConstructor secondaryConstructor = new ClassWithSecondaryConstructor();
+    ClassWithSecondaryConstructor secondaryConstructor = new ClassWithSecondaryConstructor();
 
-        return secondaryConstructor;
-    }
+    return secondaryConstructor;
+  }
 }

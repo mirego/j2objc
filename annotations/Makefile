@@ -44,4 +44,7 @@ dist: $(DIST_JAR)
 	@:
 
 clean:
-	@rm -rf $(BUILD_DIR) $(DIST_JAR)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(DIST_JAR)

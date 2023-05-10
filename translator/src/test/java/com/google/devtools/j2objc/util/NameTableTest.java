@@ -112,7 +112,7 @@ public class NameTableTest extends GenerationTest {
         + "void foo(String[] value3) {}}", "A", "A.h");
     assertTranslation(translation, "- (void)fooWithIntArray:(IOSIntArray *)value1");
     assertTranslation(translation,
-        "- (void)fooWithJavaLangIntegerArray:(IOSObjectArray *)value2");
+        "- (void)fooWithCommonIntArray:(IOSObjectArray *)value2");
     assertTranslation(translation,
         "- (void)fooWithNSStringArray:(IOSObjectArray *)value3");
   }

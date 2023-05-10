@@ -87,7 +87,7 @@ INCLUDE_DIRS = src $(GEN_OBJC_DIR)
 
 FAT_LIB_NAME = protobuf_runtime
 FAT_LIB_SOURCES_RELATIVE = $(SRCS) com/google/protobuf/DescriptorProtos.m
-FAT_LIB_SOURCE_DIRS = src $(GEN_OBJC_DIR)
+FAT_LIB_SOURCE_DIRS = $(SRC_DIR) $(GEN_OBJC_DIR)
 FAT_LIB_COMPILE = $(J2OBJCC) $(C_FLAGS) $(INCLUDE_DIRS:%=-I%)
 include $(J2OBJC_ROOT)/make/fat_lib.mk
 
@@ -134,7 +134,10 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR) $(DIST_JAR) $(FAT_LIBS_DIST) $(DIST_HEADERS)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(DIST_JAR) $(FAT_LIBS_DIST) $(DIST_HEADERS)
 	@rm -rf $(PROTOBUF_LICENSE_DIST)
 	@rm -rf $(FRAMEWORK_DIR)
 

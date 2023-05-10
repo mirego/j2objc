@@ -1,10 +1,18 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
-import com.mirego.interop.java.test.objects.*;
+
+import org.junit.Test;
 
 import java.io.IOException;
-import org.junit.Test;
+
+import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
+import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
+import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
+import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
+import com.mirego.interop.java.test.objects.WithCompanionObject;
+import com.mirego.interop.java.test.objects.WithNamedCompanionObject;
+import com.mirego.interop.java.test.objects.WithObject;
 
 public class ObjectsTest extends GenerationTest {
 
@@ -46,7 +54,6 @@ public class ObjectsTest extends GenerationTest {
 //
 //    assertTranslation(translation, "xxxx");
 //  }
-
 
   @Test
   public void testWithCompanionObject() throws IOException {

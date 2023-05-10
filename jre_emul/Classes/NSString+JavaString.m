@@ -125,7 +125,7 @@ NSString *NSString_java_valueOfChars_offset_count_(IOSCharArray *data, jint offs
 }
 
 NSString *NSString_java_valueOfDouble_(jdouble value) {
-  return JavaLangDouble_toStringWithDouble_(value);
+  return CommonDouble_toStringWithDouble_(value);
 }
 
 + (NSString *)java_valueOfFloat:(jfloat)value {
@@ -133,7 +133,7 @@ NSString *NSString_java_valueOfDouble_(jdouble value) {
 }
 
 NSString *NSString_java_valueOfFloat_(jfloat value) {
-  return JavaLangFloat_toStringWithFloat_(value);
+  return CommonFloat_toStringWithFloat_(value);
 }
 
 + (NSString *)java_valueOfInt:(jint)value {
@@ -141,7 +141,7 @@ NSString *NSString_java_valueOfFloat_(jfloat value) {
 }
 
 NSString *NSString_java_valueOfInt_(jint value) {
-  return JavaLangInteger_toStringWithInt_(value);
+  return CommonInt_toStringWithInt_(value);
 }
 
 + (NSString *)java_valueOfLong:(jlong)value {
@@ -149,7 +149,7 @@ NSString *NSString_java_valueOfInt_(jint value) {
 }
 
 NSString *NSString_java_valueOfLong_(jlong value) {
-  return JavaLangLong_toStringWithLong_(value);
+  return CommonLong_toStringWithLong_(value);
 }
 
 - (void)java_getChars:(jint)sourceBegin

@@ -102,6 +102,7 @@ import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import javax.lang.model.element.Element;
@@ -147,7 +148,11 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(' ');
       buffer.append(selector);
     } else {
-      assert selParts.length == args.size();
+      // kotlin interop >>
+      if (selParts.length != args.size()) {
+        throw new IllegalStateException("printMethodInvocationNameAndArgs mismatched " + selector + " selparts=" + Arrays.toString(selParts) + " vs args=" +args);
+      }
+      // kotlin interop <<
       for (int i = 0; i < args.size(); i++) {
         buffer.append(' ');
         buffer.append(selParts[i]);
@@ -882,7 +887,11 @@ public class StatementGenerator extends UnitTreeVisitor {
       if (!KotlinUtil.isKotlinType(typeElement)) {
         buffer.append(nameTable.getFullName(typeElement)).append("_class_()");
       } else {
-        buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
+        if (TypeUtil.isInterface(type)) {
+          buffer.append("IOSClass_fromProtocol(@protocol(").append(nameTable.getFullName(typeElement)).append("))");
+        } else {
+          buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
+        }
       }
       // kotlin interop <<
     }
@@ -1025,7 +1034,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   private void convertCaseKotlin(Expression expression) {
     Element element = KotlinUtil.getElementFromExpression(expression);
-    KmClass kotlinMetaData = KotlinUtil.getExecutableElementKotlinMetaData(element);
+    KmClass kotlinMetaData = KotlinUtil.getExecutableElementKotlinClassMetaData(element);
 
     int flags = kotlinMetaData.getFlags();
     if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {

@@ -185,11 +185,12 @@ public class PlatformLogger {
     //    to help performance.
     private static final int MAX_CACHED_LOGGERS = 15;
     private static Map<String, PlatformLogger> loggers =
-        new LinkedHashMap<String, PlatformLogger>(MAX_CACHED_LOGGERS + 1, .75F, true) {
+        // kotlin interop -- COMMENTED OUT
+        new LinkedHashMap<String, PlatformLogger>(MAX_CACHED_LOGGERS + 1, .75F, true)/* {
       public boolean removeEldestEntry(Map.Entry eldest) {
         return size() > MAX_CACHED_LOGGERS;
       }
-    };
+    }*/;
 
     /**
      * Returns a PlatformLogger of a given name.

@@ -31,13 +31,13 @@
 
 #define java_lang_Integer_MAX_VALUE 2147483647L
 
-extern const jchar JavaLangInteger_digits[];
-extern const jchar JavaLangInteger_DigitTens[];
-extern const jchar JavaLangInteger_DigitOnes[];
+extern const jchar CommonInt_digits[];
+extern const jchar CommonInt_DigitTens[];
+extern const jchar CommonInt_DigitOnes[];
 
 CF_EXTERN_C_BEGIN
 
-void JavaLangInteger_getCharsRaw(jint i, jint index, jchar *buf);
+void CommonInt_getCharsRaw(jint i, jint index, jchar *buf);
 
 CF_EXTERN_C_END
 

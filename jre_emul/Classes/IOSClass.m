@@ -78,7 +78,7 @@ J2OBJC_INITIALIZED_DEFN(IOSClass)
 #define PREFIX_MAPPING_RESOURCE @"/prefixes.properties"
 
 // Package to prefix mappings, initialized in FindRenamedPackagePrefix().
-static JavaUtilArrayList *prefixMapping;
+static id<JavaUtilList> prefixMapping;
 
 @interface PackagePrefixEntry : NSObject {
   NSString *key_;
@@ -493,7 +493,7 @@ static NSString *FindRenamedPackagePrefix(NSString *package) {
       JavaIoInputStream *prefixesResource =
           [IOSClass_objectClass getResourceAsStream:PREFIX_MAPPING_RESOURCE];
       if (prefixesResource) {
-        JreStrongAssignAndConsume(&prefixMapping, new_JavaUtilArrayList_init());
+        JreStrongAssignAndConsume(&prefixMapping, new_NSMutableArray_init());
         JavaUtilProperties_LineReader *lr =
             create_JavaUtilProperties_LineReader_initWithJavaIoInputStream_(prefixesResource);
         PackagePrefixLoader *loader = [[PackagePrefixLoader alloc] init];
