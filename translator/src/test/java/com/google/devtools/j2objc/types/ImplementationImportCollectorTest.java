@@ -215,11 +215,11 @@ public class ImplementationImportCollectorTest extends GenerationTest {
 
   // Issue #802.
   public void testEnhancedForStatementExpressionTypeIncluded() throws IOException {
-    addSourceFile("class A { public java.util.ArrayList<String> list; }", "A.java");
+    addSourceFile("class A { public java.util.List<String> list; }", "A.java");
     String translation = translateSourceFile(
         "class B extends A { void foo() { if (list != null) { for (String elem : list) { "
         + "elem.hashCode(); } } } }", "B", "B.m");
-    assertTranslation(translation, "#include \"java/util/ArrayList.h\"");
+    assertTranslation(translation, "#include \"java/util/List.h\"");
   }
 
   // Issue #924.

@@ -72,8 +72,22 @@ NATIVE_JRE_SOURCES_CORE = \
   sun_misc_Unsafe.m
 # kotlin interop >>
 NATIVE_JRE_SOURCES_CORE += \
-  NSArrayToJavaUtilListAdapter.m \
-  NSEnumeratorToJavaUtilListIteratorAdapter.m
+  KotlinBoolean+JavaLangBoolean.m \
+  KotlinByte+JavaLangByte.m \
+  KotlinDouble+JavaLangDouble.m \
+  KotlinFloat+JavaLangFloat.m \
+  KotlinInt+JavaLangInteger.m \
+  KotlinIterator+JavaIterator.m \
+  KotlinLong+JavaLangLong.m \
+  KotlinMutableSet+JavaHashSet.m \
+  KotlinShort+JavaLangShort.m \
+  NSArray+JavaUtilList.m \
+  NSDictionary+JavaUtilMap.m \
+  NSMutableArray+JavaArrayList.m \
+  NSMutableArray+JavaUtilList.m \
+  NSMutableDictionary+JavaUtilMap.m \
+  NSMutableSet+JavaUtilSet.m \
+  NSSet+JavaUtilSet.m
 # kotlin interop <<
 
 # Java sources to be translated normally and included in the core library.
@@ -154,8 +168,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/ArrayStoreException.java \
   java/lang/AssertionError.java \
   java/lang/AutoCloseable.java \
-  java/lang/Boolean.java \
-  java/lang/Byte.java \
   java/lang/CharSequence.java \
   java/lang/Character.java \
   java/lang/ClassCastException.java \
@@ -165,13 +177,11 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/CloneNotSupportedException.java \
   java/lang/Comparable.java \
   java/lang/Deprecated.java \
-  java/lang/Double.java \
   java/lang/Enum.java \
   java/lang/EnumConstantNotPresentException.java \
   java/lang/Error.java \
   java/lang/Exception.java \
   java/lang/ExceptionInInitializerError.java \
-  java/lang/Float.java \
   java/lang/FunctionalInterface.java \
   java/lang/IllegalAccessError.java \
   java/lang/IllegalAccessException.java \
@@ -184,12 +194,10 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/InheritableThreadLocal.java \
   java/lang/InstantiationError.java \
   java/lang/InstantiationException.java \
-  java/lang/Integer.java \
   java/lang/InternalError.java \
   java/lang/InterruptedException.java \
   java/lang/Iterable.java \
   java/lang/LinkageError.java \
-  java/lang/Long.java \
   java/lang/Math.java \
   java/lang/NegativeArraySizeException.java \
   java/lang/NoClassDefFoundError.java \
@@ -210,7 +218,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/SafeVarargs.java \
   java/lang/SecurityException.java \
   java/lang/SecurityManager.java \
-  java/lang/Short.java \
   java/lang/StackOverflowError.java \
   java/lang/StackTraceElement.java \
   java/lang/StrictMath.java \
@@ -368,7 +375,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/util/AbstractSequentialList.java \
   java/util/AbstractSet.java \
   java/util/ArrayDeque.java \
-  java/util/ArrayList.java \
   java/util/Arrays.java \
   java/util/Base64.java \
   java/util/BitSet.java \
@@ -395,8 +401,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/util/Formatter.java \
   java/util/FormatterClosedException.java \
   java/util/GregorianCalendar.java \
-  java/util/HashMap.java \
-  java/util/HashSet.java \
   java/util/Hashtable.java \
   java/util/IdentityHashMap.java \
   java/util/IllegalFormatCodePointException.java \
@@ -409,8 +413,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/util/IntSummaryStatistics.java \
   java/util/InvalidPropertiesFormatException.java \
   java/util/Iterator.java \
-  java/util/LinkedHashMap.java \
-  java/util/LinkedHashSet.java \
   java/util/LinkedList.java \
   java/util/List.java \
   java/util/ListIterator.java \
@@ -2351,6 +2353,17 @@ EMULATED_JAVA_SOURCES = \
   java/lang/reflect/Executable.java \
   java/lang/reflect/Field.java \
   java/lang/reflect/Method.java
+# kotlin interop >>
+EMULATED_JAVA_SOURCES += \
+  java/lang/Boolean.java \
+  java/lang/Byte.java \
+  java/lang/Integer.java \
+  java/util/ArrayList.java \
+  java/util/HashMap.java \
+  java/util/HashSet.java \
+  java/util/LinkedHashMap.java \
+  java/util/LinkedHashSet.java
+# kotlin interop <<
 
 # All non-generated headers that should be made public.
 PUBLIC_NATIVE_HEADERS = \
@@ -2382,10 +2395,34 @@ PUBLIC_NATIVE_HEADERS = \
   jni.h
 # kotlin interop >>
 PUBLIC_NATIVE_HEADERS += \
-  NSArrayToJavaUtilListAdapter.h \
-  NSEnumeratorToJavaUtilListIteratorAdapter.h \
   J2ObjC_kotlinTypes.h \
-  J2ObjC_version.h
+  J2ObjC_version.h \
+  KotlinBoolean+JavaLangBoolean.h \
+  KotlinByte+JavaLangByte.h \
+  KotlinDouble+JavaLangDouble.h \
+  KotlinFloat+JavaLangFloat.h \
+  KotlinInt+JavaLangInteger.h \
+  KotlinIterator+JavaIterator.h \
+  KotlinLong+JavaLangLong.h \
+  KotlinMutableSet+JavaHashSet.h \
+  KotlinShort+JavaLangShort.h \
+  NSArray+JavaUtilList.h \
+  NSDictionary+JavaUtilMap.h \
+  NSMutableArray+JavaArrayList.h \
+  NSMutableArray+JavaUtilList.h \
+  NSMutableDictionary+JavaUtilMap.h \
+  NSMutableSet+JavaUtilSet.h \
+  NSSet+JavaUtilSet.h \
+  java/lang/Boolean.h \
+  java/lang/Byte.h \
+  java/lang/Double.h \
+  java/lang/Float.h \
+  java/lang/Integer.h \
+  java/lang/Long.h \
+  java/lang/Short.h \
+  java/util/ArrayList.h \
+  java/util/HashMap.h \
+  java/util/HashSet.h
 # kotlin interop <<
 
 JRE_PUBLIC_PACKAGES = \

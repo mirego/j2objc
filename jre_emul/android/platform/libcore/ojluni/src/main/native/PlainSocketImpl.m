@@ -860,14 +860,14 @@ JNIEXPORT void JNICALL Java_java_net_PlainSocketImpl_socketSetOption(JNIEnv *env
                 if (cmd == java_net_SocketOptions_SO_LINGER) {
                     if (on) {
                         optval.ling.l_onoff = 1;
-                        optval.ling.l_linger = [((JavaLangInteger *)value) intValue];
+                        optval.ling.l_linger = [((CommonInt *)value) intValue];
                     } else {
                         optval.ling.l_onoff = 0;
                         optval.ling.l_linger = 0;
                     }
                     optlen = sizeof(optval.ling);
                 } else {
-                    optval.i = [((JavaLangInteger *)value) intValue];
+                    optval.i = [((CommonInt *)value) intValue];
                     optlen = sizeof(optval.i);
                 }
 

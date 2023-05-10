@@ -14,7 +14,7 @@
 #
 # Author: Tom Ball
 
-.PHONY: default clean
+.PHONY: default clean_dist
 
 include environment.mk
 
@@ -489,7 +489,10 @@ test: dist $(DIST_DIR)/j2objcc
 	$(MAKE) -f tests.mk test
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST) $(MOCKITO_LICENSE_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST) $(MOCKITO_LICENSE_DIST)
 	@rm -rf $(ARCH_INCLUDE_DIR)/org/mockito
 	@rm -rf $(FRAMEWORK_DIR)
 

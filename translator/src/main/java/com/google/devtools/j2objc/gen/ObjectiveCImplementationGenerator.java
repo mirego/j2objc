@@ -79,15 +79,11 @@ public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGener
     // over-broad, but we do not expect generated code to trigger the other warnings covered
     // by this switch.
     println("#pragma clang diagnostic ignored \"-Wswitch\"");
-
-    newline();
   }
 
   private void printIgnoreIncompletePragmas() {
     GenerationUnit unit = getGenerationUnit();
-    if (unit.hasIncompleteProtocol() || unit.hasIncompleteImplementation()) {
-      newline();
-    }
+
     if (unit.hasIncompleteProtocol()) {
       println("#pragma clang diagnostic ignored \"-Wprotocol\"");
     }
@@ -103,20 +99,25 @@ public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGener
   }
 
   private void printOptionBuildFlags() {
-    newline();
+    boolean printedDefine = false;
+
     if (options.useStrictFieldAssign()) {
+      printedDefine = true; newline();
       println("#define J2OBJC_STRICT_FIELD_ASSIGN 1");
     }
     if (options.useStrictFieldLoad()) {
+      if (!printedDefine) { printedDefine = true; newline(); }
       println("#define J2OBJC_STRICT_FIELD_LOAD 1");
     }
     if (options.useRetainAutoreleaseReturns()) {
+      if (!printedDefine) { printedDefine = true; newline(); }
       println("#define J2OBJC_RETAIN_AUTORELEASE_RETURNS 1");
     }
     if (options.useARCAutoreleaseReturns()) {
+      if (!printedDefine) { printedDefine = true; newline(); }
       println("#define J2OBJC_ARC_AUTORELEASE_RETURNS 1");
     }
-    newline();
+    if (printedDefine) { newline(); }
   }
 
   private void printImports() {
@@ -131,9 +132,12 @@ public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGener
       }
     }
 
-    newline();
     for (String header : includeFiles) {
-      printf("#include \"%s\"\n", header);
+      if (!header.endsWith("common.h")) {
+        printf("#include \"%s\"\n", header);
+      } else {
+        printf("#import \"%s\"\n", header);
+      }
     }
 
     for (String code : getGenerationUnit().getNativeImplementationBlocks()) {

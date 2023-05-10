@@ -189,7 +189,9 @@ public class GenerationTest extends TestCase {
    */
   protected CompilationUnit translateType(String typeName, String source) {
     CompilationUnit newUnit = compileType(typeName, source);
-    TranslationProcessor.applyMutations(
+    // kotlin interop >>
+    TranslationProcessor.checkAndWrite(
+    // kotlin interop <<
         newUnit, deadCodeMap, options.externalAnnotations(), TimeTracker.noop());
     return newUnit;
   }
@@ -481,7 +483,9 @@ public class GenerationTest extends TestCase {
     Options.OutputLanguageOption language = options.getLanguage();
     options.setOutputLanguage(Options.OutputLanguageOption.TEST_OBJECTIVE_C);
     CompilationUnit classfileUnit = compileAsClassFile(fileRoot, source);
-    TranslationProcessor.applyMutations(
+    // kotlin interop >>
+    TranslationProcessor.checkAndWrite(
+    // kotlin interop <<
         classfileUnit, deadCodeMap, options.externalAnnotations(), TimeTracker.noop());
     String clsHeader = generateFromUnit(classfileUnit, fileRoot + ".h2");
     String clsImpl = getTranslatedFile(fileRoot + ".m2");
@@ -580,7 +584,9 @@ public class GenerationTest extends TestCase {
       throws IOException {
     Parser.Handler handler = (String path, CompilationUnit newUnit) -> {
       try {
-        TranslationProcessor.applyMutations(
+        // kotlin interop >>
+        TranslationProcessor.checkAndWrite(
+        // kotlin interop <<
             newUnit, deadCodeMap, options.externalAnnotations(), TimeTracker.noop());
         generateFromUnit(newUnit, outputFile);
       } catch (IOException e) {
@@ -606,15 +612,19 @@ public class GenerationTest extends TestCase {
   protected String compileAndTranslateSourceFile(String source, String typeName, String fileName)
       throws IOException {
     CompilationUnit newUnit = compileAsClassFile(typeName, source);
-    TranslationProcessor.applyMutations(
+    // kotlin interop >>
+    TranslationProcessor.checkAndWrite(
+    // kotlin interop <<
         newUnit, deadCodeMap, options.externalAnnotations(), TimeTracker.noop());
     return generateFromUnit(newUnit, fileName);
   }
 
   protected String generateFromUnit(CompilationUnit unit, String filename) throws IOException {
     GenerationUnit genUnit = new GenerationUnit(unit.getSourceFilePath(), options);
+
     genUnit.incrementInputs();
     genUnit.addCompilationUnit(unit);
+
     TranslationProcessor.generateObjectiveCSource(genUnit);
     return getTranslatedFile(filename);
   }
@@ -756,9 +766,11 @@ public class GenerationTest extends TestCase {
       if (message.matches(regex)) {
         return; // Error found.
       }
-      failWithMessages(
-          "Expected error was not reported: \"" + regex + "\"", ErrorUtil.getErrorMessages());
+    // kotlin interop >>
     }
+    failWithMessages(
+      "Expected error was not reported: \"" + regex + "\"", ErrorUtil.getErrorMessages());
+    // kotlin interop <<
   }
 
   /** Asserts that no errors were reported during the last translation. */
@@ -881,6 +893,9 @@ public class GenerationTest extends TestCase {
     if (source == null) {
       throw new IOException("Could not read file" + sourceFileName);
     }
+
+    options.getHeaderMap().put("kotlin-module/kotlin-test-cases", "common/common.h");
+
     CompilationUnit compilationUnit = translateType(typeName, source);
 
     String outputFilename = kotlinJavaTestPackage + testPackage + typeName + outputExtension;

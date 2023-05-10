@@ -39,8 +39,8 @@ BEANS_TEST_SUPPORT_ROOT = $(APACHE_HARMONY_BASE)/beans/src/test/support/java
 ICU4C_I18N_ROOT = icu4c/i18n
 ICU4C_COMMON_ROOT = icu4c/common
 
-ANDROID_BASE = android
-ANDROID_PLATFORM = android/platform
+ANDROID_BASE = $(CURDIR)/android
+ANDROID_PLATFORM = $(CURDIR)/android/platform
 ANDROID_CORE_ROOT = $(ANDROID_BASE)/frameworks/base/core/java
 ANDROID_CORE_TESTS_ROOT = $(ANDROID_BASE)/frameworks/base/core/tests/coretests/src
 LIBCORE_BASE = $(ANDROID_PLATFORM)/libcore
@@ -53,7 +53,7 @@ ANDROID_APACHE_TEST_ROOT = $(LIBCORE_BASE)/harmony-tests/src/test/java
 ANDROID_TESTS_RUNNER_ROOT = $(ANDROID_BASE)/frameworks/base/tests-runner/src
 ANDROID_JSR166_TEST_ROOT = $(LIBCORE_BASE)/jsr166-tests/src/test/java
 MOCKWEBSERVER_ROOT = $(ANDROID_PLATFORM)/external/mockwebserver/src/main/java
-APACHE_COMMONS_LANG_TEST_ROOT = apache_commons_lang/src/test/java
+APACHE_COMMONS_LANG_TEST_ROOT = $(CURDIR)/apache_commons_lang/src/test/java
 ANDROID_DALVIK_ROOT = $(LIBCORE_BASE)/dalvik/src/main/java
 ANDROID_DALVIK_TEST_ROOT = $(LIBCORE_BASE)/dalvik/src/test/java
 J2OBJC_LUNI_ROOT = $(LIBCORE_BASE)/luni/src/objc/java
@@ -73,13 +73,13 @@ ICU_RES_DIR = $(BUILD_DIR)/icu_res
 ICU_EMBEDDED_RES_DIR = $(ICU_RES_DIR)/embedded
 ANDROID_PLATFORM_COMPAT_ROOT = $(ANDROID_BASE)/tools/platform-compat/java
 
-OPENJDK_SHARE_ROOT = openjdk/src/share/classes
-OPENJDK_MACOSX_ROOT = openjdk/src/macosx/classes
-OPENJDK_MACOSX_NATIVE = openjdk/src/macosx/native
+OPENJDK_SHARE_ROOT = $(CURDIR)/openjdk/src/share/classes
+OPENJDK_MACOSX_ROOT = $(CURDIR)/openjdk/src/macosx/classes
+OPENJDK_MACOSX_NATIVE = $(CURDIR)/openjdk/src/macosx/native
 
-APPLE_ROOT = apple_apsl
+APPLE_ROOT = $(CURDIR)/apple_apsl
 
-MISC_TEST_ROOT = misc_tests
+MISC_TEST_ROOT = $(CURDIR)/misc_tests
 J2OBJC_ROOT = ..
 
 ANDROID_INCLUDE = $(LIBCORE_BASE)/include
@@ -98,10 +98,10 @@ EMULATION_SRC_JAR_DIST = $(DIST_JAR_DIR)/jre_emul-src.jar
 EMULATION_LIB_DIST = $(ARCH_LIB_DIR)/libjre_emul.a
 MAIN_LIB = $(BUILD_DIR)/libj2objc_main.a
 MAIN_LIB_DIST = $(DIST_LIB_MACOSX_DIR)/libj2objc_main.a
-EMULATION_CLASS_DIR = Classes
+EMULATION_CLASS_DIR = $(CURDIR)/Classes
 TESTS_DIR = $(BUILD_DIR)/tests
 RELATIVE_TESTS_DIR = $(BUILD_DIR_NAME)/tests
-STUBS_DIR = stub_classes/java
+STUBS_DIR = $(CURDIR)/stub_classes/java
 ANDROID_NATIVE_DIR = $(LIBCORE_BASE)/luni/src/main/native
 ANDROID_NATIVE_TEST_DIR = $(LIBCORE_BASE)/luni/src/test/native
 LAMBDA_DIR = $(LIBCORE_BASE)/ojluni/src/lambda/java

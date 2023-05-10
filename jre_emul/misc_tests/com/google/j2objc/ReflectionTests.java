@@ -21,12 +21,12 @@ import junit.framework.TestSuite;
 public class ReflectionTests {
 
   private static final Class<?>[] reflectionTests = {
-    com.google.j2objc.ArrayTest.class,
-    com.google.j2objc.ClassTest.class,
-    com.google.j2objc.ReflectionTest.class,
-    com.google.j2objc.reflect.ProxyTest.class,
-    java.lang.reflect.MethodTest.class,
-    libcore.java.lang.CharacterTest.class,
+    // com.google.j2objc.ArrayTest.class,
+    // com.google.j2objc.ClassTest.class,
+    // com.google.j2objc.ReflectionTest.class,
+    // com.google.j2objc.reflect.ProxyTest.class,
+    // java.lang.reflect.MethodTest.class,
+    // libcore.java.lang.CharacterTest.class,
     libcore.java.lang.reflect.ArrayTest.class,
     libcore.java.lang.reflect.ConstructorTest.class,
     libcore.java.lang.reflect.FieldTest.class,

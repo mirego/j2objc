@@ -67,7 +67,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import kotlinx.metadata.KmClass;
+
+import kotlinx.metadata.KmDeclarationContainer;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
 
@@ -328,7 +329,7 @@ public class Functionizer extends UnitTreeVisitor {
     TypeElement type = ElementUtil.getDeclaringClass(element);
 
     // kotlin interop >>
-    if(KotlinUtil.isKotlinType(element)) {
+    if (KotlinUtil.isKotlinType(element)) {
       endVisitKotlin(node, element);
       return;
     }
@@ -673,17 +674,16 @@ public class Functionizer extends UnitTreeVisitor {
 
   // kotlin interop >>
 
-  private void endVisitKotlin(ClassInstanceCreation node,
-                              ExecutableElement element) {
+  private void endVisitKotlin(ClassInstanceCreation node, ExecutableElement element) {
     String fullName = nameTable.getFullFunctionName(element);
     fullName = fullName.substring(0, fullName.indexOf("_"));
 
     GeneratedExecutableElement classElement = GeneratedExecutableElement
-        .newMethodWithSelector(fullName, node.getTypeMirror(), ElementUtil.getDeclaringClass(element));
+      .newMethodWithSelector(fullName, node.getTypeMirror(), ElementUtil.getDeclaringClass(element));
 
     GeneratedExecutableElement allocElement = GeneratedExecutableElement
-        .newMethodWithSelector("alloc", node.getExecutableType().getReturnType(),
-            ElementUtil.getDeclaringClass(element));
+      .newMethodWithSelector("alloc", node.getExecutableType().getReturnType(),
+        ElementUtil.getDeclaringClass(element));
     ExecutablePair allocPair = new ExecutablePair(allocElement, node.getExecutableType());
 
     MethodInvocation allocMethod = new MethodInvocation(allocPair, new SimpleName(classElement));
@@ -696,23 +696,23 @@ public class Functionizer extends UnitTreeVisitor {
   }
 
   private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
-    KmClass kmClass = KotlinUtil.getExecutableElementKotlinMetaData(element);
-    KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, kmClass);
+    KmDeclarationContainer declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(element);
+    KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, declarationContainer);
     KmProperty propertyAccessor = null;
     if (kotlinFunction == null) {
-      propertyAccessor = KotlinUtil.getKotlinPropertyAccessor(element, kmClass);
+      propertyAccessor = KotlinUtil.getKotlinPropertyAccessor(element, declarationContainer);
     }
 
     // Enum property access or function calls do not happen on the Enum but on an instance
     // so we don't need any special handling
     if (kotlinFunction == null && propertyAccessor == null
-            && KotlinUtil.isKotlinEnum(kmClass)) {
+      && KotlinUtil.isKotlinEnum(declarationContainer)) {
       Expression expression = convertEnumExpression(node, element);
       node.setExpression(expression);
       return;
     }
 
-    if (KotlinUtil.isKotlinCompanionObjectOrObject(kmClass)) {
+    if (KotlinUtil.isKotlinCompanionObjectOrObject(declarationContainer)) {
       Expression expression = convertCompanionObjectOrObjectExpression(node, element);
       node.setExpression(expression);
     }
@@ -722,8 +722,7 @@ public class Functionizer extends UnitTreeVisitor {
     }
   }
 
-  private void convertPropertyAccessExpression(MethodInvocation node, ExecutableElement element,
-                                               KmProperty getterOrSetterProperty) {
+  private void convertPropertyAccessExpression(MethodInvocation node, ExecutableElement element, KmProperty getterOrSetterProperty) {
     SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
     simpleName.setTypeMirror(element.getReturnType());
     PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
@@ -751,7 +750,7 @@ public class Functionizer extends UnitTreeVisitor {
       instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
       executableExpression = new SimpleName(executableElementName);
     } else if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(nodeExpression)) {
-      FieldAccess fieldAccess = (FieldAccess)nodeExpression;
+      FieldAccess fieldAccess = (FieldAccess) nodeExpression;
       instanceSelector = NameTable.uncapitalize(fieldAccess.getExpression().toString());
       executableExpression = new SimpleName(executableElementName);
     } else {
@@ -761,8 +760,8 @@ public class Functionizer extends UnitTreeVisitor {
     executableExpression.setTypeMirror(typeMirror);
 
     GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
-            .newMethodWithSelector(instanceSelector, typeMirror,
-                    ElementUtil.getDeclaringClass(element));
+      .newMethodWithSelector(instanceSelector, typeMirror,
+        ElementUtil.getDeclaringClass(element));
 
     ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
     return new MethodInvocation(getInstancePair, executableExpression);
@@ -781,7 +780,7 @@ public class Functionizer extends UnitTreeVisitor {
     String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
     return new SimpleName(fullName)
-            .setTypeMirror(typeMirror);
+      .setTypeMirror(typeMirror);
   }
 
   // kotlin interop <<

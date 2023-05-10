@@ -33,7 +33,7 @@
 
 CF_EXTERN_C_BEGIN
 
-void JavaLangLong_getCharsRaw(jlong i, jint index, jchar *buf);
+void CommonLong_getCharsRaw(jlong i, jint index, jchar *buf);
 
 CF_EXTERN_C_END
 

@@ -548,7 +548,7 @@ public class IosHttpURLConnection extends HttpURLConnection {
       request.cachePolicy = self->useCaches_ ?
           NSURLRequestUseProtocolCachePolicy : NSURLRequestReloadIgnoringLocalCacheData;
       int readTimeout = [self getReadTimeout];
-      request.timeoutInterval = readTimeout > 0 ? (readTimeout / 1000.0) : JavaLangDouble_MAX_VALUE;
+      request.timeoutInterval = readTimeout > 0 ? (readTimeout / 1000.0) : CommonDouble_MAX_VALUE;
       int n = [self->headers_ size];
       for (int i = 0; i < n; i++) {
         ComGoogleJ2objcNetIosHttpURLConnection_HeaderEntry *entry = [self->headers_ getWithInt:i];

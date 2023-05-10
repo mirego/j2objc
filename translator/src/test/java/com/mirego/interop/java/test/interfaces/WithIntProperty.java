@@ -1,7 +1,6 @@
 package com.mirego.interop.java.test.interfaces;
 
-import com.mirego.interop.kotlin.test.interfaces.InterfaceWithInt;
-import commonMain.kotlin.test.interfaces.KotlinInterfaceWithIntProperty;
+import com.mirego.interop.kotlin.test.interfaces.KotlinInterfaceWithIntProperty;
 
 public class WithIntProperty {
   public static class WithIntPropertyImplementation implements KotlinInterfaceWithIntProperty {

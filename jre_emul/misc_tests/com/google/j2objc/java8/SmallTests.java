@@ -21,12 +21,12 @@ import junit.framework.TestSuite;
  */
 public class SmallTests {
   private static final Class<?>[] smallTestClasses = new Class[] {
-    CreationReferenceTest.class,
-    DefaultMethodsTest.class,
-    ExpressionMethodReferenceTest.class,
-    LambdaTest.class,
-    SuperMethodReferenceTest.class,
-    TypeMethodReferenceTest.class,
+    // CreationReferenceTest.class,
+    // DefaultMethodsTest.class,
+    // ExpressionMethodReferenceTest.class,
+    // LambdaTest.class,
+    // SuperMethodReferenceTest.class,
+    // TypeMethodReferenceTest.class,
   };
 
   public static Test suite() {

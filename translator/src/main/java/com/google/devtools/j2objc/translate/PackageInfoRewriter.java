@@ -25,11 +25,9 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedTypeElement;
-import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
-import com.google.j2objc.annotations.ObjectiveCName;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -84,11 +82,9 @@ public class PackageInfoRewriter {
   }
 
   private static String getPackagePrefix(PackageDeclaration pkg) {
-    Annotation objcName = TreeUtil.getAnnotation(ObjectiveCName.class, pkg.getAnnotations());
-    if (objcName != null) {
-      return (String) ElementUtil.getAnnotationValue(objcName.getAnnotationMirror(), "value");
-    }
-    return null;
+    // kotlin interop >>
+    return TranslationUtil.getObjectiveCName(pkg);
+    // kotlin interop <<
   }
 
   private MethodDeclaration createPrefixMethod(String prefix, TypeElement type) {

@@ -61,7 +61,7 @@ public class CastResolverTest extends GenerationTest {
       + "  public static void main(String[] args) { int n = strings.get(1).hashCode(); }}",
       "Test", "Test.m");
     assertTranslation(translation, "((jint) [((NSString *) "
-      + "nil_chk([((JavaUtilArrayList *) nil_chk(Test_strings)) getWithInt:1])) hash]);");
+      + "nil_chk([((NSMutableArray *) nil_chk(Test_strings)) getWithInt:1])) hash]);");
   }
 
   // Verify that Object.hashCode() return value is cast when used.
@@ -256,8 +256,8 @@ public class CastResolverTest extends GenerationTest {
     addSourceFile("interface Bar<B extends Number> extends Foo<B> {}", "Bar.java");
     String translation = translateSourceFile(
         "class Test { Integer test(Bar<Integer> bar) { return bar.foo(); } }", "Test", "Test.m");
-    // Needs the JavaLangInteger cast.
-    assertTranslation(translation, "return ((JavaLangInteger *) [((id<Bar>) nil_chk(bar)) foo]);");
+    // Needs the CommonInt cast.
+    assertTranslation(translation, "return ((CommonInt *) [((id<Bar>) nil_chk(bar)) foo]);");
   }
 
   public void testCastInSuperFieldAccess() throws IOException {
@@ -283,9 +283,9 @@ public class CastResolverTest extends GenerationTest {
         "}"), "Test", "Test.m");
     assertNotInTranslation(translation, "cast_chk");
     assertTranslation(translation,
-        "return [((JavaLangInteger *) nil_chk(((JavaLangInteger *) o))) intValue];");
+        "return [((CommonInt *) nil_chk(((CommonInt *) o))) intValue];");
     assertTranslation(translation,
-        "return [((JavaLangDouble *) nil_chk(((JavaLangDouble *) o))) intValue];");
+        "return [((CommonDouble *) nil_chk(((CommonDouble *) o))) intValue];");
     assertTranslation(translation,
         "return [((JavaLangCharacter *) nil_chk(((JavaLangCharacter *) o))) charValue];");
   }

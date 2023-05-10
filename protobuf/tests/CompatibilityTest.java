@@ -132,7 +132,7 @@ public class CompatibilityTest extends ProtobufTest {
     byte[] bytes = data.toByteArray();
     TypicalData other = TypicalData.parseFrom(bytes);
     assertEquals(12, other.getRepeatedInt32(0));
-    // compareTo will fail in objc if the returned type is not JavaLangInteger.
+    // compareTo will fail in objc if the returned type is not CommonInt.
     assertEquals(0, other.getRepeatedInt32List().get(1).compareTo(34));
     assertEquals(67, other.getRepeatedInt32(2));
   }

@@ -45,7 +45,7 @@ public class StatementGeneratorTest extends GenerationTest {
         + "    Class<?> classOne = one.getClass();"
         + "    Class<?> classTwo = two.getClass(); }}",
         "A", "A.m");
-    assertTranslation(translation, "[((JavaUtilArrayList *) nil_chk(one)) java_getClass]");
+    assertTranslation(translation, "[((NSMutableArray *) nil_chk(one)) java_getClass]");
     assertTranslation(translation, "[((id<JavaUtilList>) nil_chk(two)) java_getClass]");
   }
 
@@ -212,9 +212,9 @@ public class StatementGeneratorTest extends GenerationTest {
         "public class Example { Boolean b1 = Boolean.TRUE; Boolean b2 = Boolean.FALSE; }",
         "Example", "Example.m");
     assertTranslation(translation,
-        "JreStrongAssign(&self->b1_, JreLoadStatic(JavaLangBoolean, TRUE))");
+        "JreStrongAssign(&self->b1_, JreLoadStatic(CommonBoolean, TRUE))");
     assertTranslation(translation,
-        "JreStrongAssign(&self->b2_, JreLoadStatic(JavaLangBoolean, FALSE))");
+        "JreStrongAssign(&self->b2_, JreLoadStatic(CommonBoolean, FALSE))");
   }
 
   public void testStringConcatenation() throws IOException {
@@ -297,7 +297,7 @@ public class StatementGeneratorTest extends GenerationTest {
         "Example", "Example.m");
     assertTranslation(translation,
         "[self fooWithNSObjectArray:"
-        + "[IOSObjectArray arrayWithObjects:(id[]){ JavaLangInteger_valueOfWithInt_(1) } count:1 "
+        + "[IOSObjectArray arrayWithObjects:(id[]){ CommonInt_valueOfWithInt_(1) } count:1 "
         + "type:NSObject_class_()]];");
   }
 
@@ -401,8 +401,8 @@ public class StatementGeneratorTest extends GenerationTest {
         + "Integer i; Two(Integer i) { this.i = i; } int getI() { return i.intValue(); }}}",
         "Test", "Test.m");
     assertTranslation(translation,
-        "- (instancetype)initWithJavaLangInteger:(JavaLangInteger *)i {");
-    assertTranslation(translation, "return [((JavaLangInteger *) nil_chk(i_)) intValue];");
+        "- (instancetype)initWithCommonInt:(CommonInt *)i {");
+    assertTranslation(translation, "return [((CommonInt *) nil_chk(i_)) intValue];");
   }
 
   public void testInnerInnerClassFieldAccessStrictField() throws IOException {
@@ -414,10 +414,10 @@ public class StatementGeneratorTest extends GenerationTest {
             "Test",
             "Test.m");
     assertTranslation(
-        translation, "- (instancetype)initWithJavaLangInteger:(JavaLangInteger *)i {");
+        translation, "- (instancetype)initWithCommonInt:(CommonInt *)i {");
     assertTranslation(
         translation,
-        "return [((JavaLangInteger *) nil_chk(JreStrictFieldStrongLoad(&i_))) intValue];");
+        "return [((CommonInt *) nil_chk(JreStrictFieldStrongLoad(&i_))) intValue];");
   }
 
   public void testInnerClassSuperConstructor() throws IOException {
@@ -679,7 +679,7 @@ public class StatementGeneratorTest extends GenerationTest {
             "A",
             "A.m");
     assertTranslation(translation,
-        "JreStrongAssignAndConsume(&self->map_, new_JavaUtilHashMap_init())");
+        "JreStrongAssignAndConsume(&self->map_, new_CommonMutableDictionary_init())");
   }
 
   public void testCreatedFieldNotConsumedStrictFieldAssign() throws IOException {
@@ -690,7 +690,7 @@ public class StatementGeneratorTest extends GenerationTest {
             "A",
             "A.m");
     assertTranslation(
-        translation, "JreStrictFieldStrongAssign(&self->map_, create_JavaUtilHashMap_init())");
+        translation, "JreStrictFieldStrongAssign(&self->map_, create_CommonMutableDictionary_init())");
   }
 
   public void testStringAddOperator() throws IOException {
@@ -751,7 +751,7 @@ public class StatementGeneratorTest extends GenerationTest {
         + "  public void foo() { Double d = Double.NEGATIVE_INFINITY; } }",
         "Test", "Test.m");
     assertTranslation(translation,
-        "JavaLangDouble_valueOfWithDouble_(JavaLangDouble_NEGATIVE_INFINITY)");
+        "CommonDouble_valueOfWithDouble_(CommonDouble_NEGATIVE_INFINITY)");
   }
 
   public void testInvokeMethodInConcreteImplOfGenericInterface() throws IOException {
@@ -805,9 +805,9 @@ public class StatementGeneratorTest extends GenerationTest {
     List<Statement> stmts = translateStatements(source);
     assertEquals(2, stmts.size());
     String result = generateStatement(stmts.get(0)).trim();
-    assertEquals("jfloat f = JavaLangFloat_NaN;", result);
+    assertEquals("jfloat f = CommonFloat_NaN;", result);
     result = generateStatement(stmts.get(1)).trim();
-    assertEquals("jdouble d = JavaLangDouble_POSITIVE_INFINITY;", result);
+    assertEquals("jdouble d = CommonDouble_POSITIVE_INFINITY;", result);
   }
 
   public void testInstanceStaticConstants() throws IOException {
@@ -948,10 +948,10 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslation(translation,
         "IOSObjectArray *a = [IOSObjectArray arrayWithObjects:(id[]){ nil, "
         + "[IOSObjectArray arrayWithObjects:(id[]){ i_, j_ } count:2 "
-        + "type:JavaLangInteger_class_()], "
+        + "type:CommonInt_class_()], "
         + "[IOSObjectArray arrayWithObjects:(id[]){ j_, i_ } count:2 "
-        + "type:JavaLangInteger_class_()] } count:3 "
-        + "type:IOSClass_arrayType(JavaLangInteger_class_(), 1)];");
+        + "type:CommonInt_class_()] } count:3 "
+        + "type:IOSClass_arrayType(CommonInt_class_(), 1)];");
   }
 
   public void testVarargsMethodInvocationZeroLengthArray() throws IOException {
@@ -994,7 +994,7 @@ public class StatementGeneratorTest extends GenerationTest {
         + "arrayWithObjects:(id[]){ NSString_class_() } count:1 type:IOSClass_class_()]];");
     assertTranslation(translation,
         "c3 = [Test_class_() getConstructor:[IOSObjectArray arrayWithObjects:"
-        + "(id[]){ NSString_class_(), JreLoadStatic(JavaLangByte, TYPE) } count:2 "
+        + "(id[]){ NSString_class_(), JreLoadStatic(CommonByte, TYPE) } count:2 "
         + "type:IOSClass_class_()]];");
 
     // Array contents should be expanded.
@@ -1330,7 +1330,7 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslation(translation,
         "[self checkWithBoolean:true withNSString:@\"%d-%d\" "
         + "withNSObjectArray:[IOSObjectArray arrayWithObjects:(id[]){ "
-        + "JavaLangInteger_valueOfWithInt_(i), JavaLangInteger_valueOfWithInt_(j) } count:2 "
+        + "CommonInt_valueOfWithInt_(i), CommonInt_valueOfWithInt_(j) } count:2 "
         + "type:NSObject_class_()]];");
   }
 
@@ -1571,7 +1571,7 @@ public class StatementGeneratorTest extends GenerationTest {
         + "    void test() { testField.ensureCapacity(42); }}}",
         "Test", "Test.m");
     assertTranslation(translation,
-        "[((JavaUtilArrayList *) nil_chk(this$0_->testField_)) ensureCapacityWithInt:42];");
+        "[((NSMutableArray *) nil_chk(this$0_->testField_)) ensureCapacityWithInt:42];");
   }
 
   public void testNoTrigraphs() throws IOException {
@@ -1696,7 +1696,7 @@ public class StatementGeneratorTest extends GenerationTest {
         "  }",
         "}"), "Test", "Test.m");
     // Verify correct type inference.
-    assertTranslation(translation, "JavaUtilArrayList *list = create_JavaUtilArrayList_init();");
+    assertTranslation(translation, "NSMutableArray *list = create_NSMutableArray_init();");
     assertTranslation(translation, "id<JavaUtilStreamStream> stream = [list stream];");
   }
 

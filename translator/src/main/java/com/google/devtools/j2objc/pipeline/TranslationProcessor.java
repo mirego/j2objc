@@ -17,6 +17,7 @@ package com.google.devtools.j2objc.pipeline;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.DebugASTDump;
+import com.google.devtools.j2objc.check.InstanceOfKotlinClassCheck;
 import com.google.devtools.j2objc.gen.GenerationUnit;
 import com.google.devtools.j2objc.gen.ObjectiveCHeaderGenerator;
 import com.google.devtools.j2objc.gen.ObjectiveCImplementationGenerator;
@@ -26,6 +27,7 @@ import com.google.devtools.j2objc.translate.AnnotationRewriter;
 import com.google.devtools.j2objc.translate.ArrayRewriter;
 import com.google.devtools.j2objc.translate.Autoboxer;
 import com.google.devtools.j2objc.translate.CastResolver;
+import com.google.devtools.j2objc.translate.ClassExtendsCollectionCheck;
 import com.google.devtools.j2objc.translate.ComplexExpressionExtractor;
 import com.google.devtools.j2objc.translate.ConstantBranchPruner;
 import com.google.devtools.j2objc.translate.DeadCodeEliminator;
@@ -39,8 +41,10 @@ import com.google.devtools.j2objc.translate.GwtConverter;
 import com.google.devtools.j2objc.translate.InitializationNormalizer;
 import com.google.devtools.j2objc.translate.InnerClassExtractor;
 import com.google.devtools.j2objc.translate.JavaCloneWriter;
+import com.google.devtools.j2objc.translate.JavaObjectMethodConverter;
 import com.google.devtools.j2objc.translate.JavaToIOSMethodTranslator;
 import com.google.devtools.j2objc.translate.KotlinCollectionsConverter;
+import com.google.devtools.j2objc.translate.KotlinNativeBridgeConverter;
 import com.google.devtools.j2objc.translate.LabelRewriter;
 import com.google.devtools.j2objc.translate.LambdaRewriter;
 import com.google.devtools.j2objc.translate.LambdaTypeElementAdder;
@@ -97,27 +101,22 @@ public class TranslationProcessor extends FileProcessor {
   @Override
   protected void processConvertedTree(ProcessingContext input, CompilationUnit unit) {
     String unitName = input.getOriginalSourcePath();
-    if (logger.isLoggable(Level.INFO)) {
-      System.out.println("translating " + unitName);
-    }
+    // kotlin interop >>
     TimeTracker ticker = TimeTracker.getTicker(unitName, options.timingLevel());
-    if (options.dumpAST()) {
-      // Dump compilation unit to an .ast output file instead of translating.
-      DebugASTDump.dumpUnit(unit);
-    } else {
-      applyMutations(unit, deadCodeMap, options.externalAnnotations(), ticker);
-      ticker.tick("Tree mutations");
-      ticker.printResults(System.out);
+    applyMutations(unit, deadCodeMap, options.externalAnnotations(), ticker);
+    ticker.tick("Tree mutations");
+    ticker.printResults(System.out);
 
-      GenerationUnit genUnit = input.getGenerationUnit();
-      genUnit.addCompilationUnit(unit);
-      outputs.add(genUnit);
+    GenerationUnit genUnit = input.getGenerationUnit();
+    genUnit.addCompilationUnit(unit);
+    outputs.add(genUnit);
 
-      // Add out-of-date dependencies to translation list.
-      if (closureQueue != null) {
-        checkDependencies(unit);
-      }
+    // Add out-of-date dependencies to translation list.
+    if (closureQueue != null) {
+      checkDependencies(unit);
     }
+    // kotlin interop <<
+
     processedCount++;
   }
 
@@ -127,6 +126,33 @@ public class TranslationProcessor extends FileProcessor {
       generateObjectiveCSource(output.getGenerationUnit());
     }
   }
+
+  // kotlin interop >>
+  @Override
+  protected void checkConvertedTree(ProcessingContext input, CompilationUnit unit) {
+    if (options.dumpAST()) {
+      // Dump compilation unit to an .ast output file instead of translating.
+      DebugASTDump.dumpUnit(unit);
+    } else {
+      applyChecks(unit);
+    }
+  }
+
+  public static void checkAndWrite(CompilationUnit unit,
+                                   CodeReferenceMap deadCodeMap,
+                                   ExternalAnnotations externalAnnotations,
+                                   TimeTracker ticker) {
+    applyChecks(unit);
+    applyMutations(unit, deadCodeMap, externalAnnotations, ticker);
+  }
+
+  private static void applyChecks(CompilationUnit unit) {
+    new InstanceOfKotlinClassCheck(unit).run();
+    new ClassExtendsCollectionCheck(unit).run();
+
+    unit.validate();
+  }
+  // kotlin interop <<
 
   /**
    * Translates a parsed source file, modifying the compilation unit by substituting core Java type
@@ -192,6 +218,9 @@ public class TranslationProcessor extends FileProcessor {
     ticker.tick("VariableRenamer");
 
     // kotlin interop >>
+    // new ClassExtendsCollectionCheck(unit).run();
+    // ticker.tick("ClassExtendsCollectionCheck");
+
     new KotlinCollectionsConverter(unit).run();
     ticker.tick("KotlinCollectionsConverter");
     // kotlin interop <<
@@ -268,6 +297,14 @@ public class TranslationProcessor extends FileProcessor {
     // only its own instance variables.
     new DestructorGenerator(unit).run();
     ticker.tick("DestructorGenerator");
+
+    // kotlin interop <<
+    new JavaObjectMethodConverter(unit).run();
+    ticker.tick("JavaObjectMethodConverter");
+
+    new KotlinNativeBridgeConverter(unit).run();
+    ticker.tick("KotlinNativeBridgeConverter");
+    // kotlin interop >>
 
     // Before: StaticVarRewriter - Generates static variable access expressions.
     new MetadataWriter(unit, deadCodeMap).run();

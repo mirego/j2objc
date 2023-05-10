@@ -200,3 +200,33 @@ java.lang.CharSequence.subSequence(II)Ljava/lang/CharSequence; = subSequenceFrom
 
 java.lang.Number.longValue()J = longLongValue
 java.lang.Number.byteValue()B = charValue
+
+# kotlin interop >>
+
+java.util.ArrayList.<init>()V = init
+java.util.ArrayList.<init>(I)V = initWithInitialCapacity:
+java.util.ArrayList.<init>(Ljava/util/Collection;)V = initWithElements:
+
+java.util.HashSet.<init>()V = init
+java.util.HashSet.<init>(I)V = initWithInitialCapacity:
+java.util.HashSet.<init>(IF)V = initWithInitialCapacity:loadFactor:
+java.util.HashSet.<init>(IFZ)V = initWithInitialCapacity:loadFactor:dummy:
+java.util.HashSet.<init>(Ljava/util/Collection;)V = initWithElements:
+
+java.util.LinkedHashSet.<init>()V = init
+java.util.LinkedHashSet.<init>(I)V = initWithInitialCapacity:
+java.util.LinkedHashSet.<init>(IF)V = initWithInitialCapacity:loadFactor:
+java.util.LinkedHashSet.<init>(Ljava/util/Collection;)V = initWithElements:
+
+java.util.HashMap.<init>()V = init
+java.util.HashMap.<init>(I)V = initWithInitialCapacity:
+java.util.HashMap.<init>(IF)V = initWithInitialCapacity:loadFactor:
+java.util.HashMap.<init>(Ljava/util/Map;)V = initWithOriginal:
+
+java.util.LinkedHashMap.<init>()V = init
+java.util.LinkedHashMap.<init>(I)V = initWithInitialCapacity:
+java.util.LinkedHashMap.<init>(IF)V = initWithInitialCapacity:loadFactor:
+java.util.LinkedHashMap.<init>(IFZ)V = initWithInitialCapacity:loadFactor:accessOrder:
+java.util.LinkedHashMap.<init>(Ljava/util/Map;)V = initWithOriginal:
+
+# kotlin interop <<

@@ -36,6 +36,7 @@ ARCH_LIB_DIR = $(DIST_LIB_DIR)
 ARCH_LIB_MACOSX_DIR = $(DIST_LIB_MACOSX_DIR)
 ARCH_LIB_MAC_CATALYST_DIR = $(DIST_LIB_MAC_CATALYST_DIR)
 ARCH_LIB_SIMULATOR_DIR = $(ARCH_LIB_SIMULATOR_DIR)
+ARCH_LIB_TV_SIMULATOR_DIR = $(ARCH_LIB_TV_SIMULATOR_DIR)
 ARCH_INCLUDE_DIR = $(DIST_INCLUDE_DIR)
 endif
 
@@ -67,6 +68,11 @@ ARCH_BUILD_TV_DIR = $(ARCH_BUILD_DIR)/appletvos
 ARCH_LIB_TV_DIR = $(ARCH_LIB_DIR)/appletvos
 DIST_LIB_TV_DIR = $(DIST_LIB_DIR)/appletvos
 
+# Appletv simulator library dirs.
+ARCH_BUILD_TV_SIMULATOR_DIR = $(ARCH_BUILD_DIR)/appletvsimulator
+ARCH_LIB_TV_SIMULATOR_DIR = $(ARCH_LIB_DIR)/appletvsimulator
+DIST_LIB_TV_SIMULATOR_DIR = $(DIST_LIB_DIR)/appletvsimulator
+
 # Mac Catalyst library dirs.
 ARCH_BUILD_MAC_CATALYST_DIR = $(ARCH_BUILD_DIR)/maccatalyst
 ARCH_LIB_MAC_CATALYST_DIR = $(ARCH_LIB_DIR)/maccatalyst
@@ -97,7 +103,7 @@ else
 J2OBJC_ARCHS = macosx iphone64 iphone64e watchosv7k watchos64 watchsimulator watchsimulator64 \
     simulator simulator64 maccatalyst
 ifeq ($(TVOS_AVAILABLE), YES)
-J2OBJC_ARCHS += appletvos appletvsimulator
+J2OBJC_ARCHS += appletvos appletvsimulator appletvsimulator64
 endif
 ifeq ($(MACOSX64_AVAILABLE), YES)
 J2OBJC_ARCHS += macosx64 maccatalyst64
@@ -111,12 +117,12 @@ XCRUN := $(shell if test -f /usr/bin/xcrun; then echo xcrun; else echo ""; fi)
 # xcrun can fail when run concurrently, so we find all the tools up-front.
 ifneq ($(XCRUN),)
 MAKE := $(shell xcrun --find make)
-CLANG := $(shell xcrun --find clang)
+CLANG := $(J2OBJC_ROOT)/scripts/ccache-clang.sh $(shell xcrun --find clang)
 LIBTOOL := $(shell xcrun --find libtool)
 LIPO := $(shell xcrun --find lipo)
 else
 MAKE = make
-CLANG = clang
+CLANG = $(J2OBJC_ROOT)/scripts/ccache-clang.sh clang
 LIBTOOL = libtool
 LIPO = lipo
 endif

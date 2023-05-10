@@ -27,10 +27,14 @@ public class EnhancedForRewriterTest extends GenerationTest {
   // Regression test: Must call "charValue" on boxed type returned from iterator.
   public void testEnhancedForWithBoxedType() throws IOException {
     String source = "import java.util.List;"
+        + "import com.google.j2objc.annotations.LoopTranslation;"
+        + "import com.google.j2objc.annotations.LoopTranslation.LoopStyle;"
         + "public class A { "
         + "Character[] charArray; "
         + "List<Character> charList; "
-        + "void test() { for (char c : charArray) {} for (char c : charList) {} } }";
+        + "void test() { "
+        + "for (char c : charArray) {} "
+        + "for (@LoopTranslation(LoopStyle.FAST_ENUMERATION) char c : charList) {} } }";
     String translation = translateSourceFile(source, "A", "A.m");
     assertTranslation(translation,
         "jchar c = [((JavaLangCharacter *) nil_chk(*b__++)) charValue];");

@@ -61,7 +61,8 @@ function platforms_to_include() {
   if exists_in_list "$J2OBJC_ARCHS" "appletvos"; then
     result+=("appletvos");
   fi
-  if exists_in_list "$J2OBJC_ARCHS" "appletvsimulator"; then
+  if exists_in_list "$J2OBJC_ARCHS" "appletvsimulator" ||
+     exists_in_list "$J2OBJC_ARCHS" "appletvsimulator64"; then
     result+=("appletvsimulator");
   fi
   echo "${result[@]}"
@@ -85,10 +86,10 @@ readonly LIBRARY_NAME=$1
 PLATFORMS="$(platforms_to_include)"
 
 # The list of architectures where XCFramework expects a fat library.
-FAT_PLATFORMS="$(array_intersection "iphone simulator macosx maccatalyst watchos watchsimulator" "$PLATFORMS")"
+FAT_PLATFORMS="$(array_intersection "iphone simulator macosx maccatalyst watchos watchsimulator appletvsimulator" "$PLATFORMS")"
 
 # The list of architectures were XCFramework only accepts single-arch libraries.
-SINGLE_PLATFORMS="$(array_intersection "appletvos appletvsimulator" "$PLATFORMS")"
+SINGLE_PLATFORMS="$(array_intersection "appletvos" "$PLATFORMS")"
 
 for platform in $FAT_PLATFORMS
 do

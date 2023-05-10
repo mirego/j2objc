@@ -7,8 +7,8 @@
 //
 
 #import "NSDictionaryMap.h"
+#import "java/util/HashSet.h" // FIXME FLA Fix later to use LinkedHashSet
 #import "java/util/Iterator.h"
-#import "java/util/LinkedHashSet.h"
 #import "java/util/LinkedList.h"
 #import "java/util/function/BiConsumer.h"
 
@@ -100,7 +100,7 @@
 }
 
 - (id<JavaUtilSet>)entrySet {
-  id<JavaUtilSet> set = AUTORELEASE([[JavaUtilLinkedHashSet alloc] init]);
+  id<JavaUtilSet> set = AUTORELEASE(create_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
   for (id key in dictionary_) {
     NSDictionaryMap_Entry *entry =
         AUTORELEASE([[NSDictionaryMap_Entry alloc]
@@ -142,7 +142,7 @@
 }
 
 - (id<JavaUtilSet>)keySet {
-  id<JavaUtilSet> set = AUTORELEASE([[JavaUtilLinkedHashSet alloc] init]);
+  id<JavaUtilSet> set = AUTORELEASE(create_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
   for (id key in dictionary_) {
     [set addWithId:key];
   }

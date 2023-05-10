@@ -169,57 +169,57 @@
 
 - (id)__boxValue:(J2ObjcRawValue *)rawValue {
   switch ([type_ characterAtIndex:0]) {
-    case 'B': return JavaLangByte_valueOfWithByte_(rawValue->asChar);
+    case 'B': return CommonByte_valueOfWithByte_(rawValue->asChar);
     case 'C': return JavaLangCharacter_valueOfWithChar_(rawValue->asUnichar);
-    case 'D': return JavaLangDouble_valueOfWithDouble_(rawValue->asDouble);
-    case 'F': return JavaLangFloat_valueOfWithFloat_(rawValue->asFloat);
-    case 'I': return JavaLangInteger_valueOfWithInt_(rawValue->asInt);
-    case 'J': return JavaLangLong_valueOfWithLong_(rawValue->asLong);
-    case 'S': return JavaLangShort_valueOfWithShort_(rawValue->asShort);
-    case 'Z': return JavaLangBoolean_valueOfWithBoolean_(rawValue->asBOOL);
+    case 'D': return CommonDouble_valueOfWithDouble_(rawValue->asDouble);
+    case 'F': return CommonFloat_valueOfWithFloat_(rawValue->asFloat);
+    case 'I': return CommonInt_valueOfWithInt_(rawValue->asInt);
+    case 'J': return CommonLong_valueOfWithLong_(rawValue->asLong);
+    case 'S': return CommonShort_valueOfWithShort_(rawValue->asShort);
+    case 'Z': return CommonBoolean_valueOfWithBoolean_(rawValue->asBOOL);
   }
   return nil;
 }
 
 - (id)wrapperClass {
   switch ([type_ characterAtIndex:0]) {
-    case 'B': return JavaLangByte_class_();
+    case 'B': return CommonByte_class_();
     case 'C': return JavaLangCharacter_class_();
-    case 'D': return JavaLangDouble_class_();
-    case 'F': return JavaLangFloat_class_();
-    case 'I': return JavaLangInteger_class_();
-    case 'J': return JavaLangLong_class_();
-    case 'S': return JavaLangShort_class_();
-    case 'Z': return JavaLangBoolean_class_();
+    case 'D': return CommonDouble_class_();
+    case 'F': return CommonFloat_class_();
+    case 'I': return CommonInt_class_();
+    case 'J': return CommonLong_class_();
+    case 'S': return CommonShort_class_();
+    case 'Z': return CommonBoolean_class_();
   }
   return nil;
 }
 
 - (jboolean)__unboxValue:(id)value toRawValue:(J2ObjcRawValue *)rawValue {
   IOSClass *fromType = nil;
-  if ([value isKindOfClass:[JavaLangByte class]]) {
-    rawValue->asChar = [(JavaLangByte *) value charValue];
+  if ([value isKindOfClass:[CommonByte class]]) {
+    rawValue->asChar = [(CommonByte *) value charValue];
     fromType = [IOSClass byteClass];
   } else if ([value isKindOfClass:[JavaLangCharacter class]]) {
     rawValue->asUnichar = [(JavaLangCharacter *) value charValue];
     fromType = [IOSClass charClass];
-  } else if ([value isKindOfClass:[JavaLangDouble class]]) {
-    rawValue->asDouble = [(JavaLangDouble *) value doubleValue];
+  } else if ([value isKindOfClass:[CommonDouble class]]) {
+    rawValue->asDouble = [(CommonDouble *) value doubleValue];
     fromType = [IOSClass doubleClass];
-  } else if ([value isKindOfClass:[JavaLangFloat class]]) {
-    rawValue->asFloat = [(JavaLangFloat *) value floatValue];
+  } else if ([value isKindOfClass:[CommonFloat class]]) {
+    rawValue->asFloat = [(CommonFloat *) value floatValue];
     fromType = [IOSClass floatClass];
-  } else if ([value isKindOfClass:[JavaLangInteger class]]) {
-    rawValue->asInt = [(JavaLangInteger *) value intValue];
+  } else if ([value isKindOfClass:[CommonInt class]]) {
+    rawValue->asInt = [(CommonInt *) value intValue];
     fromType = [IOSClass intClass];
-  } else if ([value isKindOfClass:[JavaLangLong class]]) {
-    rawValue->asLong = [(JavaLangLong *) value longLongValue];
+  } else if ([value isKindOfClass:[CommonLong class]]) {
+    rawValue->asLong = [(CommonLong *) value longLongValue];
     fromType = [IOSClass longClass];
-  } else if ([value isKindOfClass:[JavaLangShort class]]) {
-    rawValue->asShort = [(JavaLangShort *) value shortValue];
+  } else if ([value isKindOfClass:[CommonShort class]]) {
+    rawValue->asShort = [(CommonShort *) value shortValue];
     fromType = [IOSClass shortClass];
-  } else if ([value isKindOfClass:[JavaLangBoolean class]]) {
-    rawValue->asBOOL = [(JavaLangBoolean *) value booleanValue];
+  } else if ([value isKindOfClass:[CommonBoolean class]]) {
+    rawValue->asBOOL = [(CommonBoolean *) value booleanValue];
     fromType = [IOSClass booleanClass];
   }
 

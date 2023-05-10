@@ -66,7 +66,7 @@ JNIEXPORT jdouble Java_java_lang_StrictMath_floor(JNIEnv *env, jclass cls, jdoub
 JNIEXPORT jdouble Java_java_lang_StrictMath_hypot(JNIEnv *env, jclass cls, jdouble x, jdouble y) {
   // ARM processors return hypot(x, NaN) as x, so test separately.
   if (isnan(x) || isnan(y)) {
-    return (isinf(x) || isinf(y)) ? JavaLangDouble_POSITIVE_INFINITY : JavaLangDouble_NaN;
+    return (isinf(x) || isinf(y)) ? CommonDouble_POSITIVE_INFINITY : CommonDouble_NaN;
   }
   return hypot(x, y);
 }

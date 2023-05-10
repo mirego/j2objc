@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicFunctionReturningFloat {
 
-    public static Float main(String[] args) {
+  public static Float main(String[] args) {
 
-        ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
+    ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
 
-        return classWithPublicFunctions.returnFloat();
-    }
+    return classWithPublicFunctions.returnFloat();
+  }
 }

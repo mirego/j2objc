@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicFunctionReturningLong {
 
-    public static Long main(String[] args) {
+  public static Long main(String[] args) {
 
-        ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
+    ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
 
-        return classWithPublicFunctions.returnLong();
-    }
+    return classWithPublicFunctions.returnLong();
+  }
 }

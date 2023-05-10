@@ -29,4 +29,6 @@ include ../make/framework.mk
 dist:
 
 clean:
+
+clean_dist: clean
 	@rm -rf $(FRAMEWORK_DIR)

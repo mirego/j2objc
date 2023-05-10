@@ -304,7 +304,7 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     public void test_indexOfLjava_lang_Object() {
-        AbstractList al = new ArrayList();
+        ArrayList al = new ArrayList();
         al.add(0);
         al.add(1);
         al.add(2);
@@ -316,7 +316,7 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     public void test_lastIndexOfLjava_lang_Object() {
-        AbstractList al = new ArrayList();
+        ArrayList al = new ArrayList();
         al.add(0);
         al.add(1);
         al.add(2);
@@ -332,8 +332,8 @@ public class AbstractListTest extends junit.framework.TestCase {
     }
 
     public void test_listIteratorI() {
-        AbstractList al1 = new ArrayList();
-        AbstractList al2 = new ArrayList();
+        ArrayList al1 = new ArrayList();
+        ArrayList al2 = new ArrayList();
         al1.add(0);
         al1.add(1);
         al1.add(2);

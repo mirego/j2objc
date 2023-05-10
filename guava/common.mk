@@ -86,7 +86,10 @@ DIST_JAR = $(GUAVA_DIST_JAR)
 lib: $(FAT_LIBS_DIST) $(DIST_JAR) $(DIST_HEADERS)
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST) $(DIST_GUAVA_INCLUDE_DIR) $(DIST_JAR)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST) $(DIST_GUAVA_INCLUDE_DIR) $(DIST_JAR)
 	@rm -rf $(FRAMEWORK_DIR)
 
 java: $(DIST_JAR)

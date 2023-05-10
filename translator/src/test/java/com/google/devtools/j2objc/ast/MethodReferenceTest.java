@@ -202,11 +202,11 @@ public class MethodReferenceTest extends GenerationTest {
         + "IntFun f = Test::foo; IntegerFun f2 = Test::bar; }", "Test", "Test.m");
     assertTranslatedLines(translation,
         "- (void)applyWithInt:(jint)a {",
-        "  Test_fooWithJavaLangInteger_(JavaLangInteger_valueOfWithInt_(a));",
+        "  Test_fooWithCommonInt_(CommonInt_valueOfWithInt_(a));",
         "}");
     assertTranslatedLines(translation,
-        "- (void)applyWithJavaLangInteger:(JavaLangInteger *)a {",
-        "  Test_barWithInt_([((JavaLangInteger *) nil_chk(a)) intValue]);",
+        "- (void)applyWithCommonInt:(CommonInt *)a {",
+        "  Test_barWithInt_([((CommonInt *) nil_chk(a)) intValue]);",
         "}");
   }
 
@@ -217,12 +217,12 @@ public class MethodReferenceTest extends GenerationTest {
         + "Fun f = this::size; Fun2 f2 = this::size2; }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "- (JavaLangInteger *)a {",
-        "  return JavaLangInteger_valueOfWithInt_([target$_ size]);",
+        "- (CommonInt *)a {",
+        "  return CommonInt_valueOfWithInt_([target$_ size]);",
         "}");
     assertTranslatedLines(translation,
         "- (jint)a {",
-        "  return [((JavaLangInteger *) nil_chk([target$_ size2])) intValue];",
+        "  return [((CommonInt *) nil_chk([target$_ size2])) intValue];",
         "}");
   }
 

@@ -55,6 +55,8 @@ FAT_LIB_TV_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min
   -isysroot $(FAT_LIB_TV_SDK_DIR)
 FAT_LIB_TVSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mappletvos-version-min=9.0 \
   -isysroot $(FAT_LIB_TVSIMULATOR_SDK_DIR)
+FAT_LIB_TVSIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=9.0 \
+  -isysroot $(FAT_LIB_TVSIMULATOR_SDK_DIR) --target=arm64-apple-tvos-simulator
 
 FAT_LIB_XCODE_FLAGS = -arch $(1) -DJ2OBJC_BUILD_ARCH=$(1) -miphoneos-version-min=5.0 \
   -isysroot $(SDKROOT)
@@ -91,8 +93,9 @@ arch_flags = $(strip \
   $(patsubst simulator64,$(FAT_LIB_SIMULATOR64_FLAGS),\
   $(patsubst appletvos,$(FAT_LIB_TV_FLAGS),\
   $(patsubst appletvsimulator,$(FAT_LIB_TVSIMULATOR_FLAGS),\
+  $(patsubst appletvsimulator64,$(FAT_LIB_TVSIMULATOR64_FLAGS),\
   $(patsubst maccatalyst,$(FAT_LIB_MAC_CATALYST_FLAGS),\
-  $(patsubst maccatalyst64,$(FAT_LIB_MAC_CATALYST64_FLAGS),$(1))))))))))))))))))
+  $(patsubst maccatalyst64,$(FAT_LIB_MAC_CATALYST64_FLAGS),$(1)))))))))))))))))))
 
 fat_lib_dependencies:
 	@:
@@ -105,12 +108,12 @@ fat_lib_dependencies:
 #   4: precompiled header file, or empty
 #   5: other compiler flags
 define compile_rule
-$(1)/%.o: $(2)/%.m $(4:%=$(1)/%.pch) | fat_lib_dependencies
+$(1)/%.o: $(2)/%.m $(4:%=$(1)/%) | fat_lib_dependencies
 	@mkdir -p $$(@D)
 	@echo compiling '$$<'
 	@$(3) $(4:%=-include $(1)/%) $(5) -MD -c '$$<' -o '$$@'
 
-$(1)/%.o: $(2)/%.mm $(4:%=$(1)/%.pch) | fat_lib_dependencies
+$(1)/%.o: $(2)/%.mm $(4:%=$(1)/%) | fat_lib_dependencies
 	@mkdir -p $$(@D)
 	@echo compiling '$$<'
 	@$(3) -x objective-c++ -stdlib=libc++ $(5) -MD -c '$$<' -o '$$@'
@@ -125,8 +128,8 @@ endef
 define compile_pch_rule
 $(1): $(2) | fat_lib_dependencies
 	@mkdir -p $$(@D)
-	@echo compiling '$$<'
-	@$(3) -x objective-c-header $(4) -MD -c $$< -o $$@
+	@echo copying '$$<'
+	@cp -fp $$< $$@
 endef
 
 # Generates analyze rule.
@@ -153,10 +156,10 @@ endef
 #   4: precompiled header file, or empty
 #   5: compilation flags
 emit_compile_rules_for_arch = $(foreach src_dir,$(1),\
-  $(eval $(call compile_pch_rule,$(2)/%.pch,$(src_dir)/%,$(3),$(5)))\
+  $(eval $(call compile_pch_rule,$(2)/%,$(src_dir)/%,$(3),$(5)))\
   $(eval $(call compile_rule,$(2),$(src_dir),$(3),$(4),$(5)))) \
   $(if $(4),\
-    $(eval .SECONDARY: $(2)/$(4).pch) \
+    $(eval .SECONDARY: $(2)/$(4)) \
     $(eval -include $(2)/$(4).d),)
 
 # Generate the library rule for a single architecture.
@@ -244,8 +247,19 @@ endef
 # Generate the rule for the simulator library
 # Args:
 #   1. Library name.
+#   2. List of architecture specific libraries.
 define simulator_lib_rule
 $(ARCH_BUILD_SIMULATOR_DIR)/lib$(1).a: $(2)
+	@mkdir -p $$(@D)
+	$$(LIPO) -create $$^ -output $$@
+endef
+
+# Generate the rule for the appletv simulator library
+# Args:
+#   1. Library name.
+#   2. List of architecture specific libraries.
+define tv_simulator_lib_rule
+$(ARCH_BUILD_TV_SIMULATOR_DIR)/lib$(1).a: $(2)
 	@mkdir -p $$(@D)
 	$$(LIPO) -create $$^ -output $$@
 endef
@@ -279,7 +293,8 @@ FAT_LIB_SIMULATOR_ARCHS = $(filter simulator%,$(J2OBJC_ARCHS))
 FAT_LIB_MAC_ARCHS = $(filter macos%,$(J2OBJC_ARCHS))
 FAT_LIB_WATCH_ARCHS = $(filter watchos%,$(J2OBJC_ARCHS))
 FAT_LIB_WATCHSIMLATOR_ARCHS = $(filter watchsimulator%,$(J2OBJC_ARCHS))
-FAT_LIB_TV_ARCHS = $(filter appletv%,$(J2OBJC_ARCHS))
+FAT_LIB_TV_ARCHS = $(filter appletvos%,$(J2OBJC_ARCHS))
+FAT_LIB_TV_SIMULATOR_ARCHS = $(filter appletvsimulator%,$(J2OBJC_ARCHS))
 FAT_LIB_MAC_CATALYST_ARCHS = $(filter maccatalyst%,$(J2OBJC_ARCHS))
 
 emit_library_rules = $(foreach arch,$(J2OBJC_ARCHS),\
@@ -305,6 +320,9 @@ emit_library_rules = $(foreach arch,$(J2OBJC_ARCHS),\
   $(if $(FAT_LIB_TV_ARCHS),\
     $(eval $(call tv_lib_rule,$(1),$(FAT_LIB_TV_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
     $(ARCH_BUILD_TV_DIR)/lib$(1).a,) \
+  $(if $(FAT_LIB_TV_SIMULATOR_ARCHS),\
+    $(eval $(call tv_simulator_lib_rule,$(1),$(FAT_LIB_TV_SIMULATOR_ARCHS:%=$(BUILD_DIR)/objs-%/lib$(1).a))) \
+    $(ARCH_BUILD_TV_SIMULATOR_DIR)/lib$(1).a,) \
 
 emit_arch_specific_compile_rules = $(foreach arch,$(J2OBJC_ARCHS),\
   $(call emit_compile_rules_for_arch,$(1),$(BUILD_DIR)/objs-$(arch),$(2),$(3),\

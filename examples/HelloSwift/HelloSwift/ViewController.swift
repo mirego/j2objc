@@ -37,13 +37,13 @@ class ViewController: UIViewController {
 
   // It fails to build if the JRE was not build with nullability annotations.
   func testNonNullReturnTypes() {
-    let b = JavaLangBoolean.valueOf(with: "x")
-    let _: JavaLangBoolean = b
+    let b = CommonBoolean.valueOf(with: "x")
+    let _: CommonBoolean = b
 
-    let f = JavaLangFloat.valueOf(with: 3.14)
-    let _: JavaLangFloat = f
+    let f = CommonFloat.valueOf(with: 3.14)
+    let _: CommonFloat = f
 
-    let h = JavaLangLong.toHexString(withLong: 100)
+    let h = CommonLong.toHexString(withLong: 100)
     let _: String = h
 
     let it = JavaUtilArrayList().iterator()

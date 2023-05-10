@@ -184,6 +184,9 @@ test: test_java test_objc test_objc_arc
 clean:
 	@rm -rf $(BUILD_DIR)
 
+clean_dist: clean
+	@:
+
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 

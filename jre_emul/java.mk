@@ -34,6 +34,9 @@ JAVAC_ARGS = --patch-module java.base=$(JRE_SRC) \
 	  -encoding UTF-8 -source 11 -target 11 -nowarn
 
 clean:
+	@:
+
+clean_dist: clean
 	@rm -f $(EMULATION_JAR_DIST) $(EMULATION_SRC_JAR_DIST) $(JSON_JAR_DIST)
 
 jars_dist: emul_jar_dist emul_src_jar_dist json_jar_dist
@@ -56,7 +59,7 @@ $(EMULATION_JAR_DIST): $(EMULATION_JAR)
 
 $(EMULATION_MODULE_DIST): $(EMULATION_MODULE)
 	@mkdir -p $(@D)
-	@cp -r $< $@
+	@cp -rp $< $@
 
 $(EMULATION_SRC_JAR_DIST): $(EMULATION_SRC_JAR)
 	@mkdir -p $(@D)
@@ -86,7 +89,7 @@ $(EMULATION_MODULE): $(EMULATION_JAR)
 	  $(BUILD_DIR)/jmod/jre_emul.jmod
 	@$(JAVA_HOME)/bin/jlink --module-path $(BUILD_DIR)/jmod \
 	  --add-modules java.base  --output $(EMULATION_MODULE)
-	@cp $(JAVA_HOME)/lib/jrt-fs.jar $(EMULATION_MODULE)/lib/
+	@cp -fp $(JAVA_HOME)/lib/jrt-fs.jar $(EMULATION_MODULE)/lib/
 	@rm -rf $(BUILD_DIR)/jre_emul
 	@rm -rf $(BUILD_DIR)/jmod
 	@rm $(BUILD_DIR)/module-info.*

@@ -1,6 +1,11 @@
 package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
+
+import org.junit.Test;
+
+import java.io.IOException;
+
 import com.mirego.interop.java.test.property.AccessPropertyWithNilChk;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomGetter;
 import com.mirego.interop.java.test.property.BackingFieldWithCustomSetter;
@@ -22,10 +27,6 @@ import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGenerate
 import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
 import com.mirego.interop.java.test.property.ShortProperty;
 import com.mirego.interop.java.test.property.StringProperty;
-import com.mirego.interop.kotlin.test.property.ClassWithStringProperty;
-
-import java.io.IOException;
-import org.junit.Test;
 
 public class PropertyTest extends GenerationTest {
 
@@ -206,7 +207,7 @@ public class PropertyTest extends GenerationTest {
     String className = NullableBooleanProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [((JavaLangBoolean *) nil_chk(classWithNullableBooleanProperty.nullableBoolean)) booleanValue];");
+    assertTranslation(translation, "return [((CommonBoolean *) nil_chk(classWithNullableBooleanProperty.nullableBoolean)) booleanValue];");
   }
 
   @Test
@@ -244,5 +245,4 @@ public class PropertyTest extends GenerationTest {
 
     assertTranslation(translation, "((CommonClassWithStringProperty *) nil_chk(sourceForTheStringProperty)).");
   }
-
 }

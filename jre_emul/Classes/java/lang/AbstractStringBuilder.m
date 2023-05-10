@@ -101,7 +101,7 @@ void JavaLangAbstractStringBuilder_initPackagePrivateWithInt_(
     JavaLangAbstractStringBuilder *self, jint capacity) {
   if (capacity < 0) {
     id exc = [[JavaLangNegativeArraySizeException alloc] initWithNSString:
-        JavaLangInteger_toStringWithInt_(capacity)];
+        CommonInt_toStringWithInt_(capacity)];
     @throw AUTORELEASE(exc);
   }
   NewBuffer(&self->delegate_, capacity);
@@ -221,28 +221,28 @@ void JreStringBuilder_appendCharSequenceSubset(
 }
 
 void JreStringBuilder_appendInt(JreStringBuilder *sb, jint i) {
-  if (i == JavaLangInteger_MIN_VALUE) {
+  if (i == CommonInt_MIN_VALUE) {
     JreStringBuilder_appendString(sb, @"-2147483648");
     return;
   }
-  jint appendedLength = (i < 0) ? JavaLangInteger_stringSizeWithInt_(-i) + 1
-      : JavaLangInteger_stringSizeWithInt_(i);
+  jint appendedLength = (i < 0) ? CommonInt_stringSizeWithInt_(-i) + 1
+      : CommonInt_stringSizeWithInt_(i);
   jint newCount = sb->count_ + appendedLength;
   EnsureCapacity(sb, newCount);
-  JavaLangInteger_getCharsRaw(i, newCount, sb->buffer_);
+  CommonInt_getCharsRaw(i, newCount, sb->buffer_);
   sb->count_ = newCount;
 }
 
 void JreStringBuilder_appendLong(JreStringBuilder *sb, jlong l) {
-  if (l == JavaLangLong_MIN_VALUE) {
+  if (l == CommonLong_MIN_VALUE) {
     JreStringBuilder_appendString(sb, @"-9223372036854775808");
     return;
   }
-  jint appendedLength = (l < 0) ? JavaLangLong_stringSizeWithLong_(-l) + 1
-      : JavaLangLong_stringSizeWithLong_(l);
+  jint appendedLength = (l < 0) ? CommonLong_stringSizeWithLong_(-l) + 1
+      : CommonLong_stringSizeWithLong_(l);
   jint newCount = sb->count_ + appendedLength;
   EnsureCapacity(sb, newCount);
-  JavaLangLong_getCharsRaw(l, newCount, sb->buffer_);
+  CommonLong_getCharsRaw(l, newCount, sb->buffer_);
   sb->count_ = newCount;
 }
 

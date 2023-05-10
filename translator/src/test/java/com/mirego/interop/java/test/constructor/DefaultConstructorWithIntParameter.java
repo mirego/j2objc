@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructorWit
 
 public class DefaultConstructorWithIntParameter {
 
-    public static ClassWithDefaultConstructorWithIntParameter main(String[] args) {
+  public static ClassWithDefaultConstructorWithIntParameter main(String[] args) {
 
-        ClassWithDefaultConstructorWithIntParameter defaultConstructorWithIntParameter = new ClassWithDefaultConstructorWithIntParameter(1);
+    ClassWithDefaultConstructorWithIntParameter defaultConstructorWithIntParameter = new ClassWithDefaultConstructorWithIntParameter(1);
 
-        return defaultConstructorWithIntParameter;
-    }
+    return defaultConstructorWithIntParameter;
+  }
 }

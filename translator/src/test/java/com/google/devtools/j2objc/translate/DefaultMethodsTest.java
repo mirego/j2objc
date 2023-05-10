@@ -308,10 +308,10 @@ public class DefaultMethodsTest extends GenerationTest {
     String impl = getTranslatedFile("Test.m");
     assertTranslation(header, "- (id)f");
     assertTranslation(header, "id A_f(id<A> self)");
-    assertTranslation(header, "- (JavaLangInteger *)f;"); // From Q
+    assertTranslation(header, "- (CommonInt *)f;"); // From Q
 
     // From R; abstract method is still declared and will be implemented with throwing an exception.
-    assertTranslation(header, "- (JavaLangLong *)f;");
+    assertTranslation(header, "- (CommonLong *)f;");
 
     // From A<T>
     assertTranslatedLines(impl, "id A_f(id<A> self) {", "A_initialize();", "return nil;", "}");
@@ -321,13 +321,13 @@ public class DefaultMethodsTest extends GenerationTest {
 
     // From Q
     assertTranslatedLines(impl,
-        "- (JavaLangInteger *)f {",
-        "return JavaLangInteger_valueOfWithInt_(0);",
+        "- (CommonInt *)f {",
+        "return CommonInt_valueOfWithInt_(0);",
         "}");
 
     // From R
     assertTranslatedLines(impl,
-        "- (JavaLangLong *)f {",
+        "- (CommonLong *)f {",
         "// can't call an abstract method",
         "[self doesNotRecognizeSelector:_cmd];",
         "return 0;",

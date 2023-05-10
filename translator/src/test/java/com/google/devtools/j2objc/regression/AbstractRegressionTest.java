@@ -53,6 +53,11 @@ import java.util.StringJoiner;
  */
 public abstract class AbstractRegressionTest extends GenerationTest {
 
+  // kotlin interop >>
+  private static final String KOTLIN_KOMPAT_LIB_LOCATION =
+      System.getProperty("kotlin.kompat.lib.path", "../dist/lib/common");
+  // kotlin interop <<
+
   private static final String J2OBJCC_LOCATION =
       System.getProperty("j2objcc.path", "../dist/j2objcc");
 
@@ -116,7 +121,9 @@ public abstract class AbstractRegressionTest extends GenerationTest {
       stdError.close();
       return sj.toString();
     } catch (IOException | InterruptedException e) {
-      return null;
+      // kotlin interop >>
+      return "error: command failed with exception - " + e.getMessage();
+      // kotlin interop <<
     }
   }
 
@@ -167,12 +174,20 @@ public abstract class AbstractRegressionTest extends GenerationTest {
     if (ErrorUtil.errorCount() > 0) {
       regressionFail(methodName, ls, res, Joiner.on(' ').join(ErrorUtil.getErrorMessages()));
     }
+    // kotlin interop >>
+    if (KOTLIN_KOMPAT_LIB_LOCATION.isEmpty()) {
+      return;
+    }
+    // kotlin interop <<
     if (J2OBJCC_LOCATION.isEmpty() || res == null || res.isEmpty()) {
       return;
     }
     String executable = tempDir.getPath() + "/regressiontesting";
     List<String> command = new ArrayList<>(Arrays.asList(
         J2OBJCC_LOCATION, "-g", "-I", tempDir.getPath(), "-ljre_emul", "-ObjC", "-o", executable));
+    // kotlin interop >>
+    command.add(KOTLIN_KOMPAT_LIB_LOCATION);
+    // kotlin interop <<
     command.addAll(getImplementationFileList(fileArgs));
     String compileOutput = runCommand(command);
     if (compileOutput.contains("error: ")) {

@@ -58,17 +58,17 @@ $(BUILD_DIR)/.maven_generate: | $(BUILD_DIR)
 	@touch $@
 
 $(BUILD_DIR)/$(JUNIT_JAR): $(BUILD_DIR)/$(JUNIT_ROOT_JAR)
-	@cp -f $< $@
+	@cp -fp $< $@
 
 $(BUILD_DIR)/$(JUNIT_ROOT_JAR): $(BUILD_DIR)/.maven_generate
 	@:
 
 $(BUILD_DIR)/$(JAVAC_JAR): | $(BUILD_DIR)
-	@cp -f $(JAVA_HOME)/lib/$(JAVAC_JAR) $@
+	@cp -fp $(JAVA_HOME)/lib/$(JAVAC_JAR) $@
 
 $(BUILD_DIR)/$(SCENELIB_JAR): | $(BUILD_DIR)
 	@curl -L -s -o $@.zip \
-    https://github.com/eisop/annotation-tools/releases/download/3.27.0-eisop1/annotation-tools-3.27.0-eisop1.zip
+    https://github.com/eisop/annotation-tools/releases/download/3.32.0-eisop1/annotation-tools-3.32.0-eisop1.zip
 	@unzip -qq -d $(BUILD_DIR) $@.zip annotation-file-utilities/annotation-file-utilities-all.jar
 	@unzip -qq -d $(BUILD_DIR) $(BUILD_DIR)/annotation-file-utilities/annotation-file-utilities-all.jar \
     "org/checkerframework/afu/scenelib/*" "org/objectweb/asm/*"
@@ -88,4 +88,7 @@ javadoc_jars: $(BUILD_DIR_DOCLET_JARS) | $(BUILD_DIR)
 	@:
 
 clean:
-	@rm -rf $(BUILD_DIR) $(DIST_JARS)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(DIST_JARS)

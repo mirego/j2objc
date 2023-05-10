@@ -103,6 +103,7 @@ public class ArrayGenericsTest extends GenerationTest {
     String testHeader = translateSourceFile("Test", "Test.h");
     String testSource = translateSourceFile("Test", "Test.m");
 
+    // FIXME FLA Find why it's still using `JavaLangInteger`
     assertTranslation(
         testHeader,
         "(IOSArray<JavaLangInteger *>"
@@ -125,6 +126,7 @@ public class ArrayGenericsTest extends GenerationTest {
     String testHeader = translateSourceFile("Test", "Test.h");
     String testSource = translateSourceFile("Test", "Test.m");
 
+    // FIXME FLA Find why it's still using `JavaLangInteger`
     assertTranslation(
         testHeader,
         "(IOSObjectArray<IOSArray<JavaLangInteger *> *>"
@@ -193,14 +195,14 @@ public class ArrayGenericsTest extends GenerationTest {
                 + "}",
             "Test",
             "Test.h");
-    assertTranslation(translation, "@class JavaLangBoolean;");
-    assertTranslation(translation, "@class JavaLangByte;");
+    assertTranslation(translation, "@class CommonBoolean;");
+    assertTranslation(translation, "@class CommonByte;");
     assertTranslation(translation, "@class JavaLangCharacter;");
-    assertTranslation(translation, "@class JavaLangDouble;");
-    assertTranslation(translation, "@class JavaLangFloat;");
-    assertTranslation(translation, "@class JavaLangInteger;");
-    assertTranslation(translation, "@class JavaLangLong;");
-    assertTranslation(translation, "@class JavaLangShort;");
+    assertTranslation(translation, "@class CommonDouble;");
+    assertTranslation(translation, "@class CommonFloat;");
+    assertTranslation(translation, "@class CommonInt;");
+    assertTranslation(translation, "@class CommonLong;");
+    assertTranslation(translation, "@class CommonShort;");
   }
 
   public void testGenericArrayInterfaceOrObjectComponent() throws IOException {

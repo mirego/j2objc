@@ -41,7 +41,7 @@ public class ObjectiveCSegmentedHeaderGenerator extends ObjectiveCHeaderGenerato
 
   @Override
   protected void generateFileHeader() {
-    println("#include \"J2ObjC_header.h\"");
+    println("#import \"J2ObjC_header.h\"");
     newline();
     printf("#pragma push_macro(\"INCLUDE_ALL_%s\")\n", varPrefix);
     printf("#ifdef RESTRICT_%s\n", varPrefix);
@@ -124,10 +124,15 @@ public class ObjectiveCSegmentedHeaderGenerator extends ObjectiveCHeaderGenerato
       if (isLocalType(imp.getTypeName())) {
         continue;
       }
-      newline();
-      printf("#define RESTRICT_%s 1\n", getVarPrefix(imp.getImportFileName()));
-      printf("#define INCLUDE_%s 1\n", imp.getTypeName());
-      printf("#include \"%s\"\n", imp.getImportFileName());
+      String header = imp.getImportFileName();
+      if (!header.endsWith("common.h")) {
+        newline();
+        printf("#define RESTRICT_%s 1\n", getVarPrefix(header));
+        printf("#define INCLUDE_%s 1\n", imp.getTypeName());
+        printf("#include \"%s\"\n", header);
+      } else {
+        printf("#import \"%s\"\n", header);
+      }
       forwardDeclarations.remove(imp);
     }
 

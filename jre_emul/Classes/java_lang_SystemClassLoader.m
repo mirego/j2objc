@@ -94,7 +94,7 @@ JNIEXPORT jobject Java_java_lang_SystemClassLoader_findResources(
   if (!name) {
     return [JavaUtilCollections emptyEnumeration];
   }
-  JavaUtilArrayList *urls = AUTORELEASE([[JavaUtilArrayList alloc] init]);
+  id<JavaUtilList> urls = AUTORELEASE([[NSMutableArray alloc] init]);
   for (NSBundle *bundle in [NSBundle allBundles]) {
     NSURL *nativeURL = [bundle URLForResource:name withExtension:nil];
     if (nativeURL) {

@@ -492,15 +492,15 @@ int CGPMapFieldHash(CGPMapField *field, CGPFieldJavaType keyType, CGPFieldJavaTy
 static id BoxedValue(CGPValue value, CGPFieldJavaType type) {
   switch (type) {
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_INT:
-      return JavaLangInteger_valueOfWithInt_(value.valueInt);
+      return CommonInt_valueOfWithInt_(value.valueInt);
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_LONG:
-      return JavaLangLong_valueOfWithLong_(value.valueLong);
+      return CommonLong_valueOfWithLong_(value.valueLong);
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_FLOAT:
-      return JavaLangFloat_valueOfWithFloat_(value.valueFloat);
+      return CommonFloat_valueOfWithFloat_(value.valueFloat);
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_DOUBLE:
-      return JavaLangDouble_valueOfWithDouble_(value.valueDouble);
+      return CommonDouble_valueOfWithDouble_(value.valueDouble);
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_BOOLEAN:
-      return JavaLangBoolean_valueOfWithBoolean_(value.valueBool);
+      return CommonBoolean_valueOfWithBoolean_(value.valueBool);
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_ENUM:
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_STRING:
     case ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_BYTE_STRING:
@@ -541,7 +541,7 @@ static CGPValue UnboxValue(id value, CGPFieldJavaType type) {
 // java.lang.Integer using the enum number (not ordinal).
 static id BoxedReflectionValue(CGPValue value, CGPFieldJavaType type) {
   if (type == ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_ENUM) {
-    return JavaLangInteger_valueOfWithInt_(
+    return CommonInt_valueOfWithInt_(
         [(id<ComGoogleProtobufProtocolMessageEnum>)value.valueId getNumber]);
   }
   return BoxedValue(value, type);

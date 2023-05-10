@@ -51,7 +51,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  Foo<Integer> foo = new Foo<Integer>() {"
         + "    public void foo1(Integer i) { } }; }",
         "Test", "Test.m");
-    assertTranslation(translation, "foo1WithId:(JavaLangInteger *)i");
+    assertTranslation(translation, "foo1WithId:(CommonInt *)i");
   }
 
   public void testAccessorForStaticPrimitiveConstant() throws IOException {

@@ -40,7 +40,7 @@
   IOSClass *arraysClass = JavaUtilArrays_class_();
   IOSObjectArray *argTypes =
       [IOSObjectArray arrayWithObjects:
-          (id[]){ IOSClass_doubleArray(1), JavaLangDouble_get_TYPE() }
+          (id[]){ IOSClass_doubleArray(1), CommonDouble_get_TYPE() }
                                  count:2
                                   type:IOSClass_class_()];
   id method = [arraysClass getMethod:@"binarySearch" parameterTypes:argTypes];

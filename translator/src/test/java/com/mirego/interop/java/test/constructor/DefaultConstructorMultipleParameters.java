@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructorMul
 
 public class DefaultConstructorMultipleParameters {
 
-    public static ClassWithDefaultConstructorMultipleParameters main(String[] args) {
+  public static ClassWithDefaultConstructorMultipleParameters main(String[] args) {
 
-        ClassWithDefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new ClassWithDefaultConstructorMultipleParameters("First", "Second");
+    ClassWithDefaultConstructorMultipleParameters defaultConstructorMultipleParameters = new ClassWithDefaultConstructorMultipleParameters("First", "Second");
 
-        return defaultConstructorMultipleParameters;
-    }
+    return defaultConstructorMultipleParameters;
+  }
 }

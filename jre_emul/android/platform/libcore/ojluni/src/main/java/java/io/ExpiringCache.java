@@ -64,7 +64,8 @@ class ExpiringCache {
     @SuppressWarnings("serial")
     ExpiringCache(long millisUntilExpiration) {
         this.millisUntilExpiration = millisUntilExpiration;
-        map = new LinkedHashMap<String,Entry>() {
+        // kotlin interop -- COMMENTED OUT
+        map = new LinkedHashMap<String,Entry>()/* {
             // Android-changed: Qualified ExpiringCache.Entry to distinguish from Map.Entry.
             // There seems to be a compiler difference between javac and jack here;
             // Map.Entry<String,Entry> doesn't work on jack since the latter "Entry" gets
@@ -73,7 +74,7 @@ class ExpiringCache {
             protected boolean removeEldestEntry(Map.Entry<String,ExpiringCache.Entry> eldest) {
               return size() > MAX_ENTRIES;
             }
-          };
+          }*/;
     }
 
     synchronized String get(String key) {

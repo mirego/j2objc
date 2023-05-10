@@ -34,7 +34,7 @@
 /**
  * All possible chars for representing a number as a String
  */
-const jchar JavaLangInteger_digits[] = {
+const jchar CommonInt_digits[] = {
   '0' , '1' , '2' , '3' , '4' , '5' ,
   '6' , '7' , '8' , '9' , 'a' , 'b' ,
   'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,
@@ -46,7 +46,7 @@ const jchar JavaLangInteger_digits[] = {
 static NSString *SMALL_NEG_VALUES[100];
 static NSString *SMALL_NONNEG_VALUES[100];
 
-const jchar JavaLangInteger_DigitTens[] = {
+const jchar CommonInt_DigitTens[] = {
   '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
   '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
   '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
@@ -59,7 +59,7 @@ const jchar JavaLangInteger_DigitTens[] = {
   '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 };
 
-const jchar JavaLangInteger_DigitOnes[] = {
+const jchar CommonInt_DigitOnes[] = {
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -116,10 +116,10 @@ jstring Java_java_lang_Integer_toString__II(JNIEnv *env, jclass cls, jint i, jin
 
   while (i <= -radix) {
     jint q = i / radix;
-    buf[charPos--] = JavaLangInteger_digits[radix * q - i];
+    buf[charPos--] = CommonInt_digits[radix * q - i];
     i = q;
   }
-  buf[charPos] = JavaLangInteger_digits[-i];
+  buf[charPos] = CommonInt_digits[-i];
 
   if (negative) {
     buf[--charPos] = '-';
@@ -134,7 +134,7 @@ jstring Java_java_lang_Integer_toUnsignedString0(JNIEnv *env, jclass cls, jint i
   jint radix = 1 << shift;
   jint mask = radix - 1;
   do {
-    buf[--charPos] = JavaLangInteger_digits[i & mask];
+    buf[--charPos] = CommonInt_digits[i & mask];
     i = (uint32_t)i >> shift;
   } while (i != 0);
 
@@ -142,7 +142,7 @@ jstring Java_java_lang_Integer_toUnsignedString0(JNIEnv *env, jclass cls, jint i
 }
 
 jstring Java_java_lang_Integer_toString__I(JNIEnv *env, jclass cls, jint i) {
-  if (i == JavaLangInteger_MIN_VALUE)
+  if (i == CommonInt_MIN_VALUE)
     return @"-2147483648";
 
   // Android-changed: cache the string literal for small values.
@@ -155,32 +155,32 @@ jstring Java_java_lang_Integer_toString__I(JNIEnv *env, jclass cls, jint i) {
       i = -i;
       if (smallValues[i] == nil) {
         smallValues[i] =
-            i < 10 ? StringOf2('-', JavaLangInteger_DigitOnes[i])
-                   : StringOf3('-', JavaLangInteger_DigitTens[i], JavaLangInteger_DigitOnes[i]);
+            i < 10 ? StringOf2('-', CommonInt_DigitOnes[i])
+                   : StringOf3('-', CommonInt_DigitTens[i], CommonInt_DigitOnes[i]);
       }
     } else {
       if (smallValues[i] == nil) {
         smallValues[i] =
-            i < 10 ? StringOf1(JavaLangInteger_DigitOnes[i])
-                   : StringOf2(JavaLangInteger_DigitTens[i], JavaLangInteger_DigitOnes[i]);
+            i < 10 ? StringOf1(CommonInt_DigitOnes[i])
+                   : StringOf2(CommonInt_DigitTens[i], CommonInt_DigitOnes[i]);
       }
     }
     return smallValues[i];
   }
 
-  jint size = negative ? JavaLangInteger_stringSizeWithInt_(-i) + 1
-                       : JavaLangInteger_stringSizeWithInt_(i);
+  jint size = negative ? CommonInt_stringSizeWithInt_(-i) + 1
+                       : CommonInt_stringSizeWithInt_(i);
   // J2ObjC-changed: use a stack buffer.
   jchar buf[size];
-  JavaLangInteger_getCharsRaw(i, size, buf);
+  CommonInt_getCharsRaw(i, size, buf);
   return [NSString stringWithCharacters:buf length:size];
 }
 
 void Java_java_lang_Integer_getChars(JNIEnv *env, jclass cls, jint i, jint index, jarray buf) {
-  JavaLangInteger_getCharsRaw(i, index, ((IOSCharArray *)buf)->buffer_);
+  CommonInt_getCharsRaw(i, index, ((IOSCharArray *)buf)->buffer_);
 }
 
-void JavaLangInteger_getCharsRaw(jint i, jint index, jchar *buf) {
+void CommonInt_getCharsRaw(jint i, jint index, jchar *buf) {
   jint q, r;
   jint charPos = index;
   jchar sign = 0;
@@ -196,8 +196,8 @@ void JavaLangInteger_getCharsRaw(jint i, jint index, jchar *buf) {
     // really: r = i - (q * 100);
     r = i - ((q << 6) + (q << 5) + (q << 2));
     i = q;
-    buf[--charPos] = JavaLangInteger_DigitOnes[r];
-    buf[--charPos] = JavaLangInteger_DigitTens[r];
+    buf[--charPos] = CommonInt_DigitOnes[r];
+    buf[--charPos] = CommonInt_DigitTens[r];
   }
 
   // Fall thru to fast mode for smaller numbers
@@ -205,7 +205,7 @@ void JavaLangInteger_getCharsRaw(jint i, jint index, jchar *buf) {
   for (;;) {
     q = (jint)(((uint32_t)(i * 52429)) >> (16 + 3));
     r = i - ((q << 3) + (q << 1));  // r = i-(q*10) ...
-    buf[--charPos] = JavaLangInteger_digits[r];
+    buf[--charPos] = CommonInt_digits[r];
     i = q;
     if (i == 0) break;
   }

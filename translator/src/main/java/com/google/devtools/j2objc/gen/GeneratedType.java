@@ -179,7 +179,7 @@ public class GeneratedType {
   private static void addMissingKotlinPropertyAccessors(AbstractTypeDeclaration typeNode, TypeMirror typeMirror, NameTable nameTable) {
     TypeElement element = TypeUtil.asTypeElement(typeMirror);
     if (element != null) {
-      KmClass elementKotlinMetaData = KotlinUtil.getElementKotlinMetaData(element);
+      KmClass elementKotlinMetaData = KotlinUtil.getElementKotlinClassMetaData(element);
 
       List<KmProperty> properties;
       if (elementKotlinMetaData != null) {
@@ -193,7 +193,7 @@ public class GeneratedType {
     }
   }
 
-  private static List<? extends TypeMirror> getAllInterfaces(TypeElement typeElement) {
+  public static List<? extends TypeMirror> getAllInterfaces(TypeElement typeElement) {
     return Stream.concat(
       typeElement.getInterfaces().stream(),
       typeElement.getInterfaces().stream()
@@ -206,6 +206,19 @@ public class GeneratedType {
           }
         })
     ).collect(Collectors.toList());
+  }
+
+  public static void getAllSuperClasses(TypeElement typeElement, List<TypeMirror> superClasses) {
+    if (typeElement != null) {
+      TypeMirror superClass = typeElement.getSuperclass();
+
+      if (superClass != null) {
+        superClasses.add(superClass);
+
+        TypeElement superClassTypeElement = TypeUtil.asTypeElement(superClass);
+        getAllSuperClasses(superClassTypeElement, superClasses);
+      }
+    }
   }
 
   private static void generateKotlinNativeCompatiblePropertyGetter(AbstractTypeDeclaration typeNode, TypeElement element, NameTable nameTable, KmProperty kmProperty) {

@@ -43,7 +43,7 @@ public class JavacTreeConverterTest extends GenerationTest {
     String translation = translateSourceFile("class Test { "
         + "int sizeOfInt() { return Integer.valueOf(42).SIZE; }}", "Test", "Test.m");
     assertTranslation(translation,
-        "return (JavaLangInteger_valueOfWithInt_(42), JavaLangInteger_SIZE);");
+        "return (CommonInt_valueOfWithInt_(42), CommonInt_SIZE);");
   }
 
   // javac qualifies members imported via non-canonical static imports by the

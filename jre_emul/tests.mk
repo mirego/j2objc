@@ -21,6 +21,9 @@ default: test
 include environment.mk
 include test_sources.mk
 include $(J2OBJC_ROOT)/make/translate_macros.mk
+# kotlin interop >>
+include $(J2OBJC_ROOT)/make/kotlin.mk
+# kotlin interop <<
 
 ALL_TEST_SOURCES = $(TEST_SOURCES) $(JSON_TEST_SOURCES) $(ARC_TEST_SOURCES) \
     $(COPIED_ARC_TEST_SOURCES)
@@ -140,6 +143,11 @@ LINK_FLAGS += $(COVERAGE_FLAGS)
 RUN_FLAGS := ASAN_OPTIONS=coverage=1
 endif
 
+# kotlin interop >>
+COVERAGE_FLAGS += $(KOTLIN_KOMPAT_FRAMEWORK_LIB)
+LINK_FLAGS += $(KOTLIN_KOMPAT_FRAMEWORK_LIB)
+# kotlin interop <<
+
 all-tests: test run-xctests
 
 test: print-tools-env run-tests
@@ -197,7 +205,6 @@ run-core-size-test: $(TESTS_DIR)/core_size \
   $(TESTS_DIR)/core_plus_file \
   $(TESTS_DIR)/core_plus_concurrent \
   $(TESTS_DIR)/core_plus_io \
-  $(TESTS_DIR)/core_plus_icu \
   $(TESTS_DIR)/core_plus_json \
   $(TESTS_DIR)/core_plus_net \
   $(TESTS_DIR)/core_plus_security \
@@ -274,7 +281,7 @@ run-each-test: link resources $(TEST_BIN)
 # Note: the simulator app's name was changed to "Simulator" in Xcode 7.
 run-xctests: test
 	@xcrun xcodebuild -project JreEmulation.xcodeproj -scheme jre_emul -destination \
-	    'platform=iOS Simulator,name=iPhone 7 Plus' test
+	    'platform=iOS Simulator,name=iPhone 14 Plus' test
 	@killall 'Simulator'
 
 $(SUPPORT_LIB): $(SUPPORT_OBJS) $(MOCKWEBSERVER_OBJS)
@@ -283,6 +290,9 @@ $(SUPPORT_LIB): $(SUPPORT_OBJS) $(MOCKWEBSERVER_OBJS)
 
 clean:
 	@rm -rf $(TESTS_DIR)
+
+clean_dist: clean
+	@:
 
 $(TESTS_DIR):
 	@mkdir -p $@
@@ -330,11 +340,6 @@ $(TESTS_DIR)/full_jre_size:
 $(TESTS_DIR)/core_plus_io:
 	@mkdir -p $(@D)
 	$(J2OBJCC) -ljre_io -o $@ -ObjC $(COVERAGE_FLAGS)
-
-$(TESTS_DIR)/core_plus_icu:
-	@mkdir -p $(@D)
-	$(J2OBJCC) -ljre_icu -ljre_channels -ljre_net -ljre_util -ljre_security \
-	    -ljre_zip -ljre_io -ljre_concurrent -o $@ -ObjC $(COVERAGE_FLAGS)
 
 $(TESTS_DIR)/core_plus_json:
 	@mkdir -p $(@D)

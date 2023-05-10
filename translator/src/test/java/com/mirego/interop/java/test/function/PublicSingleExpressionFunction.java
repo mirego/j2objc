@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicSingleExpressionFunction {
 
-    public static String main(String[] args) {
+  public static String main(String[] args) {
 
-        ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
+    ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
 
-        return classWithPublicFunctions.singleExpression();
-    }
+    return classWithPublicFunctions.singleExpression();
+  }
 }

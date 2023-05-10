@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructorWit
 
 public class DefaultConstructorWithInitBlock {
 
-    public static ClassWithDefaultConstructorWithInitBlock main(String[] args) {
+  public static ClassWithDefaultConstructorWithInitBlock main(String[] args) {
 
-        ClassWithDefaultConstructorWithInitBlock defaultConstructorWithInitBlock = new ClassWithDefaultConstructorWithInitBlock("ClassWithDefaultConstructorWithInitBlock");
+    ClassWithDefaultConstructorWithInitBlock defaultConstructorWithInitBlock = new ClassWithDefaultConstructorWithInitBlock("ClassWithDefaultConstructorWithInitBlock");
 
-        return defaultConstructorWithInitBlock;
-    }
+    return defaultConstructorWithInitBlock;
+  }
 }

@@ -12,7 +12,7 @@
 
 # Makefile for building the iOS truth fluent assertions library.
 
-.PHONY: default clean
+.PHONY: default clean_dist
 
 include environment.mk
 
@@ -157,7 +157,10 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR) $(FAT_LIBS_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(FAT_LIBS_DIST)
 
 dist: framework
 

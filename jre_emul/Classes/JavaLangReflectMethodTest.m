@@ -81,16 +81,16 @@ static double defaultValue = 3.1416;
   IOSObjectArray *parameters = [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
   id result = [sizeMethod invokeWithId:object_
                            withNSObjectArray:parameters];
-  XCTAssertTrue([result isKindOfClass:[JavaLangInteger class]],
+  XCTAssertTrue([result isKindOfClass:[CommonInt class]],
                 @"incorrect type returned", nil);
-  JavaLangInteger *integer = (JavaLangInteger *) result;
+  CommonInt *integer = (CommonInt *) result;
   XCTAssertEqual([integer intValue], 0, @"invalid result", nil);
 }
 
 static id invokeValueMethod(NSString *methodName) {
-  JavaLangDouble *value =
-      AUTORELEASE([[JavaLangDouble alloc] initWithDouble:defaultValue]);
-  JavaLangReflectMethod *method = [JavaLangDouble_class_() getMethod:methodName parameterTypes:nil];
+  CommonDouble *value =
+      AUTORELEASE([[CommonDouble alloc] initWithDouble:defaultValue]);
+  JavaLangReflectMethod *method = [CommonDouble_class_() getMethod:methodName parameterTypes:nil];
   IOSObjectArray *parameters = [IOSObjectArray arrayWithLength:0 type:NSObject_class_()];
   return [method invokeWithId:value
                   withNSObjectArray:parameters];
@@ -101,9 +101,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"byteValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangByte class]],
+  XCTAssertTrue([result isKindOfClass:[CommonByte class]],
                @"incorrect type returned", nil);
-  JavaLangByte *b = (JavaLangByte *) result;
+  CommonByte *b = (CommonByte *) result;
   XCTAssertEqual([b charValue], (char) 3, @"invalid result", nil);
 }
 
@@ -112,9 +112,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"doubleValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangDouble class]],
+  XCTAssertTrue([result isKindOfClass:[CommonDouble class]],
                @"incorrect type returned", nil);
-  JavaLangDouble *d = (JavaLangDouble *) result;
+  CommonDouble *d = (CommonDouble *) result;
   XCTAssertEqual([d doubleValue], 3.1416, @"invalid result", nil);
 }
 
@@ -123,9 +123,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"floatValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangFloat class]],
+  XCTAssertTrue([result isKindOfClass:[CommonFloat class]],
                @"incorrect type returned", nil);
-  JavaLangFloat *f = (JavaLangFloat *) result;
+  CommonFloat *f = (CommonFloat *) result;
   XCTAssertEqual([f floatValue], 3.1416f, @"invalid result", nil);
 }
 
@@ -134,9 +134,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"intValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangInteger class]],
+  XCTAssertTrue([result isKindOfClass:[CommonInt class]],
                @"incorrect type returned", nil);
-  JavaLangInteger *i = (JavaLangInteger *) result;
+  CommonInt *i = (CommonInt *) result;
   XCTAssertEqual([i intValue], 3, @"invalid result", nil);
 }
 
@@ -145,9 +145,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"longValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangLong class]],
+  XCTAssertTrue([result isKindOfClass:[CommonLong class]],
                @"incorrect type returned", nil);
-  JavaLangLong *l = (JavaLangLong *) result;
+  CommonLong *l = (CommonLong *) result;
   XCTAssertEqual([l longLongValue], 3LL, @"invalid result", nil);
 }
 
@@ -156,9 +156,9 @@ static id invokeValueMethod(NSString *methodName) {
     return;
   }
   id result = invokeValueMethod(@"shortValue");
-  XCTAssertTrue([result isKindOfClass:[JavaLangShort class]],
+  XCTAssertTrue([result isKindOfClass:[CommonShort class]],
                @"incorrect type returned", nil);
-  JavaLangShort *s = (JavaLangShort *) result;
+  CommonShort *s = (CommonShort *) result;
   XCTAssertEqual([s shortValue], (short) 3, @"invalid result", nil);
 }
 

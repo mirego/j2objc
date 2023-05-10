@@ -1,14 +1,13 @@
 package com.mirego.interop.java.test.function;
 
-import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctionReturningUnit;
+import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicFunctionReturningUnit {
 
-    public static ClassWithPublicFunctionReturningUnit main(String[] args) {
+  public static void main(String[] args) {
 
-        ClassWithPublicFunctionReturningUnit classWithPublicFunctionReturningUnit = new ClassWithPublicFunctionReturningUnit();
+    ClassWithPublicFunctions classWithPublicFunction = new ClassWithPublicFunctions();
 
-        classWithPublicFunctionReturningUnit.returnUnit();
-        return classWithPublicFunctionReturningUnit;
-    }
+    classWithPublicFunction.returnUnit();
+  }
 }

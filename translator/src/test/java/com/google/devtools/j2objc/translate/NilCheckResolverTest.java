@@ -160,12 +160,14 @@ public class NilCheckResolverTest extends GenerationTest {
 
   public void testReassignedVariableInLoop() throws IOException {
     String translation = translateSourceFile(
-        "public abstract class Test { abstract boolean getB();"
+        "import com.google.j2objc.annotations.LoopTranslation;"
+        + "import com.google.j2objc.annotations.LoopTranslation.LoopStyle;"
+        + "public abstract class Test { abstract boolean getB();"
         + " void test(Object o, Iterable<Integer> ints) {"
         + " o.toString(); do { o.toString(); o = null; } while(getB());"
         + " o.toString(); while(getB()) { o.toString(); o = null; }"
         + " o.toString(); for(; getB();) { o.toString(); o = null; }"
-        + " o.toString(); for(Integer i : ints) { o.toString(); o = null; } } }", "Test", "Test.m");
+        + " o.toString(); for(@LoopTranslation(LoopStyle.FAST_ENUMERATION) Integer i : ints) { o.toString(); o = null; } } }", "Test", "Test.m");
     assertTranslatedLines(translation,
         "[nil_chk(o) description];",
         "do {",
@@ -184,7 +186,7 @@ public class NilCheckResolverTest extends GenerationTest {
         "  o = nil;",
         "}",
         "[nil_chk(o) description];",
-        "for (JavaLangInteger * __strong i in nil_chk(ints)) {",
+        "for (CommonInt * __strong i in nil_chk(ints)) {",
         "  [nil_chk(o) description];",
         "  o = nil;",
         "}");

@@ -13,18 +13,18 @@
  */
 package android.icu.dev.test;
 
+import android.icu.dev.test.timezone.TimeZoneAliasTest;
 import android.icu.dev.test.timezone.TimeZoneBoundaryTest;
 import android.icu.dev.test.timezone.TimeZoneOffsetLocalTest;
 import android.icu.dev.test.timezone.TimeZoneRegressionTest;
 import android.icu.dev.test.timezone.TimeZoneRuleTest;
-import android.icu.dev.test.timezone.TimeZoneTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 /** Test suite for android.icu package. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  TimeZoneTest.class,
+  TimeZoneAliasTest.class,
   TimeZoneBoundaryTest.class,
   TimeZoneOffsetLocalTest.class,
   TimeZoneRegressionTest.class,

@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.property.ClassWithStringProperty;
 
 public class StringProperty {
 
-    public static String main(String[] args) {
+  public static String main(String[] args) {
 
-        ClassWithStringProperty classWithStringProperty = new ClassWithStringProperty("testString");
+    ClassWithStringProperty classWithStringProperty = new ClassWithStringProperty("testString");
 
-        return classWithStringProperty.getStringProperty();
-    }
+    return classWithStringProperty.getStringProperty();
+  }
 }

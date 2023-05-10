@@ -20,18 +20,21 @@
 
 #import "J2ObjC_types.h"
 
-// kotlin interop >>
-#import "J2ObjC_kotlinTypes.h"
-// kotlin interop <<
-
 @class IOSClass;
 @class JavaLangRefWeakReference;
 @protocol JavaLangIterable;
 
 // kotlin interop >>
+@protocol JavaUtilCollection;
 @protocol JavaUtilListIterator;
 @protocol JavaUtilList;
+@protocol JavaUtilSet;
+@protocol JavaUtilMap;
+@class CommonMutableset;
+@class CommonMutableDictionary;
+@class NSMutableDictionary;
 @class IOSObjectArray;
+@class IOSByteArray;
 // kotlin interop <<
 
 #ifndef __has_feature
@@ -58,10 +61,10 @@
 #  define ARCBRIDGE
 #  define ARCBRIDGE_TRANSFER
 #  define ARC_CONSUME_PARAMETER
-#  define AUTORELEASE(x) [x autorelease]
-#  define RELEASE_(x) [x release]
-#  define RETAIN_(x) [x retain]
-#  define RETAIN_AND_AUTORELEASE(x) [[x retain] autorelease]
+#  define AUTORELEASE(x) [(id) x autorelease]
+#  define RELEASE_(x) [(id) x release]
+#  define RETAIN_(x) [(id) x retain]
+#  define RETAIN_AND_AUTORELEASE(x) [[(id) x retain] autorelease]
 # endif
 
 // Support for -Xretain-autorelease-returns and -Xarc-autorelease-returns
@@ -111,10 +114,10 @@ __attribute__((always_inline)) inline id JreRetainedAutoreleasedReturnValue(id v
 }
 
 // Macros for hand-written code.
-#define X_AUTORELEASED_RETURN_VALUE(x) [x autorelease]
-#define X_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[x retain] autorelease]
-#define ALWAYS_AUTORELEASED_RETURN_VALUE(x) [x autorelease]
-#define ALWAYS_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[x retain] autorelease]
+#define X_AUTORELEASED_RETURN_VALUE(x) [(id) x autorelease]
+#define X_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[(id) x retain] autorelease]
+#define ALWAYS_AUTORELEASED_RETURN_VALUE(x) [(id) x autorelease]
+#define ALWAYS_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[(id) x retain] autorelease]
 
 #else
 // -Xretain-autorelease-returns off, -Xarc-autorelease-returns off
@@ -126,8 +129,8 @@ __attribute__((always_inline)) inline id JreRetainedAutoreleasedReturnValue(id v
 
 // Always returned autoreleased regardless of transpiler flags. These macros exist
 // to allow ARC-style returns of these values when -Xarc-autorelease-returns is on.
-#define ALWAYS_AUTORELEASED_RETURN_VALUE(x) [x autorelease]
-#define ALWAYS_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[x retain] autorelease]
+#define ALWAYS_AUTORELEASED_RETURN_VALUE(x) [(id) x autorelease]
+#define ALWAYS_RETAINED_AUTORELEASED_RETURN_VALUE(x) [[(id) x retain] autorelease]
 
 #endif  // __has_feature(objc_arc)
 
@@ -376,14 +379,29 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
 
 // kotlin interop >>
 
-void illegalAdapterMutableCallWithName(NSString *name);
-void unsupportedAdapterCallWithName(NSString *name);
-
-id <JavaUtilList> toJavaUtilList(NSArray<id> *sourceArray);
-id <JavaUtilListIterator> toJavaUtilListIterator(NSArray<id> *sourceArray);
+NSException *unsupportedAdapterCallWithName(NSString *name, NSString *className);
 
 IOSObjectArray *toIOSObjectArray(id sourceArray);
+
+IOSByteArray *toIOSByteArray(id sourceArray);
+
 id toKotlinArray(IOSObjectArray *sourceArray);
+
+id toKotlinArrayFromByteArray(IOSByteArray *sourceArray);
+
+id javaWrapCollection(id<JavaUtilCollection> collection);
+
+static inline id javaWrapNull(id object) {
+  return (object != nil) ? object : NSNull.null;
+}
+
+static inline id javaUnwrapNull(id object) {
+  return (object != NSNull.null) ? object : nil;
+}
+
+id javaListToNSMutableArray(id<JavaUtilList> list);
+id javaSetToKotlinMutableSet(id<JavaUtilSet> set);
+id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map);
 
 // kotlin interop <<
 

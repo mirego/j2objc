@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.function.ClassWithPublicFunctions;
 
 public class PublicRecursiveFunction {
 
-    public static Long main(String[] args) {
+  public static Long main(String[] args) {
 
-        ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
+    ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
 
-        return classWithPublicFunctions.recursiveFunction(4);
-    }
+    return classWithPublicFunctions.recursiveFunction(4);
+  }
 }

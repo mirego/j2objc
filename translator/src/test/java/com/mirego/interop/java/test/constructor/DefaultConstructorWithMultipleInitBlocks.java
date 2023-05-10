@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructorWit
 
 public class DefaultConstructorWithMultipleInitBlocks {
 
-    public static ClassWithDefaultConstructorWithMultipleInitBlocks main(String[] args) {
+  public static ClassWithDefaultConstructorWithMultipleInitBlocks main(String[] args) {
 
-        ClassWithDefaultConstructorWithMultipleInitBlocks defaultConstructorWithMultipleInitBlocks = new ClassWithDefaultConstructorWithMultipleInitBlocks("ClassWithDefaultConstructorWithMultipleInitBlocks");
+    ClassWithDefaultConstructorWithMultipleInitBlocks defaultConstructorWithMultipleInitBlocks = new ClassWithDefaultConstructorWithMultipleInitBlocks("ClassWithDefaultConstructorWithMultipleInitBlocks");
 
-        return defaultConstructorWithMultipleInitBlocks;
-    }
+    return defaultConstructorWithMultipleInitBlocks;
+  }
 }

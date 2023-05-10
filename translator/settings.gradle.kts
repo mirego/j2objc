@@ -1,0 +1,15 @@
+pluginManagement {
+    val kotlinVersion: String by settings
+
+    plugins {
+        kotlin("jvm") version kotlinVersion
+        id("org.checkerframework") version "0.6.25"
+    }
+}
+
+includeBuild("../annotations")
+includeBuild("../jre_emul")
+
+// kotlin interop >>
+includeBuild("../kotlin-interop-test-cases")
+// kotlin interop <<

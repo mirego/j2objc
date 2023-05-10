@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.property.ClassWithBackingPropertyCustomGet
 
 public class BackingPropertyWithCustomGetter {
 
-    public static String main(String[] args) {
+  public static String main(String[] args) {
 
-        ClassWithBackingPropertyCustomGetter classWithBackingPropertyCustomGetter = new ClassWithBackingPropertyCustomGetter();
+    ClassWithBackingPropertyCustomGetter classWithBackingPropertyCustomGetter = new ClassWithBackingPropertyCustomGetter();
 
-        return classWithBackingPropertyCustomGetter.getBackedProperty();
-    }
+    return classWithBackingPropertyCustomGetter.getBackedProperty();
+  }
 }

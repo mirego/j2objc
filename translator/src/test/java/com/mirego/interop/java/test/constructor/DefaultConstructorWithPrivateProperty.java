@@ -4,10 +4,10 @@ import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructorWit
 
 public class DefaultConstructorWithPrivateProperty {
 
-    public static ClassWithDefaultConstructorWithPrivateProperty main(String[] args) {
+  public static ClassWithDefaultConstructorWithPrivateProperty main(String[] args) {
 
-        ClassWithDefaultConstructorWithPrivateProperty defaultConstructorWithPrivateProperty = new ClassWithDefaultConstructorWithPrivateProperty("ClassWithDefaultConstructorWithPrivateProperty");
+    ClassWithDefaultConstructorWithPrivateProperty defaultConstructorWithPrivateProperty = new ClassWithDefaultConstructorWithPrivateProperty("ClassWithDefaultConstructorWithPrivateProperty");
 
-        return defaultConstructorWithPrivateProperty;
-    }
+    return defaultConstructorWithPrivateProperty;
+  }
 }

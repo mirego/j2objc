@@ -97,7 +97,10 @@ default: $(JAR)
 	@:
 
 clean:
-	@rm -rf $(BUILD_DIR) $(JAR_DIST) $(DIST_DIR)/tree_shaker
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(JAR_DIST) $(DIST_DIR)/tree_shaker
 
 $(JAR): $(MANIFEST) $(RESOURCE_FILES) $(JAVA_SOURCES_FULL) \
   | $(CLASS_DIR) $(PROTO_JAVA_DIR) java_deps_dist annotations_dist translator
@@ -123,11 +126,11 @@ $(MANIFEST): | $(BUILD_DIR)
 
 $(CLASS_DIR)/%: $(RESOURCE_DIR)/%
 	@mkdir -p $(@D)
-	@cp -f $< $@
+	@cp -fp $< $@
 
 $(CLASS_DIR)/%: $(J2OBJC_ROOT)/translator/$(RESOURCE_DIR)/%
 	@mkdir -p $(@D)
-	cp -f $< $@
+	cp -fp $< $@
 
 DIRS = $(BUILD_DIR) $(CLASS_DIR) $(TEST_CLASS_DIR) $(DIST_DIR) $(DIST_JAR_DIR) $(PROTO_JAVA_DIR)
 

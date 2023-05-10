@@ -49,9 +49,9 @@ import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
+import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
-import com.google.j2objc.annotations.ObjectiveCName;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +108,9 @@ public class EnumRewriter extends UnitTreeVisitor {
       if (method.getParameters().size() > 0 || method.isVarArgs()) {
         return false;
       }
-      if (ElementUtil.hasAnnotation(method, ObjectiveCName.class)) {
+      // kotlin interop >>
+      if (TranslationUtil.hasObjectiveCName(method)) {
+      // kotlin interop <<
         return false;
       }
       TypeElement valueType = ElementUtil.getDeclaringClass(method);
@@ -177,7 +179,7 @@ public class EnumRewriter extends UnitTreeVisitor {
           + "_initWithNSString_withInt_(e, JreEnumConstantName(" + enumClassName
           + "_class_(), i), i);"));
     }
-   }
+  }
 
   private void addNonArcInitialization(EnumDeclaration node) {
     TypeElement type = node.getTypeElement();

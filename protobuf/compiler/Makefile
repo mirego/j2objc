@@ -51,7 +51,10 @@ dist: $(PROTOC_EXE_DIST) $(PROTOC_PLUGIN_DIST)
 	@:
 
 clean:
-	@rm -rf $(BUILD_DIR) $(PROTOC_EXE_DIST) $(PROTOC_PLUGIN_DIST)
+	@rm -rf $(BUILD_DIR)
+
+clean_dist: clean
+	@rm -rf $(PROTOC_EXE_DIST) $(PROTOC_PLUGIN_DIST)
 
 $(PROTOC_EXE_DIST): $(PROTOC_EXE)
 	@mkdir -p $(DIST_DIR)

@@ -383,10 +383,10 @@ jboolean Java_libcore_icu_ICU_initLocaleDataNative(
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSLocale *currentLocale = [calendar locale];
   [calendar setLocale:locale];
-  JavaLangInteger *firstWeekday = JavaLangInteger_valueOfWithInt_((int) [calendar firstWeekday]);
+  CommonInt *firstWeekday = CommonInt_valueOfWithInt_((int) [calendar firstWeekday]);
   LibcoreIcuLocaleData_set_firstDayOfWeek_(result, firstWeekday);
-  JavaLangInteger *minimalDays =
-      JavaLangInteger_valueOfWithInt_((int) [calendar minimumDaysInFirstWeek]);
+  CommonInt *minimalDays =
+      CommonInt_valueOfWithInt_((int) [calendar minimumDaysInFirstWeek]);
   LibcoreIcuLocaleData_set_minimalDaysInFirstWeek_(result, minimalDays);
   [calendar setLocale:currentLocale];
 
