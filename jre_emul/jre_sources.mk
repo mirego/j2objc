@@ -149,6 +149,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/io/PrintWriter.java \
   java/io/PushbackInputStream.java \
   java/io/Reader.java \
+  java/io/Serial.java \
   java/io/Serializable.java \
   java/io/SerializablePermission.java \
   java/io/SerializationHandleMap.java \

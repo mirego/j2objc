@@ -48,16 +48,9 @@ import sun.security.jca.Providers;
 
 public final class Security {
 
-    // Android-added: Track the version to allow callers know when something has changed.
     private static final AtomicInteger version = new AtomicInteger();
 
-    // Android-removed: Debug is stubbed and disabled on Android.
-    // /* Are we debugging? -- for developers */
-    // private static final Debug sdebug =
-    //                     Debug.getInstance("properties");
-
     /* The java.security properties */
-    // Android-changed: Added final.
     private static final Properties props;
 
     // An element in the cache
@@ -183,7 +176,7 @@ public final class Security {
     /**
      * Gets a specified property for an algorithm. The algorithm name
      * should be a standard name. See the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard algorithm names.
      *
@@ -259,14 +252,15 @@ public final class Security {
     public static synchronized int insertProviderAt(Provider provider,
             int position) {
         String providerName = provider.getName();
-        // Android-removed: Checks using SecurityManager, which is not functional in Android.
+        // Android-removed
+        // Checks using SecurityManager, which is not functional in Android.
         // checkInsertProvider(providerName);
+        // Android-removed
         ProviderList list = Providers.getFullProviderList();
         ProviderList newList = ProviderList.insertAt(list, provider, position - 1);
         if (list == newList) {
             return -1;
         }
-        // Android-added: Version tracking call.
         increaseVersion();
         Providers.setProviderList(newList);
         return newList.getIndex(providerName) + 1;
@@ -342,12 +336,10 @@ public final class Security {
      * @see #addProvider
      */
     public static synchronized void removeProvider(String name) {
-        // Android-removed: Checks using SecurityManager, which is not functional in Android.
-        // check("removeProvider." + name);
+        check("removeProvider." + name);
         ProviderList list = Providers.getFullProviderList();
         ProviderList newList = ProviderList.remove(list, name);
         Providers.setProviderList(newList);
-        // Android-added: Version tracking call.
         increaseVersion();
     }
 
@@ -419,7 +411,7 @@ public final class Security {
      * </ul>
      *
      * <p> See the <a href=
-     * "{@docRoot}/../technotes/guides/security/StandardNames.html">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard cryptographic service names, standard
      * algorithm names and standard attribute names.
@@ -490,7 +482,7 @@ public final class Security {
      * </ul>
      *
      * <p> See the <a href=
-     * "../../../technotes/guides/security/StandardNames.html">
+     * "{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/StandardNames.html">
      * Java Cryptography Architecture Standard Algorithm Name Documentation</a>
      * for information about standard cryptographic service names, standard
      * algorithm names and standard attribute names.
@@ -698,10 +690,8 @@ public final class Security {
      * @see java.security.SecurityPermission
      */
     public static void setProperty(String key, String datum) {
-        // Android-removed: Checks using SecurityManager, which is not functional in Android.
-        // check("setProperty."+key);
+        check("setProperty."+key);
         props.put(key, datum);
-        // Android-added: Version tracking call.
         increaseVersion();
         invalidateSMCache(key);  /* See below. */
     }
@@ -760,33 +750,12 @@ public final class Security {
         }  /* if */
     }
 
-    // BEGIN Android-removed: SecurityManager is stubbed on Android.
-    /*
     private static void check(String directive) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkSecurityAccess(directive);
         }
     }
-
-    private static void checkInsertProvider(String name) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            try {
-                security.checkSecurityAccess("insertProvider");
-            } catch (SecurityException se1) {
-                try {
-                    security.checkSecurityAccess("insertProvider." + name);
-                } catch (SecurityException se2) {
-                    // throw first exception, but add second to suppressed
-                    se1.addSuppressed(se2);
-                    throw se1;
-                }
-            }
-        }
-    }
-    */
-    // END Android-removed: SecurityManager is stubbed on Android.
 
     /*
     * Returns all providers who satisfy the specified
@@ -992,7 +961,7 @@ public final class Security {
      * an empty Set if there is no provider that supports the
      * specified service or if serviceName is null. For a complete list
      * of Java cryptographic services, please see the
-     * <a href="../../../technotes/guides/security/crypto/CryptoSpec.html">Java
+     * <a href="{@docRoot}openjdk-redirect.html?v=8&path=/technotes/guides/security/crypto/CryptoSpec.html">Java
      * Cryptography Architecture API Specification &amp; Reference</a>.
      * Note: the returned set is immutable.
      *
@@ -1040,7 +1009,6 @@ public final class Security {
         return Collections.unmodifiableSet(result);
     }
 
-    // BEGIN Android-added: Methods for version handling.
     /**
      * @hide
      */
@@ -1053,5 +1021,4 @@ public final class Security {
     public static int getVersion() {
         return version.get();
     }
-    // END Android-added: Methods for version handling.
 }

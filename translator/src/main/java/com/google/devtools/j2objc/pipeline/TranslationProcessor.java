@@ -171,8 +171,9 @@ public class TranslationProcessor extends FileProcessor {
     new LambdaTypeElementAdder(unit).run();
     ticker.tick("LambdaTypeElementAdder");
 
+    DeadCodeEliminator deadCodeEliminator = new DeadCodeEliminator(unit, deadCodeMap);
     if (deadCodeMap != null) {
-      new DeadCodeEliminator(unit, deadCodeMap).run();
+      deadCodeEliminator.run();
       ticker.tick("DeadCodeEliminator");
     }
 
@@ -359,7 +360,7 @@ public class TranslationProcessor extends FileProcessor {
     ticker.tick("PrivateDeclarationResolver");
 
     if (deadCodeMap != null) {
-      DeadCodeEliminator.removeDeadClasses(unit, deadCodeMap);
+      deadCodeEliminator.removeDeadClasses();
       ticker.tick("removeDeadClasses");
     }
 

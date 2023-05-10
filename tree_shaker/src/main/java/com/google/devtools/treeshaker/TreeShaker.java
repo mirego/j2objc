@@ -34,10 +34,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.jspecify.nullness.Nullable;
 
-/**
- * A tool for finding unused code in a Java program.
- */
+/** A tool for finding unused code in a Java program. */
 public class TreeShaker {
   private static final GoogleLogger logger = GoogleLogger.forEnclosingClass();
   private final Options options;
@@ -55,12 +54,23 @@ public class TreeShaker {
   TreeShaker(Options options) throws IOException {
     this.options = options;
     j2objcOptions = new com.google.devtools.j2objc.Options();
-    j2objcOptions.load(new String[] {
-      "-sourcepath", Strings.nullToEmpty(options.getSourcepath()),
-      "-classpath", Strings.nullToEmpty(options.getClasspath()),
-      "-encoding", options.fileEncoding(),
-      "-source",   options.sourceVersion().flag()
-    });
+    j2objcOptions.load(
+        new String[] {
+          "-sourcepath",
+          Strings.nullToEmpty(options.getSourcepath()),
+          "-classpath",
+          Strings.nullToEmpty(options.getClasspath()),
+          "-encoding",
+          options.fileEncoding(),
+          "-source",
+          options.sourceVersion().flag(),
+
+          // Disable all warnings, minimize diagnostic output to save memory.
+          "-Xlint:none",
+          "-Xjavac-warnings:true",
+          "-Xignore-jar-warnings"
+        });
+    j2objcOptions.setStripReflection(options.stripReflection());
   }
 
   private Parser createParser(Options options) throws IOException {
@@ -134,29 +144,13 @@ public class TreeShaker {
     return strippedDir;
   }
 
+  @Nullable
   @VisibleForTesting
   CodeReferenceMap findUnusedCode() throws IOException {
-    UsedCodeMarker.Context context = new UsedCodeMarker.Context(
-        ProGuardUsageParser.parseDeadCodeFile(options.getTreeShakerRoots()));
-    Parser parser = createParser(options);
-    List<String> sourceFiles = getSourceFiles();
-    if (ErrorUtil.errorCount() > 0) {
+    TypeGraphBuilder tgb = createTypeGraphBuilder();
+    if (tgb == null) {
       return null;
     }
-    File strippedDir = stripIncompatible(sourceFiles, parser);
-    Parser.Handler handler = new Parser.Handler() {
-      @Override
-      public void handleParsedUnit(String path, CompilationUnit unit) {
-        new UsedCodeMarker(unit, context).run();
-      }
-    };
-
-    parser.parseFiles(sourceFiles, handler, options.sourceVersion());
-    FileUtil.deleteTempDir(strippedDir);
-    if (ErrorUtil.errorCount() > 0) {
-      return null;
-    }
-    TypeGraphBuilder tgb = new TypeGraphBuilder(context.getLibraryInfo());
     logger.atFine().log("External Types: %s", String.join(", ", tgb.getExternalTypeReferences()));
     Collection<String> unknownMethodReferences = tgb.getUnknownMethodReferences();
     if (!unknownMethodReferences.isEmpty()) {
@@ -169,6 +163,33 @@ public class TreeShaker {
     }
   }
 
+  private TypeGraphBuilder createTypeGraphBuilder() throws IOException {
+    UsedCodeMarker.Context context =
+        new UsedCodeMarker.Context(
+            ProGuardUsageParser.parseDeadCodeFile(options.getTreeShakerRoots()));
+    Parser parser = createParser(options);
+    List<String> sourceFiles = getSourceFiles();
+    if (ErrorUtil.errorCount() > 0) {
+      return null;
+    }
+    File strippedDir = stripIncompatible(sourceFiles, parser);
+    Parser.Handler handler =
+        new Parser.Handler() {
+          @Override
+          public void handleParsedUnit(String path, CompilationUnit unit) {
+            new UsedCodeMarker(unit, context).run();
+          }
+        };
+
+    parser.parseFiles(sourceFiles, handler, options.sourceVersion());
+    FileUtil.deleteTempDir(strippedDir);
+    parser.close();
+    if (ErrorUtil.errorCount() > 0) {
+      return null;
+    }
+    return new TypeGraphBuilder(context.getLibraryInfo());
+  }
+
   private List<String> getSourceFiles() {
     GenerationBatch batch = new GenerationBatch(j2objcOptions);
     batch.processFileArgs(options.getSourceFiles());
@@ -178,15 +199,17 @@ public class TreeShaker {
   }
 
   private static void writeToFile(Options options, CodeReferenceMap unused) {
-    try (BufferedWriter writer
-        = Files.newWriter(options.getOutputFile(), Charset.defaultCharset())) {
-      writeUnused(unused, s -> {
-        try {
-          writer.write(s);
-        } catch (IOException e) {
-          ErrorUtil.error(e.getMessage());
-        }
-      });
+    try (BufferedWriter writer =
+        Files.newWriter(options.getOutputFile(), Charset.defaultCharset())) {
+      writeUnused(
+          unused,
+          s -> {
+            try {
+              writer.write(s);
+            } catch (IOException e) {
+              ErrorUtil.error(e.getMessage());
+            }
+          });
     } catch (IOException e) {
       ErrorUtil.error(e.getMessage());
     }
@@ -197,26 +220,32 @@ public class TreeShaker {
     for (String clazz : unused.getReferencedClasses()) {
       writer.accept(clazz + "\n");
     }
-    unused.getReferencedMethods().cellSet().forEach(cell -> {
-      String type = cell.getRowKey();
-      String name = cell.getColumnKey();
-      writer.accept(type + ":\n");
-      cell.getValue().forEach (signature -> {
-        StringBuilder argTypes = new StringBuilder();
-        StringBuilder returnTypeBuilder = new StringBuilder();
-        int offset = getArgTypes(signature, 0, argTypes);
-        getType(signature, offset, returnTypeBuilder);
-        String returnType = returnTypeBuilder.toString();
-        writer.accept("    ");
-        if (!returnType.equals("void")) {
-          writer.accept(returnType);
-          writer.accept(" ");
-        }
-        writer.accept(name);
-        writer.accept(argTypes.toString());
-        writer.accept("\n");
-      });
-    });
+    unused
+        .getReferencedMethods()
+        .cellSet()
+        .forEach(
+            cell -> {
+              String type = cell.getRowKey();
+              String name = cell.getColumnKey();
+              writer.accept(type + ":\n");
+              cell.getValue()
+                  .forEach(
+                      signature -> {
+                        StringBuilder argTypes = new StringBuilder();
+                        StringBuilder returnTypeBuilder = new StringBuilder();
+                        int offset = getArgTypes(signature, 0, argTypes);
+                        getType(signature, offset, returnTypeBuilder);
+                        String returnType = returnTypeBuilder.toString();
+                        writer.accept("    ");
+                        if (!returnType.equals("void")) {
+                          writer.accept(returnType);
+                          writer.accept(" ");
+                        }
+                        writer.accept(name);
+                        writer.accept(argTypes.toString());
+                        writer.accept("\n");
+                      });
+            });
   }
 
   private static int getArgTypes(String type, int offset, StringBuilder result) {
