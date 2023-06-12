@@ -2,8 +2,6 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
 import com.mirego.interop.java.test.property.AccessPropertyWithNilChk;
@@ -23,6 +21,7 @@ import com.mirego.interop.java.test.property.LateInitializedProperty;
 import com.mirego.interop.java.test.property.LongProperty;
 import com.mirego.interop.java.test.property.NullableBooleanProperty;
 import com.mirego.interop.java.test.property.NullableProperty;
+import com.mirego.interop.java.test.property.PropertyAnnotatedWithJvmField;
 import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGeneratedGetter;
 import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
 import com.mirego.interop.java.test.property.ShortProperty;
@@ -32,7 +31,6 @@ public class PropertyTest extends GenerationTest {
 
   final private static String testPackage = "property/";
 
-  @Test
   public void testBackingFieldWithCustomGetter() throws IOException {
 
     String className = BackingFieldWithCustomGetter.class.getSimpleName();
@@ -42,7 +40,6 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo param names
-  @Test
   public void testBackingFieldWithCustomSetter() throws IOException {
 
     String className = BackingFieldWithCustomSetter.class.getSimpleName();
@@ -53,7 +50,6 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo getter not found
-  @Test
   public void testBackingPropertyWithCustomGetter() throws IOException {
 
     String className = BackingPropertyWithCustomGetter.class.getSimpleName();
@@ -63,7 +59,6 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo setter not found
-  @Test
   public void testBackingPropertyWithCustomSetter() throws IOException {
 
     String className = BackingPropertyWithCustomSetter.class.getSimpleName();
@@ -73,7 +68,6 @@ public class PropertyTest extends GenerationTest {
         + "  return classWithBackingPropertyCustomSetter.backedProperty;");
   }
 
-  @Test
   public void testBooleanProperty() throws IOException {
 
     String className = BooleanProperty.class.getSimpleName();
@@ -82,7 +76,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithBooleanProperty.booleanProperty;");
   }
 
-  @Test
   public void testByteProperty() throws IOException {
 
     String className = ByteProperty.class.getSimpleName();
@@ -91,7 +84,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithByteProperty.byteProperty;");
   }
 
-  @Test
   public void testCharProperty() throws IOException {
 
     String className = CharProperty.class.getSimpleName();
@@ -100,7 +92,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithCharProperty.charProperty;");
   }
 
-  @Test
   public void testDoubleProperty() throws IOException {
 
     String className = DoubleProperty.class.getSimpleName();
@@ -109,7 +100,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithDoubleProperty.doubleProperty;");
   }
 
-  @Test
   public void testEscapedStringProperty() throws IOException {
 
     String className = EscapedStringProperty.class.getSimpleName();
@@ -118,7 +108,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithEscapedStringProperty.escapedString;");
   }
 
-  @Test
   public void testFloatProperty() throws IOException {
 
     String className = FloatProperty.class.getSimpleName();
@@ -127,7 +116,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithFloatProperty.floatProperty;");
   }
 
-  @Test
   public void testIntProperty() throws IOException {
 
     String className = IntProperty.class.getSimpleName();
@@ -136,7 +124,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithIntProperty.intProperty;");
   }
 
-  @Test
   public void testLongProperty() throws IOException {
 
     String className = LongProperty.class.getSimpleName();
@@ -145,7 +132,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithLongProperty.longProperty;");
   }
 
-  @Test
   public void testShortProperty() throws IOException {
 
     String className = ShortProperty.class.getSimpleName();
@@ -154,7 +140,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithShortProperty.shortProperty;");
   }
 
-  @Test
   public void testStringProperty() throws IOException {
 
     String className = StringProperty.class.getSimpleName();
@@ -163,7 +148,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithStringProperty.stringProperty;");
   }
 
-  @Test
   public void testCharSequenceProperty() throws IOException {
 
     String className = CharSequenceProperty.class.getSimpleName();
@@ -172,7 +156,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return classWithCharSequenceProperty.charSequenceProperty;");
   }
 
-  @Test
   public void testLateInitializedProperty() throws IOException {
 
     String className = LateInitializedProperty.class.getSimpleName();
@@ -182,7 +165,6 @@ public class PropertyTest extends GenerationTest {
   }
 
   // todo throws in native test ... need to investigate
-//  @Test
 //  public void testLateNonInitializedProperty() throws IOException {
 //
 //    String className = LateNonInitializedProperty.class.getSimpleName();
@@ -192,7 +174,6 @@ public class PropertyTest extends GenerationTest {
 //  }
 
   // todo param type not compatible
-//  @Test
 //  public void testListProperty() throws IOException {
 //
 //    String className = ListProperty.class.getSimpleName();
@@ -201,7 +182,6 @@ public class PropertyTest extends GenerationTest {
 //    assertTranslation(translation, "xxxxxxx");
 //  }
 
-  @Test
   public void testNullableBooleanProperty() throws IOException {
 
     String className = NullableBooleanProperty.class.getSimpleName();
@@ -210,7 +190,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return [((CommonBoolean *) nil_chk(classWithNullableBooleanProperty.nullableBoolean)) booleanValue];");
   }
 
-  @Test
   public void testNullableProperty() throws IOException {
 
     String className = NullableProperty.class.getSimpleName();
@@ -219,7 +198,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return nullablePropertyClass.nullableProperty;");
   }
 
-  @Test
   public void testPublicImmutablePropertyWithGeneratedGetter() throws IOException {
 
     String className = PublicImmutablePropertyWithGeneratedGetter.class.getSimpleName();
@@ -228,7 +206,6 @@ public class PropertyTest extends GenerationTest {
     assertTranslation(translation, "return immutablePropertyClass.immutableProperty;");
   }
 
-  @Test
   public void testPublicMutablePropertyWithGeneratedSetter() throws IOException {
 
     String className = PublicMutablePropertyWithGeneratedSetter.class.getSimpleName();
@@ -238,11 +215,16 @@ public class PropertyTest extends GenerationTest {
         + "  return mutablePropertyClass.mutableProperty;");
   }
 
-  @Test
   public void testPropertyAccessWithNilChk() throws IOException {
     String className = AccessPropertyWithNilChk.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "((CommonClassWithStringProperty *) nil_chk(sourceForTheStringProperty)).");
+  }
+
+  public void testPropertyWithJvmFieldAnnotation() throws IOException {
+    String className = PropertyAnnotatedWithJvmField.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    assertTranslation(translation, "return classWithBackingPropertyCustomGetter.name;");
   }
 }

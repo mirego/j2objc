@@ -1,14 +1,16 @@
 # kotlin interop >>
 
-KOTLIN_KOMPAT_DIR = $(J2OBJC_ROOT)/kompat
+KOTLIN_KOMPAT_DIR = $(J2OBJC_ROOT)/j2objc-kompat
 KOTLIN_KOMPAT_BUILD_OUTPUT_DIR = $(KOTLIN_KOMPAT_DIR)/build
 KOTLIN_KOMPAT_FRAMEWORK = $(KOTLIN_KOMPAT_BUILD_OUTPUT_DIR)/bin/macosArm64/debugFramework/common.framework
 KOTLIN_KOMPAT_FRAMEWORK_LIB = $(KOTLIN_KOMPAT_FRAMEWORK)/common
+KOTLIN_KOMPAT_JVM_JAR = $(KOTLIN_KOMPAT_BUILD_OUTPUT_DIR)/libs/j2objc-kompat-jvm-3.0.jar
 
 KOTLIN_INTEROP_TEST_CASES_DIR = $(J2OBJC_ROOT)/kotlin-interop-test-cases
 KOTLIN_INTEROP_TEST_CASES_BUILD_OUTPUT_DIR = $(KOTLIN_INTEROP_TEST_CASES_DIR)/build
 KOTLIN_INTEROP_TEST_CASES_FRAMEWORK = $(KOTLIN_INTEROP_TEST_CASES_BUILD_OUTPUT_DIR)/bin/macosArm64/debugFramework/common.framework
 KOTLIN_INTEROP_TEST_CASES_FRAMEWORK_LIB = $(KOTLIN_INTEROP_TEST_CASES_FRAMEWORK)/common
+KOTLIN_INTEROP_TEST_CASES_JVM_JAR = $(KOTLIN_INTEROP_TEST_CASES_BUILD_OUTPUT_DIR)/libs/kotlin-test-cases-jvm-3.0.jar
 
 KOTLIN_NATIVE_TESTS_DIR = $(J2OBJC_ROOT)/kotlin-native-tests
 KOTLIN_NATIVE_TESTS_BUILD_OUTPUT_DIR = $(KOTLIN_NATIVE_TESTS_DIR)/build_result
@@ -38,6 +40,7 @@ kotlin_clean_native_tests:
 
 kotlin_kompat:
 	@cd $(KOTLIN_KOMPAT_DIR) && $(GW) jvmJar j2objcKotlinTypes
+	@cp $(KOTLIN_KOMPAT_JVM_JAR) $(DIST_DIR)/lib
 
 kotlin_interop_test_cases: kotlin_kompat
 	@cd $(KOTLIN_INTEROP_TEST_CASES_DIR) && $(GW) jvmJar linkDebugFrameworkMacosArm64
@@ -80,6 +83,6 @@ kotlin_compile_tests: kotlin_translate_tests
 	$(KOTLIN_NATIVE_TESTS_J2OBJC_OUTPUT_SOURCES)
 
 kotlin_run_tests: kotlin_compile_tests
-	@$(KOTLIN_NATIVE_TESTS_BUILD_OUTPUT_DIR)/nativeTests org.junit.runner.JUnitCore NativeTestSuite
+	$(KOTLIN_NATIVE_TESTS_BUILD_OUTPUT_DIR)/nativeTests org.junit.runner.JUnitCore com.google.devtools.j2objc.runtime.NativeTests
 
 # kotlin interop <<

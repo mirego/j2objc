@@ -100,7 +100,7 @@
 }
 
 - (id<JavaUtilSet>)entrySet {
-  id<JavaUtilSet> set = AUTORELEASE(create_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
+  id<JavaUtilSet> set = AUTORELEASE(new_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
   for (id key in dictionary_) {
     NSDictionaryMap_Entry *entry =
         AUTORELEASE([[NSDictionaryMap_Entry alloc]
@@ -142,7 +142,7 @@
 }
 
 - (id<JavaUtilSet>)keySet {
-  id<JavaUtilSet> set = AUTORELEASE(create_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
+  id<JavaUtilSet> set = AUTORELEASE(new_CommonMutableSet_init()); // FIXME FLA Fix later to use LinkedHashSet
   for (id key in dictionary_) {
     [set addWithId:key];
   }

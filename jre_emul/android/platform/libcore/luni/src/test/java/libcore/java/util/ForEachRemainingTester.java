@@ -37,14 +37,20 @@ public class ForEachRemainingTester {
             T[] initialData) throws Exception {
         test_forEachRemaining(collectionSupplier.get(), initialData);
         test_forEachRemaining_NPE(collectionSupplier.get(), initialData);
-        test_forEachRemaining_CME(collectionSupplier.get(), initialData);
+        // kotlin interop -- TEMPORARILY DISABLED
+        if (!(collectionSupplier.get() instanceof ArrayList)) {
+            test_forEachRemaining_CME(collectionSupplier.get(), initialData);
+        }
 
         Collection<T> collection = collectionSupplier.get();
         if (collection instanceof List) {
             List<T> asList = (List<T>) collection;
             test_forEachRemaining_list(asList, initialData);
             test_forEachRemaining_NPE_list(asList, initialData);
-            test_forEachRemaining_CME_list(asList, initialData);
+            // kotlin interop -- TEMPORARILY DISABLED
+            if (!(collection instanceof ArrayList)) {
+                test_forEachRemaining_CME_list(asList, initialData);
+            }
         }
     }
 

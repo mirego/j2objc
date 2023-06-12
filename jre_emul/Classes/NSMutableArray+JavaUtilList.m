@@ -2,54 +2,60 @@
 
 #import "NSMutableArray+JavaUtilList.h"
 
+#include "java/lang/ArrayIndexOutOfBoundsException.h"
+#include "java/lang/IllegalArgumentException.h"
 #include "java/lang/IllegalStateException.h"
-#include "java/lang/IndexOutOfBoundsException.h"
 #include "java/lang/NullPointerException.h"
+#include "java/util/Arrays.h"
 #include "java/util/ConcurrentModificationException.h"
 #include "java/util/Iterator.h"
 #include "java/util/ListIterator.h"
 #include "java/util/NoSuchElementException.h"
 #include "java/util/function/Predicate.h"
+#include "java/util/function/UnaryOperator.h"
 
-@interface NSMutableArrayIterator<ObjectType>: NSObject < JavaUtilIterator > {
+@interface NSMutableArray_Iterator<ObjectType>: NSObject < JavaUtilIterator > {
 @protected
-  NSMutableArray *mutableArray_;
+  NSMutableArray<ObjectType> *mutableArray_;
   jint lastRet_;
   jint cursor_;
+  jint size_;
 }
 
 - (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray;
 @end
 
-@interface NSMutableArrayListIterator<ObjectType>: NSMutableArrayIterator<ObjectType> < JavaUtilListIterator >
+@interface NSMutableArray_ListIterator<ObjectType>: NSMutableArray_Iterator<ObjectType> < JavaUtilListIterator >
 
-- (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray index:(NSUInteger)index;
+- (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray index:(jint)index;
 @end
 
 @implementation NSMutableArray (JavaUtilList)
 
-- (instancetype)initWithInitialCapacity:(jint)initialCapacity {
+- (instancetype)initWithInt:(jint)initialCapacity {
+  if (initialCapacity < 0) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Illegal Capacity: %d", initialCapacity]);
+  }
   return [self initWithCapacity:initialCapacity];
 }
 
+- (id)java_clone {
+  return AUTORELEASE([self mutableCopy]);
+}
+
 - (id<JavaUtilIterator>)iterator {
-  return AUTORELEASE([[NSMutableArrayIterator alloc] initWithMutableArray:self]);
+  return AUTORELEASE([[NSMutableArray_Iterator alloc] initWithMutableArray:self]);
 }
 
 - (jboolean)addWithId:(id)e {
-  e = javaWrapNull(e);
-  if (![self containsObject:e]) {
-    [self addObject:e];
-    return true;
-  } else {
-    return false;
-  }
+  [self addObject:javaWrapNull(e)];
+  return true;
 }
 
 - (jboolean)removeWithId:(id)o {
-  o = javaWrapNull(o);
-  if ([self containsObject:o]) {
-    [self removeObject:o];
+  NSUInteger index = [self indexOfObject:javaWrapNull(o)];
+  if (index != NSNotFound) {
+    [self removeObjectAtIndex:index];
     return true;
   } else {
     return false;
@@ -57,26 +63,36 @@
 }
 
 - (jboolean)addAllWithJavaUtilCollection:(id<JavaUtilCollection>)c {
-  jboolean modified = false;
-  for (id o in c) {
-    o = javaWrapNull(o);
-    if (![self containsObject:o]) {
-      [self addObject:o];
-      modified = true;
-    }
+  (void)nil_chk(c);
+  c = c != self ? c : RETAIN_AND_AUTORELEASE([c java_clone]);
+  id<JavaUtilIterator> iter = [c iterator];
+  while ([iter hasNext]) {
+    [self addObject:javaWrapNull([iter next])];
   }
-  return modified;
+  return !c.isEmpty;
 }
 
 - (jboolean)addAllWithInt:(jint)index
    withJavaUtilCollection:(id<JavaUtilCollection>)c {
-  @throw unsupportedAdapterCallWithName(NSStringFromSelector(_cmd), @"NSMutableArray+JavaUtilList");
+  if (index > self.size || index < 0) {
+    @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"Index: %d, Size: %d", index, self.size]);
+  }
+  (void)nil_chk(c);
+  c = c != self ? c : RETAIN_AND_AUTORELEASE([c java_clone]);
+  id<JavaUtilIterator> iter = [c iterator];
+  while ([iter hasNext]) {
+    [self insertObject:javaWrapNull([iter next]) atIndex:index++];
+  }
+  return !c.isEmpty;
 }
 
 - (jboolean)removeAllWithJavaUtilCollection:(id<JavaUtilCollection>)c {
   jboolean modified = false;
-  for (id o in c) {
-    o = javaWrapNull(o);
+  (void)nil_chk(c);
+  c = c != self ? c : RETAIN_AND_AUTORELEASE([c java_clone]);
+  id<JavaUtilIterator> iter = [c iterator];
+  while ([iter hasNext]) {
+    id o = javaWrapNull([iter next]);
     if ([self containsObject:o]) {
       [self removeObject:o];
       modified = true;
@@ -86,13 +102,11 @@
 }
 
 - (jboolean)removeIfWithJavaUtilFunctionPredicate:(id<JavaUtilFunctionPredicate>)filter {
-  if (filter == nil) {
-    @throw create_JavaLangNullPointerException_init();
-  }
+  (void)nil_chk(filter);
   NSMutableArray *objectsToRemove = [NSMutableArray array];
   for (id o in self) {
     if ([filter testWithId:javaUnwrapNull(o)]) {
-      [objectsToRemove addObject:javaWrapNull(o)];
+      [objectsToRemove addObject:o];
     }
   }
   if (objectsToRemove.count != 0) {
@@ -104,15 +118,20 @@
 }
 
 - (jboolean)retainAllWithJavaUtilCollection:(id<JavaUtilCollection>)c {
-  jboolean modified = false;
-  for (id o in c) {
-    o = javaWrapNull(o);
-    if (![self containsObject:o]) {
-      [self removeObject:o];
-      modified = true;
+  (void)nil_chk(c);
+  c = c != self ? c : RETAIN_AND_AUTORELEASE([c java_clone]);
+  NSMutableArray *objectsToRemove = [NSMutableArray array];
+  for (id o in self) {
+    if (![c containsWithId:javaUnwrapNull(o)]) {
+      [objectsToRemove addObject:o];
     }
   }
-  return modified;
+  if (objectsToRemove.count != 0) {
+    [self removeObjectsInArray:objectsToRemove];
+    return true;
+  } else {
+    return false;
+  }
 }
 
 - (void)clear {
@@ -120,60 +139,88 @@
 }
 
 - (void)replaceAllWithJavaUtilFunctionUnaryOperator:(id<JavaUtilFunctionUnaryOperator>)operator_ {
-  @throw unsupportedAdapterCallWithName(NSStringFromSelector(_cmd), @"NSMutableArray+JavaUtilList");
+  (void)nil_chk(operator_);
+  [self enumerateObjectsUsingBlock:^(id object, NSUInteger index, BOOL *stop) {
+    [self replaceObjectAtIndex:index withObject:javaWrapNull([operator_ applyWithId:javaUnwrapNull(object)])];
+  }];
 }
 
 - (void)sortWithJavaUtilComparator:(id<JavaUtilComparator>)c {
-  @throw unsupportedAdapterCallWithName(NSStringFromSelector(_cmd), @"NSMutableArray+JavaUtilList");
+  (void)nil_chk(c);
+  // NOTE This is really not optimal, or even correct (not using comparator at all!!)
+  IOSObjectArray *array = [self toArray];
+  JavaUtilArrays_sortWithNSObjectArray_(array);
+
+  [self removeAllObjects];
+  [array enumerateObjectsUsingBlock:^(id object, NSUInteger index, BOOL *stop) {
+    [self addObject:javaWrapNull(object)];
+  }];
 }
 
 - (id)setWithInt:(jint)index
           withId:(id)element {
-  if (index < 0 || index >= self.count) {
-    @throw create_JavaLangIndexOutOfBoundsException_init();
+  if (index < 0 || index >= self.size) {
+    @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"Index: %d, Size: %d", index, self.size]);
   }
-  id previousObject = [self objectAtIndex:index];
+  id currentValue = RETAIN_AND_AUTORELEASE(javaUnwrapNull([self objectAtIndex:index]));
   [self replaceObjectAtIndex:index withObject:javaWrapNull(element)];
-  return javaUnwrapNull(previousObject);
+  return currentValue;
 }
 
 - (void)addWithInt:(jint)index
             withId:(id)element {
-  if (index < 0 || index > self.count) {
-    @throw create_JavaLangIndexOutOfBoundsException_init();
+  if (index > self.size || index < 0) {
+    @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"Index: %d, Size: %d", index, self.size]);
   }
   [self insertObject:javaWrapNull(element) atIndex:index];
 }
 
 - (id)removeWithInt:(jint)index {
-  if (index < 0 || index >= self.count) {
-    @throw create_JavaLangIndexOutOfBoundsException_init();
+  if (index < 0 || index >= self.size) {
+    @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"Index: %d, Size: %d", index, self.size]);
   }
-  id previousObject = [self objectAtIndex:index];
+  id currentValue = RETAIN_AND_AUTORELEASE(javaUnwrapNull([self objectAtIndex:index]));
   [self removeObjectAtIndex:index];
-  return javaUnwrapNull(previousObject);
+  return currentValue;
 }
 
 - (id<JavaUtilListIterator>)listIterator {
-  return AUTORELEASE([[NSMutableArrayListIterator alloc] initWithMutableArray:self index:0]);
+  return AUTORELEASE([[NSMutableArray_ListIterator alloc] initWithMutableArray:self index:0]);
 }
 
 - (id<JavaUtilListIterator>)listIteratorWithInt:(jint)index {
-  if (index < 0 || index > self.count) {
-    @throw create_JavaLangIndexOutOfBoundsException_init();
+  if (index < 0 || index > self.size) {
+    @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"Index: %d, Size: %d", index, self.size]);
   }
-  return AUTORELEASE([[NSMutableArrayListIterator alloc] initWithMutableArray:self index:index]);
+  return AUTORELEASE([[NSMutableArray_ListIterator alloc] initWithMutableArray:self index:index]);
+}
+
+- (id<JavaUtilList>)subListWithInt:(jint)fromIndex
+                           withInt:(jint)toIndex {
+  if (fromIndex < 0) {
+      @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"fromIndex = %d", fromIndex]);
+  }
+  if (toIndex > self.size) {
+      @throw create_JavaLangArrayIndexOutOfBoundsException_initWithNSString_([NSString stringWithFormat:@"toIndex = %d", toIndex]);
+  }
+  if (fromIndex > toIndex) {
+      @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"fromIndex(%d) > toIndex(%d)", fromIndex, toIndex]);
+  }
+
+  // NOTE This is supposed to be a view of this ArrayList so any modifications also affect this ArrayList
+  return [[self subarrayWithRange:NSMakeRange(fromIndex, (toIndex - fromIndex))] mutableCopy];
 }
 
 @end
 
-@implementation NSMutableArrayIterator
+@implementation NSMutableArray_Iterator
 
 - (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray {
-  if ((self = [self init])) {
+  if (self = [self init]) {
     mutableArray_ = RETAIN_(mutableArray);
     lastRet_ = -1;
     cursor_ = 0;
+    size_ = (jint) mutableArray.count;
   }
   return self;
 }
@@ -186,12 +233,12 @@
 #endif
 
 - (jboolean)hasNext {
-  return cursor_ < mutableArray_.count;
+  return cursor_ < size_;
 }
 
 - (id)next {
   jint i = cursor_;
-  if (i >= mutableArray_.count) {
+  if (i >= size_) {
     @throw create_JavaUtilNoSuchElementException_init();
   }
   cursor_ = i + 1;
@@ -205,6 +252,7 @@
   [mutableArray_ removeObjectAtIndex:lastRet_];
   cursor_ = lastRet_;
   lastRet_ = -1;
+  size_--;
 }
 
 - (void)forEachRemainingWithJavaUtilFunctionConsumer:(id<JavaUtilFunctionConsumer>)action {
@@ -213,11 +261,11 @@
 
 @end
 
-@implementation NSMutableArrayListIterator
+@implementation NSMutableArray_ListIterator
 
-- (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray index:(NSUInteger)index {
+- (instancetype)initWithMutableArray:(NSMutableArray *)mutableArray index:(jint)index {
   if (self = [super initWithMutableArray:mutableArray]) {
-    cursor_ = (jint) index;
+    cursor_ = index;
   }
   return self;
 }
@@ -247,7 +295,7 @@
   if (lastRet_ < 0) {
     @throw create_JavaLangIllegalStateException_init();
   }
-  if (lastRet_ < 0 || lastRet_ >= mutableArray_.count) {
+  if (lastRet_ < 0 || lastRet_ >= size_) {
     @throw create_JavaUtilConcurrentModificationException_init();
   }
   [mutableArray_ replaceObjectAtIndex:lastRet_ withObject:javaWrapNull(e)];
@@ -255,12 +303,13 @@
 
 - (void)addWithId:(id)e {
   jint i = cursor_;
-  if (i < 0 || i > mutableArray_.count) {
+  if (i < 0 || i > size_) {
     @throw create_JavaUtilConcurrentModificationException_init();
   }
   [mutableArray_ insertObject:javaWrapNull(e) atIndex:i];
   cursor_ = i + 1;
   lastRet_ = -1;
+  size_++;
 }
 
 @end

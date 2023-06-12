@@ -18,9 +18,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class CommonArrayBridge, CommonKotlinArray<T>, CommonConcreteIterator<T>, CommonArrayListFactory, CommonByteArrayBridge, CommonKotlinByteArray, NSData, CommonHashMapBridge, CommonConcreteMutableEntry<K, V>, CommonHashSetFactory, CommonLinkedHashMapBridge, CommonLinkedHashSetFactory, CommonKotlinByteIterator;
+@class CommonArrayFactory, CommonKotlinArray<T>, CommonArrayListFactory, CommonHashMapFactory, CommonHashSetFactory, CommonLinkedHashMapFactory, CommonLinkedHashSetFactory, CommonKotlinByteIterator, CommonKotlinByteArray, NSData;
 
-@protocol CommonKotlinIterator, CommonKotlinMapEntry, CommonKotlinMutableMapMutableEntry, CommonKotlinMutableIterator, CommonKotlinListIterator, CommonKotlinMutableListIterator;
+@protocol CommonKotlinIterator;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -157,16 +157,13 @@ __attribute__((swift_name("KotlinBoolean")))
 @end
 
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ArrayBridge")))
-@interface CommonArrayBridge : CommonBase
+__attribute__((swift_name("ArrayFactory")))
+@interface CommonArrayFactory : CommonBase
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)arrayBridge __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonArrayBridge *shared __attribute__((swift_name("shared")));
-- (id _Nullable)getArray:(CommonKotlinArray<id> *)array index:(int32_t)index __attribute__((swift_name("get(array:index:)")));
-- (CommonConcreteIterator<id> *)iteratorArray:(CommonKotlinArray<id> *)array __attribute__((swift_name("iterator(array:)")));
-- (void)setArray:(CommonKotlinArray<id> *)array index:(int32_t)index value:(id _Nullable)value __attribute__((swift_name("set(array:index:value:)")));
-- (int32_t)sizeArray:(CommonKotlinArray<id> *)array __attribute__((swift_name("size(array:)")));
++ (instancetype)arrayFactory __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) CommonArrayFactory *shared __attribute__((swift_name("shared")));
+- (CommonKotlinArray<id> *)createSize:(int32_t)size init:(id _Nullable (^)(CommonInt *))init __attribute__((swift_name("create(size:init:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -182,129 +179,16 @@ __attribute__((swift_name("ArrayListFactory")))
 @end
 
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ByteArrayBridge")))
-@interface CommonByteArrayBridge : CommonBase
+__attribute__((swift_name("HashMapFactory")))
+@interface CommonHashMapFactory : CommonBase
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)byteArrayBridge __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonByteArrayBridge *shared __attribute__((swift_name("shared")));
-- (CommonKotlinByteArray *)byteArrayFromNsData:(NSData *)nsData __attribute__((swift_name("byteArrayFrom(nsData:)")));
-- (NSData *)nsDataFromByteArray:(CommonKotlinByteArray *)byteArray __attribute__((swift_name("nsDataFrom(byteArray:)")));
-@end
-
-__attribute__((swift_name("KotlinIterator")))
-@protocol CommonKotlinIterator
-@required
-- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
-- (id _Nullable)next __attribute__((swift_name("next()")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ConcreteIterator")))
-@interface CommonConcreteIterator<T> : CommonBase <CommonKotlinIterator>
-- (instancetype)initWithDelegate:(id<CommonKotlinIterator>)delegate __attribute__((swift_name("init(delegate:)"))) __attribute__((objc_designated_initializer));
-- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
-- (T _Nullable)next __attribute__((swift_name("next()")));
-@end
-
-__attribute__((swift_name("KotlinMapEntry")))
-@protocol CommonKotlinMapEntry
-@required
-@property (readonly) id _Nullable key __attribute__((swift_name("key")));
-@property (readonly) id _Nullable value __attribute__((swift_name("value")));
-@end
-
-__attribute__((swift_name("KotlinMutableDictionaryMutableEntry")))
-@protocol CommonKotlinMutableMapMutableEntry <CommonKotlinMapEntry>
-@required
-- (id _Nullable)setValueNewValue:(id _Nullable)newValue __attribute__((swift_name("setValue(newValue:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ConcreteMutableEntry")))
-@interface CommonConcreteMutableEntry<K, V> : CommonBase <CommonKotlinMutableMapMutableEntry>
-- (instancetype)initWithDelegate:(id<CommonKotlinMutableMapMutableEntry>)delegate __attribute__((swift_name("init(delegate:)"))) __attribute__((objc_designated_initializer));
-- (V _Nullable)setValueNewValue:(V _Nullable)newValue __attribute__((swift_name("setValue(newValue:)")));
-@property (readonly) K _Nullable key __attribute__((swift_name("key")));
-@property (readonly) V _Nullable value __attribute__((swift_name("value")));
-@end
-
-__attribute__((swift_name("KotlinMutableIterator")))
-@protocol CommonKotlinMutableIterator <CommonKotlinIterator>
-@required
-- (void)remove __attribute__((swift_name("remove()")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ConcreteMutableIterator")))
-@interface CommonConcreteMutableIterator<T> : CommonBase <CommonKotlinMutableIterator>
-- (instancetype)initWithDelegate:(id<CommonKotlinMutableIterator>)delegate __attribute__((swift_name("init(delegate:)"))) __attribute__((objc_designated_initializer));
-- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
-- (T _Nullable)next __attribute__((swift_name("next()")));
-- (void)remove __attribute__((swift_name("remove()")));
-@end
-
-__attribute__((swift_name("KotlinListIterator")))
-@protocol CommonKotlinListIterator <CommonKotlinIterator>
-@required
-- (BOOL)hasPrevious __attribute__((swift_name("hasPrevious()")));
-- (int32_t)nextIndex __attribute__((swift_name("nextIndex()")));
-- (id _Nullable)previous __attribute__((swift_name("previous()")));
-- (int32_t)previousIndex __attribute__((swift_name("previousIndex()")));
-@end
-
-__attribute__((swift_name("KotlinMutableListIterator")))
-@protocol CommonKotlinMutableListIterator <CommonKotlinListIterator, CommonKotlinMutableIterator>
-@required
-- (void)addElement:(id _Nullable)element __attribute__((swift_name("add(element:)")));
-- (void)setElement:(id _Nullable)element __attribute__((swift_name("set(element:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ConcreteMutableListIterator")))
-@interface CommonConcreteMutableListIterator<T> : CommonBase <CommonKotlinMutableListIterator>
-- (instancetype)initWithDelegate:(id<CommonKotlinMutableListIterator>)delegate __attribute__((swift_name("init(delegate:)"))) __attribute__((objc_designated_initializer));
-- (void)addElement:(T _Nullable)element __attribute__((swift_name("add(element:)")));
-- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
-- (BOOL)hasPrevious __attribute__((swift_name("hasPrevious()")));
-- (T _Nullable)next __attribute__((swift_name("next()")));
-- (int32_t)nextIndex __attribute__((swift_name("nextIndex()")));
-- (T _Nullable)previous __attribute__((swift_name("previous()")));
-- (int32_t)previousIndex __attribute__((swift_name("previousIndex()")));
-- (void)remove __attribute__((swift_name("remove()")));
-- (void)setElement:(T _Nullable)element __attribute__((swift_name("set(element:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("HashMapBridge")))
-@interface CommonHashMapBridge : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)hashMapBridge __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonHashMapBridge *shared __attribute__((swift_name("shared")));
-- (void)clearHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("clear(hashMap:)")));
-- (BOOL)containsKeyHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key __attribute__((swift_name("containsKey(hashMap:key:)")));
-- (BOOL)containsValueHashMap:(CommonMutableDictionary<id, id> *)hashMap value:(id _Nullable)value __attribute__((swift_name("containsValue(hashMap:value:)")));
++ (instancetype)hashMapFactory __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) CommonHashMapFactory *shared __attribute__((swift_name("shared")));
 - (CommonMutableDictionary<id, id> *)create __attribute__((swift_name("create()")));
 - (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
 - (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
 - (CommonMutableDictionary<id, id> *)createOriginal:(NSDictionary<id, id> *)original __attribute__((swift_name("create(original:)")));
-- (CommonMutableSet<CommonConcreteMutableEntry<id, id> *> *)entriesHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("entries(hashMap:)")));
-- (BOOL)equalsHashMap:(CommonMutableDictionary<id, id> *)hashMap other:(id _Nullable)other __attribute__((swift_name("equals(hashMap:other:)")));
-- (id _Nullable)getHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key __attribute__((swift_name("get(hashMap:key:)")));
-- (id _Nullable)getOrDefaultHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key defaultValue:(id _Nullable)defaultValue __attribute__((swift_name("getOrDefault(hashMap:key:defaultValue:)")));
-- (int32_t)hashCodeHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("hashCode(hashMap:)")));
-- (BOOL)isEmptyHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("isEmpty(hashMap:)")));
-- (CommonMutableSet<id> *)keysHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("keys(hashMap:)")));
-- (id _Nullable)putHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("put(hashMap:key:value:)")));
-- (void)putAllHashMap:(CommonMutableDictionary<id, id> *)hashMap from:(NSDictionary<id, id> *)from __attribute__((swift_name("putAll(hashMap:from:)")));
-- (id _Nullable)putIfAbsentHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("putIfAbsent(hashMap:key:value:)")));
-- (id _Nullable)removeHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key __attribute__((swift_name("remove(hashMap:key:)")));
-- (BOOL)removeHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("remove(hashMap:key:value:)")));
-- (id _Nullable)replaceHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("replace(hashMap:key:value:)")));
-- (BOOL)replaceHashMap:(CommonMutableDictionary<id, id> *)hashMap key:(id _Nullable)key oldValue:(id _Nullable)oldValue newValue:(id _Nullable)newValue __attribute__((swift_name("replace(hashMap:key:oldValue:newValue:)")));
-- (int32_t)sizeHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("size(hashMap:)")));
-- (id)valuesHashMap:(CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("values(hashMap:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -321,35 +205,16 @@ __attribute__((swift_name("HashSetFactory")))
 @end
 
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("LinkedHashMapBridge")))
-@interface CommonLinkedHashMapBridge : CommonBase
+__attribute__((swift_name("LinkedHashMapFactory")))
+@interface CommonLinkedHashMapFactory : CommonBase
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)linkedHashMapBridge __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonLinkedHashMapBridge *shared __attribute__((swift_name("shared")));
-- (void)clearLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("clear(linkedHashMap:)")));
-- (BOOL)containsKeyLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key __attribute__((swift_name("containsKey(linkedHashMap:key:)")));
-- (BOOL)containsValueLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap value:(id _Nullable)value __attribute__((swift_name("containsValue(linkedHashMap:value:)")));
++ (instancetype)linkedHashMapFactory __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) CommonLinkedHashMapFactory *shared __attribute__((swift_name("shared")));
 - (CommonMutableDictionary<id, id> *)create __attribute__((swift_name("create()")));
 - (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
 - (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
 - (CommonMutableDictionary<id, id> *)createOriginal:(NSDictionary<id, id> *)original __attribute__((swift_name("create(original:)")));
-- (CommonMutableSet<id<CommonKotlinMutableMapMutableEntry>> *)entriesLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("entries(linkedHashMap:)")));
-- (BOOL)equalsLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap other:(id _Nullable)other __attribute__((swift_name("equals(linkedHashMap:other:)")));
-- (id _Nullable)getLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key __attribute__((swift_name("get(linkedHashMap:key:)")));
-- (id _Nullable)getOrDefaultLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key defaultValue:(id _Nullable)defaultValue __attribute__((swift_name("getOrDefault(linkedHashMap:key:defaultValue:)")));
-- (int32_t)hashCodeLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("hashCode(linkedHashMap:)")));
-- (BOOL)isEmptyLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("isEmpty(linkedHashMap:)")));
-- (CommonMutableSet<id> *)keysLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("keys(linkedHashMap:)")));
-- (id _Nullable)putLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("put(linkedHashMap:key:value:)")));
-- (void)putAllLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap from:(NSDictionary<id, id> *)from __attribute__((swift_name("putAll(linkedHashMap:from:)")));
-- (id _Nullable)putIfAbsentLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("putIfAbsent(linkedHashMap:key:value:)")));
-- (id _Nullable)removeLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key __attribute__((swift_name("remove(linkedHashMap:key:)")));
-- (BOOL)removeLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("remove(linkedHashMap:key:value:)")));
-- (id _Nullable)replaceLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key value:(id _Nullable)value __attribute__((swift_name("replace(linkedHashMap:key:value:)")));
-- (BOOL)replaceLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap key:(id _Nullable)key oldValue:(id _Nullable)oldValue newValue:(id _Nullable)newValue __attribute__((swift_name("replace(linkedHashMap:key:oldValue:newValue:)")));
-- (int32_t)sizeLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("size(linkedHashMap:)")));
-- (id)valuesLinkedHashMap:(CommonMutableDictionary<id, id> *)linkedHashMap __attribute__((swift_name("values(linkedHashMap:)")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -366,6 +231,29 @@ __attribute__((swift_name("LinkedHashSetFactory")))
 @end
 
 __attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinByteArray")))
+@interface CommonKotlinByteArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonByte *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (int8_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinByteIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+@interface CommonKotlinByteArray (Extensions)
+- (NSData *)toNSData __attribute__((swift_name("toNSData()")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("BridgesKt")))
+@interface CommonBridgesKt : CommonBase
++ (CommonKotlinByteArray *)toByteArray:(NSData *)receiver __attribute__((swift_name("toByteArray(_:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinArray")))
 @interface CommonKotlinArray<T> : CommonBase
 + (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
@@ -377,17 +265,11 @@ __attribute__((swift_name("KotlinArray")))
 @property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("KotlinByteArray")))
-@interface CommonKotlinByteArray : CommonBase
-+ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
-+ (instancetype)arrayWithSize:(int32_t)size init:(CommonByte *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-- (int8_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
-- (CommonKotlinByteIterator *)iterator __attribute__((swift_name("iterator()")));
-- (void)setIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
+__attribute__((swift_name("KotlinIterator")))
+@protocol CommonKotlinIterator
+@required
+- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
+- (id _Nullable)next __attribute__((swift_name("next()")));
 @end
 
 __attribute__((swift_name("KotlinByteIterator")))

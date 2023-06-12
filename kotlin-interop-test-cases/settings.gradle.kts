@@ -8,4 +8,4 @@ pluginManagement {
     }
 }
 
-includeBuild("../kompat")
+includeBuild("../j2objc-kompat")

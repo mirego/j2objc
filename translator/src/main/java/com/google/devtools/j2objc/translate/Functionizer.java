@@ -62,7 +62,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -676,7 +679,10 @@ public class Functionizer extends UnitTreeVisitor {
 
   private void endVisitKotlin(ClassInstanceCreation node, ExecutableElement element) {
     String fullName = nameTable.getFullFunctionName(element);
-    fullName = fullName.substring(0, fullName.indexOf("_"));
+
+    String className = node.getExecutableElement().getEnclosingElement().getSimpleName().toString();
+    int idx = fullName.indexOf(className);
+    fullName = fullName.substring(0, idx + className.length());
 
     GeneratedExecutableElement classElement = GeneratedExecutableElement
       .newMethodWithSelector(fullName, node.getTypeMirror(), ElementUtil.getDeclaringClass(element));
@@ -698,6 +704,19 @@ public class Functionizer extends UnitTreeVisitor {
   private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
     KmDeclarationContainer declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(element);
     KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, declarationContainer);
+    // if we did not find the function directly on the container, check is this class has a companion and look there
+    Element actualContainingElement = null;
+    if (kotlinFunction == null && ElementUtil.isStatic(element)) {
+      List<? extends Element> enclosedElements = element.getEnclosingElement().getEnclosedElements();
+      // Check in the enclosed elements what we have for the companion
+      Optional<? extends Element> first = enclosedElements.stream().filter(KotlinUtil::isElementKotlinCompanionObjectOrObject).findFirst();
+      if (first.isPresent()) {
+        actualContainingElement = first.get();
+        declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(actualContainingElement);
+        kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, declarationContainer);
+      }
+    }
+
     KmProperty propertyAccessor = null;
     if (kotlinFunction == null) {
       propertyAccessor = KotlinUtil.getKotlinPropertyAccessor(element, declarationContainer);
@@ -706,14 +725,14 @@ public class Functionizer extends UnitTreeVisitor {
     // Enum property access or function calls do not happen on the Enum but on an instance
     // so we don't need any special handling
     if (kotlinFunction == null && propertyAccessor == null
-      && KotlinUtil.isKotlinEnum(declarationContainer)) {
+      && (KotlinUtil.isKotlinEnum(declarationContainer) || KotlinUtil.isKotlinEnumSpecialMethodCall(element))) {
       Expression expression = convertEnumExpression(node, element);
       node.setExpression(expression);
       return;
     }
 
     if (KotlinUtil.isKotlinCompanionObjectOrObject(declarationContainer)) {
-      Expression expression = convertCompanionObjectOrObjectExpression(node, element);
+      Expression expression = convertCompanionObjectOrObjectExpression(node, element, actualContainingElement);
       node.setExpression(expression);
     }
 
@@ -739,7 +758,7 @@ public class Functionizer extends UnitTreeVisitor {
     }
   }
 
-  private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element) {
+  private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element, @Nullable Element actualContainingElement) {
     String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
     TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
     Expression nodeExpression = node.getExpression();
@@ -747,7 +766,11 @@ public class Functionizer extends UnitTreeVisitor {
     String instanceSelector;
     SimpleName executableExpression;
     if (ElementUtil.isStatic(element)) {
-      instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
+      if (actualContainingElement != null) {
+        instanceSelector = "companion";
+      } else {
+        instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
+      }
       executableExpression = new SimpleName(executableElementName);
     } else if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(nodeExpression)) {
       FieldAccess fieldAccess = (FieldAccess) nodeExpression;

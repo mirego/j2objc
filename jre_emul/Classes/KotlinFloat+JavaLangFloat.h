@@ -882,7 +882,7 @@ BOXED_COMPOUND_ASSIGN_ARITHMETIC(Float, floatValue, jfloat, CommonFloat)
 BOXED_COMPOUND_ASSIGN_FPMOD(Float, floatValue, jfloat, CommonFloat)
 
 // Empty class to force category to be loaded.
-@interface JreFloatCategoryDummy : NSObject
+@interface JreKotlinFloatCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinFloat_JavaLangFloat_h_ */

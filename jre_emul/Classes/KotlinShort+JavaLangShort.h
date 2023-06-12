@@ -470,7 +470,7 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonShort)
 BOXED_INC_AND_DEC(Short, shortValue, CommonShort)
 
 // Empty class to force category to be loaded.
-@interface JreShortCategoryDummy : NSObject
+@interface JreKotlinShortCategoryDummy : NSObject
 @end
 
 #endif // _KotlinShort_JavaLangShort_h

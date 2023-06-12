@@ -23,8 +23,21 @@ java {
     withSourcesJar()
 }
 
+sourceSets {
+    test {
+        java {
+            srcDir("../kotlin-native-tests/src/test/java")
+            setExcludes(listOf(
+                "com/google/devtools/j2objc/regression/*.java",
+                "com/google/devtools/j2objc/**/*Tests.java",
+            ))
+        }
+    }
+}
+
 dependencies {
     implementation("com.google.j2objc:j2objc-annotations:3.0")
+    implementation("com.google.j2objc:j2objc-kompat:3.0")
     implementation("com.google.j2objc:jre_emul:3.0")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
@@ -37,7 +50,7 @@ dependencies {
     implementation("org.checkerframework:checker:$checkerFrameworkVersion")
     annotationProcessor("org.checkerframework:checker:$checkerFrameworkVersion")
 
-    implementation(platform("org.junit:junit-bom:5.9.2"))
+    implementation(platform("org.junit:junit-bom:5.10.0-M1"))
     implementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.google.flogger:flogger:0.7.4")
@@ -56,6 +69,13 @@ dependencies {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+
+    // kotlin interop >>
+    dependsOn(
+        gradle.includedBuild("j2objc-kompat").task(":jvmJar"),
+        gradle.includedBuild("j2objc-kompat").task(":j2objcKotlinTypes"),
+    )
+    // kotlin interop <<
 }
 
 testlogger {
@@ -63,6 +83,9 @@ testlogger {
 }
 
 tasks.named<JavaCompile>("compileJava") {
+    options.compilerArgs.add("--add-exports=java.compiler/javax.lang.model.element=ALL-UNNAMED")
+    options.compilerArgs.add("--add-exports=java.compiler/javax.lang.model.type=ALL-UNNAMED")
+    options.compilerArgs.add("--add-exports=java.compiler/javax.lang.model.util=ALL-UNNAMED")
     options.compilerArgs.add("--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED")
     options.compilerArgs.add("--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED")
     options.compilerArgs.add("--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED")
@@ -90,8 +113,5 @@ idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
         excludeDirs.add(file("build_result"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
 }

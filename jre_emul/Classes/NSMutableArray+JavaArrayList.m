@@ -1,44 +1,33 @@
 // kotlin interop >>
 
 #import "NSMutableArray+JavaArrayList.h"
+
 #import "J2ObjC_common.h"
 #import "J2ObjC_kotlinTypes.h"
 #import "J2ObjC_source.h"
 
 NSMutableArray *create_NSMutableArray_init() {
-  return RETAIN_([CommonArrayListFactory.shared create]);
+  return AUTORELEASE([[NSMutableArray alloc] init]);
 }
 
-NSMutableArray *create_NSMutableArray_initWithInitialCapacity_(jint initialCapacity) {
-  return RETAIN_([CommonArrayListFactory.shared createInitialCapacity:initialCapacity]);
+NSMutableArray *create_NSMutableArray_initWithInt_(jint initialCapacity) {
+  return AUTORELEASE([[NSMutableArray alloc] initWithInt:initialCapacity]);
 }
 
-NSMutableArray *create_NSMutableArray_initWithElements_(id<JavaUtilCollection> elements) {
-  return RETAIN_([CommonArrayListFactory.shared createElements:javaWrapCollection(elements)]);
+NSMutableArray *create_NSMutableArray_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) {
+  return AUTORELEASE([[NSMutableArray alloc] initWithJavaUtilCollection:elements]);
 }
 
 NSMutableArray *new_NSMutableArray_init() {
-  return RETAIN_([CommonArrayListFactory.shared create]);
+  return [[NSMutableArray alloc] init];
 }
 
-NSMutableArray *new_NSMutableArray_initWithInitialCapacity_(jint initialCapacity) {
-  return RETAIN_([CommonArrayListFactory.shared createInitialCapacity:initialCapacity]);
+NSMutableArray *new_NSMutableArray_initWithInt_(jint initialCapacity) {
+  return [[NSMutableArray alloc] initWithInt:initialCapacity];
 }
 
-NSMutableArray *new_NSMutableArray_initWithElements_(id<JavaUtilCollection> elements) {
-  return RETAIN_([CommonArrayListFactory.shared createElements:javaWrapCollection(elements)]);
-}
-
-void NSMutableArray_init(NSMutableArray *self) {
-  [self init];
-}
-
-void NSMutableArray_initWithInitialCapacity_(NSMutableArray *self, jint initialCapacity) {
-  [self initWithInitialCapacity:initialCapacity];
-}
-
-void NSMutableArray_initWithElements_(NSMutableArray *self, id<JavaUtilCollection> elements) {
-  [self initWithElements:elements];
+NSMutableArray *new_NSMutableArray_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) {
+  return [[NSMutableArray alloc] initWithJavaUtilCollection:elements];
 }
 
 @implementation NSMutableArray (JavaArrayList)

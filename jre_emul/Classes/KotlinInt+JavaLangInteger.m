@@ -944,7 +944,7 @@ void CommonInt_IntegerCache_fillValuesWithCommonIntArray_(IOSObjectArray *values
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonInt_IntegerCache)
 
 // Empty class to force category to be loaded.
-@implementation JreIntegerCategoryDummy
+@implementation JreKotlinIntCategoryDummy
 @end
 
 // kotlin interop <<

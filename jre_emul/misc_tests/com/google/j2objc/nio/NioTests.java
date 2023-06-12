@@ -14,7 +14,7 @@
 
 package com.google.j2objc.nio;
 
-import com.google.j2objc.TestUtil;
+// import com.google.j2objc.TestUtil;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

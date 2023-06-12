@@ -80,6 +80,9 @@ if [ $? -ne 0 ]; then
 fi
 
 J2OBJC_ARGS+=(-Xannotations-jar "${LIB_DIR}/j2objc_annotations.jar")
+# kotlin interop >>
+J2OBJC_ARGS+=(-Xkompat-annotations-jar "${LIB_DIR}/j2objc-kompat-jvm-3.0.jar")
+# kotlin interop <<
 
 PARSING_JAVA_ARGS=0
 JAVA_ARGS=()

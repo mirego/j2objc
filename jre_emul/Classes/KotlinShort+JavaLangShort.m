@@ -101,13 +101,6 @@ IOSClass *CommonShort_TYPE;
   return CommonShort_decodeWithNSString_(nm);
 }
 
-//J2OBJC_IGNORE_DESIGNATED_BEGIN
-//- (instancetype)initWithShort:(jshort)value {
-//  CommonShort_initWithShort_(self, value);
-//  return self;
-//}
-//J2OBJC_IGNORE_DESIGNATED_END
-
 - (instancetype)initWithNSString:(NSString *)s {
   CommonShort_initWithNSString_(self, s);
   return self;
@@ -435,7 +428,7 @@ void CommonShort_ShortCache_fillValuesWithCommonShortArray_(IOSObjectArray *valu
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonShort_ShortCache)
 
 // Empty class to force category to be loaded.
-@implementation JreShortCategoryDummy
+@implementation JreKotlinShortCategoryDummy
 @end
 
 // kotlin interop <<

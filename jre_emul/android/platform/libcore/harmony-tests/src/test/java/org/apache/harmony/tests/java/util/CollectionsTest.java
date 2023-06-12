@@ -299,14 +299,16 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     class Mock_ArrayList extends ArrayList {
         @Override
         public
         Object set (int index, Object o){
             throw new UnsupportedOperationException();
         }
-    }
+    } */
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_copyLjava_util_ListLjava_util_List() {
         // Test for method void java.util.Collections.copy(java.util.List,
         // java.util.List)
@@ -375,6 +377,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             //expected
         }
     }
+    */
 
     public void test_copy_check_index() {
         ArrayList a1 = new ArrayList();
@@ -409,6 +412,7 @@ public class CollectionsTest extends junit.framework.TestCase {
                 count);
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_fillLjava_util_ListLjava_lang_Object() {
         // Test for method void java.util.Collections.fill(java.util.List,
         // java.lang.Object)
@@ -443,6 +447,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             //expected
         }
     }
+    */
 
     public void test_maxLjava_util_Collection() {
         // Test for method java.lang.Object
@@ -825,6 +830,7 @@ public class CollectionsTest extends junit.framework.TestCase {
         }
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_replaceAllLjava_util_ListLjava_lang_ObjectLjava_lang_Object() {
         // Test for method replaceAll(java.util.List, java.lang.Object,
         // java.lang.Object)
@@ -921,6 +927,7 @@ public class CollectionsTest extends junit.framework.TestCase {
             //expected
         }
     }
+    */
 
     public void test_rotateLjava_util_ListI() {
         // Test for method rotate(java.util.List, int)

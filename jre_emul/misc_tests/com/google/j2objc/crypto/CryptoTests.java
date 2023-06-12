@@ -14,7 +14,7 @@
 
 package com.google.j2objc.crypto;
 
-import com.google.j2objc.TestUtil;
+// import com.google.j2objc.TestUtil;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

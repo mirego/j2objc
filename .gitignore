@@ -6,6 +6,7 @@ Gemfile.lock
 
 # Build Output
 **/build_result/
+**/build/
 dist/
 
 # Xcode Generated Files
@@ -22,3 +23,6 @@ dist/
 # IntelliJ IDEA Files
 *.iml
 .idea
+
+# Gradle
+.gradle

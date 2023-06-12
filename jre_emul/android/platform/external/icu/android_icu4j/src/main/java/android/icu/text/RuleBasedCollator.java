@@ -1003,6 +1003,7 @@ public final class RuleBasedCollator extends Collator {
      * @deprecated This API is ICU internal only.
      * @hide draft / provisional / internal are hidden on Android
      */
+    @Deprecated
     void internalAddContractions(int c, UnicodeSet set) {
         new ContractionsAndExpansions(set, null, null, false).forCodePoint(data, c);
     }

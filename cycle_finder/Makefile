@@ -25,6 +25,9 @@ TRANSLATOR_SOURCE_DIR = $(J2OBJC_ROOT)/translator/$(JAVA_SOURCE_DIR)
 include ../make/common.mk
 include ../make/j2objc_deps.mk
 include ../java_deps/jars.mk
+# kotlin interop >>
+include ../make/kotlin.mk
+# kotlin interop <<
 
 BUILD_DIR = build_result
 CLASS_DIR = $(BUILD_DIR)/classes
@@ -53,10 +56,10 @@ ifdef JAVA_8
 INTERNAL_DEPS += $(JAVAC_JAR)
 endif
 # kotlin interop >>
-INTERNAL_DEPS += $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR)
+INTERNAL_DEPS += $(KOTLIN_STDLIB_JAR) $(KOTLINX_METADATA_JVM_JAR) $(JETBRAIN_ANNOTATION_JAR)
 # kotlin interop <<
 JAR_DEPS_DIST = $(DIST_DEPS:%=$(DIST_JAR_DIR)/%) $(INTERNAL_DEPS:%=$(JAVA_DEPS_JAR_DIR)/%)
-JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST)))
+JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST))):$(KOTLIN_KOMPAT_JVM_JAR)
 JUNIT_JAR_DIST = $(DIST_JAR_DIR)/$(JUNIT_JAR)
 
 MAIN_CLASS = com.google.devtools.cyclefinder.CycleFinder

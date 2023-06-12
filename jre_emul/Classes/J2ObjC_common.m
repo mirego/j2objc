@@ -40,11 +40,14 @@
 
 // kotlin interop >>
 #import "J2ObjC_kotlinTypes.h"
-#import "KotlinIterator+JavaIterator.h"
-#import "java/util/Collection.h"
-#import "java/util/List.h"
-#import "java/util/Map.h"
-#import "java/util/Set.h"
+#import "NSDictionary+JavaUtilMap_PackagePrivate.h"
+
+#include "java/lang/IllegalArgumentException.h"
+#include "java/util/Collection.h"
+#include "java/util/Iterator.h"
+#include "java/util/List.h"
+#include "java/util/Map.h"
+#include "java/util/Set.h"
 // kotlin interop <<
 
 id JreThrowNullPointerException() {
@@ -520,79 +523,106 @@ NSUInteger JreDefaultFastEnumeration(
 
 // kotlin interop >>
 
-NSException* unsupportedAdapterCallWithName(NSString *name, NSString *className) {
-  @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot call %@ on %@, not implemented yet", name, className]);
-}
+IOSObjectArray *toIOSObjectArray(CommonKotlinArray *sourceArray) {
+  IOSObjectArray *destArray = [IOSObjectArray newArrayWithLength:sourceArray.size type:NSObject_class_()];
+  id<CommonKotlinIterator> iterator = sourceArray.iterator;
 
-IOSObjectArray* toIOSObjectArray(id sourceArray) {
-  CommonKotlinArray *kotlinSourceArray = (CommonKotlinArray *)sourceArray;
-  IOSObjectArray *destArray = [IOSObjectArray newArrayWithLength:kotlinSourceArray.size type:NSObject_class_()];
-  id <CommonKotlinIterator> iterator = kotlinSourceArray.iterator;
-
-  NSInteger index = 0;
-  while ([iterator hasNext]) {
-    id nextItem = iterator.next;
-    IOSObjectArray_Set(destArray, index++, nextItem);
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    IOSObjectArray_Set(destArray, index++, [iterator next]);
   }
 
-  return destArray;
+  return AUTORELEASE(destArray);
+}
+
+IOSByteArray *toIOSByteArray(CommonKotlinByteArray *sourceArray) {
+  return [IOSByteArray arrayWithNSData:sourceArray.toNSData];
 }
 
 id toKotlinArray(IOSObjectArray *sourceArray) {
-  int arraySize = sourceArray.length;
-  id (^initCall)(CommonInt *) = ^(CommonInt *index) {
+  return [CommonKotlinArray arrayWithSize:(int32_t)sourceArray.length init:^(CommonInt *index) {
     return IOSObjectArray_Get(sourceArray, index.intValue);
-  };
-
-  return [CommonKotlinArray arrayWithSize:arraySize init:initCall];
-}
-
-IOSByteArray *toIOSByteArray(id sourceArray) {
-  CommonKotlinByteArray *kotlinSourceArray = (CommonKotlinByteArray *)sourceArray;
-  return [IOSByteArray arrayWithNSData:[CommonByteArrayBridge.shared nsDataFromByteArray:kotlinSourceArray]];
+  }];
 }
 
 id toKotlinArrayFromByteArray(IOSByteArray *sourceArray) {
-  return [CommonByteArrayBridge.shared byteArrayFromNsData:sourceArray.toNSData];
+  return [CommonBridgesKt toByteArray:sourceArray.toNSData];
 }
 
-id javaWrapCollection(id<JavaUtilCollection> collection) {
-  if ([collection isKindOfClass:NSArray.class] ||
-      [collection isKindOfClass:NSSet.class]) {
-    return collection;
+id javaWrapArray(id<JavaUtilCollection> elements) {
+  if ([elements isKindOfClass:NSArray.class]) {
+    return elements;
   }
 
-  if (![collection conformsToProtocol:@protocol(JavaUtilCollection)]) {
-    return @[];
+  if (![elements conformsToProtocol:@protocol(JavaUtilCollection)]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"elements must be a java.util.Collection");
   }
 
-  NSMutableArray<id> *array = [NSMutableArray arrayWithCapacity:collection.size];
-  for (id object in collection) {
-    [array addObject:object];
+  NSMutableArray *array = [NSMutableArray arrayWithCapacity:elements.size];
+  id<JavaUtilIterator> iter = [elements iterator];
+  while ([iter hasNext]) {
+    [array addObject:javaWrapNull([iter next])];
   }
 
   return array;
 }
 
+id javaWrapSet(id<JavaUtilCollection> elements) {
+  if ([elements isKindOfClass:NSSet.class]) {
+    return elements;
+  }
+
+  if (![elements conformsToProtocol:@protocol(JavaUtilCollection)]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"elements must be a java.util.Collection");
+  }
+
+  NSMutableSet *set = [NSMutableSet setWithCapacity:elements.size];
+  id<JavaUtilIterator> iter = [elements iterator];
+  while ([iter hasNext]) {
+    [set addObject:javaWrapNull([iter next])];
+  }
+
+  return set;
+}
+
+id javaWrapMap(id<JavaUtilMap> original) {
+  if ([original isKindOfClass:NSDictionary.class]) {
+    return original;
+  }
+
+  if (![original conformsToProtocol:@protocol(JavaUtilMap)]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"original must be a java.util.Map");
+  }
+
+  NSMutableDictionary<id, id> *map = [NSMutableDictionary dictionaryWithCapacity:original.size];
+  id<JavaUtilIterator> iter = [original.entrySet iterator];
+  while ([iter hasNext]) {
+    id<JavaUtilMap_Entry> entry = RETAIN_AND_AUTORELEASE([iter next]);
+    [map setObject:javaWrapNull(entry.getValue) forKey:javaWrapKey(entry.getKey)];
+  }
+
+  return map;
+}
+
 id javaListToNSMutableArray(id<JavaUtilList> list) {
-  if (![(id)list isKindOfClass:NSMutableArray.class]) {
-    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSMutableArray", list]);
+  if (![(id)list isKindOfClass:NSArray.class]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSArray", list]);
   }
 
   return (id)list;
 }
 
 id javaSetToKotlinMutableSet(id<JavaUtilSet> set) {
-  if (![(id)set isKindOfClass:CommonMutableSet.class]) {
-    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as CommonMutableSet", set]);
+  if (![(id)set isKindOfClass:NSSet.class]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSSet", set]);
   }
 
   return (id)set;
 }
 
 id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map) {
-  if(![(id)map isKindOfClass:CommonMutableDictionary.class]) {
-    @throw create_JavaLangException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as CommonMutableDictionary", map]);
+  if(![(id)map isKindOfClass:NSDictionary.class]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSDictionary", map]);
   }
 
   return (id)map;

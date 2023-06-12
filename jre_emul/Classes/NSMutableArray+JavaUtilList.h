@@ -1,11 +1,5 @@
 // kotlin interop >>
 
-#if __has_feature(nullability)
-#pragma clang diagnostic push
-#pragma GCC diagnostic ignored "-Wnullability"
-#pragma GCC diagnostic ignored "-Wnullability-completeness"
-#endif
-
 #ifndef _NSMutableArray_JavaUtilList_h_
 #define _NSMutableArray_JavaUtilList_h_
 
@@ -17,7 +11,7 @@
 
 @interface NSMutableArray<ObjectType> (JavaUtilList) < JavaUtilList, JavaUtilRandomAccess >
 
-- (instancetype)initWithInitialCapacity:(jint)initialCapacity;
+- (instancetype)initWithInt:(jint)initialCapacity;
 
 @end
 
@@ -26,9 +20,5 @@
 @end
 
 #endif /* _NSMutableArray_JavaUtilList_h_ */
-
-#if __has_feature(nullability)
-#pragma clang diagnostic pop
-#endif
 
 // kotlin interop <<

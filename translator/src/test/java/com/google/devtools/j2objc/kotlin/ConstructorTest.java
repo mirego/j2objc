@@ -2,8 +2,6 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
 import com.mirego.interop.java.test.constructor.DefaultConstructor;
@@ -13,6 +11,7 @@ import com.mirego.interop.java.test.constructor.DefaultConstructorWithIntParamet
 import com.mirego.interop.java.test.constructor.DefaultConstructorWithMultipleInitBlocks;
 import com.mirego.interop.java.test.constructor.DefaultConstructorWithPrivateProperty;
 import com.mirego.interop.java.test.constructor.DefaultConstructorWithUserClassParameter;
+import com.mirego.interop.java.test.constructor.JavaUsingClassWithUnderscoresInItsName;
 import com.mirego.interop.java.test.constructor.SecondaryConstructor;
 import com.mirego.interop.java.test.constructor.WithoutConstructor;
 
@@ -20,7 +19,6 @@ public class ConstructorTest extends GenerationTest {
 
   final private static String testPackage = "constructor/";
 
-  @Test
   public void testClassWithoutConstructor() throws IOException {
 
     String className = WithoutConstructor.class.getSimpleName();
@@ -29,7 +27,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
   }
 
-  @Test
   public void testClassWithDefaultConstructor() throws IOException {
 
     String className = DefaultConstructor.class.getSimpleName();
@@ -38,7 +35,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] initWithName:@\"ClassWithDefaultConstructor\"]");
   }
 
-  @Test
   public void testClassWithDefaultConstructorMultipleParameters() throws IOException {
 
     String className = DefaultConstructorMultipleParameters.class.getSimpleName();
@@ -56,7 +52,6 @@ public class ConstructorTest extends GenerationTest {
   //   assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithDefaultValue alloc] init]");
   // }
 
-  @Test
   public void testClassWithDefaultConstructorWithInitBlock() throws IOException {
 
     String className = DefaultConstructorWithInitBlock.class.getSimpleName();
@@ -65,7 +60,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithInitBlock alloc] initWithName:@\"ClassWithDefaultConstructorWithInitBlock\"]");
   }
 
-  @Test
   public void testClassWithDefaultConstructorWithMultipleInitBlocks() throws IOException {
 
     String className = DefaultConstructorWithMultipleInitBlocks.class.getSimpleName();
@@ -74,7 +68,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithMultipleInitBlocks alloc] initWithName:@\"ClassWithDefaultConstructorWithMultipleInitBlocks\"]");
   }
 
-  @Test
   public void testClassWithDefaultConstructorWithPrivateProperty() throws IOException {
 
     String className = DefaultConstructorWithPrivateProperty.class.getSimpleName();
@@ -83,7 +76,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithPrivateProperty alloc] initWithName:@\"ClassWithDefaultConstructorWithPrivateProperty\"]");
   }
 
-  @Test
   public void testClassWithSecondaryConstructor() throws IOException {
 
     String className = SecondaryConstructor.class.getSimpleName();
@@ -92,7 +84,6 @@ public class ConstructorTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithSecondaryConstructor alloc] init]");
   }
 
-  @Test
   public void testClassWithDefaultConstructorWithIntParameter() throws IOException {
 
     String className = DefaultConstructorWithIntParameter.class.getSimpleName();
@@ -133,7 +124,6 @@ public class ConstructorTest extends GenerationTest {
   //       + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])]");
   // }
 
-  @Test
   public void testClassWithDefaultConstructorWithUserClassParameter() throws IOException {
 
     String className = DefaultConstructorWithUserClassParameter.class.getSimpleName();
@@ -141,5 +131,12 @@ public class ConstructorTest extends GenerationTest {
 
     assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithUserClassParameter alloc] "
         + "initWithUserClassParameter:[[CommonClassWithoutConstructor alloc] init]]");
+  }
+
+  public void testClassNameWithUnderscores() throws IOException {
+    String className = JavaUsingClassWithUnderscoresInItsName.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "[[CommonClassWithUnderscores_In_Its_Name alloc] init]");
   }
 }

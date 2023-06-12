@@ -23,8 +23,5 @@ idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
         excludeDirs.add(file("dist"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
 }

@@ -1105,7 +1105,7 @@ BOXED_COMPOUND_ASSIGN_BITWISE(Long, longLongValue, jlong, CommonLong)
 BOXED_SHIFT_ASSIGN_64(Long, longLongValue, jlong, CommonLong)
 
 // Empty class to force category to be loaded.
-@interface JreLongCategoryDummy : NSObject
+@interface JreKotlinLongCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinLong_JavaLangLong_h_ */

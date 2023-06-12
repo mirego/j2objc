@@ -1,13 +1,3 @@
-com.mirego.interop.kotlin.test.arrays=common/common.h
-com.mirego.interop.kotlin.test.collections=common/common.h
-com.mirego.interop.kotlin.test.constructor=common/common.h
-com.mirego.interop.kotlin.test.dataclass=common/common.h
-com.mirego.interop.kotlin.test.enums=common/common.h
-com.mirego.interop.kotlin.test.function=common/common.h
-com.mirego.interop.kotlin.test.interfaces=common/common.h
-com.mirego.interop.kotlin.test.nullsafety=common/common.h
-com.mirego.interop.kotlin.test.objects=common/common.h
-com.mirego.interop.kotlin.test.property=common/common.h
-kotlin-module/kompat=common/common.h
+kotlin-module/j2objc-kompat=common/common.h
 kotlin-module/kotlin-stdlib=common/common.h
 kotlin-module/kotlin-test-cases=common/common.h

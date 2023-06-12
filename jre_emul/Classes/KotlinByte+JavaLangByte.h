@@ -478,7 +478,7 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonByte)
 BOXED_INC_AND_DEC(Byte, charValue, CommonByte)
 
 // Empty class to force category to be loaded.
-@interface JreByteCategoryDummy : NSObject
+@interface JreKotlinByteCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinByte_JavaLangByte_h_ */

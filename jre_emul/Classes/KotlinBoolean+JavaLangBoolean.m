@@ -269,7 +269,7 @@ J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonBoolean)
 J2OBJC_NAME_MAPPING(CommonBoolean, "java.lang.Boolean", "CommonBoolean")
 
 // Empty class to force category to be loaded.
-@implementation JreBooleanCategoryDummy
+@implementation JreKotlinBooleanCategoryDummy
 @end
 
 // kotlin interop <<

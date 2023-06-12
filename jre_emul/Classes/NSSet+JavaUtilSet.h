@@ -1,11 +1,5 @@
 // kotlin interop >>
 
-#if __has_feature(nullability)
-#pragma clang diagnostic push
-#pragma GCC diagnostic ignored "-Wnullability"
-#pragma GCC diagnostic ignored "-Wnullability-completeness"
-#endif
-
 #ifndef _NSSet_JavaUtilSet_h
 #define _NSSet_JavaUtilSet_h
 
@@ -15,7 +9,7 @@
 
 @interface NSSet<ObjectType> (JavaUtilSet) < JavaUtilSet >
 
-- (instancetype)initWithElements:(id<JavaUtilCollection>)elements;
+- (instancetype)initWithJavaUtilCollection:(id<JavaUtilCollection>)elements;
 
 @end
 
@@ -24,9 +18,5 @@
 @end
 
 #endif /* _NSSet_JavaUtilSet_h */
-
-#if __has_feature(nullability)
-#pragma clang diagnostic pop
-#endif
 
 // kotlin interop <<

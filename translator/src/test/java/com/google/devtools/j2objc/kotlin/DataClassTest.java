@@ -2,8 +2,6 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
 import com.mirego.interop.java.test.dataclass.SimpleDataClassConstructor;
@@ -14,7 +12,6 @@ public class DataClassTest extends GenerationTest {
 
   final private static String testPackage = "dataclass/";
 
-  @Test
   public void testSimpleDataClassConstructor() throws IOException {
 
     String className = SimpleDataClassConstructor.class.getSimpleName();
@@ -23,7 +20,6 @@ public class DataClassTest extends GenerationTest {
     assertTranslation(translation, "[[CommonSimpleDataClass alloc] initWithName:@\"dataClassName\" number:1]");
   }
 
-  @Test
   public void testSimpleDataClassGetter() throws IOException {
 
     String className = SimpleDataClassGetter.class.getSimpleName();
@@ -33,7 +29,6 @@ public class DataClassTest extends GenerationTest {
   }
 
   // TODO component{n} seems to be broken after update to Kotlin 1.8.x
-  @Test
   public void testSimpleDataClassComponentGetter() throws IOException {
 
     // String className = SimpleDataClassComponentGetter.class.getSimpleName();
@@ -42,7 +37,6 @@ public class DataClassTest extends GenerationTest {
     // assertTranslation(translation, "return [simpleDataClass component1];");
   }
 
-  @Test
   public void testSimpleDataClassEquals() throws IOException {
 
     String className = SimpleDataClassEquals.class.getSimpleName();

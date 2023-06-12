@@ -184,11 +184,13 @@ $(foreach root,$(TEST_RESOURCE_ROOTS),$(eval $(call resource_copy_rule,$(root)))
 # See http://stackoverflow.com/questions/16279867/gmake-change-the-stack-size-limit
 # and https://savannah.gnu.org/bugs/?22010
 run-tests: link resources $(TEST_BIN) run-initialization-test run-core-size-test
+	@echo Running $(TEST_BIN) org.junit.runner.JUnitCore $(ALL_TESTS_CLASS)
 	@ulimit -s 8192 && $(RUN_FLAGS) $(TEST_BIN) org.junit.runner.JUnitCore $(ALL_TESTS_CLASS)
 
 # Useful when investigating flaky tests. Example:
 # make -f tests.mk run-single-test NUM_TEST_RUNS=50 TEST_TO_RUN=jsr166.CompletableFutureTest
 run-single-test: link resources $(TEST_BIN)
+	@echo Running $(TEST_BIN) org.junit.runner.JUnitCore $(TEST_TO_RUN)
 	@test=0 ; while [[ $$test -lt $(NUM_TEST_RUNS) ]] ; do \
 	  echo test $$test ; \
 	  ulimit -s 8192 && $(TEST_BIN) org.junit.runner.JUnitCore $(TEST_TO_RUN) || exit 1; \

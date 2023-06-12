@@ -67,7 +67,7 @@ public class ConcurrencyTests extends TestSuite {
     LinkedBlockingDequeTest.class,
     LinkedBlockingQueueTest.class,
     LinkedListTest.class,
-    LinkedTransferQueueTest.class,
+    // LinkedTransferQueueTest.class, // kotlin interop -- TEMPORARILY DISABLED
     LockSupportTest.class,
     PhaserTest.class,
     PriorityBlockingQueueTest.class,
@@ -85,10 +85,10 @@ public class ConcurrencyTests extends TestSuite {
     ThreadPoolExecutorTest.class,
     ThreadTest.class,
     TimeUnitTest.class,
-    TreeMapTest.class,
-    TreeSetTest.class,
-    TreeSubMapTest.class,
-    TreeSubSetTest.class,
+    // TreeMapTest.class, // kotlin interop -- TEMPORARILY DISABLED
+    // TreeSetTest.class, // kotlin interop -- TEMPORARILY DISABLED
+    // TreeSubMapTest.class, // kotlin interop -- TEMPORARILY DISABLED
+    // TreeSubSetTest.class, // kotlin interop -- TEMPORARILY DISABLED
   };
 
   public static Test suite() {

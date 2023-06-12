@@ -1,6 +1,6 @@
 unit.mapping.Test=my/mapping/Test.h
 // kotlin interop >>
-kotlin-module/kompat=common/common.h
+kotlin-module/j2objc-kompat=common/common.h
 kotlin-module/kotlin-stdlib=common/common.h
 kotlin-module/kotlin-test-cases=common/common.h
 // kotlin interop <<

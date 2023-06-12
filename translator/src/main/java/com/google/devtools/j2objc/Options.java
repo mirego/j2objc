@@ -98,6 +98,9 @@ public class Options {
   private boolean translateBootclasspath = false;
   private boolean translateClassfiles = false;
   private String annotationsJar = null;
+  // kotlin interop >>
+  private String kompatAnnotationsJar = null;
+  // kotlin interop <<
   private CombinedOutput globalCombinedOutput = null;
   private String bootclasspath = null;
   private boolean emitKytheMappings = false;
@@ -562,6 +565,10 @@ public class Options {
         translateClassfiles = true;
       } else if (arg.equals("-Xannotations-jar")) {
         annotationsJar = getArgValue(args, arg);
+        // kotlin interop >>
+      } else if (arg.equals("-Xkompat-annotations-jar")) {
+        kompatAnnotationsJar = getArgValue(args, arg);
+        // kotlin interop <<
       } else if (arg.equals("-Xkythe-mapping")) {
         emitKytheMappings = true;
       } else if (arg.equals("-Xno-source-headers")) {
@@ -647,7 +654,11 @@ public class Options {
     if (annotationsJar != null) {
       classPaths.add(annotationsJar);
     }
-
+    // kotlin interop >>
+    if (kompatAnnotationsJar != null) {
+      classPaths.add(kompatAnnotationsJar);
+    }
+    // kotlin interop <<
     if (headerMap.useSourceDirectories() && buildClosure) {
       ErrorUtil.error(
           "--build-closure is not supported with -XcombineJars or --preserve-full-paths or "

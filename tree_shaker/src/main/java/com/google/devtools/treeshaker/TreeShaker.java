@@ -151,11 +151,9 @@ public class TreeShaker {
     if (tgb == null) {
       return null;
     }
-    if (logger.atFine().isEnabled()) {
-      logger.atFine().log("External Types: %s", String.join(", ", tgb.getExternalTypeReferences()));
-    }
+    logger.atFine().log("External Types: %s", String.join(", ", tgb.getExternalTypeReferences()));
     Collection<String> unknownMethodReferences = tgb.getUnknownMethodReferences();
-    if (!unknownMethodReferences.isEmpty() && logger.atWarning().isEnabled()) {
+    if (!unknownMethodReferences.isEmpty()) {
       logger.atWarning().log("Unknown Methods: %s", String.join(", ", unknownMethodReferences));
     }
     if (options.useClassHierarchyAnalyzer()) {

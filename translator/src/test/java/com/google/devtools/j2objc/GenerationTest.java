@@ -895,6 +895,8 @@ public class GenerationTest extends TestCase {
       throw new IOException("Could not read file" + sourceFileName);
     }
 
+    options.getHeaderMap().put("kotlin-module/j2objc-kompat", "common/common.h");
+    options.getHeaderMap().put("kotlin-module/kotlin-stdlib", "common/common.h");
     options.getHeaderMap().put("kotlin-module/kotlin-test-cases", "common/common.h");
 
     CompilationUnit compilationUnit = translateType(typeName, source);

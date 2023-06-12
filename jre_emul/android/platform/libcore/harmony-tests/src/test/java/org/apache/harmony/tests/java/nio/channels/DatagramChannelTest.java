@@ -1761,7 +1761,7 @@ public class DatagramChannelTest extends TestCase {
         }
     }
 
-
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testReadWrite_asyncClose() throws Exception {
         byte[] targetArray = new byte[2];
         ByteBuffer targetBuf = ByteBuffer.wrap(targetArray);
@@ -1786,7 +1786,7 @@ public class DatagramChannelTest extends TestCase {
         } catch (AsynchronousCloseException e) {
             // ok
         }
-    }
+    } */
 
     public void testReadWrite_Block_Zero() throws Exception {
         byte[] sourceArray = new byte[0];

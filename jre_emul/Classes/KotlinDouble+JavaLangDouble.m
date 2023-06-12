@@ -434,7 +434,7 @@ J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonDouble)
 J2OBJC_NAME_MAPPING(CommonDouble, "java.lang.Double", "CommonDouble")
 
 // Empty class to force category to be loaded.
-@implementation JreDoubleCategoryDummy
+@implementation JreKotlinDoubleCategoryDummy
 @end
 
 // kotlin interop <<

@@ -1,55 +1,58 @@
 // kotlin interop >>
 
 #import "KotlinMutableSet+JavaHashSet.h"
+
 #import "J2ObjC_common.h"
 #import "J2ObjC_source.h"
+#import "NSMutableSet+JavaUtilSet.h"
+#import "NSSet+JavaUtilSet.h"
 
 CommonMutableSet *create_CommonMutableSet_init() {
-  return RETAIN_([CommonHashSetFactory.shared create]);
+  return AUTORELEASE([[CommonMutableSet alloc] init]);
 }
 
-CommonMutableSet *create_CommonMutableSet_initWithInitialCapacity_(jint initialCapacity) {
-  return RETAIN_([CommonHashSetFactory.shared createInitialCapacity:initialCapacity]);
+CommonMutableSet *create_CommonMutableSet_initWithInt_(jint initialCapacity) {
+  return AUTORELEASE([[CommonMutableSet alloc] initWithInt:initialCapacity]);
 }
 
-CommonMutableSet *create_CommonMutableSet_initWithInitialCapacity_loadFactor_(jint initialCapacity, jfloat loadFactor) {
-  return RETAIN_([CommonHashSetFactory.shared createInitialCapacity:initialCapacity loadFactor:loadFactor]);
+CommonMutableSet *create_CommonMutableSet_initWithInt_withFloat_(jint initialCapacity, jfloat loadFactor) {
+  return AUTORELEASE([[CommonMutableSet alloc] initWithInt:initialCapacity withFloat:loadFactor]);
 }
 
-CommonMutableSet *create_CommonMutableSet_initWithElements_(id<JavaUtilCollection> elements) {
-  return RETAIN_([CommonHashSetFactory.shared createElements:javaWrapCollection(elements)]);
+CommonMutableSet *create_CommonMutableSet_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) {
+  return AUTORELEASE([[CommonMutableSet alloc] initWithJavaUtilCollection:elements]);
 }
 
 CommonMutableSet *new_CommonMutableSet_init() {
-  return RETAIN_([CommonHashSetFactory.shared create]);
+  return [[CommonMutableSet alloc] init];
 }
 
-CommonMutableSet *new_CommonMutableSet_initWithInitialCapacity_(jint initialCapacity) {
-  return RETAIN_([CommonHashSetFactory.shared createInitialCapacity:initialCapacity]);
+CommonMutableSet *new_CommonMutableSet_initWithInt_(jint initialCapacity) {
+  return [[CommonMutableSet alloc] initWithInt:initialCapacity];
 }
 
-CommonMutableSet *new_CommonMutableSet_initWithInitialCapacity_loadFactor_(jint initialCapacity, jfloat loadFactor) {
-  return RETAIN_([CommonHashSetFactory.shared createInitialCapacity:initialCapacity loadFactor:loadFactor]);
+CommonMutableSet *new_CommonMutableSet_initWithInt_withFloat_(jint initialCapacity, jfloat loadFactor) {
+  return [[CommonMutableSet alloc] initWithInt:initialCapacity withFloat:loadFactor];
 }
 
-CommonMutableSet *new_CommonMutableSet_initWithElements_(id<JavaUtilCollection> elements) {
-  return RETAIN_([CommonHashSetFactory.shared createElements:javaWrapCollection(elements)]);
+CommonMutableSet *new_CommonMutableSet_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) {
+  return [[CommonMutableSet alloc] initWithJavaUtilCollection:elements];
 }
 
 void CommonMutableSet_init(CommonMutableSet *self) {
   [self init];
 }
 
-void CommonMutableSet_initWithInitialCapacity_(CommonMutableSet *self, jint initialCapacity) {
-  [self initWithInitialCapacity:initialCapacity];
+void CommonMutableSet_initWithInt_(CommonMutableSet *self, jint initialCapacity) {
+  [self initWithInt:initialCapacity];
 }
 
-void CommonMutableSet_initWithInitialCapacity_loadFactor_(CommonMutableSet *self, jint initialCapacity, jfloat loadFactor) {
-  [self initWithInitialCapacity:initialCapacity loadFactor:loadFactor];
+void CommonMutableSet_initWithInt_withFloat_(CommonMutableSet *self, jint initialCapacity, jfloat loadFactor) {
+  [self initWithInt:initialCapacity withFloat:loadFactor];
 }
 
-void CommonMutableSet_initWithElements_(CommonMutableSet *self, id<JavaUtilCollection> elements) {
-  [self initWithElements:elements];
+void CommonMutableSet_initWithJavaUtilCollection_(CommonMutableSet *self, id<JavaUtilCollection> elements) {
+  [self initWithJavaUtilCollection:elements];
 }
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonMutableSet)

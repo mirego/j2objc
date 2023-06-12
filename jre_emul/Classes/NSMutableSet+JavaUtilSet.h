@@ -1,11 +1,5 @@
 // kotlin interop >>
 
-#if __has_feature(nullability)
-#pragma clang diagnostic push
-#pragma GCC diagnostic ignored "-Wnullability"
-#pragma GCC diagnostic ignored "-Wnullability-completeness"
-#endif
-
 #ifndef _NSMutableSet_JavaUtilSet_h
 #define _NSMutableSet_JavaUtilSet_h
 
@@ -16,8 +10,8 @@
 
 @interface NSMutableSet<ObjectType> (JavaUtilSet) < JavaUtilSet >
 
-- (instancetype)initWithInitialCapacity:(jint)initialCapacity;
-- (instancetype)initWithInitialCapacity:(jint)initialCapacity loadFactor:(jfloat)loadFactor;
+- (instancetype)initWithInt:(jint)initialCapacity;
+- (instancetype)initWithInt:(jint)initialCapacity withFloat:(jfloat)loadFactor;
 
 @end
 
@@ -26,9 +20,5 @@
 @end
 
 #endif /* _NSMutableSet_JavaUtilSet_h */
-
-#if __has_feature(nullability)
-#pragma clang diagnostic pop
-#endif
 
 // kotlin interop <<

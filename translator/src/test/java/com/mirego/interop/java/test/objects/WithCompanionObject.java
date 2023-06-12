@@ -7,6 +7,7 @@ public class WithCompanionObject {
   public static String main(String[] args) {
     String companionString = ClassWithCompanionObject.Companion.getCompanionString();
     String companionFunctionString = ClassWithCompanionObject.Companion.companionFunction();
-    return companionString + companionFunctionString;
+    String companionJvmStaticFunctionString = ClassWithCompanionObject.companionJvmStaticFunction();
+    return String.join("_", companionString, companionFunctionString, companionJvmStaticFunctionString);
   }
 }

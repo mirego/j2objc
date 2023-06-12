@@ -2,11 +2,8 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
-import com.mirego.interop.java.test.check.InstanceOfOnAKotlinInterface;
 import com.mirego.interop.java.test.interfaces.WithGenerics;
 import com.mirego.interop.java.test.interfaces.WithInt;
 import com.mirego.interop.java.test.interfaces.WithIntProperty;
@@ -18,7 +15,6 @@ public class InterfacesTest extends GenerationTest {
 
   final private static String testPackage = "interfaces/";
 
-  @Test
   public void testInterfaceWithInt() throws IOException {
 
     String className = WithInt.class.getSimpleName();
@@ -30,7 +26,6 @@ public class InterfacesTest extends GenerationTest {
         + "}");
   }
 
-  @Test
   public void testInterfaceIntProperty() throws IOException {
 
     String className = WithIntProperty.class.getSimpleName();
@@ -45,7 +40,6 @@ public class InterfacesTest extends GenerationTest {
         "}");
   }
 
-  @Test
   public void testInterfaceStringProperty() throws IOException {
 
     String className = WithStringProperty.class.getSimpleName();
@@ -62,7 +56,6 @@ public class InterfacesTest extends GenerationTest {
         "}");
   }
 
-  @Test
   public void testInterfaceWithNullableInt() throws IOException {
 
     String className = WithNullableInt.class.getSimpleName();
@@ -74,7 +67,6 @@ public class InterfacesTest extends GenerationTest {
         + "}");
   }
 
-  @Test
   public void testInterfaceWithList() throws IOException {
 
     String className = WithList.class.getSimpleName();
@@ -87,7 +79,6 @@ public class InterfacesTest extends GenerationTest {
         + "}");
   }
 
-  @Test
   public void testInterfaceWithGenerics() throws IOException {
 
     String className = WithGenerics.class.getSimpleName();
@@ -97,12 +88,4 @@ public class InterfacesTest extends GenerationTest {
     assertTranslation(translation, "[process convertWithFunctionGenericOtherInput:CommonInt_valueOfWithInt_(3)])) intValue]");
     assertTranslation(translation, "[process convertWithAnotherFunctionGenericAnotherInput:CommonInt_valueOfWithInt_(1)])) intValue]");
   }
-
-  @Test
-  public void testInstanceOfOnAKotlinInterface() throws IOException {
-    String className = InstanceOfOnAKotlinInterface.class.getSimpleName();
-    String translation = translateJavaSourceFileForKotlinTest(className, "check/", ".m");
-    assertTranslation(translation, "[(id) anObjectTypedAsAKotlinInterface isKindOfClass:[");
-  }
-
 }

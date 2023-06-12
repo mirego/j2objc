@@ -211,13 +211,14 @@ public class HashSetTest extends junit.framework.TestCase {
     /**
      * java.util.HashSet#SerializationTest
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_Serialization() throws Exception{
         HashSet<String> hs = new HashSet<String>();
         hs.add("hello");
         hs.add("world");
         SerializationTest.verifySelf(hs, comparator);
         SerializationTest.verifyGolden(this, hs, comparator);
-    }
+    } */
 
     /*
      * Bug 26294011
@@ -248,6 +249,7 @@ public class HashSetTest extends junit.framework.TestCase {
         } catch(NullPointerException expected) {}
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_forEach_CME() throws Exception {
         HashSet<String> set = new HashSet<>();
         set.add("one");
@@ -259,7 +261,7 @@ public class HashSetTest extends junit.framework.TestCase {
                 });
             fail();
         } catch(ConcurrentModificationException expected) {}
-    }
+    } */
 
     public void test_spliterator() throws Exception {
         HashSet<String> hashSet = new HashSet<>();

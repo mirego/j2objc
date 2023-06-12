@@ -2,10 +2,9 @@ package com.google.devtools.j2objc.kotlin;
 
 import com.google.devtools.j2objc.GenerationTest;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
+import com.mirego.interop.java.test.enums.EnumValuesWithStaticProperties;
 import com.mirego.interop.java.test.enums.EnumWithPropertyAccessProperty;
 import com.mirego.interop.java.test.enums.EnumWithPropertyWithFunction;
 import com.mirego.interop.java.test.enums.SimpleEnumAccessValue1;
@@ -19,7 +18,6 @@ public class EnumsTest extends GenerationTest {
 
   final private static String testPackage = "enums/";
 
-  @Test
   public void testSimpleEnumAccessValue1() throws IOException {
 
     String className = SimpleEnumAccessValue1.class.getSimpleName();
@@ -28,7 +26,6 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) description];");
   }
 
-  @Test
   public void testSimpleEnumAccessValue2() throws IOException {
 
     String className = SimpleEnumAccessValue2.class.getSimpleName();
@@ -37,7 +34,6 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue2)) description];");
   }
 
-  @Test
   public void testSimpleEnumAccessValue3() throws IOException {
 
     String className = SimpleEnumAccessValue3.class.getSimpleName();
@@ -46,7 +42,6 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumValue3)) description];");
   }
 
-  @Test
   public void testSimpleEnumValues() throws IOException {
 
     String className = SimpleEnumValues.class.getSimpleName();
@@ -55,7 +50,6 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "toIOSObjectArray([CommonSimpleEnum values])");
   }
 
-  @Test
   public void testSimpleEnumOrdinal() throws IOException {
 
     String className = SimpleEnumOrdinal.class.getSimpleName();
@@ -64,7 +58,6 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "return [((CommonSimpleEnum *) nil_chk(CommonSimpleEnum.enumvalue1)) ordinal];");
   }
 
-  @Test
   public void testSimpleEnumSwitchCase() throws IOException {
 
     String className = SimpleEnumSwitchCase.class.getSimpleName();
@@ -82,7 +75,6 @@ public class EnumsTest extends GenerationTest {
         "  }");
   }
 
-  @Test
   public void testEnumWithPropertyAccessProperty() throws IOException {
 
     String className = EnumWithPropertyAccessProperty.class.getSimpleName();
@@ -91,12 +83,19 @@ public class EnumsTest extends GenerationTest {
     assertTranslation(translation, "((CommonEnumWithProperty *) nil_chk(enumWithProperty)).content");
   }
 
-  @Test
   public void testEnumWithPropertyWithFunction() throws IOException {
 
     String className = EnumWithPropertyWithFunction.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "[((CommonEnumWithProperty *) nil_chk(enumWithProperty)) testFun]");
+  }
+
+  public void testEnumValuesWithStaticProperty() throws IOException {
+
+    String className = EnumValuesWithStaticProperties.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "toIOSObjectArray([CommonEnumWithStaticProperty values])");
   }
 }

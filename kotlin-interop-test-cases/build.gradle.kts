@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -33,6 +34,16 @@ kotlin {
         moduleName = "test"
         browser()
         binaries.executable()
+
+        rootProject.plugins.withType(YarnPlugin::class.java).configureEach {
+            rootProject.the<YarnRootExtension>().yarnLockMismatchReport = YarnLockMismatchReport.WARNING
+            rootProject.the<YarnRootExtension>().reportNewYarnLock = false
+            rootProject.the<YarnRootExtension>().yarnLockAutoReplace = false
+        }
+
+        rootProject.tasks.withType(KotlinNpmInstallTask::class.java).named("kotlinNpmInstall").configure {
+            args.addAll(listOf("--network-concurrency", "1", "--mutex", "network"))
+        }
     }
 
     macosArm64 {
@@ -57,6 +68,7 @@ kotlin {
             dependencies {
                 api("com.google.j2objc:j2objc-kompat:$version")
                 implementation(kotlin("stdlib-common", kotlinVersion))
+                implementation("com.google.j2objc:j2objc-kompat:3.0")
             }
         }
 
@@ -91,14 +103,5 @@ kotlin {
 idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
-}
-
-rootProject.plugins.withType(YarnPlugin::class.java) {
-    rootProject.the<YarnRootExtension>().yarnLockMismatchReport = YarnLockMismatchReport.WARNING
-    rootProject.the<YarnRootExtension>().reportNewYarnLock = false
-    rootProject.the<YarnRootExtension>().yarnLockAutoReplace = false
 }

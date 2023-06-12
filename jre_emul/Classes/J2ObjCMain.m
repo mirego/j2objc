@@ -50,10 +50,16 @@ void installSignalHandler() {
   signal(SIGPIPE, signalHandler);
 }
 
-void handleUncaughtException(JavaLangThrowable *e) {
+void handleUncaughtThrowable(JavaLangThrowable *t) {
   JavaLangThread *currentThread = JavaLangThread_currentThread();
   id uncaughtHandler = [currentThread getUncaughtExceptionHandler];
-  [uncaughtHandler uncaughtExceptionWithJavaLangThread:currentThread withJavaLangThrowable:e];
+  [uncaughtHandler uncaughtExceptionWithJavaLangThread:currentThread withJavaLangThrowable:t];
+}
+
+void handleUncaughtException(NSException *e) {
+  JavaLangThread *currentThread = JavaLangThread_currentThread();
+  id uncaughtHandler = [currentThread getUncaughtExceptionHandler];
+  [uncaughtHandler uncaughtExceptionWithJavaLangThread:currentThread withJavaLangThrowable:[[JavaLangThrowable alloc] initWithNSString:e.description]];
 }
 
 // Adds log handler that writes to stderr.
@@ -118,6 +124,9 @@ int main( int argc, const char *argv[] ) {
       mainFunc(clazz.objcClass, mainSelector, mainArgs);
     }
     @catch (JavaLangThrowable *e) {
+      handleUncaughtThrowable(e);
+    }
+    @catch (NSException *e) {
       handleUncaughtException(e);
     }
   }

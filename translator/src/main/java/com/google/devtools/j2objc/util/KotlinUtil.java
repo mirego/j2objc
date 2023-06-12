@@ -64,6 +64,11 @@ public final class KotlinUtil {
   private static final String JAVA_UTIL_LIST = "java.util.List";
   private static final String KOTLIN_JVM_INSTANCE_IDENTIFIER = "INSTANCE";
 
+  private static final List<String> ENUM_SPECIAL_STATIC_METHODS = List.of(
+    "values",
+    "valueOf"
+  );
+
   public static KotlinWrappedTypes getKotlinWrappedType(TypeMirror type) {
     if (TypeUtil.isArray(type)) {
       Boolean isPrimitive = type.accept(new BooleanTypeVisitor() {
@@ -185,6 +190,12 @@ public final class KotlinUtil {
       return false;
     }
     return isEnumKmClass((KmClass) kotlinMetaData);
+  }
+
+  public static boolean isKotlinEnumSpecialMethodCall(Element element) {
+    return element.getKind() == ElementKind.METHOD &&
+        isKotlinEnum(getElementKotlinClassMetaData(element.getEnclosingElement())) &&
+        ENUM_SPECIAL_STATIC_METHODS.contains(element.getSimpleName().toString());
   }
 
   public static boolean isKotlinCompanionObjectOrObject(ExecutableElement element) {

@@ -55,7 +55,7 @@ public abstract class AbstractRegressionTest extends GenerationTest {
 
   // kotlin interop >>
   private static final String KOTLIN_KOMPAT_LIB_LOCATION =
-      System.getProperty("kotlin.kompat.lib.path", "../dist/lib/common");
+      System.getProperty("kotlin.kompat.lib.path", "../j2objc-kompat/build/bin/macosArm64/debugFramework/common.framework/common");
   // kotlin interop <<
 
   private static final String J2OBJCC_LOCATION =

@@ -66,7 +66,7 @@ $(EMULATION_JAR): $(ALL_JAVA_SOURCES)
 	@echo "building jre_emul.jar"
 	@set -e; stage_dir=`${MKTEMP_CMD}`; \
 	  ../scripts/javac_no_deprecated_warnings.sh $(JAVAC) \
-	  -Xlint:-rawtypes,-unchecked --patch-module=java.base=. \
+	  -Xlint:-rawtypes,-unchecked --patch-module=java.base=$(JRE_SRC) \
 	  -XDstringConcat=inline --add-reads java.base=ALL-UNNAMED \
 	  -classpath $(ANNOTATIONS_JAR) \
 	  -d $$stage_dir -encoding UTF-8 -source 11 -target 11 -nowarn $^; \
@@ -103,7 +103,7 @@ $(JAVA_SOURCES_MANIFEST): $(ALL_JAVA_SOURCES)
 	@mkdir -p $(@D)
 	@echo "building $$(basename $@)"
 	@if [ -e $@ ]; then rm $@; fi
-	@for i in $^; do echo $(CURDIR)/$$i >> $@; done
+	@for i in $^; do echo $$i >> $@; done
 
 java_sources_manifest: $(JAVA_SOURCES_MANIFEST)
 	@:

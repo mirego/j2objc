@@ -25,16 +25,14 @@
 @protocol JavaLangIterable;
 
 // kotlin interop >>
-@protocol JavaUtilCollection;
-@protocol JavaUtilListIterator;
-@protocol JavaUtilList;
-@protocol JavaUtilSet;
-@protocol JavaUtilMap;
-@class CommonMutableset;
-@class CommonMutableDictionary;
-@class NSMutableDictionary;
-@class IOSObjectArray;
+@class CommonKotlinArray;
+@class CommonKotlinByteArray;
 @class IOSByteArray;
+@class IOSObjectArray;
+@protocol JavaUtilCollection;
+@protocol JavaUtilList;
+@protocol JavaUtilMap;
+@protocol JavaUtilSet;
 // kotlin interop <<
 
 #ifndef __has_feature
@@ -379,17 +377,19 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
 
 // kotlin interop >>
 
-NSException *unsupportedAdapterCallWithName(NSString *name, NSString *className);
+IOSObjectArray *toIOSObjectArray(CommonKotlinArray *sourceArray);
 
-IOSObjectArray *toIOSObjectArray(id sourceArray);
-
-IOSByteArray *toIOSByteArray(id sourceArray);
+IOSByteArray *toIOSByteArray(CommonKotlinByteArray *sourceArray);
 
 id toKotlinArray(IOSObjectArray *sourceArray);
 
 id toKotlinArrayFromByteArray(IOSByteArray *sourceArray);
 
-id javaWrapCollection(id<JavaUtilCollection> collection);
+id javaWrapArray(id<JavaUtilCollection> elements);
+
+id javaWrapSet(id<JavaUtilCollection> elements);
+
+id javaWrapMap(id<JavaUtilMap> original);
 
 static inline id javaWrapNull(id object) {
   return (object != nil) ? object : NSNull.null;

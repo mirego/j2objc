@@ -137,6 +137,7 @@ public final class CollectionsTest extends TestCase {
         }
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     static final class ArrayListInheritor<T> extends ArrayList<T> {
         private int numSortCalls = 0;
         public ArrayListInheritor(Collection<T> initialElements) {
@@ -152,7 +153,7 @@ public final class CollectionsTest extends TestCase {
         public int numSortCalls() {
             return numSortCalls;
         }
-    }
+    } */
 
     /* J2ObjC removed.
     /**

@@ -122,7 +122,9 @@ import kotlinx.metadata.KmClass;
 public class StatementGenerator extends UnitTreeVisitor {
 
   private final SourceBuilder buffer;
-
+  // kotlin interop >>
+  private boolean preventCastToProtocol = false;
+  // kotlin interop <<
   public static String generate(TreeNode node, int currentLine) {
     StatementGenerator generator = new StatementGenerator(node, currentLine);
     if (node == null) {
@@ -286,7 +288,13 @@ public class StatementGenerator extends UnitTreeVisitor {
   @Override
   public boolean visit(CastExpression node) {
     buffer.append("(");
-    buffer.append(nameTable.getObjCType(node.getType().getTypeMirror()));
+    // kotlin interop >>
+    if (preventCastToProtocol) {
+      buffer.append("id");
+    } else {
+      buffer.append(nameTable.getObjCType(node.getType().getTypeMirror()));
+    }
+    // kotlin interop <<
     buffer.append(") ");
     node.getExpression().accept(this);
     return false;
@@ -410,7 +418,14 @@ public class StatementGenerator extends UnitTreeVisitor {
   @Override
   public boolean visit(FieldAccess node) {
     node.getExpression().accept(this);
-    buffer.append("->");
+    // kotlin interop >>
+    TypeMirror typeMirror = node.getExpression().getTypeMirror();
+    if (typeMirror != null && KotlinUtil.isKotlinType(typeMirror)) {
+      buffer.append(".");
+    } else {
+      buffer.append("->");
+    }
+    // kotlin interop <<
     node.getName().accept(this);
     return false;
   }
@@ -497,10 +512,20 @@ public class StatementGenerator extends UnitTreeVisitor {
   public boolean visit(InstanceofExpression node) {
     TypeElement type = TypeUtil.asTypeElement(node.getRightOperand().getTypeMirror());
     if (type != null && type.getKind().isInterface()) {
-      // Our version of "isInstance" is faster than "conformsToProtocol".
-      buffer.append(UnicodeUtils.format("[%s_class_() isInstance:", nameTable.getFullName(type)));
-      node.getLeftOperand().accept(this);
-      buffer.append(']');
+      // kotlin interop >>
+      if (KotlinUtil.isKotlinType(type)) {
+        buffer.append('[');
+        node.getLeftOperand().accept(this);
+        buffer.append(" conformsToProtocol:@protocol(");
+        node.getRightOperand().accept(this);
+        buffer.append(")]");
+      } else {
+      // kotlin interop <<
+        // Our version of "isInstance" is faster than "conformsToProtocol".
+        buffer.append(UnicodeUtils.format("[%s_class_() isInstance:", nameTable.getFullName(type)));
+        node.getLeftOperand().accept(this);
+        buffer.append(']');
+      }
     } else {
       buffer.append('[');
       node.getLeftOperand().accept(this);
@@ -544,6 +569,27 @@ public class StatementGenerator extends UnitTreeVisitor {
 
     // Object receiving the message, or null if it's a method in this class.
     Expression receiver = node.getExpression();
+
+    // kotlin interop >>
+    String methodSelector = nameTable.getMethodSelector(element);
+    // Local hack to revert the mapping from getClass() to java_getClass configured in JRE.Mappings for kotlin objects
+    boolean isHandlingGetClassOnKotlinObject = false;
+    if (node.getExpression() != null
+      && KotlinUtil.isKotlinType(node.getExpression().getTypeMirror())
+      && methodSelector.equalsIgnoreCase("java_getClass")
+    ) {
+      isHandlingGetClassOnKotlinObject = true;
+      methodSelector = "class";
+    }
+
+    if (isHandlingGetClassOnKotlinObject) {
+      buffer.append("IOSClass_fromClass(");
+    }
+
+    if (isHandlingGetClassOnKotlinObject && TypeUtil.isInterface(node.getExpression().getTypeMirror())) {
+      preventCastToProtocol = true;
+    }
+    // kotlin interop <<
     buffer.append('[');
     if (ElementUtil.isStatic(element) &&
       !KotlinUtil.isKotlinType(element)) // kotlin interop
@@ -551,11 +597,19 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
       receiver.accept(this);
+      // kotlin interop >>
+      preventCastToProtocol = false;
+      // kotlin interop <<
     } else {
       buffer.append("self");
     }
-    printMethodInvocationNameAndArgs(nameTable.getMethodSelector(element), node.getArguments());
+    printMethodInvocationNameAndArgs(methodSelector, node.getArguments()); // kotlin interop
     buffer.append(']');
+    // kotlin interop >>
+    if (isHandlingGetClassOnKotlinObject) {
+      buffer.append(")");
+    }
+    // kotlin interop <<
     return false;
   }
 

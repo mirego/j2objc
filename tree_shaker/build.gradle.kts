@@ -23,9 +23,9 @@ dependencies {
     implementation("com.google.flogger:flogger:0.7.4")
     implementation("com.google.flogger:google-extensions:0.7.4")
     implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.google.protobuf:protobuf-java:3.22.2")
+    implementation("com.google.protobuf:protobuf-java:3.22.3")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0-M1"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.google.flogger:flogger-system-backend:0.7.4")
@@ -48,8 +48,5 @@ publishing {
 idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
 }

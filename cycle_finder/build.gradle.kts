@@ -28,7 +28,7 @@ dependencies {
     implementation("org.checkerframework:checker:$checkerFrameworkVersion")
     annotationProcessor("org.checkerframework:checker:$checkerFrameworkVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0-M1"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
 }
 
@@ -53,8 +53,5 @@ idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
         excludeDirs.add(file("build_result"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
 }

@@ -50,5 +50,15 @@ update_file Classes/java/lang/reflect/Constructor.m java/lang/reflect/Constructo
 update_file Classes/java/lang/reflect/Executable.m java/lang/reflect/Executable.java
 update_file Classes/java/lang/reflect/Field.m java/lang/reflect/Field.java
 update_file Classes/java/lang/reflect/Method.m java/lang/reflect/Method.java
+# kotlin interop >>
+update_file Classes/KotlinBoolean+JavaLangBoolean.m java/lang/Boolean.java
+update_file Classes/KotlinByte+JavaLangByte.m java/lang/Byte.java
+update_file Classes/KotlinDouble+JavaLangDouble.m java/lang/Double.java
+update_file Classes/KotlinFloat+JavaLangFloat.m java/lang/Float.java
+update_file Classes/KotlinInt+JavaLangInteger.m java/lang/Integer.java
+update_file Classes/KotlinLong+JavaLangLong.m java/lang/Long.java
+update_file Classes/KotlinNumber+JavaLangNumber.m java/lang/Number.java
+update_file Classes/KotlinShort+JavaLangShort.m java/lang/Short.java
+# kotlin interop <<
 
 rm -rf $TEMP_DIR $TRANSLATION_DIR

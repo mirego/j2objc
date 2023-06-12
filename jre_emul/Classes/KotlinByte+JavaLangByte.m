@@ -448,7 +448,7 @@ void CommonByte_ByteCache_fillValuesWithCommonByteArray_(IOSObjectArray *values)
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonByte_ByteCache)
 
 // Empty class to force category to be loaded.
-@implementation JreByteCategoryDummy
+@implementation JreKotlinByteCategoryDummy
 @end
 
 // kotlin interop <<

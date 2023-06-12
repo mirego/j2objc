@@ -113,7 +113,11 @@ clean_dist: clean
 
 test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
+
+# kotlin interop >>
+test_regression: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) regression-test
+# kotlin interop <<
 
 # kotlin interop >>
 test_kotlin: annotations_dist java_deps_dist jre_emul_dist
@@ -132,7 +136,8 @@ test_junit_cycles: cycle_finder_dist
 test_cycle_finder: cycle_finder_dist
 	@cd cycle_finder && $(MAKE) test
 
-test: test_translator test_jre_emul test_cycle_finder test_jre_cycles
+# kotlin interop - test regression last
+test: test_translator test_jre_emul test_cycle_finder test_jre_cycles test_regression
 
 test_protobuf: junit_dist protobuf_compiler_dist protobuf_runtime_dist
 	@cd protobuf/tests && $(MAKE) test

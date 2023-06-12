@@ -922,7 +922,7 @@ BOXED_COMPOUND_ASSIGN_ARITHMETIC(Double, doubleValue, jdouble, CommonDouble)
 BOXED_COMPOUND_ASSIGN_FPMOD(Double, doubleValue, jdouble, CommonDouble)
 
 // Empty class to force category to be loaded.
-@interface JreDoubleCategoryDummy : NSObject
+@interface JreKotlinDoubleCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinDouble_JavaLangDouble_h_ */

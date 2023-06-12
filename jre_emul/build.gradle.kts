@@ -70,7 +70,7 @@ sourceSets {
 dependencies {
     implementation("com.google.j2objc:j2objc-annotations:3.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0-M1"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
@@ -110,8 +110,5 @@ idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
         excludeDirs.add(file("build_result"))
-
-        isDownloadJavadoc = true
-        isDownloadSources = true
     }
 }

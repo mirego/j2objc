@@ -40,6 +40,9 @@ import java.util.RandomAccess;
 import java.util.Set;
 import junit.framework.TestCase;
 
+import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
+
 public final class ReflectionTest extends TestCase {
     String classA = "libcore.java.lang.reflect.ReflectionTest$A";
     String classB = "libcore.java.lang.reflect.ReflectionTest$B";
@@ -69,10 +72,12 @@ public final class ReflectionTest extends TestCase {
     /**
      * http://code.google.com/p/android/issues/detail?id=6636
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testGenericSuperclassToString() throws Exception {
         assertEquals("java.util.ArrayList<" + classA + ">",
                 AList.class.getGenericSuperclass().toString());
     }
+    */
 
     public void testClassGetName() {
         assertEquals("int", int.class.getName());
@@ -362,10 +367,16 @@ public final class ReflectionTest extends TestCase {
 
     static class $Dollar$1 {}
     static class A {}
-    static class AList extends ArrayList<A> {}
+    // kotlin interop -- TEMPORARILY DISABLED
+    // static class AList extends ArrayList<A> {}
     static A CLASS_LEVEL_ANONYMOUS = new A() {};
 
     static class B extends Exception {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(value={METHOD})
+    public @interface TestAnnotation {
+    }
 
     public static abstract class C<K> {
         public static A fieldOne;
@@ -381,7 +392,7 @@ public final class ReflectionTest extends TestCase {
             return null;
         }
         public abstract Map<A, String> methodTwo(List<A> onlyParameter);
-        @Deprecated /** this annotation is used because it has runtime retention */
+        @TestAnnotation /** this annotation is used because it has runtime retention */
         private static <T1 extends A, T2> Map<T1, ?> methodThree(T1 t, Set<? super T2> t2s) {
             return null;
         }

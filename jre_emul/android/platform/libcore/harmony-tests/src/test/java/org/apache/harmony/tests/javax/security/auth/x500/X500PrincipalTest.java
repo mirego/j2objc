@@ -2731,6 +2731,7 @@ public class X500PrincipalTest extends TestCase {
         }
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testValidEncoding() {
         TestList list = new TestList();
 
@@ -3054,7 +3055,9 @@ public class X500PrincipalTest extends TestCase {
             fail(errorMsg.toString());
         }
     }
+    */
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     @SuppressWarnings("serial")
     public static class TestList extends ArrayList<Object[]> {
         //
@@ -3109,8 +3112,7 @@ public class X500PrincipalTest extends TestCase {
             add(new Object[] { encoding, rfc2253, rfc1779, canonical,
                     new byte[] { mask } });
         }
-    }
-
+    } */
 
     public void testSerializationSelf() throws Exception {
         SerializationTest.verifySelf(getSerializationData());

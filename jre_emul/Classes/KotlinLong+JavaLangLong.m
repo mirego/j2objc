@@ -1006,7 +1006,7 @@ void CommonLong_LongCache_fillValuesWithCommonLongArray_(IOSObjectArray *values)
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonLong_LongCache)
 
 // Empty class to force category to be loaded.
-@implementation JreLongCategoryDummy
+@implementation JreKotlinLongCategoryDummy
 @end
 
 // kotlin interop <<

@@ -79,7 +79,7 @@ public final class TypeUtil {
       GeneratedTypeElement.newIosClass("IOSObjectArray", NS_OBJECT, "IOSObjectArray.h");
   // kotlin interop >>
   public static final TypeElement COMMON_NUMBER =
-      GeneratedTypeElement.newIosClass("CommonNumber", NS_NUMBER, "J2ObjC_kotlinTypes.h");
+      GeneratedTypeElement.newIosClass("CommonNumber", NS_NUMBER, "");
   public static final TypeElement COMMON_BOOLEAN =
       GeneratedTypeElement.newIosClass("CommonBoolean", NS_NUMBER, "java/lang/Boolean.h");
   public static final TypeElement COMMON_BYTE =

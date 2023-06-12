@@ -36,6 +36,9 @@ SOURCEPATH = $(CWD):$(JAVA_SOURCE_DIR)
 BASE_PACKAGE = com/google/devtools/j2objc
 
 DIST_DEPS = $(JSR305_JAR) j2objc_annotations.jar
+# kotlin interop >>
+DIST_DEPS += j2objc-kompat-jvm-3.0.jar
+# kotlin interop <<
 INTERNAL_DEPS = $(GUAVA_JAR) $(JSR305_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) \
     $(PLUME_UTIL_JAR) $(FLOGGER_JARS) $(JSPECIFY_JAR)
 ifdef JAVA_8
@@ -56,9 +59,10 @@ TEST_CLASSPATH = \
 TEST_BOOT_CLASSPATH = $(DIST_JAR_DIR)/jre_emul.jar
 
 # kotlin interop >>
-KOTLIN_DEPS_PATH = $(J2OBJC_ROOT)/kotlin-interop-test-cases/build/libs/kotlin-test-cases-jvm-3.0.jar
+KOTLIN_DEPS_PATH = $(KOTLIN_KOMPAT_JVM_JAR)
 CLASSPATH := $(CLASSPATH):$(KOTLIN_DEPS_PATH)
-TEST_CLASSPATH := $(TEST_CLASSPATH):$(KOTLIN_DEPS_PATH)
+TEST_KOTLIN_DEPS_PATH = $(KOTLIN_DEPS_PATH):$(KOTLIN_INTEROP_TEST_CASES_JVM_JAR)
+TEST_CLASSPATH := $(TEST_CLASSPATH):$(TEST_KOTLIN_DEPS_PATH)
 # kotlin interop <<
 
 MAIN_CLASS = com.google.devtools.j2objc.J2ObjC
@@ -367,8 +371,9 @@ endif
 default: $(J2OBJC_JAR)
 	@: # suppress make's "nothing to be done" message
 
+# kotlin interop - add kotlin_kompat
 $(J2OBJC_JAR): $(MANIFEST) $(RESOURCE_FILES) $(JAVA_SOURCES_FULL) \
-  | $(BUILD_DIR) java_deps_dist annotations_dist
+  | $(BUILD_DIR) java_deps_dist annotations_dist kotlin_kompat
 	@echo building j2objc jar
 	@$(JAVAC) -sourcepath $(SOURCEPATH) -classpath $(CLASSPATH) -d $(CLASS_DIR) \
 	    $(TRANSLATOR_BUILD_FLAGS) $(JAVA_SOURCES_FULL)

@@ -319,7 +319,7 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonBoolean)
 BOXED_INC_AND_DEC(Boolean, booleanValue, CommonBoolean)
 
 // Empty class to force category to be loaded.
-@interface JreBooleanCategoryDummy : NSObject
+@interface JreKotlinBooleanCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinBoolean_JavaLangBoolean_h_ */

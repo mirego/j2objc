@@ -11,5 +11,6 @@ includeBuild("../annotations")
 includeBuild("../jre_emul")
 
 // kotlin interop >>
+includeBuild("../j2objc-kompat")
 includeBuild("../kotlin-interop-test-cases")
 // kotlin interop <<

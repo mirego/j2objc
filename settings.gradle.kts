@@ -8,6 +8,6 @@ includeBuild("translator")
 // includeBuild("tree_shaker")
 
 // kotlin interop >>
-includeBuild("kompat")
+includeBuild("j2objc-kompat")
 includeBuild("kotlin-interop-test-cases")
 // kotlin interop <<

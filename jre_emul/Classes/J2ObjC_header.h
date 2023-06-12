@@ -18,10 +18,12 @@
 #import "IOSObjectArray.h"
 #import "J2ObjC_common.h"
 #import "JavaObject.h"
+#import "NSObject+JavaObject.h"
+// kotlin interop >>
 #import "NSMutableArray+JavaUtilList.h"
 #import "NSMutableDictionary+JavaUtilMap.h"
 #import "NSMutableSet+JavaUtilSet.h"
-#import "NSObject+JavaObject.h"
+// kotlin interop <<
 
 CF_EXTERN_C_BEGIN
 

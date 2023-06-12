@@ -65,8 +65,8 @@ JETBRAIN_ANNOTATION_JAR = annotations-24.0.0.jar
 MOCKITO_JAR = mockito-core-2.23.4.jar
 MOCKITO_SOURCE_JAR = mockito-core-2.23.4-sources.jar
 
-JSR305_JAR = jsr305-3.0.0.jar
-JSR305_SOURCE_JAR = jsr305-3.0.0.jar
+JSR305_JAR = jsr305-3.0.2.jar
+JSR305_SOURCE_JAR = jsr305-3.0.2-sources.jar
 
 JAVAX_INJECT_JAR = javax.inject-1.jar
 JAVAX_INJECT_SOURCE_JAR = javax.inject-1-sources.jar

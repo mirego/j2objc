@@ -41,6 +41,7 @@ import com.google.devtools.j2objc.ast.TypeLiteral;
 import com.google.devtools.j2objc.types.FunctionElement;
 import com.google.j2objc.annotations.ObjectiveCName;
 import com.google.j2objc.annotations.ReflectionSupport;
+import com.google.j2objc.kompat.KompatObjectiveCName;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -86,6 +87,13 @@ public final class TranslationUtil {
   // kotlin interop >>
   @Nullable
   public static String getObjectiveCName(Element element) {
+    if (KotlinUtil.isKotlinType(element)) {
+      AnnotationMirror annotation = ElementUtil.getAnnotation(element, KompatObjectiveCName.class);
+      if (annotation != null) {
+        return (String) ElementUtil.getAnnotationValue(annotation, "name");
+      }
+    }
+
     AnnotationMirror annotation = ElementUtil.getAnnotation(element, ObjectiveCName.class);
     String prefix = null;
     if (annotation != null) {

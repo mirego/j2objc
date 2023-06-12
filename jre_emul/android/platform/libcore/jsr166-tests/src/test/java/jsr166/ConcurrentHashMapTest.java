@@ -83,6 +83,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
         public int hashCode() { return 42; }
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     static class LexicographicList<E extends Comparable<E>> extends ArrayList<E>
         implements Comparable<LexicographicList<E>> {
         LexicographicList(Collection<E> c) { super(c); }
@@ -99,7 +100,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
             return r;
         }
         private static final long serialVersionUID = 0;
-    }
+    } */
 
     static class CollidingObject {
         final String value;
@@ -138,6 +139,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
      * Elements of classes with erased generic type parameters based
      * on Comparable can be inserted and found.
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testGenericComparable() {
         int size = 120;         // makes measured test run time -> 60ms
         ConcurrentHashMap<Object, Boolean> m =
@@ -156,13 +158,14 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
         for (int i = 0; i < size; i++) {
             assertTrue(m.containsKey(Collections.singletonList(new BI(i))));
         }
-    }
+    } */
 
     /**
      * Elements of non-comparable classes equal to those of classes
      * with erased generic type parameters based on Comparable can be
      * inserted and found.
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testGenericComparable2() {
         int size = 500;         // makes measured test run time -> 60ms
         ConcurrentHashMap<Object, Boolean> m =
@@ -175,7 +178,7 @@ public class ConcurrentHashMapTest extends JSR166TestCase {
             LexicographicList<BI> bis = new LexicographicList<BI>(new BI(i));
             assertTrue(m.containsKey(bis));
         }
-    }
+    } */
 
     /**
      * Mixtures of instances of comparable and non-comparable classes

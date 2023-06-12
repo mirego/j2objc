@@ -17,7 +17,6 @@ package com.google.devtools.j2objc.pipeline;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.DebugASTDump;
-import com.google.devtools.j2objc.check.InstanceOfKotlinClassCheck;
 import com.google.devtools.j2objc.gen.GenerationUnit;
 import com.google.devtools.j2objc.gen.ObjectiveCHeaderGenerator;
 import com.google.devtools.j2objc.gen.ObjectiveCImplementationGenerator;
@@ -147,7 +146,6 @@ public class TranslationProcessor extends FileProcessor {
   }
 
   private static void applyChecks(CompilationUnit unit) {
-    new InstanceOfKotlinClassCheck(unit).run();
     new ClassExtendsCollectionCheck(unit).run();
 
     unit.validate();

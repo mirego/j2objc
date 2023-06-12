@@ -77,8 +77,8 @@ NATIVE_JRE_SOURCES_CORE += \
   KotlinDouble+JavaLangDouble.m \
   KotlinFloat+JavaLangFloat.m \
   KotlinInt+JavaLangInteger.m \
-  KotlinIterator+JavaIterator.m \
   KotlinLong+JavaLangLong.m \
+  KotlinMutableDictionary+JavaHashMap.m \
   KotlinMutableSet+JavaHashSet.m \
   KotlinShort+JavaLangShort.m \
   NSArray+JavaUtilList.m \
@@ -2358,7 +2358,11 @@ EMULATED_JAVA_SOURCES = \
 EMULATED_JAVA_SOURCES += \
   java/lang/Boolean.java \
   java/lang/Byte.java \
+  java/lang/Double.java \
+  java/lang/Float.java \
   java/lang/Integer.java \
+  java/lang/Long.java \
+  java/lang/Short.java \
   java/util/ArrayList.java \
   java/util/HashMap.java \
   java/util/HashSet.java \
@@ -2403,8 +2407,8 @@ PUBLIC_NATIVE_HEADERS += \
   KotlinDouble+JavaLangDouble.h \
   KotlinFloat+JavaLangFloat.h \
   KotlinInt+JavaLangInteger.h \
-  KotlinIterator+JavaIterator.h \
   KotlinLong+JavaLangLong.h \
+  KotlinMutableDictionary+JavaHashMap.h \
   KotlinMutableSet+JavaHashSet.h \
   KotlinShort+JavaLangShort.h \
   NSArray+JavaUtilList.h \
@@ -2423,7 +2427,9 @@ PUBLIC_NATIVE_HEADERS += \
   java/lang/Short.h \
   java/util/ArrayList.h \
   java/util/HashMap.h \
-  java/util/HashSet.h
+  java/util/HashSet.h \
+  java/util/LinkedHashMap.h \
+  java/util/LinkedHashSet.h
 # kotlin interop <<
 
 JRE_PUBLIC_PACKAGES = \

@@ -38,7 +38,12 @@ filegroup(
 
 java_import(
     name = "annotations",
-    jars = ["lib/j2objc_annotations.jar"],
+    jars = ["
+        // kotlin interop >>
+        lib/j2objc_annotations.jar",
+        lib/j2objc-kompat-jvm-3.0.jar",
+        // kotlin interop <<
+    ],
 )
 
 java_import(

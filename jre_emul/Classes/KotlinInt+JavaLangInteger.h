@@ -1137,7 +1137,7 @@ BOXED_COMPOUND_ASSIGN_BITWISE(Int, intValue, jint, CommonInt)
 BOXED_SHIFT_ASSIGN_32(Int, intValue, jint, CommonInt)
 
 // Empty class to force category to be loaded.
-@interface JreIntegerCategoryDummy : NSObject
+@interface JreKotlinIntCategoryDummy : NSObject
 @end
 
 #endif /* _KotlinInt_JavaLangInteger_h_ */

@@ -1,11 +1,11 @@
-@file:Suppress("RemoveEmptyPrimaryConstructor", "MemberVisibilityCanBePrivate")
-
 package com.mirego.interop.kotlin.test.function
 
+import com.google.j2objc.kompat.KompatObjectiveCName
 import kotlin.js.JsName
 import kotlin.jvm.JvmOverloads
+import kotlin.native.ObjCName
 
-class ClassWithPublicFunctions() {
+class ClassWithPublicFunctions {
 
     companion object {
         fun staticReturnString(): String {
@@ -100,9 +100,9 @@ class ClassWithPublicFunctions() {
     @JsName("recursiveFunction")
     fun recursiveFunction(number: Int): Long {
         return if (number == 1) {
-          number.toLong()
+            number.toLong()
         } else {
-          number * recursiveFunction(number - 1)
+            number * recursiveFunction(number - 1)
         }
     }
 
@@ -142,5 +142,11 @@ class ClassWithPublicFunctions() {
 
     fun overloadedFunction(string: String): String {
         return string
+    }
+
+    @KompatObjectiveCName("getWithString:")
+    @ObjCName("get")
+    fun methodWithObjCName(@ObjCName("withString") string: String): String {
+        return "my name is getString $string)"
     }
 }

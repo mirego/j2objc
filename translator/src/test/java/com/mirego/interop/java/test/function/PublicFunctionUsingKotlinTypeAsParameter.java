@@ -19,6 +19,9 @@ public class PublicFunctionUsingKotlinTypeAsParameter {
 
   public static String main(String[] args) {
     ClassWithPublicFunctions classWithPublicFunctions = new ClassWithPublicFunctions();
-    return classWithPublicFunctions.returnString();
+
+    String name = classWithPublicFunctions.methodWithObjCName("test");
+
+    return classWithPublicFunctions.returnString() + name;
   }
 }

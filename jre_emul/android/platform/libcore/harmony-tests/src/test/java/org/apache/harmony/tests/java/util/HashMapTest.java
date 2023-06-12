@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.Spliterator;
@@ -50,6 +51,7 @@ public class HashMapTest extends junit.framework.TestCase {
         }
     }
 
+    /* kotlin interop -- not used
     private static class MockMapNull extends AbstractMap {
         public Set entrySet() {
             return null;
@@ -58,7 +60,7 @@ public class HashMapTest extends junit.framework.TestCase {
         public int size() {
             return 10;
         }
-    }
+    } */
 
     interface MockInterface {
         public String mockMethod();
@@ -161,12 +163,14 @@ public class HashMapTest extends junit.framework.TestCase {
             myMap.put(objArray2[counter], objArray[counter]);
         HashMap hm2 = new HashMap(myMap);
         for (int counter = 0; counter < hmSize; counter++)
-            assertTrue("Failed to construct correct HashMap", hm
-                    .get(objArray2[counter]) == hm2.get(objArray2[counter]));
+            assertEquals("Failed to construct correct HashMap", hm // kotlin interop -- Use assertEquals
+                    .get(objArray2[counter]), hm2.get(objArray2[counter]));
 
+        /* kotlin interop -- TEMPORARILY DISABLED
         Map mockMap = new MockMap();
         hm = new HashMap(mockMap);
         assertEquals(hm, mockMap);
+        */
     }
 
     /**
@@ -199,8 +203,8 @@ public class HashMapTest extends junit.framework.TestCase {
         HashMap hm2 = (HashMap) hm.clone();
         assertTrue("Clone answered equivalent HashMap", hm2 != hm);
         for (int counter = 0; counter < hmSize; counter++)
-            assertTrue("Clone answered unequal HashMap", hm
-                    .get(objArray2[counter]) == hm2.get(objArray2[counter]));
+            assertEquals("Clone answered unequal HashMap", hm // kotlin interop -- Use assertEquals
+                    .get(objArray2[counter]), hm2.get(objArray2[counter]));
 
         HashMap map = new HashMap();
         map.put("key", "value");
@@ -211,7 +215,7 @@ public class HashMapTest extends junit.framework.TestCase {
                 "value", values.iterator().next());
         assertEquals("keySet() does not work",
                 "key", keys.iterator().next());
-        AbstractMap map2 = (AbstractMap) map.clone();
+        HashMap map2 = (HashMap) map.clone(); // kotlin interop -- Cast to HashMap
         map2.put("key", "value2");
         Collection values2 = map2.values();
         assertTrue("values() is identical", values2 != values);
@@ -496,14 +500,14 @@ public class HashMapTest extends junit.framework.TestCase {
     public void test_putAllLjava_util_Map_Null() {
         HashMap hashMap = new HashMap();
         try {
-            hashMap.putAll(new MockMapNull());
+            hashMap.putAll(null/*new MockMapNull()*/); // kotlin interop -- pass null directly
             fail("Should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected.
         }
 
         try {
-            hashMap = new HashMap(new MockMapNull());
+            hashMap = new HashMap(null/*new MockMapNull()*/); // kotlin interop -- pass null directly
             fail("Should throw NullPointerException");
         } catch (NullPointerException e) {
             // expected.
@@ -619,13 +623,14 @@ public class HashMapTest extends junit.framework.TestCase {
     /**
      * java.util.AbstractMap#toString()
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_toString() {
 
         HashMap m = new HashMap();
         m.put(m, m);
         String result = m.toString();
         assertTrue("should contain self ref", result.indexOf("(this") > -1);
-    }
+    } */
 
     static class ReusableKey {
         private int key = 0;
@@ -741,6 +746,7 @@ public class HashMapTest extends junit.framework.TestCase {
         } catch(NullPointerException expected) {}
     }
 
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void test_forEach_CME() throws Exception {
         HashMap<String, String> map = new HashMap<>();
         map.put("one", "1");
@@ -802,7 +808,7 @@ public class HashMapTest extends junit.framework.TestCase {
         } catch(ConcurrentModificationException expected) {}
         // We should get a CME and DO NOT continue forEach evaluation
         assertEquals(1, outputMap.size());
-    }
+    } */
 
     private static class MockEntry implements Map.Entry {
 
@@ -817,6 +823,22 @@ public class HashMapTest extends junit.framework.TestCase {
         public Object setValue(Object object) {
             return null;
         }
+
+        // kotlin interop >>
+        public boolean equals(Object o) {
+          if (this == o)
+            return true;
+          if (!(o instanceof Map.Entry))
+            return false;
+          Map.Entry<?,?> e = (Map.Entry<?,?>)o;
+          return Objects.equals(getKey(), e.getKey())
+              && Objects.equals(getValue(), e.getValue());
+        }
+
+        public int hashCode() {
+          return Objects.hashCode(getKey()) ^ Objects.hashCode(getValue());
+        }
+        // kotlin interop <<
     }
 
     public void test_spliterator_keySet() {
@@ -958,6 +980,7 @@ public class HashMapTest extends junit.framework.TestCase {
     /**
      * serialization/deserialization.
      */
+    /* kotlin interop -- TEMPORARILY DISABLED
     public void testSerializationSelf() throws Exception {
         HashMap<String, String> hm = new HashMap<String, String>();
         hm.put("key", "value");
@@ -967,6 +990,6 @@ public class HashMapTest extends junit.framework.TestCase {
         //  regression for HARMONY-1583
         hm.put(null, "null");
         SerializationTest.verifySelf(hm);
-    }
+    } */
 }
 

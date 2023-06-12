@@ -257,6 +257,15 @@ public class NameTable {
    */
   public String getVariableShortName(VariableElement var) {
     String baseName = getVariableBaseName(var);
+    // kotlin interop >>
+    Element enclosingElement = var.getEnclosingElement();
+    if (enclosingElement != null) {
+      TypeMirror type = enclosingElement.asType();
+      if (type != null && KotlinUtil.isKotlinType(type)) {
+        return baseName;
+      }
+    }
+    // kotlin interop <<
     if (var.getKind().isField() && !ElementUtil.isGlobalVar(var)) {
       return baseName + '_';
     }
@@ -964,7 +973,7 @@ public class NameTable {
     String prefix = prefixMap.getPrefix("kotlin-module/" + kotlinModuleName);
 
     if (prefix == null) {
-      throw new RuntimeException(String.format("Unable to find Kotlin module prefix for module: %s\nAll prefixes: %s", kotlinModuleName, prefixMap));
+      throw new RuntimeException(String.format("Unable to find Kotlin module prefix for element: [%s] for module: [%s]\nAll prefixes: [%s]", element.getSimpleName().toString(), kotlinModuleName, prefixMap));
     }
 
     return prefix;

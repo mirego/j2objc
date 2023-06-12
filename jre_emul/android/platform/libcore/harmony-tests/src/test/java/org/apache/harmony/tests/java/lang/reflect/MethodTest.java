@@ -112,11 +112,11 @@ public class MethodTest extends junit.framework.TestCase {
         public void publicVoidVarargs(Object... param){}
         public void publicVoidArray(Object[] param){}
 
-        public void annotatedParameter(@TestAnno @Deprecated int a,
-                @Deprecated int b, int c) {
+        public void annotatedParameter(@TestAnno @TestAnno2 int a,
+                @TestAnno2 int b, int c) {
         }
 
-        @Deprecated
+        @TestAnno2
         @TestAnno
         public void annotatedMethod(){}
 
@@ -156,7 +156,12 @@ public class MethodTest extends junit.framework.TestCase {
         String value() default DEFAULT_VALUE;
     }
 
-    abstract class AbstractTestMethod {
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ElementType.PARAMETER, ElementType.METHOD})
+  public static @interface TestAnno2{
+  }
+
+  abstract class AbstractTestMethod {
         public abstract void puabs();
     }
 
@@ -418,16 +423,16 @@ public class MethodTest extends junit.framework.TestCase {
         annotationSet.add(annotations[0][1].annotationType());
         assertTrue("Missing TestAnno annotation", annotationSet
                 .contains(TestAnno.class));
-        assertTrue("Missing Deprecated annotation", annotationSet
-                .contains(Deprecated.class));
+        assertTrue("Missing TestAnno2 annotation", annotationSet
+                .contains(TestAnno2.class));
 
         assertEquals(
                 "Wrong number of annotations returned for second parameter",
                 1, annotations[1].length);
         annotationSet = new HashSet<Class<?>>();
         annotationSet.add(annotations[1][0].annotationType());
-        assertTrue("Missing Deprecated annotation", annotationSet
-                .contains(Deprecated.class));
+        assertTrue("Missing TestAnno2 annotation", annotationSet
+                .contains(TestAnno2.class));
         assertEquals(
                 "Wrong number of annotations returned for third parameter", 0,
                 annotations[2].length);
@@ -446,8 +451,8 @@ public class MethodTest extends junit.framework.TestCase {
         annotationSet.add(declaredAnnotations[1].annotationType());
         assertTrue("Missing TestAnno annotation", annotationSet
                 .contains(TestAnno.class));
-        assertTrue("Missing Deprecated annotation", annotationSet
-                .contains(Deprecated.class));
+        assertTrue("Missing TestAnno2 annotation", annotationSet
+                .contains(TestAnno2.class));
     }
 
     /**

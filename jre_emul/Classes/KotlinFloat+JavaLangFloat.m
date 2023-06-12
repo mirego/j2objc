@@ -105,13 +105,6 @@ IOSClass *CommonFloat_TYPE;
   return CommonFloat_isFiniteWithFloat_(f);
 }
 
-//J2OBJC_IGNORE_DESIGNATED_BEGIN
-//- (instancetype)initWithDouble:(jdouble)value {
-//  CommonFloat_initWithDouble_(self, value);
-//  return self;
-//}
-//J2OBJC_IGNORE_DESIGNATED_END
-
 - (instancetype)initWithNSString:(NSString *)s {
   CommonFloat_initWithNSString_(self, s);
   return self;
@@ -438,7 +431,7 @@ J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonFloat)
 J2OBJC_NAME_MAPPING(CommonFloat, "java.lang.Float", "CommonFloat")
 
 // Empty class to force category to be loaded.
-@implementation JreFloatCategoryDummy
+@implementation JreKotlinFloatCategoryDummy
 @end
 
 // kotlin interop <<

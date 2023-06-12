@@ -1169,8 +1169,14 @@ public class Collections {
      * @return an unmodifiable view of the specified set.
      */
     public static <T> Set<T> unmodifiableSet(Set<? extends T> s) {
-        return new UnmodifiableSet<>(s);
+        return wrapInNSSet(s); // kotlin interop
     }
+
+    // kotlin interop >>
+    private static native <T> Set<T> wrapInNSSet(Set<? extends T> s) /*-[
+        return AUTORELEASE([[NSSet alloc] initWithJavaUtilCollection:s]);
+    ]-*/;
+    // kotlin interop <<
 
     /**
      * @serial include
@@ -1338,10 +1344,14 @@ public class Collections {
      * @return an unmodifiable view of the specified list.
      */
     public static <T> List<T> unmodifiableList(List<? extends T> list) {
-        return (list instanceof RandomAccess ?
-                new UnmodifiableRandomAccessList<>(list) :
-                new UnmodifiableList<>(list));
+        return wrapInNSArray(list); // kotlin interop
     }
+
+    // kotlin interop >>
+    private static native <T> List<T> wrapInNSArray(List<? extends T> list) /*-[
+        return AUTORELEASE([[NSArray alloc] initWithJavaUtilCollection:list]);
+    ]-*/;
+    // kotlin interop <<
 
     /**
      * @serial include
@@ -1484,8 +1494,14 @@ public class Collections {
      * @return an unmodifiable view of the specified map.
      */
     public static <K,V> Map<K,V> unmodifiableMap(Map<? extends K, ? extends V> m) {
-        return new UnmodifiableMap<>(m);
+        return wrapInNSDictionary(m); // kotlin interop
     }
+
+    // kotlin interop >>
+    private static native <K,V> Map<K,V> wrapInNSDictionary(Map<? extends K, ? extends V> map) /*-[
+        return AUTORELEASE([[NSDictionary alloc] initWithJavaUtilMap:map]);
+    ]-*/;
+    // kotlin interop >>
 
     /**
      * @serial include
@@ -4346,7 +4362,7 @@ public class Collections {
      * @see #emptySet()
      */
     @SuppressWarnings("rawtypes")
-    public static final Set EMPTY_SET = new EmptySet<>();
+    public static final Set EMPTY_SET = unmodifiableSet(new HashSet<>()); // kotlin interop
 
     /**
      * Returns an empty set (immutable).  This set is serializable.
@@ -4464,7 +4480,7 @@ public class Collections {
      * @see #emptyList()
      */
     @SuppressWarnings("rawtypes")
-    public static final List EMPTY_LIST = new EmptyList<>();
+    public static final List EMPTY_LIST = unmodifiableList(new ArrayList<>()); // kotlin-interop
 
     /**
      * Returns an empty list (immutable).  This list is serializable.
@@ -4565,7 +4581,7 @@ public class Collections {
      * @since 1.3
      */
     @SuppressWarnings("rawtypes")
-    public static final Map EMPTY_MAP = new EmptyMap<>();
+    public static final Map EMPTY_MAP = unmodifiableMap(new HashMap<>()); // kotlin interop
 
     /**
      * Returns an empty map (immutable).  This map is serializable.
@@ -4734,7 +4750,11 @@ public class Collections {
      * @return an immutable set containing only the specified object.
      */
     public static <T> Set<T> singleton(T o) {
-        return new SingletonSet<>(o);
+        // kotlin interop >>
+        HashSet<T> set = new HashSet<>();
+        set.add(o);
+        return unmodifiableSet(set);
+        // kotlin interop <<
     }
 
     static <E> Iterator<E> singletonIterator(final E e) {
@@ -4856,7 +4876,11 @@ public class Collections {
      * @since 1.3
      */
     public static <T> List<T> singletonList(T o) {
-        return new SingletonList<>(o);
+        // // kotlin-interop >>
+        List<T> list = new ArrayList<>();
+        list.add(o);
+        return unmodifiableList(list);
+         // kotlin-interop <<
     }
 
     /**
@@ -4921,7 +4945,11 @@ public class Collections {
      * @since 1.3
      */
     public static <K,V> Map<K,V> singletonMap(K key, V value) {
-        return new SingletonMap<>(key, value);
+        // kotlin interop >>
+        Map<K, V> map = new HashMap<>();
+        map.put(key, value);
+        return unmodifiableMap(map);
+        // kotlin interop <<
     }
 
     /**
