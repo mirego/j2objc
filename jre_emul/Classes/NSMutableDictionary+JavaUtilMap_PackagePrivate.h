@@ -3,6 +3,8 @@
 #ifndef _NSMutableDictionary_JavaUtilMap_PackagePrivate_h
 #define _NSMutableDictionary_JavaUtilMap_PackagePrivate_h
 
+#import "NSMutableDictionary+JavaUtilMap.h"
+
 #import "NSDictionary+JavaUtilMap_PackagePrivate.h"
 #import "J2ObjC_kotlinTypes.h"
 

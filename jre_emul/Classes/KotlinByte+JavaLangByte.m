@@ -164,7 +164,7 @@ IOSClass *CommonByte_TYPE;
   return false;
 }
 
-- (jint)compareToWithId:(CommonByte *)anotherByte {
+- (jint)compareToOther:(CommonByte *)anotherByte {
   cast_chk(anotherByte, [CommonByte class]);
   return CommonByte_compareWithByte_withByte_((jbyte) self.charValue, (jbyte) ((CommonByte *) nil_chk(anotherByte)).charValue);
 }
@@ -244,7 +244,7 @@ IOSClass *CommonByte_TYPE;
   methods[16].selector = @selector(hash);
   methods[17].selector = @selector(hashCodeWithByte:);
   methods[18].selector = @selector(isEqual:);
-  methods[19].selector = @selector(compareToWithId:);
+  methods[19].selector = @selector(compareToOther:);
   methods[20].selector = @selector(compareWithByte:withByte:);
   methods[21].selector = @selector(toUnsignedIntWithByte:);
   methods[22].selector = @selector(toUnsignedLongWithByte:);

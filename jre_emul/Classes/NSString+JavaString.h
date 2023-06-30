@@ -43,7 +43,7 @@
 // A category that adds java.lang.String-like methods to NSString.  The method
 // list is not exhaustive, since methods that can be directly substituted are
 // inlined.
-@interface NSString (JavaString) <JavaIoSerializable, JavaLangComparable, JavaLangCharSequence>
+@interface NSString (JavaString) <JavaIoSerializable, CommonKotlinComparable, JavaLangCharSequence>
 
 // String.valueOf(Object)
 + (nonnull NSString *)java_valueOf:(id<NSObject>)obj;
@@ -177,7 +177,7 @@
 - (nonnull IOSCharArray *)java_toCharArray;
 
 // java.lang.Comparable implementation methods
-- (jint)compareToWithId:(id)another;
+- (jint)compareToOther:(id)another __attribute__((swift_name("compareTo(other:)")));
 
 // CharSequence.charAt(int)
 - (jchar)charAtWithInt:(jint)index;

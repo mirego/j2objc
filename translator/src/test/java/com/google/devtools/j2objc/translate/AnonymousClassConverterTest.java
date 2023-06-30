@@ -569,7 +569,7 @@ public class AnonymousClassConverterTest extends GenerationTest {
             + "  } "
             + "} ",
         "Test", "Test.m");
-    assertTranslation(translation, "@interface Test_1 : NSObject < JavaLangComparable >");
-    assertTranslation(translation, "- (jint)compareToWithId:(id<JavaLangRunnable>)r;");
+    assertTranslation(translation, "@interface Test_1 : NSObject < CommonKotlinComparable >");
+    assertTranslation(translation, "- (jint)compareToOther:(id<JavaLangRunnable>)r;");
   }
 }

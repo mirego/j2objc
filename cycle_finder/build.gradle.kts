@@ -5,12 +5,13 @@ plugins {
     idea
     `java-library`
     `maven-publish`
-    id("org.checkerframework")
+    // id("org.checkerframework")
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
+    google()
 }
 
 java {
@@ -37,9 +38,9 @@ tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
 
-checkerFramework {
-    skipVersionCheck = true
-}
+//checkerFramework {
+//    skipVersionCheck = true
+//}
 
 publishing {
     publications {

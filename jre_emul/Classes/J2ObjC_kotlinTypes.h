@@ -20,7 +20,7 @@
 
 @class CommonArrayFactory, CommonKotlinArray<T>, CommonArrayListFactory, CommonHashMapFactory, CommonHashSetFactory, CommonLinkedHashMapFactory, CommonLinkedHashSetFactory, CommonKotlinByteIterator, CommonKotlinByteArray, NSData;
 
-@protocol CommonKotlinIterator;
+@protocol CommonKotlinComparable, CommonKotlinIterator;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -228,6 +228,17 @@ __attribute__((swift_name("LinkedHashSetFactory")))
 - (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
 - (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
 - (CommonMutableSet<id> *)createElements:(id)elements __attribute__((swift_name("create(elements:)")));
+@end
+
+__attribute__((swift_name("KotlinComparable")))
+@protocol CommonKotlinComparable
+@required
+- (int32_t)compareToOther:(id _Nullable)other __attribute__((swift_name("compareTo(other:)")));
+@end
+
+__attribute__((swift_name("RequiredKotlinTypes")))
+@protocol CommonRequiredKotlinTypes <CommonKotlinComparable>
+@required
 @end
 
 __attribute__((objc_subclassing_restricted))

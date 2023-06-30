@@ -21,7 +21,7 @@
 @class CommonFloat;
 @class CommonShort;
 
-@interface CommonLong (JavaLangLong) < JavaLangComparable >
+@interface CommonLong (JavaLangLong) < CommonKotlinComparable >
 @property (readonly, class) jlong MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jlong MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
@@ -90,7 +90,7 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToWithId:(CommonLong *)anotherLong;
+- (jint)compareToOther:(CommonLong *)anotherLong __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Compares two <code>long</code> values numerically treating the values

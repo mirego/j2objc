@@ -22,6 +22,17 @@ public class NativeObjectsUtil {
       return;
     }
     if (KotlinUtil.isKotlinType(node.getExpression().getTypeMirror())) {
+      // Check if the method being called is getClass
+      if (node.getExecutableElement().getSimpleName().toString().equals("getClass")) {
+        // replace with inline method
+        FunctionElement j2objcGetClassElement =
+          new FunctionElement("kotlinGetClass", TypeUtil.ID_TYPE, null);
+        FunctionInvocation other = new FunctionInvocation(j2objcGetClassElement, TypeUtil.ID_TYPE);
+        other.addArgument(node.getExpression().copy());
+        node.replaceWith(other);
+        return;
+      }
+
       // Convert collection arguments to proper type if needed
       List<Expression> convertedParameters = node.getArguments().stream().map(argument -> {
         if (NativeObjectsUtil.isNativelyBridgedObject(argument.getTypeMirror(), typeUtil)) {
@@ -31,7 +42,7 @@ public class NativeObjectsUtil {
           } else if (typeUtil.getJavaSet().equals(TypeUtil.asTypeElement(argument.getTypeMirror()))) {
             functionName = "javaSetToKotlinMutableSet";
           } else {
-            functionName = "javaListToNSMutableArray";
+            functionName = "javaCollectionToNSMutableArray";
           }
 
           FunctionElement j2objcCreateSetElement =
@@ -57,9 +68,14 @@ public class NativeObjectsUtil {
       return false;
     }
 
-    return isConvertibleList(type, typeUtil)
+    return isConvertibleCollection(type, typeUtil)
+      ||  isConvertibleList(type, typeUtil)
       || isConvertibleSet(type, typeUtil)
       || isConvertibleMap(type, typeUtil);
+  }
+
+  private static boolean isConvertibleCollection(TypeElement type, TypeUtil typeUtil) {
+    return typeUtil.getJavaCollection().equals(type);
   }
 
   private static boolean isConvertibleList(TypeElement type, TypeUtil typeUtil) {

@@ -171,7 +171,7 @@ IOSClass *CommonDouble_TYPE;
   return CommonDouble_longBitsToDoubleWithLong_(bits);
 }
 
-- (jint)compareToWithId:(CommonDouble *)anotherDouble {
+- (jint)compareToOther:(CommonDouble *)anotherDouble {
   cast_chk(anotherDouble, [CommonDouble class]);
   return CommonDouble_compareWithDouble_withDouble_(self.doubleValue, ((CommonDouble *) nil_chk(anotherDouble)).doubleValue);
 }
@@ -265,7 +265,7 @@ IOSClass *CommonDouble_TYPE;
   methods[22].selector = @selector(doubleToLongBitsWithDouble:);
   methods[23].selector = @selector(doubleToRawLongBitsWithDouble:);
   methods[24].selector = @selector(longBitsToDoubleWithLong:);
-  methods[25].selector = @selector(compareToWithId:);
+  methods[25].selector = @selector(compareToOther:);
   methods[26].selector = @selector(compareWithDouble:withDouble:);
   methods[27].selector = @selector(sumWithDouble:withDouble:);
   methods[28].selector = @selector(maxWithDouble:withDouble:);

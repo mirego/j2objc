@@ -33,7 +33,7 @@
  @author Arthur van Hoff
  @since JDK1.0
  */
-@interface CommonBoolean (JavaLangBoolean) < /*JavaIoSerializable, */JavaLangComparable >
+@interface CommonBoolean (JavaLangBoolean) < /*JavaIoSerializable, */CommonKotlinComparable >
 @property (readonly, class, strong) CommonBoolean *TRUE_ NS_SWIFT_NAME(TRUE_);
 @property (readonly, class, strong) CommonBoolean *FALSE_ NS_SWIFT_NAME(FALSE_);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
@@ -101,7 +101,7 @@
  - seealso: Comparable
  @since 1.5
  */
-- (jint)compareToWithId:(CommonBoolean *)b;
+- (jint)compareToOther:(CommonBoolean *)b __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Returns <code>true</code> if and only if the argument is not

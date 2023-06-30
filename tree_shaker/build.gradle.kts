@@ -8,6 +8,7 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    google()
 }
 
 java {
@@ -29,7 +30,7 @@ dependencies {
     testImplementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.google.flogger:flogger-system-backend:0.7.4")
-    testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("com.google.truth:truth:1.1.5")
 }
 
 tasks.withType<Test>().configureEach {

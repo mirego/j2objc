@@ -22,8 +22,7 @@ public class ClassesTest extends GenerationTest {
   public void testKotlinGetClassOnInstanceOfInterface() throws IOException {
     String className = CallingGetClassOnInstanceOfInterface.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-
-    assertTranslation(translation, "IOSClass_fromClass([((CommonClassImplementingSimpleInterface *) nil_chk(classImplementingSimpleInterface)) class]);");
-    assertTranslation(translation, "IOSClass_fromClass([((id) nil_chk(interfaceSimple)) class])");
+    assertTranslation(translation, "kotlinGetClass(nil_chk(classImplementingSimpleInterface)");
+    assertTranslation(translation, "kotlinGetClass(nil_chk(interfaceSimple)");
   }
 }

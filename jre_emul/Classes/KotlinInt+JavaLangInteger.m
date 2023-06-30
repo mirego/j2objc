@@ -232,7 +232,7 @@ IOSIntArray *CommonInt_sizeTable;
   return CommonInt_decodeWithNSString_(nm);
 }
 
-- (jint)compareToWithId:(CommonInt *)anotherInteger {
+- (jint)compareToOther:(CommonInt *)anotherInteger {
   cast_chk(anotherInteger, [CommonInt class]);
   return CommonInt_compareWithInt_withInt_(self.intValue, ((CommonInt *) nil_chk(anotherInteger)).intValue);
 }
@@ -417,7 +417,7 @@ IOSIntArray *CommonInt_sizeTable;
   methods[30].selector = @selector(getIntegerWithNSString:withInt:);
   methods[31].selector = @selector(getIntegerWithNSString:withCommonInt:);
   methods[32].selector = @selector(decodeWithNSString:);
-  methods[33].selector = @selector(compareToWithId:);
+  methods[33].selector = @selector(compareToOther:);
   methods[34].selector = @selector(compareWithInt:withInt:);
   methods[35].selector = @selector(compareUnsignedWithInt:withInt:);
   methods[36].selector = @selector(toUnsignedLongWithInt:);

@@ -9,7 +9,7 @@ package com.google.j2objc.kompat
  * <p>For methods specify the desired Objective-C selector for the translated method:
  * <pre>
  * &#64;KompatObjectiveCName("setDateWithYear:month:day:")
- * public void setDate(int year, int month, int day);</pre>
+ * fun setDate(int year, int month, int day)</pre>
  *
  */
 @Target(

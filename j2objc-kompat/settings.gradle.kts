@@ -1,10 +1,10 @@
 pluginManagement {
-    val kotlinVersion: String by settings
-
     repositories {
         mavenCentral()
         google()
     }
+
+    val kotlinVersion: String by settings
 
     plugins {
         kotlin("multiplatform") version kotlinVersion

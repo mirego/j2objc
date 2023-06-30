@@ -94,7 +94,7 @@ IOSClass *CommonBoolean_TYPE;
   return CommonBoolean_getBooleanWithNSString_(name);
 }
 
-- (jint)compareToWithId:(CommonBoolean *)b {
+- (jint)compareToOther:(CommonBoolean *)b {
   cast_chk(b, [CommonBoolean class]);
   return CommonBoolean_compareWithBoolean_withBoolean_(self.boolValue, ((CommonBoolean *) nil_chk(b)).boolValue);
 }
@@ -154,7 +154,7 @@ IOSClass *CommonBoolean_TYPE;
   methods[9].selector = @selector(hashCodeWithBoolean:);
   methods[10].selector = @selector(isEqual:);
   methods[11].selector = @selector(getBooleanWithNSString:);
-  methods[12].selector = @selector(compareToWithId:);
+  methods[12].selector = @selector(compareToOther:);
   methods[13].selector = @selector(compareWithBoolean:withBoolean:);
   methods[14].selector = @selector(logicalAndWithBoolean:withBoolean:);
   methods[15].selector = @selector(logicalOrWithBoolean:withBoolean:);

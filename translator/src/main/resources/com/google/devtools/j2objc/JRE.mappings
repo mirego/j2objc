@@ -120,7 +120,7 @@ java.lang.String.charAt(I)C = charAtWithInt:
 java.lang.String.codePointAt(I)I = java_codePointAt:
 java.lang.String.codePointBefore(I)I = java_codePointBefore:
 java.lang.String.codePointCount(II)I = java_codePointCount:endIndex:
-java.lang.String.compareTo(Ljava/lang/String;)I = compareToWithId:
+java.lang.String.compareTo(Ljava/lang/String;)I = compareToOther:
 java.lang.String.compareToIgnoreCase(Ljava/lang/String;)I = java_compareToIgnoreCase:
 java.lang.String.concat(Ljava/lang/String;)Ljava/lang/String; = java_concat:
 java.lang.String.contains(Ljava/lang/CharSequence;)Z = java_contains:
@@ -200,3 +200,7 @@ java.lang.CharSequence.subSequence(II)Ljava/lang/CharSequence; = subSequenceFrom
 
 java.lang.Number.longValue()J = longLongValue
 java.lang.Number.byteValue()B = charValue
+
+# kotlin interop >>
+java.lang.Comparable.compareTo(Ljava/lang/Object;)I = compareToOther:
+# kotlin interop <<

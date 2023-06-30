@@ -1,4 +1,9 @@
 pluginManagement {
+    repositories {
+        mavenCentral()
+        google()
+    }
+
     val kotlinVersion: String by settings
 
     plugins {

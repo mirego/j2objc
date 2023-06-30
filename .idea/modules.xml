@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/annotations/annotations.iml" filepath="$PROJECT_DIR$/annotations/annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cycle_finder/com.google.j2objc.cycle_finder.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cycle_finder/com.google.j2objc.cycle_finder.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/translator/com.google.j2objc.translator.main.iml" filepath="$PROJECT_DIR$/.idea/modules/translator/com.google.j2objc.translator.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/cycle_finder/cycle_finder.iml" filepath="$PROJECT_DIR$/cycle_finder/cycle_finder.iml" />
       <module fileurl="file://$PROJECT_DIR$/jre_emul/jre_emul.iml" filepath="$PROJECT_DIR$/jre_emul/jre_emul.iml" />
       <module fileurl="file://$PROJECT_DIR$/protobuf/tests/protobuf_tests.iml" filepath="$PROJECT_DIR$/protobuf/tests/protobuf_tests.iml" />

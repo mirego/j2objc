@@ -96,6 +96,11 @@ public class ImplementationImportCollector extends UnitTreeVisitor {
   }
 
   private void addImports(TypeMirror type) {
+    // kotlin interop >>
+    if (type == null) {
+      return;
+    }
+    // kotlin interop <<
     Import.addImports(type, imports, unit.getEnv());
   }
 

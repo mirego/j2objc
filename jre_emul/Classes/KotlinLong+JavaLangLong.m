@@ -230,7 +230,7 @@ IOSClass *CommonLong_TYPE;
   return CommonLong_getLongWithNSString_withCommonLong_(nm, val);
 }
 
-- (jint)compareToWithId:(CommonLong *)anotherLong {
+- (jint)compareToOther:(CommonLong *)anotherLong {
   cast_chk(anotherLong, [CommonLong class]);
     return CommonLong_compareWithLong_withLong_(self.longLongValue , ((CommonLong *) nil_chk(anotherLong)).longLongValue);
 }
@@ -411,7 +411,7 @@ IOSClass *CommonLong_TYPE;
   methods[31].selector = @selector(getLongWithNSString:);
   methods[32].selector = @selector(getLongWithNSString:withLong:);
   methods[33].selector = @selector(getLongWithNSString:withCommonLong:);
-  methods[34].selector = @selector(compareToWithId:);
+  methods[34].selector = @selector(compareToOther:);
   methods[35].selector = @selector(compareWithLong:withLong:);
   methods[36].selector = @selector(compareUnsignedWithLong:withLong:);
   methods[37].selector = @selector(divideUnsignedWithLong:withLong:);

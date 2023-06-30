@@ -35,7 +35,7 @@
  - seealso: java.lang.Number
  @since JDK1.1
  */
-@interface CommonByte (JavaLangByte) < JavaLangComparable >
+@interface CommonByte (JavaLangByte) < CommonKotlinComparable >
 
 @property (readonly, class) jbyte MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jbyte MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
@@ -103,7 +103,7 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToWithId:(CommonByte *)anotherByte;
+- (jint)compareToOther:(CommonByte *)anotherByte __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Decodes a <code>String</code> into a <code>Byte</code>.

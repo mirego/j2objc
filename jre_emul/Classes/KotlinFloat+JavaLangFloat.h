@@ -37,7 +37,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonFloat (JavaLangFloat) < JavaLangComparable >
+@interface CommonFloat (JavaLangFloat) < CommonKotlinComparable >
 @property (readonly, class) jfloat POSITIVE_INFINITY NS_SWIFT_NAME(POSITIVE_INFINITY);
 @property (readonly, class) jfloat NEGATIVE_INFINITY NS_SWIFT_NAME(NEGATIVE_INFINITY);
 @property (readonly, class) jfloat NaN NS_SWIFT_NAME(NaN);
@@ -129,7 +129,7 @@
  @since 1.2
  - seealso: Comparable#compareTo(Object)
  */
-- (jint)compareToWithId:(CommonFloat *)anotherFloat;
+- (jint)compareToOther:(CommonFloat *)anotherFloat __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Returns the value of this <code>Float</code> as a <code>double</code>

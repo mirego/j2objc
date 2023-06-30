@@ -210,7 +210,7 @@ static NSString *StringFromCharArray(IOSCharArray *value, jint offset, jint coun
   return [sb description];
 }
 
-- (jint)compareToWithId:(id)another {
+- (jint)compareToOther:(id)another {
   if (!another) {
     @throw makeException([JavaLangNullPointerException class]);
   }
@@ -983,7 +983,7 @@ static jboolean RangeIsEqual(NSString *self, NSString *other, jint startIdx) {
   methods[29].selector = @selector(java_codePointAt:);
   methods[30].selector = @selector(java_codePointBefore:);
   methods[31].selector = @selector(java_codePointCount:endIndex:);
-  methods[32].selector = @selector(compareToWithId:);
+  methods[32].selector = @selector(compareToOther:);
   methods[33].selector = @selector(java_compareToIgnoreCase:);
   methods[34].selector = @selector(java_concat:);
   methods[35].selector = @selector(java_contains:);

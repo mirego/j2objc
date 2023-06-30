@@ -4,6 +4,7 @@ import com.google.devtools.j2objc.GenerationTest;
 
 import java.io.IOException;
 
+import com.mirego.interop.java.test.function.CallingGlobalFunctions;
 import com.mirego.interop.java.test.function.FunctionReceivingCollectionParam;
 import com.mirego.interop.java.test.function.PublicExtensionFunction;
 import com.mirego.interop.java.test.function.PublicFunctionReturningBoolean;
@@ -24,6 +25,7 @@ import com.mirego.interop.java.test.function.PublicRecursiveFunction;
 import com.mirego.interop.java.test.function.PublicSingleExpressionFunction;
 import com.mirego.interop.java.test.function.PublicTailRecursiveFunction;
 import com.mirego.interop.java.test.function.UsingKotlinTopLevelFunction;
+import com.mirego.interop.java.test.function.WithGenericMethods;
 
 public class FunctionTest extends GenerationTest {
 
@@ -246,8 +248,29 @@ public class FunctionTest extends GenerationTest {
     String className = FunctionReceivingCollectionParam.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[testClass receiveList:javaListToNSMutableArray(stringList)];");
+    assertTranslation(translation, "[testClass receiveList:javaCollectionToNSMutableArray(stringList)];");
     assertTranslation(translation, "[testClass receiveSet:javaSetToKotlinMutableSet(stringSet)];");
     assertTranslation(translation, "[testClass receiveMap:javaMapToKotlinMutableDictionary(stringMap)];");
+    assertTranslation(translation, "[testClass receiveCollection:javaCollectionToNSMutableArray(stringCollection)];");
+  }
+
+  public void testCallingGlobalFunction() throws Exception {
+    String translation = translateJavaSourceFileForKotlinTest(CallingGlobalFunctions.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "NSString *globalFunction = [CommonExtensionAndGlobalFunctionsKt getStringPrefix:@\"globalFunction\" message:@\"getString\"];");
+  }
+
+  public void testCallingGlobalExtensionFunction() throws Exception {
+    String translation = translateJavaSourceFileForKotlinTest(CallingGlobalFunctions.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "[CommonExtensionAndGlobalFunctionsKt getWithMessage:@\"globalExtensionFunction\" message:@\"getWithMessage\"];");
+  }
+
+  public void testCallingGlobalTypesExtensionFunction() throws Exception {
+    String translation = translateJavaSourceFileForKotlinTest(CallingGlobalFunctions.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "[CommonExtensionAndGlobalFunctionsKt isBig:create_NSMutableArray_init()];");
+  }
+
+  public void testCallingGenericFunctionWithCollectionType() throws Exception {
+    String translation = translateJavaSourceFileForKotlinTest(WithGenericMethods.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "[[CommonGenericFunctions genericFunctions] validateNotNullTarget:javaCollectionToNSMutableArray(objects)];");
   }
 }

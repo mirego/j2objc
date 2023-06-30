@@ -142,6 +142,9 @@ CF_EXTERN_C_BEGIN
 
 id JreThrowNullPointerException(void) __attribute__((noreturn));
 void JreThrowClassCastException(id p, Class cls) __attribute__((noreturn));
+// kotlin interop >>
+void JreThrowClassCastExceptionWithProtocol(id p, Protocol* protocol) __attribute__((noreturn));
+// kotlin interop <<
 void JreThrowClassCastExceptionWithIOSClass(id p, IOSClass *cls) __attribute__((noreturn));
 void JreThrowArithmeticExceptionWithNSString(NSString *msg) __attribute__((noreturn));
 
@@ -399,9 +402,19 @@ static inline id javaUnwrapNull(id object) {
   return (object != NSNull.null) ? object : nil;
 }
 
-id javaListToNSMutableArray(id<JavaUtilList> list);
-id javaSetToKotlinMutableSet(id<JavaUtilSet> set);
-id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map);
+static inline id javaCollectionToNSMutableArray(id<JavaUtilCollection> collection) {
+  return javaWrapArray(collection);
+}
+
+static inline id javaSetToKotlinMutableSet(id<JavaUtilCollection> set) {
+  return javaWrapSet(set);
+}
+
+static inline id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map) {
+  return javaWrapMap(map);
+}
+
+IOSClass *kotlinGetClass(id object);
 
 // kotlin interop <<
 

@@ -2,6 +2,7 @@ package com.google.devtools.j2objc.runtime.kotlin;
 
 import junit.framework.TestCase;
 
+import com.mirego.interop.java.test.objects.AccessingJvmStaticWithStaticImport;
 import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
@@ -45,5 +46,9 @@ public class ObjectsRuntimeTest extends TestCase {
 
   public void testStaticMethodWithoutParams() {
     assertEquals("return", StaticMethodWithoutParam.main(NO_ARGS));
+  }
+
+  public void testAccessingCompanionJvmStaticMethodWithStaticImport() {
+    assertEquals("return_jvmStaticFunction", AccessingJvmStaticWithStaticImport.main(NO_ARGS));
   }
 }

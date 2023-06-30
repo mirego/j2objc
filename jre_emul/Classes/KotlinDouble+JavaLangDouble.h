@@ -37,7 +37,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonDouble (JavaLangDouble) < JavaLangComparable >
+@interface CommonDouble (JavaLangDouble) < CommonKotlinComparable >
 
 @property (readonly, class) jdouble POSITIVE_INFINITY NS_SWIFT_NAME(POSITIVE_INFINITY);
 @property (readonly, class) jdouble NEGATIVE_INFINITY NS_SWIFT_NAME(NEGATIVE_INFINITY);
@@ -123,7 +123,7 @@
            <code>anotherDouble</code>.
  @since 1.2
  */
-- (jint)compareToWithId:(CommonDouble *)anotherDouble;
+- (jint)compareToOther:(CommonDouble *)anotherDouble __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Returns a representation of the specified floating-point value

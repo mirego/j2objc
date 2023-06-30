@@ -2,11 +2,15 @@ package com.mirego.interop.kotlin.test.arrays
 
 import kotlin.js.JsName
 
-public class ArrayBasics {
+public class ArrayBasics() {
+    constructor(byteArray: ByteArray) : this() {
+        // to bypass warning as error for unused parameter with J2Objc
+        byteArray.size
+    }
 
-    val propertySingleItemArray = arrayOf("a");
+    val propertySingleItemArray = arrayOf("a")
 
-    val propertyManyItemArray = arrayOf("a", "b", "c", "d", "e");
+    val propertyManyItemArray = arrayOf("a", "b", "c", "d", "e")
 
     fun emptyArray(): Array<String> {
         return arrayOf<String>()
@@ -24,6 +28,10 @@ public class ArrayBasics {
         return ByteArray(0)
     }
 
+    fun byteArray(size: Int): ByteArray {
+        return ByteArray(size)
+    }
+
     fun arrayOfByte(): Array<Byte> {
         return arrayOf()
     }
@@ -33,4 +41,7 @@ public class ArrayBasics {
         return theArray[theIndex]
     }
 
+    fun readValueAtIndex(byteArray: ByteArray, index: Int): Byte {
+        return byteArray[index]
+    }
 }

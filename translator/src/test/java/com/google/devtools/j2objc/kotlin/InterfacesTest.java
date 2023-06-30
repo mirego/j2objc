@@ -4,6 +4,8 @@ import com.google.devtools.j2objc.GenerationTest;
 
 import java.io.IOException;
 
+import com.mirego.interop.java.test.interfaces.ImplementsComparable;
+import com.mirego.interop.java.test.interfaces.InstanceOfOnKotlinProvidedInterfaces;
 import com.mirego.interop.java.test.interfaces.WithGenerics;
 import com.mirego.interop.java.test.interfaces.WithInt;
 import com.mirego.interop.java.test.interfaces.WithIntProperty;
@@ -87,5 +89,22 @@ public class InterfacesTest extends GenerationTest {
     assertTranslation(translation, "convertInput:CommonInt_valueOfWithInt_(5)])) intValue]");
     assertTranslation(translation, "[process convertWithFunctionGenericOtherInput:CommonInt_valueOfWithInt_(3)])) intValue]");
     assertTranslation(translation, "[process convertWithAnotherFunctionGenericAnotherInput:CommonInt_valueOfWithInt_(1)])) intValue]");
+  }
+
+  public void testImplementsComparable() throws Exception {
+    String className = ImplementsComparable.class.getSimpleName();
+
+    String header = translateJavaSourceFileForKotlinTest(className, testPackage, ".h");
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(header, "ComMiregoInteropJavaTestInterfacesImplementsComparable : NSObject < CommonKotlinComparable >");
+    assertTranslation(translation, "isInstanceOfComparable = [obj conformsToProtocol:@protocol(CommonKotlinComparable)];");
+  }
+
+  public void testCastingToAKotlinProvidedInterface() throws Exception {
+     String className = InstanceOfOnKotlinProvidedInterfaces.class.getSimpleName();
+     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+     assertTranslation(translation, "[((id<CommonInterfaceWithInt>) nil_chk(((id<CommonInterfaceWithInt>) myObject))) convertInputInt:1];");
   }
 }

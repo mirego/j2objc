@@ -139,21 +139,10 @@ public final class TypeUtil {
   private final TypeElement javaThrowable;
 
   // kotlin interop >>
-  private final TypeElement javaBoolean;
-  private final TypeElement javaByte;
-  private final TypeElement javaDouble;
-  private final TypeElement javaInteger;
-  private final TypeElement javaFloat;
-  private final TypeElement javaLong;
-  private final TypeElement javaShort;
   private final TypeElement javaList;
-  private final TypeElement javaArrayList;
+  private final TypeElement javaCollection;
   private final TypeElement javaSet;
-  private final TypeElement javaHashSet;
-  private final TypeElement javaLinkedHashSet;
   private final TypeElement javaMap;
-  private final TypeElement javaHashMap;
-  private final TypeElement javaLinkedHashMap;
   // kotlin interop <<
 
   private final Map<TypeElement, TypeElement> javaToObjcTypeMap;
@@ -173,20 +162,22 @@ public final class TypeUtil {
 
     // kotlin interop >>
     javaList = javacElements.getTypeElement("java.util.List");
-    javaArrayList = javacElements.getTypeElement("java.util.ArrayList");
+    javaCollection = javacElements.getTypeElement("java.util.Collection");
     javaSet = javacElements.getTypeElement("java.util.Set");
-    javaHashSet = javacElements.getTypeElement("java.util.HashSet");
-    javaLinkedHashSet = javacElements.getTypeElement("java.util.LinkedHashSet");
     javaMap = javacElements.getTypeElement("java.util.Map");
-    javaHashMap = javacElements.getTypeElement("java.util.HashMap");
-    javaLinkedHashMap = javacElements.getTypeElement("java.util.LinkedHashMap");
-    javaBoolean = javacElements.getTypeElement("java.lang.Boolean");
-    javaByte = javacElements.getTypeElement("java.lang.Byte");
-    javaDouble = javacElements.getTypeElement("java.lang.Double");
-    javaFloat = javacElements.getTypeElement("java.lang.Float");
-    javaInteger = javacElements.getTypeElement("java.lang.Integer");
-    javaLong = javacElements.getTypeElement("java.lang.Long");
-    javaShort = javacElements.getTypeElement("java.lang.Short");
+
+    TypeElement javaHashSet = javacElements.getTypeElement("java.util.HashSet");
+    TypeElement javaArrayList = javacElements.getTypeElement("java.util.ArrayList");
+    TypeElement javaLinkedHashSet = javacElements.getTypeElement("java.util.LinkedHashSet");
+    TypeElement javaHashMap = javacElements.getTypeElement("java.util.HashMap");
+    TypeElement javaLinkedHashMap = javacElements.getTypeElement("java.util.LinkedHashMap");
+    TypeElement javaBoolean = javacElements.getTypeElement("java.lang.Boolean");
+    TypeElement javaByte = javacElements.getTypeElement("java.lang.Byte");
+    TypeElement javaDouble = javacElements.getTypeElement("java.lang.Double");
+    TypeElement javaFloat = javacElements.getTypeElement("java.lang.Float");
+    TypeElement javaInteger = javacElements.getTypeElement("java.lang.Integer");
+    TypeElement javaLong = javacElements.getTypeElement("java.lang.Long");
+    TypeElement javaShort = javacElements.getTypeElement("java.lang.Short");
     // kotlin interop <<
 
     TypeElement javaCloneable = javacElements.getTypeElement("java.lang.Cloneable");
@@ -565,56 +556,21 @@ public final class TypeUtil {
   }
 
   // kotlin interop >>
-
-  public TypeElement getJavaBoolean() {
-    return javaBoolean;
-  }
-  public TypeElement getJavaByte() {
-    return javaByte;
-  }
-  public TypeElement getJavaDouble() {
-    return javaDouble;
-  }
-  public TypeElement getJavaFloat() {
-    return javaFloat;
-  }
-  public TypeElement getJavaInteger() {
-    return javaInteger;
-  }
-  public TypeElement getJavaLong() {
-    return javaLong;
-  }
-  public TypeElement getJavaShort() {
-    return javaShort;
-  }
-
   public TypeElement getJavaList() {
     return javaList;
   }
-  public TypeElement getJavaArrayList() {
-    return javaArrayList;
+
+  public TypeElement getJavaCollection() {
+    return javaCollection;
   }
 
   public TypeElement getJavaSet() {
     return javaSet;
   }
-  public TypeElement getJavaHashSet() {
-    return javaHashSet;
-  }
-  public TypeElement getJavaLinkedHashSet() {
-    return javaLinkedHashSet;
-  }
 
   public TypeElement getJavaMap() {
     return javaMap;
   }
-  public TypeElement getJavaHashMap() {
-    return javaHashMap;
-  }
-  public TypeElement getJavaLinkedHashMap() {
-    return javaLinkedHashMap;
-  }
-
   // kotlin interop <<
 
   public boolean isString(TypeElement e) {
@@ -632,42 +588,6 @@ public final class TypeUtil {
   public boolean isClassType(TypeMirror t) {
     return isClassType(asTypeElement(t));
   }
-
-  // kotlin interop >>
-
-  public boolean isArrayList(TypeElement e) {
-    return javaArrayList.equals(e)
-      || NS_ARRAY.equals(e)
-      || NS_MUTABLE_ARRAY.equals(e);
-  }
-
-  public boolean isArrayList(TypeMirror t) {
-    return isArrayList(asTypeElement(t));
-  }
-
-  public boolean isHashSet(TypeElement e) {
-    return javaSet.equals(e)
-      || NS_SET.equals(e)
-      || NS_MUTABLE_SET.equals(e)
-      || COMMON_MUTABLE_SET.equals(e);
-  }
-
-  public boolean isHashSet(TypeMirror t) {
-    return isHashSet(asTypeElement(t));
-  }
-
-  public boolean isHashMap(TypeElement e) {
-    return javaMap.equals(e)
-      || NS_DICTIONARY.equals(e)
-      || NS_MUTABLE_DICTIONARY.equals(e)
-      || COMMON_MUTABLE_DICTIONARY.equals(e);
-  }
-
-  public boolean isHashMap(TypeMirror t) {
-    return isHashMap(asTypeElement(t));
-  }
-
-  // kotlin interop <<
 
   /**
    * Maps the given type to it's Objective-C equivalent. Array types are mapped to their equivalent

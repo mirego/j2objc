@@ -32,6 +32,18 @@
       <file url="file://$PROJECT_DIR$/jre_emul/android/platform/libcore/luni/src/test/java/org/apache/harmony/security/tests/java/security/ProviderServiceTest.java" />
       <file url="file://$PROJECT_DIR$/jre_emul/android/platform/libcore/luni/src/test/java/tests/security/cert/PKIXCertPathCheckerTest.java" />
     </excludeFromCompile>
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker/3.32.0/dd6f1e5b36d648d0ac564d4776a0edf8c41f5c16/checker-3.32.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-util/3.32.0/7da333317c4eba26abd951a4c71ccef3ca3cb028/checker-util-3.32.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/3.32.0/54ebd61f46b58b862c779e034073a93489ab3faf/checker-qual-3.32.0.jar" />
+        </processorPath>
+        <module name="com.google.j2objc.cycle_finder.main" />
+        <module name="com.google.j2objc.translator.main" />
+      </profile>
+    </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

@@ -6,12 +6,11 @@ import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.FieldAccess;
 import com.google.devtools.j2objc.ast.TreeUtil;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -52,6 +51,10 @@ public final class KotlinUtil {
 
   private KotlinUtil() {
     // DISABLED
+  }
+
+  public static boolean isExtensionFunction(KmFunction loopFunction) {
+    return loopFunction.getReceiverParameterType() != null;
   }
 
   public enum KotlinWrappedTypes {
@@ -286,6 +289,10 @@ public final class KotlinUtil {
     return false;
   }
 
+  public static boolean isKotlinInterface(TypeMirror node) {
+    return isKotlinType(node) && TypeUtil.isInterface(node);
+  }
+
   static private final String GETTER_PREFIX = "get";
   static private final String SETTER_PREFIX = "set";
 
@@ -349,10 +356,10 @@ public final class KotlinUtil {
     if (declarationContainer instanceof KmClass) {
       ((KmClass) declarationContainer).accept(new KmClassVisitor() {
         @Override
-        public KmClassExtensionVisitor visitExtensions(@NotNull KmExtensionType type) {
+        public KmClassExtensionVisitor visitExtensions(@Nonnull KmExtensionType type) {
           return new JvmClassExtensionVisitor() {
             @Override
-            public void visitModuleName(@NotNull String name) {
+            public void visitModuleName(@Nonnull String name) {
               moduleName.set(name);
               super.visitModuleName(name);
             }
@@ -362,10 +369,10 @@ public final class KotlinUtil {
     } else if (declarationContainer instanceof KmPackage) {
       ((KmPackage) declarationContainer).accept(new KmPackageVisitor() {
         @Override
-        public KmPackageExtensionVisitor visitExtensions(@NotNull KmExtensionType type) {
+        public KmPackageExtensionVisitor visitExtensions(@Nonnull KmExtensionType type) {
           return new JvmPackageExtensionVisitor() {
             @Override
-            public void visitModuleName(@NotNull String name) {
+            public void visitModuleName(@Nonnull String name) {
               moduleName.set(name);
               super.visitModuleName(name);
             }

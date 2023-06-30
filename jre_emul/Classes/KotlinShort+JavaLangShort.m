@@ -149,7 +149,7 @@ IOSClass *CommonShort_TYPE;
   return false;
 }
 
-- (jint)compareToWithId:(CommonShort *)anotherShort {
+- (jint)compareToOther:(CommonShort *)anotherShort {
   cast_chk(anotherShort, [CommonShort class]);
   return CommonShort_compareWithShort_withShort_(self.shortValue, ((CommonShort *) nil_chk(anotherShort)).shortValue);
 }
@@ -228,7 +228,7 @@ IOSClass *CommonShort_TYPE;
   methods[16].selector = @selector(hash);
   methods[17].selector = @selector(hashCodeWithShort:);
   methods[18].selector = @selector(isEqual:);
-  methods[19].selector = @selector(compareToWithId:);
+  methods[19].selector = @selector(compareToOther:);
   methods[20].selector = @selector(compareWithShort:withShort:);
   methods[21].selector = @selector(reverseBytesWithShort:);
   methods[22].selector = @selector(toUnsignedIntWithShort:);

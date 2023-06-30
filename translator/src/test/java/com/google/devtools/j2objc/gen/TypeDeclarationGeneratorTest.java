@@ -671,7 +671,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         "class Test <T extends Comparable & Runnable> { T foo; }", "Test", "Test.h");
     // Test that J2OBJC_ARG is used to wrap the type containing a comma.
     assertTranslation(translation,
-        "J2OBJC_FIELD_SETTER(Test, foo_, J2OBJC_ARG(id<JavaLangComparable, JavaLangRunnable>))");
+        "J2OBJC_FIELD_SETTER(Test, foo_, J2OBJC_ARG(id<CommonKotlinComparable, JavaLangRunnable>))");
   }
 
   public void testSortMethods() throws IOException {

@@ -105,6 +105,8 @@ import com.google.devtools.j2objc.util.UnicodeUtils;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -122,9 +124,7 @@ import kotlinx.metadata.KmClass;
 public class StatementGenerator extends UnitTreeVisitor {
 
   private final SourceBuilder buffer;
-  // kotlin interop >>
-  private boolean preventCastToProtocol = false;
-  // kotlin interop <<
+
   public static String generate(TreeNode node, int currentLine) {
     StatementGenerator generator = new StatementGenerator(node, currentLine);
     if (node == null) {
@@ -288,13 +288,7 @@ public class StatementGenerator extends UnitTreeVisitor {
   @Override
   public boolean visit(CastExpression node) {
     buffer.append("(");
-    // kotlin interop >>
-    if (preventCastToProtocol) {
-      buffer.append("id");
-    } else {
-      buffer.append(nameTable.getObjCType(node.getType().getTypeMirror()));
-    }
-    // kotlin interop <<
+    buffer.append(nameTable.getObjCType(node.getType().getTypeMirror()));
     buffer.append(") ");
     node.getExpression().accept(this);
     return false;
@@ -511,6 +505,21 @@ public class StatementGenerator extends UnitTreeVisitor {
   @Override
   public boolean visit(InstanceofExpression node) {
     TypeElement type = TypeUtil.asTypeElement(node.getRightOperand().getTypeMirror());
+
+    // kotlin interop >>
+    if (type != null) {
+      Optional<String> kotlinClassMapping = nameTable.getKotlinClassMapping(type.getQualifiedName().toString());
+      if (kotlinClassMapping.isPresent()) {
+        buffer.append('[');
+        node.getLeftOperand().accept(this);
+        buffer.append(" conformsToProtocol:@protocol(");
+        buffer.append(kotlinClassMapping.get());
+        buffer.append(")]");
+        return false;
+      }
+    }
+    // kotlin interop <<
+
     if (type != null && type.getKind().isInterface()) {
       // kotlin interop >>
       if (KotlinUtil.isKotlinType(type)) {
@@ -570,26 +579,22 @@ public class StatementGenerator extends UnitTreeVisitor {
     // Object receiving the message, or null if it's a method in this class.
     Expression receiver = node.getExpression();
 
-    // kotlin interop >>
     String methodSelector = nameTable.getMethodSelector(element);
+
     // Local hack to revert the mapping from getClass() to java_getClass configured in JRE.Mappings for kotlin objects
-    boolean isHandlingGetClassOnKotlinObject = false;
-    if (node.getExpression() != null
-      && KotlinUtil.isKotlinType(node.getExpression().getTypeMirror())
-      && methodSelector.equalsIgnoreCase("java_getClass")
-    ) {
-      isHandlingGetClassOnKotlinObject = true;
-      methodSelector = "class";
+    if (node.getExpression() != null && methodSelector.equalsIgnoreCase("java_getClass")) {
+      TypeElement typeElement = TypeUtil.asTypeElement(Objects.requireNonNull(node.getExpression().getTypeMirror(), "node.getExpression().getTypeMirror() is null"));
+
+      Optional<String> kotlinClassMapping = Optional.empty();
+      if (typeElement != null) {
+        kotlinClassMapping = nameTable.getKotlinClassMapping(typeElement.getQualifiedName().toString());
+      }
+
+      if (kotlinClassMapping.isPresent() || KotlinUtil.isKotlinType(node.getExpression().getTypeMirror())) {
+        methodSelector = "class";
+      }
     }
 
-    if (isHandlingGetClassOnKotlinObject) {
-      buffer.append("IOSClass_fromClass(");
-    }
-
-    if (isHandlingGetClassOnKotlinObject && TypeUtil.isInterface(node.getExpression().getTypeMirror())) {
-      preventCastToProtocol = true;
-    }
-    // kotlin interop <<
     buffer.append('[');
     if (ElementUtil.isStatic(element) &&
       !KotlinUtil.isKotlinType(element)) // kotlin interop
@@ -597,19 +602,13 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
       receiver.accept(this);
-      // kotlin interop >>
-      preventCastToProtocol = false;
-      // kotlin interop <<
     } else {
       buffer.append("self");
     }
-    printMethodInvocationNameAndArgs(methodSelector, node.getArguments()); // kotlin interop
-    buffer.append(']');
     // kotlin interop >>
-    if (isHandlingGetClassOnKotlinObject) {
-      buffer.append(")");
-    }
+    printMethodInvocationNameAndArgs(methodSelector, node.getArguments());
     // kotlin interop <<
+    buffer.append(']');
     return false;
   }
 
@@ -937,20 +936,28 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append(UnicodeUtils.format("[IOSClass %sClass]", TypeUtil.getName(type)));
     } else {
       // kotlin interop >>
-      TypeElement typeElement = TypeUtil.asTypeElement(type);
-      if (!KotlinUtil.isKotlinType(typeElement)) {
-        buffer.append(nameTable.getFullName(typeElement)).append("_class_()");
-      } else {
-        if (TypeUtil.isInterface(type)) {
-          buffer.append("IOSClass_fromProtocol(@protocol(").append(nameTable.getFullName(typeElement)).append("))");
-        } else {
-          buffer.append("IOSClass_fromClass(").append(nameTable.getFullName(typeElement)).append(".class)");
-        }
-      }
+      buffer.append(generateTypeReference(type));
       // kotlin interop <<
     }
     return false;
   }
+
+  // kotlin interop >>
+  private String generateTypeReference(TypeMirror type) {
+    TypeElement typeElement = TypeUtil.asTypeElement(type);
+
+    Optional<String> kotlinClassMapping = nameTable.getKotlinClassMapping(typeElement.getQualifiedName().toString());
+    if (kotlinClassMapping.isPresent() || KotlinUtil.isKotlinType(typeElement)) {
+      if (TypeUtil.isInterface(type)) {
+        return String.format("IOSClass_fromProtocol(@protocol(%s))", nameTable.getFullName(typeElement));
+      } else {
+        return String.format("IOSClass_fromClass(%s.class)", nameTable.getFullName(typeElement));
+      }
+    } else {
+      return String.format("%s_class_()", nameTable.getFullName(typeElement));
+    }
+  }
+  // kotlin interop <<
 
   @Override
   public boolean visit(TypeMethodReference node) {

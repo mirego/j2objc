@@ -1269,7 +1269,7 @@ IOSClass *IOSClass_arrayType(IOSClass *componentType, jint dimensions) {
     [NSCopying class];
 
     // Verify that these categories successfully loaded.
-    if ([[NSObject class] instanceMethodSignatureForSelector:@selector(compareToWithId:)] == NULL ||
+    if ([[NSObject class] instanceMethodSignatureForSelector:@selector(compareToOther:)] == NULL ||
         [[NSString class] instanceMethodSignatureForSelector:@selector(java_trim)] == NULL ||
         ![NSNumber conformsToProtocol:@protocol(JavaIoSerializable)]) {
       [NSException raise:@"J2ObjCLinkError"

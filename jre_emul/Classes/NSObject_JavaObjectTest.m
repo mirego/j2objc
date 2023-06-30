@@ -34,7 +34,7 @@
 @implementation NSObject_JavaObjectTest
 
 - (void)testResponds {
-  XCTAssertTrue([@"tester" respondsToSelector: @selector(compareToWithId:)],
+  XCTAssertTrue([@"tester" respondsToSelector: @selector(compareToOther:)],
                @"NSObject+Clone category not loaded", nil);
 }
 

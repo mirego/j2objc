@@ -44,7 +44,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonInt (JavaLangInteger) < JavaLangComparable >
+@interface CommonInt (JavaLangInteger) < CommonKotlinComparable >
 @property (readonly, class) jint MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jint MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
@@ -123,7 +123,7 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToWithId:(CommonInt *)anotherInteger;
+- (jint)compareToOther:(CommonInt *)anotherInteger __attribute__((swift_name("compareTo(other:)")));
 
 /*!
  @brief Compares two <code>int</code> values numerically treating the values

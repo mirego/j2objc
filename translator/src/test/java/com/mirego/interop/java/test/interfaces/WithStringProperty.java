@@ -1,13 +1,13 @@
 package com.mirego.interop.java.test.interfaces;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import com.mirego.interop.kotlin.test.interfaces.KotlinInterfaceWithStringProperty;
 
 public class WithStringProperty {
 
   public static class WithStringPropertyImplementation implements JavaInterfaceThatExtendsAKotlinInterfaceWithAProperty {
-    @NotNull
+    @Nonnull
     @Override
     public String getKey() {
       return "this is the value of my key";

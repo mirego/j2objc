@@ -82,7 +82,7 @@
   return IOSClass_fromClass([self class]);
 }
 
-- (int)compareToWithId:(id)other {
+- (int)compareToOther:(id)other {
 #if __has_feature(objc_arc)
   @throw [[JavaLangClassCastException alloc] init];
 #else

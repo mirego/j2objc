@@ -1,5 +1,7 @@
 package com.mirego.interop.java.test.function;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,8 @@ public class FunctionReceivingCollectionParam {
     testClass.receive(stringSet);
     Map<String, String> stringMap = Collections.singletonMap("test", "test");
     testClass.receive(stringMap);
+    Collection<String> stringCollection = Arrays.asList("test", "test2");
+    testClass.receive(stringCollection);
 
     return "OK";
   }

@@ -31,7 +31,7 @@
 - (void)testAddedProtocols {
   XCTAssertTrue([NSString conformsToProtocol:@protocol(JavaLangCharSequence)],
                @"NSString does not include JavaString category", nil);
-  XCTAssertTrue([NSString conformsToProtocol:@protocol(JavaLangComparable)],
+  XCTAssertTrue([NSString conformsToProtocol:@protocol(CommonKotlinComparable)],
                @"NSString does not include JavaString category", nil);
 }
 

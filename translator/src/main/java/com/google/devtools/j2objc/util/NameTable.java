@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +61,6 @@ import kotlinx.metadata.KmClassifier;
 import kotlinx.metadata.KmConstructor;
 import kotlinx.metadata.KmDeclarationContainer;
 import kotlinx.metadata.KmFunction;
-import kotlinx.metadata.KmPackage;
 import kotlinx.metadata.KmType;
 import kotlinx.metadata.KmTypeParameter;
 import kotlinx.metadata.KmTypeProjection;
@@ -179,6 +177,19 @@ public class NameTable {
    */
   private final PackagePrefixes prefixMap;
 
+  // kotlin interop >>
+  /**
+   * Map of Java / Kotlin bridged interfaces for seamless interoperability
+   * between Java and Kotlin.
+   *
+   * E.g.:
+   * java.lang.Comparable  --> kotlin.Comparable
+   *
+   * J2ObjC will automatically change any reference of `java.lang.Comparable`to kotlin's
+   * `kotlin.Comparable`.
+   */
+  private final Map<String, String> bridgedJvmKotlinInterfaceMapping;
+  // kotlin interop <<
   private final ImmutableMap<String, String> classMappings;
   private final ImmutableMap<String, String> methodMappings;
   private final boolean generifyTypeDecls;
@@ -188,6 +199,16 @@ public class NameTable {
     this.elementUtil = typeUtil.elementUtil();
     this.captureInfo = captureInfo;
     prefixMap = options.getPackagePrefixes();
+
+    // kotlin interop >>
+    bridgedJvmKotlinInterfaceMapping = new HashMap<>();
+    bridgedJvmKotlinInterfaceMapping.put(Comparable.class.getCanonicalName(), "CommonKotlinComparable");
+
+    for (Entry<String, String> mapEntry : bridgedJvmKotlinInterfaceMapping.entrySet()) {
+      options.getMappings().addClass(mapEntry.getKey(), mapEntry.getValue());
+    }
+    // kotlin interop <<
+
     classMappings = options.getMappings().getClassMappings();
     methodMappings = options.getMappings().getMethodMappings();
     generifyTypeDecls = options.asObjCGenericDecl();
@@ -363,7 +384,7 @@ public class NameTable {
 
       // kotlin interop >>
       name = removeKotlinModulePrefix(type, name);
-      // << kotlin interop
+      // kotlin interop <<
     }
     if (arrayDimensions > 0) {
       name += "Array";
@@ -381,7 +402,7 @@ public class NameTable {
     }
     return name;
   }
-  // << kotlin interop
+  // kotlin interop <<
 
   private String parameterKeyword(TypeMirror type) {
     return "with" + capitalize(getParameterTypeKeyword(type));
@@ -896,8 +917,19 @@ public class NameTable {
       for (KmFunction loopFunction : declarationContainer.getFunctions()) {
         String functionName = loopFunction.getName();
         if (methodName.equals(functionName)) {
-          potentialValueParameters.put(functionName, loopFunction.getValueParameters());
-          potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+          if (KotlinUtil.isExtensionFunction(loopFunction)) {
+            List<KmValueParameter> kmValueParameters = new ArrayList<>();
+            KmType receiverParameterType = loopFunction.getReceiverParameterType();
+            KmValueParameter receiver = new KmValueParameter(receiverParameterType.getFlags(), "");
+            receiver.type = receiverParameterType;
+            kmValueParameters.add(receiver);
+            kmValueParameters.addAll(loopFunction.getValueParameters());
+            potentialValueParameters.put(functionName, kmValueParameters);
+            potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+          } else {
+            potentialValueParameters.put(functionName, loopFunction.getValueParameters());
+            potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
+          }
         }
       }
     }
@@ -1023,6 +1055,7 @@ public class NameTable {
     // kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
     // kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
     kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+    kotlinToJavaType.put("kotlin/ByteArray", "java.lang.Array<Byte>");
     kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
     // kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
     // kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
@@ -1144,6 +1177,10 @@ public class NameTable {
       firstPart = false;
     }
     return sb.toString();
+  }
+
+  public Optional<String> getKotlinClassMapping(String qualifiedName) {
+    return Optional.ofNullable(bridgedJvmKotlinInterfaceMapping.get(qualifiedName));
   }
 
   // kotlin interop <<

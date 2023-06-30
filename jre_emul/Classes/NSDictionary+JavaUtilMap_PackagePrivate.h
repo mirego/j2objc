@@ -3,6 +3,8 @@
 #ifndef _NSDictionary_JavaUtilMap_PackagePrivate_h
 #define _NSDictionary_JavaUtilMap_PackagePrivate_h
 
+#import "NSDictionary+JavaUtilMap.h"
+
 @class NSDictionary_Entry;
 
 @interface NSDictionary<KeyType, ObjectType> (PrivatePackage)
@@ -23,7 +25,7 @@
 @end
 
 static inline id javaWrapKey(id key) {
-  return AUTORELEASE([[NSDictionary_Key alloc] initWithKey:key]);
+  return [key conformsToProtocol:@protocol(NSCopying)] ? key : AUTORELEASE([[NSDictionary_Key alloc] initWithKey:key]);
 }
 
 static inline id javaUnwrapKey(id key) {

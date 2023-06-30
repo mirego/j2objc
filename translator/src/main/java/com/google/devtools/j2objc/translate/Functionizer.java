@@ -70,7 +70,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-
 import kotlinx.metadata.KmDeclarationContainer;
 import kotlinx.metadata.KmFunction;
 import kotlinx.metadata.KmProperty;
@@ -768,8 +767,10 @@ public class Functionizer extends UnitTreeVisitor {
     if (ElementUtil.isStatic(element)) {
       if (actualContainingElement != null) {
         instanceSelector = "companion";
-      } else {
+      } else if (nodeExpression != null) {
         instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
+      } else {
+        instanceSelector = "shared";
       }
       executableExpression = new SimpleName(executableElementName);
     } else if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(nodeExpression)) {
@@ -782,12 +783,16 @@ public class Functionizer extends UnitTreeVisitor {
     }
     executableExpression.setTypeMirror(typeMirror);
 
-    GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
-      .newMethodWithSelector(instanceSelector, typeMirror,
-        ElementUtil.getDeclaringClass(element));
+    if (instanceSelector != null) {
+      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
+          .newMethodWithSelector(instanceSelector, typeMirror,
+              ElementUtil.getDeclaringClass(element));
 
-    ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
-    return new MethodInvocation(getInstancePair, executableExpression);
+      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
+      return new MethodInvocation(getInstancePair, executableExpression);
+    } else {
+      return executableExpression;
+    }
   }
 
   private String getCompanionObjectOrObjectInstanceSelector(String nodeExpression) {

@@ -326,5 +326,4 @@ public final class Parameter implements AnnotatedElement {
     public Annotation[] getAnnotations() {
         return getDeclaredAnnotations();
     }
-
 }

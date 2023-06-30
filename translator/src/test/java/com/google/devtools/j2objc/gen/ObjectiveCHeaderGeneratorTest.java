@@ -450,8 +450,8 @@ public class ObjectiveCHeaderGeneratorTest extends GenerationTest {
     String translation = translateSourceFile(
       "public class Example { Comparable one, two, three; }",
       "Example", "Example.h");
-    assertTranslatedLines(translation, "id<JavaLangComparable> one_;",
-        "id<JavaLangComparable> two_;", "id<JavaLangComparable> three_;");
+    assertTranslatedLines(translation, "id<CommonKotlinComparable> one_;",
+        "id<CommonKotlinComparable> two_;", "id<CommonKotlinComparable> three_;");
   }
 
   public void testMultipleClassDeclaration() throws IOException {

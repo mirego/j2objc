@@ -170,7 +170,7 @@ IOSClass *CommonFloat_TYPE;
   return CommonFloat_intBitsToFloatWithInt_(bits);
 }
 
-- (jint)compareToWithId:(CommonFloat *)anotherFloat {
+- (jint)compareToOther:(CommonFloat *)anotherFloat {
   cast_chk(anotherFloat, [CommonFloat class]);
   return CommonFloat_compareWithFloat_withFloat_(self.floatValue, ((CommonFloat *) nil_chk(anotherFloat)).floatValue);
 }
@@ -266,7 +266,7 @@ IOSClass *CommonFloat_TYPE;
   methods[23].selector = @selector(floatToIntBitsWithFloat:);
   methods[24].selector = @selector(floatToRawIntBitsWithFloat:);
   methods[25].selector = @selector(intBitsToFloatWithInt:);
-  methods[26].selector = @selector(compareToWithId:);
+  methods[26].selector = @selector(compareToOther:);
   methods[27].selector = @selector(compareWithFloat:withFloat:);
   methods[28].selector = @selector(sumWithFloat:withFloat:);
   methods[29].selector = @selector(maxWithFloat:withFloat:);

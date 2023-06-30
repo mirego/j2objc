@@ -4,6 +4,7 @@ import com.google.devtools.j2objc.GenerationTest;
 
 import java.io.IOException;
 
+import com.mirego.interop.java.test.objects.AccessingJvmStaticWithStaticImport;
 import com.mirego.interop.java.test.objects.JavaObjectCallToStringOnKotlinInterface;
 import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
@@ -87,5 +88,11 @@ public class ObjectsTest extends GenerationTest {
   public void testToStringOnKotlinInterface() throws IOException {
     String translation = translateJavaSourceFileForKotlinTest(JavaObjectCallToStringOnKotlinInterface.class.getSimpleName(), testPackage, ".m");
     assertTranslation(translation, "return [(id) aKotlinInterface description]");
+  }
+
+  public void testAccessingCompanionAndObjectJvmStaticMethodWithStaticImport() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(AccessingJvmStaticWithStaticImport.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "NSString *objectFunction = [[CommonObjectWithMethod shared] staticMethodWithoutParamWithAnnotation];");
+    assertTranslation(translation, "NSString *companionFunction = [[CommonClassWithCompanionObject companion] companionJvmStaticFunction];");
   }
 }

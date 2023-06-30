@@ -2,6 +2,7 @@ package com.google.devtools.j2objc.runtime.kotlin;
 
 import junit.framework.TestCase;
 
+import com.mirego.interop.java.test.function.CallingGlobalFunctions;
 import com.mirego.interop.java.test.function.PublicExtensionFunction;
 import com.mirego.interop.java.test.function.PublicFunctionReturningBoolean;
 import com.mirego.interop.java.test.function.PublicFunctionReturningCharacter;
@@ -111,4 +112,8 @@ public class FunctionRuntimeTest extends TestCase {
 //  public void testPublicVariableArgumentsFunction() {
 //    assertEquals(10, PublicVariableArgumentsFunction.main(NO_ARGS));
 //  }
+
+  public void testCallingGlobalFunctions() {
+    assertEquals("globalFunction-getString_globalExtensionFunction-getWithMessage_false", CallingGlobalFunctions.main(NO_ARGS));
+  }
 }

@@ -6,7 +6,9 @@ enum class EnumWithProperty(val content: String) {
     },
     ENUMVALUE2("ENUMVALUE2_TEST") {
         override fun testFun(): String = "ENUMVALUE2_TESTFUN"
-    };
+    },
+
+    ;
 
     abstract fun testFun(): String
 }

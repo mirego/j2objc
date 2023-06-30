@@ -176,7 +176,6 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/ClassLoader.java \
   java/lang/ClassNotFoundException.java \
   java/lang/CloneNotSupportedException.java \
-  java/lang/Comparable.java \
   java/lang/Deprecated.java \
   java/lang/Enum.java \
   java/lang/EnumConstantNotPresentException.java \
@@ -2422,6 +2421,7 @@ PUBLIC_NATIVE_HEADERS += \
   NSSet+JavaUtilSet.h \
   java/lang/Boolean.h \
   java/lang/Byte.h \
+  java/lang/Comparable.h \
   java/lang/Double.h \
   java/lang/Float.h \
   java/lang/Integer.h \

@@ -60,6 +60,14 @@ void JreThrowClassCastException(id obj, Class cls) {
           [[obj java_getClass] getName], NSStringFromClass(cls)]);
 }
 
+// kotlin interop >>
+void JreThrowClassCastExceptionWithProtocol(id obj, Protocol* protocol) {
+  @throw create_JavaLangClassCastException_initWithNSString_(  // NOLINT
+      [NSString stringWithFormat:@"Cannot cast object of type %@ to %@",
+          [[obj java_getClass] getName], NSStringFromProtocol(protocol)]);
+}
+// kotlin interop <<
+
 void JreThrowClassCastExceptionWithIOSClass(id obj, IOSClass *cls) {
   @throw create_JavaLangClassCastException_initWithNSString_(  // NOLINT
       [NSString stringWithFormat:@"Cannot cast object of type %@ to %@",
@@ -604,28 +612,8 @@ id javaWrapMap(id<JavaUtilMap> original) {
   return map;
 }
 
-id javaListToNSMutableArray(id<JavaUtilList> list) {
-  if (![(id)list isKindOfClass:NSArray.class]) {
-    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSArray", list]);
-  }
-
-  return (id)list;
-}
-
-id javaSetToKotlinMutableSet(id<JavaUtilSet> set) {
-  if (![(id)set isKindOfClass:NSSet.class]) {
-    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSSet", set]);
-  }
-
-  return (id)set;
-}
-
-id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map) {
-  if(![(id)map isKindOfClass:NSDictionary.class]) {
-    @throw create_JavaLangIllegalArgumentException_initWithNSString_([NSString stringWithFormat:@"Cannot use %@ as NSDictionary", map]);
-  }
-
-  return (id)map;
+IOSClass *kotlinGetClass(id object) {
+  return IOSClass_fromClass([object class]);
 }
 
 // kotlin interop <<

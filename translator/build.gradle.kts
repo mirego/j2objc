@@ -1,19 +1,18 @@
 val checkerFrameworkVersion: String by extra
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
+}
+
 plugins {
     java
     idea
     `java-library`
     `maven-publish`
     kotlin("jvm")
-    id("org.checkerframework")
-    id("com.adarshr.test-logger") version "3.2.0"
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    google()
+    // id("org.checkerframework")
 }
 
 java {
@@ -59,8 +58,7 @@ dependencies {
 
     // kotlin interop >>
     implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.6.0")
-    implementation("org.jetbrains:annotations:24.0.1")
-    implementation(kotlin("stdlib", "1.8.21"))
+    implementation(kotlin("stdlib", "1.8.22"))
 
     testImplementation("com.mirego:kotlin-test-cases:$version")
     // kotlin interop <<
@@ -78,10 +76,6 @@ tasks.withType<Test>().configureEach {
     // kotlin interop <<
 }
 
-testlogger {
-    showPassed = false
-}
-
 tasks.named<JavaCompile>("compileJava") {
     options.compilerArgs.add("--add-exports=java.compiler/javax.lang.model.element=ALL-UNNAMED")
     options.compilerArgs.add("--add-exports=java.compiler/javax.lang.model.type=ALL-UNNAMED")
@@ -93,9 +87,9 @@ tasks.named<JavaCompile>("compileJava") {
     options.compilerArgs.add("--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED")
 }
 
-checkerFramework {
-    skipVersionCheck = true
-}
+//checkerFramework {
+//    skipVersionCheck = true
+//}
 
 tasks.named<Javadoc>("javadoc") {
     isFailOnError = false
