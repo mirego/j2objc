@@ -1,5 +1,5 @@
 package com.mirego.interop.kotlin.test.property
 
-class ClassWithArrayProperty() {
+class ClassWithArrayProperty {
     val array = arrayOf("FirstElement")
 }

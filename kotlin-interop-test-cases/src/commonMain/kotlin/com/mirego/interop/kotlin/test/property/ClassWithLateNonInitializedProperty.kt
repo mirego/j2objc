@@ -1,5 +1,5 @@
 package com.mirego.interop.kotlin.test.property
 
-class ClassWithLateNonInitializedProperty() {
+class ClassWithLateNonInitializedProperty {
     lateinit var lateNonInitializedProperty: String
 }

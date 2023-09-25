@@ -24,6 +24,7 @@ import javax.lang.model.type.IntersectionType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.NullType;
 import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.UnionType;
@@ -60,7 +61,14 @@ public final class KotlinUtil {
   public enum KotlinWrappedTypes {
     NONE,
     ARRAY,
-    PRIMITIVE_ARRAY,
+    ARRAY_BOOLEAN,
+    ARRAY_BYTE,
+    ARRAY_CHAR,
+    ARRAY_DOUBLE,
+    ARRAY_FLOAT,
+    ARRAY_INT,
+    ARRAY_LONG,
+    ARRAY_SHORT,
     LIST,
   }
 
@@ -74,16 +82,31 @@ public final class KotlinUtil {
 
   public static KotlinWrappedTypes getKotlinWrappedType(TypeMirror type) {
     if (TypeUtil.isArray(type)) {
-      Boolean isPrimitive = type.accept(new BooleanTypeVisitor() {
+      TypeKind typeKind = type.accept(new TypeKindTypeVisitor() {
         @Override
-        public Boolean visitArray(ArrayType t, Void unused) {
-          return TypeUtil.isPrimitiveOrVoid(t.getComponentType());
+        public TypeKind visitArray(ArrayType t, Void unused) {
+          return t.getComponentType().getKind();
         }
       }, null);
-      if (isPrimitive) {
-        return KotlinWrappedTypes.PRIMITIVE_ARRAY;
-      } else {
-        return KotlinWrappedTypes.ARRAY;
+      switch (typeKind) {
+          case BOOLEAN:
+              return KotlinWrappedTypes.ARRAY_BOOLEAN;
+          case BYTE:
+              return KotlinWrappedTypes.ARRAY_BYTE;
+          case SHORT:
+              return KotlinWrappedTypes.ARRAY_SHORT;
+          case INT:
+              return KotlinWrappedTypes.ARRAY_INT;
+          case LONG:
+              return KotlinWrappedTypes.ARRAY_LONG;
+          case CHAR:
+              return KotlinWrappedTypes.ARRAY_CHAR;
+          case FLOAT:
+              return KotlinWrappedTypes.ARRAY_FLOAT;
+          case DOUBLE:
+              return KotlinWrappedTypes.ARRAY_DOUBLE;
+          default:
+              return KotlinWrappedTypes.ARRAY;
       }
     }
 
@@ -128,13 +151,13 @@ public final class KotlinUtil {
       return null;
     }
 
-    return ((KotlinClassMetadata.Class) metadata).toKmClass();
+    return ((KotlinClassMetadata.Class) metadata).getKmClass();
   }
 
   public static KmClass tryGetKotlinClassMetaData(Element element) {
     KotlinClassMetadata metadata = tryGetElementMetaData(element);
     if (metadata instanceof KotlinClassMetadata.Class) {
-      return ((KotlinClassMetadata.Class) metadata).toKmClass();
+      return ((KotlinClassMetadata.Class) metadata).getKmClass();
     }
 
     return null;
@@ -143,7 +166,7 @@ public final class KotlinUtil {
   public static KmPackage tryGetKotlinPackageMetaData(Element element) {
     KotlinClassMetadata metadata = tryGetElementMetaData(element);
     if (metadata instanceof KotlinClassMetadata.FileFacade) {
-      return ((KotlinClassMetadata.FileFacade) metadata).toKmPackage();
+      return ((KotlinClassMetadata.FileFacade) metadata).getKmPackage();
     }
 
     return null;
@@ -156,8 +179,7 @@ public final class KotlinUtil {
     }
 
     KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-    KotlinClassMetadata metadata = KotlinClassMetadata.read(header);
-    return metadata;
+    return KotlinClassMetadata.read(header);
   }
 
   public static Element getElementFromExpression(Expression expression) {
@@ -183,11 +205,6 @@ public final class KotlinUtil {
     return elementName.substring(0, elementName.indexOf("_"));
   }
 
-  public static boolean isKotlinEnum(ExecutableElement element) {
-    KmClass kotlinMetaData = getExecutableElementKotlinClassMetaData(element);
-    return isKotlinEnum(kotlinMetaData);
-  }
-
   public static boolean isKotlinEnum(KmDeclarationContainer kotlinMetaData) {
     if (!(kotlinMetaData instanceof KmClass)) {
       return false;
@@ -199,11 +216,6 @@ public final class KotlinUtil {
     return element.getKind() == ElementKind.METHOD &&
         isKotlinEnum(getElementKotlinClassMetaData(element.getEnclosingElement())) &&
         ENUM_SPECIAL_STATIC_METHODS.contains(element.getSimpleName().toString());
-  }
-
-  public static boolean isKotlinCompanionObjectOrObject(ExecutableElement element) {
-    KmClass kotlinMetaData = getExecutableElementKotlinClassMetaData(element);
-    return isKotlinCompanionObjectOrObject(kotlinMetaData);
   }
 
   public static boolean isElementKotlinCompanionObjectOrObject(Element element) {
@@ -385,61 +397,61 @@ public final class KotlinUtil {
         "Unable to extract Kotlin class module name from: " + element);
   }
 
-  private static class BooleanTypeVisitor extends AbstractTypeVisitor9<Boolean, Void> {
+  private static class TypeKindTypeVisitor extends AbstractTypeVisitor9<TypeKind, Void> {
 
     @Override
-    public Boolean visitIntersection(IntersectionType t, Void p) {
-      return false;
+    public TypeKind visitIntersection(IntersectionType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitPrimitive(PrimitiveType t, Void p) {
-      return false;
+    public TypeKind visitPrimitive(PrimitiveType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitNull(NullType t, Void p) {
-      return false;
+    public TypeKind visitNull(NullType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitArray(ArrayType t, Void p) {
-      return false;
+    public TypeKind visitArray(ArrayType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitDeclared(DeclaredType t, Void p) {
-      return false;
+    public TypeKind visitDeclared(DeclaredType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitError(ErrorType t, Void p) {
-      return false;
+    public TypeKind visitError(ErrorType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitTypeVariable(TypeVariable t, Void p) {
-      return false;
+    public TypeKind visitTypeVariable(TypeVariable t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitWildcard(WildcardType t, Void p) {
-      return false;
+    public TypeKind visitWildcard(WildcardType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitExecutable(ExecutableType t, Void p) {
-      return false;
+    public TypeKind visitExecutable(ExecutableType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitNoType(NoType t, Void p) {
-      return false;
+    public TypeKind visitNoType(NoType t, Void p) {
+      return null;
     }
 
     @Override
-    public Boolean visitUnion(UnionType t, Void p) {
-      return false;
+    public TypeKind visitUnion(UnionType t, Void p) {
+      return null;
     }
   }
 }

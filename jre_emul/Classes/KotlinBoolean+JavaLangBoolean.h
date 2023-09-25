@@ -34,9 +34,9 @@
  @since JDK1.0
  */
 @interface CommonBoolean (JavaLangBoolean) < /*JavaIoSerializable, */CommonKotlinComparable >
-@property (readonly, class, strong) CommonBoolean *TRUE_ NS_SWIFT_NAME(TRUE_);
-@property (readonly, class, strong) CommonBoolean *FALSE_ NS_SWIFT_NAME(FALSE_);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
+@property (readonly, class, strong, nonnull) CommonBoolean *TRUE_ NS_SWIFT_NAME(TRUE_);
+@property (readonly, class, strong, nonnull) CommonBoolean *FALSE_ NS_SWIFT_NAME(FALSE_);
 
 #pragma mark Public
 

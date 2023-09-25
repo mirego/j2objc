@@ -1,4 +1,6 @@
 package com.mirego.interop.kotlin.test.constructor
 
-class ClassWithDefaultConstructorWithPrivateProperty(private val name: String) {
-}
+@Suppress("unused", "UnusedPrivateProperty")
+class ClassWithDefaultConstructorWithPrivateProperty(
+    private val name: String
+)

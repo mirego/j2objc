@@ -2,13 +2,20 @@ package com.mirego.interop.kotlin.test.objects
 
 import kotlin.jvm.JvmStatic
 
+@Suppress("UtilityClassWithPublicConstructor")
 class ClassWithCompanionObject {
     companion object {
-        val companionString : String = "companionString"
+        @Suppress("MayBeConst")
+        val companionString: String =
+            "companionString"
 
-        fun companionFunction() : String = "functionString"
+        @Suppress("FunctionOnlyReturningConstant")
+        fun companionFunction(): String =
+            "functionString"
 
         @JvmStatic
-        fun companionJvmStaticFunction(): String = "jvmStaticFunction"
+        @Suppress("FunctionOnlyReturningConstant")
+        fun companionJvmStaticFunction(): String =
+            "jvmStaticFunction"
     }
 }

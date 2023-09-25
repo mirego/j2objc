@@ -1,6 +1,6 @@
 package com.mirego.interop.kotlin.test.property
 
-class ClassWithBackingPropertyCustomGetter() {
+class ClassWithBackingPropertyCustomGetter {
     private val _backedProperty = "backed"
 
     val backedProperty: String

@@ -9,7 +9,6 @@ import com.google.devtools.j2objc.ast.InstanceofExpression;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.util.KotlinUtil;
-import com.google.devtools.j2objc.util.NativeObjectsUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 
 public class JavaObjectMethodConverter extends UnitTreeVisitor {

@@ -15,15 +15,15 @@ public class ArrayTest extends GenerationTest {
   public void testArrayLength() throws Exception {
     String className = Array1_length.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-    assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics emptyArray]))->size_");
-    assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics singleItemArray]))->size_");
-    assertTranslation(translation, "((IOSObjectArray *) toIOSObjectArray([arrayBasics manyItemArray]))->size_");
+    assertTranslation(translation, "((IOSObjectArray *) nil_chk(toIOSObjectArray([arrayBasics emptyArray])))->size_");
+    assertTranslation(translation, "((IOSObjectArray *) nil_chk(toIOSObjectArray([arrayBasics singleItemArray])))->size_");
+    assertTranslation(translation, "((IOSObjectArray *) nil_chk(toIOSObjectArray([arrayBasics manyItemArray])))->size_");
   }
 
   public void testArrayGet() throws Exception {
     String className = Array2_getAtIndex.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-    assertTranslation(translation, "IOSObjectArray_Get(toIOSObjectArray([arrayBasics manyItemArray])");
+    assertTranslation(translation, "IOSObjectArray_Get(nil_chk(toIOSObjectArray([arrayBasics manyItemArray]))");
   }
 
   public void testArraySet() throws Exception {
@@ -50,7 +50,7 @@ public class ArrayTest extends GenerationTest {
 //  public void testKotlinByteArray() throws Exception {
 //    String className = ByteArrayToKotlin.class.getSimpleName();
 //    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//    assertTranslation(translation, "[[CommonArrayBasics alloc] initWithByteArray:toKotlinArrayFromByteArray([IOSByteArray arrayWithLength:0])]");
-//    assertTranslation(translation, "jbyte b = [arrayBasics readValueAtIndexByteArray:toKotlinArrayFromByteArray(toIOSByteArray([arrayBasics byteArraySize:1])) index:0];");
+//    assertTranslation(translation, "[[CommonArrayBasics alloc] initWithByteArray:toKotlinByteArray([IOSByteArray arrayWithLength:0])]");
+//    assertTranslation(translation, "jbyte b = [arrayBasics readValueAtIndexByteArray:toKotlinByteArray(toIOSByteArray([arrayBasics byteArraySize:1])) index:0];");
 //  }
 }

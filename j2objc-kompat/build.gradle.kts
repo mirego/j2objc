@@ -1,23 +1,32 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+import java.io.ByteArrayOutputStream
 
-val kotlinVersion: String by extra
+val kotlin_version: String by extra
+val detekt_version: String by extra
 
 val isCi = System.getenv().containsKey("CI")
-
-plugins {
-    idea
-    kotlin("multiplatform")
-    `maven-publish`
-}
 
 repositories {
     mavenLocal()
     mavenCentral()
     google()
+}
+
+plugins {
+    idea
+    kotlin("multiplatform")
+    id("io.gitlab.arturbosch.detekt")
+    // id("io.github.detekt.gradle.compiler-plugin")
+    `maven-publish`
 }
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -39,8 +48,7 @@ kotlin {
 
         rootProject.plugins.withType(YarnPlugin::class.java).configureEach {
             rootProject.the<YarnRootExtension>().yarnLockMismatchReport = YarnLockMismatchReport.WARNING
-            rootProject.the<YarnRootExtension>().reportNewYarnLock = false
-            rootProject.the<YarnRootExtension>().yarnLockAutoReplace = false
+            rootProject.the<YarnRootExtension>().yarnLockAutoReplace = true
         }
 
         rootProject.tasks.withType(KotlinNpmInstallTask::class.java).named("kotlinNpmInstall").configure {
@@ -58,8 +66,8 @@ kotlin {
         }
     }
 
-    ios()
-    iosSimulatorArm64()
+    ios { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
+    iosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
 
     val iosMain by sourceSets.getting
     val iosTest by sourceSets.getting
@@ -68,8 +76,8 @@ kotlin {
     iosSimulatorArm64Main.dependsOn(iosMain)
     iosSimulatorArm64Test.dependsOn(iosTest)
 
-    tvos()
-    tvosSimulatorArm64()
+    tvos { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
+    tvosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
 
     val tvosMain by sourceSets.getting
     val tvosTest by sourceSets.getting
@@ -78,10 +86,20 @@ kotlin {
     tvosSimulatorArm64Main.dependsOn(tvosMain)
     tvosSimulatorArm64Test.dependsOn(tvosTest)
 
+    // Xcode 15 new linker is incompatible with Kotlin, tell it to use the old linker
+    val isXcode15 = if (!OperatingSystem.current().isMacOsX) false else {
+        val xcodeBuildOutput = ByteArrayOutputStream()
+        exec { commandLine("xcrun", "xcodebuild", "-version"); standardOutput = xcodeBuildOutput; isIgnoreExitValue = true }
+        xcodeBuildOutput.toString().contains("Xcode 15.")
+    }
+    if (isXcode15) {
+        targets.withType<KotlinNativeTarget> { binaries.withType<TestExecutable> { linkerOpts += "-ld64" } }
+    }
+
     sourceSets {
         named("commonTest") {
             dependencies {
-                implementation(kotlin("test", kotlinVersion))
+                api(kotlin("test", kotlin_version))
             }
         }
 
@@ -93,15 +111,13 @@ kotlin {
     }
 }
 
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detekt_version")
+}
+
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
-}
-
-idea {
-    module {
-        excludeDirs.add(file("gradle/wrapper"))
-    }
 }
 
 tasks.register("j2objcKotlinTypes") {
@@ -111,8 +127,8 @@ tasks.register("j2objcKotlinTypes") {
     if (!isCi) {
         doFirst {
             copy {
-                from("build/bin/macosArm64/debugFramework/common.framework/Headers")
-                into("build/interop")
+                from("${layout.buildDirectory.asFile.get()}/bin/macosArm64/debugFramework/common.framework/Headers")
+                into("${layout.buildDirectory.asFile.get()}/interop")
 
                 include("common.h")
                 rename { "J2ObjC_kotlinTypes.h" }
@@ -146,7 +162,7 @@ ${file.readText().trim('\n')}
             exec {
                 commandLine(
                     "rsync", "-acI", "--no-times",
-                    file("build/interop/J2ObjC_kotlinTypes.h").absolutePath,
+                    file("${layout.buildDirectory.asFile.get()}/interop/J2ObjC_kotlinTypes.h").absolutePath,
                     file("../jre_emul/Classes").absolutePath
                 )
             }
@@ -158,5 +174,21 @@ ${file.readText().trim('\n')}
         outputs.file(file("../jre_emul/Classes/J2ObjC_kotlinTypes.h"))
 
         dependsOn("linkDebugFrameworkMacosArm64")
+    }
+}
+
+detekt {
+    autoCorrect = true
+    buildUponDefaultConfig = true
+    config.setFrom("../../../detekt-config.yml")
+    source.setFrom(file("src").listFiles()!!.filter { it.name.endsWith("Main") || it.name.endsWith("Test") })
+}
+
+tasks.withType<Detekt>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
+tasks.withType<DetektCreateBaselineTask>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
+
+idea {
+    module {
+        excludeDirs.add(file("gradle/wrapper"))
     }
 }

@@ -18,7 +18,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class CommonArrayFactory, CommonKotlinArray<T>, CommonArrayListFactory, CommonHashMapFactory, CommonHashSetFactory, CommonLinkedHashMapFactory, CommonLinkedHashSetFactory, CommonKotlinByteIterator, CommonKotlinByteArray, NSData;
+@class CommonKotlinArray<T>, CommonKotlinBooleanArray, CommonKotlinByteArray, CommonKotlinCharArray, CommonKotlinDoubleArray, CommonKotlinFloatArray, CommonKotlinIntArray, CommonKotlinLongArray, CommonKotlinShortArray, CommonKotlinByteIterator, NSData, CommonKotlinBooleanIterator, CommonKotlinCharIterator, CommonKotlinDoubleIterator, CommonKotlinFloatIterator, CommonKotlinIntIterator, CommonKotlinLongIterator, CommonKotlinShortIterator;
 
 @protocol CommonKotlinComparable, CommonKotlinIterator;
 
@@ -156,78 +156,20 @@ __attribute__((swift_name("KotlinBoolean")))
 + (instancetype)numberWithBool:(BOOL)value;
 @end
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ArrayFactory")))
-@interface CommonArrayFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)arrayFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonArrayFactory *shared __attribute__((swift_name("shared")));
-- (CommonKotlinArray<id> *)createSize:(int32_t)size init:(id _Nullable (^)(CommonInt *))init __attribute__((swift_name("create(size:init:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("ArrayListFactory")))
-@interface CommonArrayListFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)arrayListFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonArrayListFactory *shared __attribute__((swift_name("shared")));
-- (NSMutableArray<id> *)create __attribute__((swift_name("create()")));
-- (NSMutableArray<id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
-- (NSMutableArray<id> *)createElements:(id)elements __attribute__((swift_name("create(elements:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("HashMapFactory")))
-@interface CommonHashMapFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)hashMapFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonHashMapFactory *shared __attribute__((swift_name("shared")));
-- (CommonMutableDictionary<id, id> *)create __attribute__((swift_name("create()")));
-- (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
-- (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
-- (CommonMutableDictionary<id, id> *)createOriginal:(NSDictionary<id, id> *)original __attribute__((swift_name("create(original:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("HashSetFactory")))
-@interface CommonHashSetFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)hashSetFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonHashSetFactory *shared __attribute__((swift_name("shared")));
-- (CommonMutableSet<id> *)create __attribute__((swift_name("create()")));
-- (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
-- (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
-- (CommonMutableSet<id> *)createElements:(id)elements __attribute__((swift_name("create(elements:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("LinkedHashMapFactory")))
-@interface CommonLinkedHashMapFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)linkedHashMapFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonLinkedHashMapFactory *shared __attribute__((swift_name("shared")));
-- (CommonMutableDictionary<id, id> *)create __attribute__((swift_name("create()")));
-- (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
-- (CommonMutableDictionary<id, id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
-- (CommonMutableDictionary<id, id> *)createOriginal:(NSDictionary<id, id> *)original __attribute__((swift_name("create(original:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("LinkedHashSetFactory")))
-@interface CommonLinkedHashSetFactory : CommonBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)linkedHashSetFactory __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) CommonLinkedHashSetFactory *shared __attribute__((swift_name("shared")));
-- (CommonMutableSet<id> *)create __attribute__((swift_name("create()")));
-- (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity __attribute__((swift_name("create(initialCapacity:)")));
-- (CommonMutableSet<id> *)createInitialCapacity:(int32_t)initialCapacity loadFactor:(float)loadFactor __attribute__((swift_name("create(initialCapacity:loadFactor:)")));
-- (CommonMutableSet<id> *)createElements:(id)elements __attribute__((swift_name("create(elements:)")));
+__attribute__((swift_name("J2ObjCKompatDummy")))
+@protocol CommonJ2ObjCKompatDummy
+@required
+- (CommonKotlinArray<id> *)array __attribute__((swift_name("array()")));
+- (CommonKotlinBooleanArray *)booleanArray __attribute__((swift_name("booleanArray()")));
+- (CommonKotlinByteArray *)byteArray __attribute__((swift_name("byteArray()")));
+- (CommonKotlinCharArray *)charArray __attribute__((swift_name("charArray()")));
+- (CommonKotlinDoubleArray *)doubleArray __attribute__((swift_name("doubleArray()")));
+- (CommonKotlinFloatArray *)floatArray __attribute__((swift_name("floatArray()")));
+- (CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("hashMap()")));
+- (CommonMutableSet<id> *)hashSet __attribute__((swift_name("hashSet()")));
+- (CommonKotlinIntArray *)intArray __attribute__((swift_name("intArray()")));
+- (CommonKotlinLongArray *)longArray __attribute__((swift_name("longArray()")));
+- (CommonKotlinShortArray *)shortArray __attribute__((swift_name("shortArray()")));
 @end
 
 __attribute__((swift_name("KotlinComparable")))
@@ -236,8 +178,8 @@ __attribute__((swift_name("KotlinComparable")))
 - (int32_t)compareToOther:(id _Nullable)other __attribute__((swift_name("compareTo(other:)")));
 @end
 
-__attribute__((swift_name("RequiredKotlinTypes")))
-@protocol CommonRequiredKotlinTypes <CommonKotlinComparable>
+__attribute__((swift_name("J2ObjCKompatDummyComparable")))
+@protocol CommonJ2ObjCKompatDummyComparable <CommonKotlinComparable>
 @required
 @end
 
@@ -276,6 +218,97 @@ __attribute__((swift_name("KotlinArray")))
 @property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinBooleanArray")))
+@interface CommonKotlinBooleanArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonBoolean *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (BOOL)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinBooleanIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(BOOL)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinCharArray")))
+@interface CommonKotlinCharArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(id (^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (unichar)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinCharIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(unichar)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinDoubleArray")))
+@interface CommonKotlinDoubleArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonDouble *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (double)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinDoubleIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(double)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinFloatArray")))
+@interface CommonKotlinFloatArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonFloat *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (float)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinFloatIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(float)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinIntArray")))
+@interface CommonKotlinIntArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonInt *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (int32_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinIntIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(int32_t)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinLongArray")))
+@interface CommonKotlinLongArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonLong *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (int64_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinLongIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(int64_t)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinShortArray")))
+@interface CommonKotlinShortArray : CommonBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(CommonShort *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (int16_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (CommonKotlinShortIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(int16_t)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
+@end
+
 __attribute__((swift_name("KotlinIterator")))
 @protocol CommonKotlinIterator
 @required
@@ -289,6 +322,62 @@ __attribute__((swift_name("KotlinByteIterator")))
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
 - (CommonByte *)next __attribute__((swift_name("next()")));
 - (int8_t)nextByte __attribute__((swift_name("nextByte()")));
+@end
+
+__attribute__((swift_name("KotlinBooleanIterator")))
+@interface CommonKotlinBooleanIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonBoolean *)next __attribute__((swift_name("next()")));
+- (BOOL)nextBoolean __attribute__((swift_name("nextBoolean()")));
+@end
+
+__attribute__((swift_name("KotlinCharIterator")))
+@interface CommonKotlinCharIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (id)next __attribute__((swift_name("next()")));
+- (unichar)nextChar __attribute__((swift_name("nextChar()")));
+@end
+
+__attribute__((swift_name("KotlinDoubleIterator")))
+@interface CommonKotlinDoubleIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonDouble *)next __attribute__((swift_name("next()")));
+- (double)nextDouble __attribute__((swift_name("nextDouble()")));
+@end
+
+__attribute__((swift_name("KotlinFloatIterator")))
+@interface CommonKotlinFloatIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonFloat *)next __attribute__((swift_name("next()")));
+- (float)nextFloat __attribute__((swift_name("nextFloat()")));
+@end
+
+__attribute__((swift_name("KotlinIntIterator")))
+@interface CommonKotlinIntIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonInt *)next __attribute__((swift_name("next()")));
+- (int32_t)nextInt __attribute__((swift_name("nextInt()")));
+@end
+
+__attribute__((swift_name("KotlinLongIterator")))
+@interface CommonKotlinLongIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonLong *)next __attribute__((swift_name("next()")));
+- (int64_t)nextLong __attribute__((swift_name("nextLong()")));
+@end
+
+__attribute__((swift_name("KotlinShortIterator")))
+@interface CommonKotlinShortIterator : CommonBase <CommonKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (CommonShort *)next __attribute__((swift_name("next()")));
+- (int16_t)nextShort __attribute__((swift_name("nextShort()")));
 @end
 
 #pragma pop_macro("_Nullable_result")

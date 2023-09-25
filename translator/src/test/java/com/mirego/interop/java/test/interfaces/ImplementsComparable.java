@@ -1,5 +1,6 @@
 package com.mirego.interop.java.test.interfaces;
 
+// javax.annotations doesn't work with command line tests
 import org.jetbrains.annotations.NotNull;
 
 public class ImplementsComparable implements Comparable<Integer> {
@@ -14,11 +15,11 @@ public class ImplementsComparable implements Comparable<Integer> {
 
     Comparable[] comparableArray = new Comparable[2];
 
-    return String.format("" +
-            "compare() is greater than 0? --> %s\n" +
-            "isInstanceOfComparable? --> %s\n" +
-            "castedComparable.compare() is greater than 0?  --> %s" +
-            "comparableArray.size() --> %s",
+    return String.format(
+        "compare() is greater than 0? --> %s\n" +
+        "isInstanceOfComparable? --> %s\n" +
+        "castedComparable.compare() is greater than 0?  --> %s" +
+        "comparableArray.size() --> %s",
         implementsComparable.compareTo(1),
         isInstanceOfComparable,
         castedComparable.compareTo(1),

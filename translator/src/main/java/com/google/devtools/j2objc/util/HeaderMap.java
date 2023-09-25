@@ -171,9 +171,12 @@ public class HeaderMap {
       String headerMappingKey = "kotlin-module/" + kotlinModuleName;
       mappedHeader = map.get(headerMappingKey);
       if (mappedHeader == null) {
-          throw new RuntimeException(String.format("Cannot find mapped header for kotlin module name [%s] for type [%s].\nMapping headers: %s", kotlinModuleName, type, map));
+        // kotlin interop >>
+        // Use common.h as default header when not specified
+        mappedHeader = "common/common.h";
+        // kotlin interop <<
       }
-      
+
       return mappedHeader;
     }
 

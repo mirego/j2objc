@@ -177,7 +177,6 @@ public class NameTable {
    */
   private final PackagePrefixes prefixMap;
 
-  // kotlin interop >>
   /**
    * Map of Java / Kotlin bridged interfaces for seamless interoperability
    * between Java and Kotlin.
@@ -189,7 +188,6 @@ public class NameTable {
    * `kotlin.Comparable`.
    */
   private final Map<String, String> bridgedJvmKotlinInterfaceMapping;
-  // kotlin interop <<
   private final ImmutableMap<String, String> classMappings;
   private final ImmutableMap<String, String> methodMappings;
   private final boolean generifyTypeDecls;
@@ -1005,7 +1003,10 @@ public class NameTable {
     String prefix = prefixMap.getPrefix("kotlin-module/" + kotlinModuleName);
 
     if (prefix == null) {
-      throw new RuntimeException(String.format("Unable to find Kotlin module prefix for element: [%s] for module: [%s]\nAll prefixes: [%s]", element.getSimpleName().toString(), kotlinModuleName, prefixMap));
+      // kotlin interop >>
+      // Use "Common" prefix when not specified
+      prefix = "Common";
+      // kotlin interop <<
     }
 
     return prefix;
@@ -1050,18 +1051,15 @@ public class NameTable {
     kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
     kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
 
-    // TODO this is so varargs method parsing works, but not tested yet since varargs don't work
-    // TODO Need to test all types of var args types possible
-    // kotlinToJavaType.put("kotlin/Byte", "java.lang.Byte");
-    // kotlinToJavaType.put("kotlin/Short", "java.lang.Short");
-    kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
-    kotlinToJavaType.put("kotlin/ByteArray", "java.lang.Array<Byte>");
     kotlinToJavaType.put("kotlin/Array", "java.lang.Array");
-    // kotlinToJavaType.put("kotlin/Long", "java.lang.Long");
-    // kotlinToJavaType.put("kotlin/Char", "java.lang.Char");
-    // kotlinToJavaType.put("kotlin/Float", "java.lang.Float");
-    // kotlinToJavaType.put("kotlin/Double", "java.lang.Double");
-    // kotlinToJavaType.put("kotlin/Boolean", "java.lang.Boolean");
+    kotlinToJavaType.put("kotlin/ByteArray", "java.lang.Array<Byte>");
+    kotlinToJavaType.put("kotlin/ShortArray", "java.lang.Array<Short>");
+    kotlinToJavaType.put("kotlin/IntArray", "java.lang.Array<Integer>");
+    kotlinToJavaType.put("kotlin/LongArray", "java.lang.Array<Long>");
+    kotlinToJavaType.put("kotlin/CharArray", "java.lang.Array<Char>");
+    kotlinToJavaType.put("kotlin/FloatArray", "java.lang.Array<Float>");
+    kotlinToJavaType.put("kotlin/DoubleArray", "java.lang.Array<Double>");
+    kotlinToJavaType.put("kotlin/BooleanArray", "java.lang.Array<Boolean>");
 
     // java collection types
     kotlinToJavaType.put("kotlin/collections/Iterator", "java.util.Iterator");

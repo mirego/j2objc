@@ -11,7 +11,6 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    google()
 }
 
 java {
@@ -24,12 +23,12 @@ dependencies {
     implementation("com.google.j2objc:j2objc-annotations:3.0")
     implementation("com.google.j2objc:translator:3.0")
 
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.1.2-jre")
 
     implementation("org.checkerframework:checker:$checkerFrameworkVersion")
     annotationProcessor("org.checkerframework:checker:$checkerFrameworkVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0-M1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
 }
 

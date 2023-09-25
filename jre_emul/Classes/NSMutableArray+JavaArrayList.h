@@ -12,9 +12,9 @@ FOUNDATION_EXPORT NSMutableArray *create_NSMutableArray_init();
 FOUNDATION_EXPORT NSMutableArray *create_NSMutableArray_initWithInt_(jint initialCapacity);
 FOUNDATION_EXPORT NSMutableArray *create_NSMutableArray_initWithJavaUtilCollection_(id<JavaUtilCollection> elements);
 
-FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_init() __attribute__((ns_returns_retained));
-FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_initWithInt_(jint initialCapacity) __attribute__((ns_returns_retained));
-FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) __attribute__((ns_returns_retained));
+FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_init() NS_RETURNS_RETAINED;
+FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_initWithInt_(jint initialCapacity) NS_RETURNS_RETAINED;
+FOUNDATION_EXPORT NSMutableArray *new_NSMutableArray_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) NS_RETURNS_RETAINED;
 
 @interface NSMutableArray<ObjectType> (JavaArrayList)
 

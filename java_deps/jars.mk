@@ -35,11 +35,11 @@ PROTOBUF_JAR = protobuf-java-3.22.3.jar
 ERROR_PRONE_ANNOTATIONS_JAR = error_prone_annotations-2.11.0.jar
 ERROR_PRONE_ANNOTATIONS_SOURCE_JAR = error_prone_annotations-2.11.0-sources.jar
 
-CHECKER_QUAL_JAR = checker-qual-3.32.0-eisop1.jar
-CHECKER_QUAL_SOURCE_JAR = checker-qual-3.32.0-eisop1-sources.jar
+CHECKER_QUAL_JAR = checker-qual-3.34.0-eisop1.jar
+CHECKER_QUAL_SOURCE_JAR = checker-qual-3.34.0-eisop1-sources.jar
 
-CHECKER_QUAL_ANDROID_JAR = checker-qual-android-3.32.0-eisop1.jar
-CHECKER_QUAL_ANDROID_SOURCE_JAR = checker-qual-android-3.32.0-eisop1-sources.jar
+CHECKER_QUAL_ANDROID_JAR = checker-qual-android-3.34.0-eisop1.jar
+CHECKER_QUAL_ANDROID_SOURCE_JAR = checker-qual-android-3.34.0-eisop1-sources.jar
 
 ANIMAL_SNIFFER_ANNOTATIONS_JAR = animal-sniffer-annotations-1.14.jar
 ANIMAL_SNIFFER_ANNOTATIONS_SOURCE_JAR = animal-sniffer-annotations-1.14-sources.jar
@@ -47,18 +47,18 @@ ANIMAL_SNIFFER_ANNOTATIONS_SOURCE_JAR = animal-sniffer-annotations-1.14-sources.
 FAILUREACCESS_JAR = failureaccess-1.0.1.jar
 FAILUREACCESS_SOURCE_JAR = failureaccess-1.0.1-sources.jar
 
-GUAVA_JAR = guava-31.1-jre.jar
-GUAVA_SOURCE_JAR = guava-31.1-jre-sources.jar
+GUAVA_JAR = guava-32.1.2-jre.jar
+GUAVA_SOURCE_JAR = guava-32.1.2-jre-sources.jar
 
 GUAVA_ANDROID_JAR = guava-31.1-android.jar
 GUAVA_ANDROID_SOURCE_JAR = guava-31.1-android-sources.jar
 
 SCENELIB_JAR = scenelib.jar
-PLUME_UTIL_JAR = plume-util-1.0.6.jar
+PLUME_UTIL_JAR = plume-util-1.8.1.jar
 
 # kotlin interop >>
-KOTLIN_STDLIB_JAR = kotlin-stdlib-1.8.22.jar
-KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.6.0.jar
+KOTLIN_STDLIB_JAR = kotlin-stdlib-1.9.10.jar
+KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.7.0.jar
 JETBRAIN_ANNOTATION_JAR = annotations-24.0.0.jar
 # kotlin interop <<
 

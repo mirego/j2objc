@@ -20,6 +20,15 @@ import com.mirego.interop.java.test.function.PublicOverloadedFunction;
 import com.mirego.interop.java.test.function.PublicRecursiveFunction;
 import com.mirego.interop.java.test.function.PublicSingleExpressionFunction;
 import com.mirego.interop.java.test.function.PublicTailRecursiveFunction;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionAny;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionBooleanArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionByteArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionCharArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionDoubleArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionFloatArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionIntArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionLongArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionShortArray;
 
 public class FunctionRuntimeTest extends TestCase {
 
@@ -108,12 +117,43 @@ public class FunctionRuntimeTest extends TestCase {
     assertEquals(24, PublicTailRecursiveFunction.main(NO_ARGS).longValue());
   }
 
-// todo incompatible types
-//  public void testPublicVariableArgumentsFunction() {
-//    assertEquals(10, PublicVariableArgumentsFunction.main(NO_ARGS));
-//  }
-
   public void testCallingGlobalFunctions() {
     assertEquals("globalFunction-getString_globalExtensionFunction-getWithMessage_false", CallingGlobalFunctions.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionAny() {
+    assertEquals("true,a,abc,1,2.2", PublicVariableArgumentsFunctionAny.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionBooleanArray() {
+    assertEquals("false,true", PublicVariableArgumentsFunctionBooleanArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionByteArray() {
+    assertEquals("1,2,3,4", PublicVariableArgumentsFunctionByteArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionCharArray() {
+    assertEquals("a,b,c", PublicVariableArgumentsFunctionCharArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionDoubleArray() {
+    assertEquals("1.1,2.2,3.3,4.4", PublicVariableArgumentsFunctionDoubleArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionFloatArray() {
+    assertEquals("1.1,2.2,3.3,4.4", PublicVariableArgumentsFunctionFloatArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionIntArray() {
+    assertEquals("1,2,3,4", PublicVariableArgumentsFunctionIntArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionLongArray() {
+    assertEquals("1,2,3,4", PublicVariableArgumentsFunctionLongArray.main(NO_ARGS));
+  }
+
+  public void testPublicVariableArgumentsFunctionShortArray() {
+    assertEquals("1,2,3,4", PublicVariableArgumentsFunctionShortArray.main(NO_ARGS));
   }
 }

@@ -8,7 +8,6 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    google()
 }
 
 java {
@@ -23,10 +22,10 @@ dependencies {
 
     implementation("com.google.flogger:flogger:0.7.4")
     implementation("com.google.flogger:google-extensions:0.7.4")
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.1.2-jre")
     implementation("com.google.protobuf:protobuf-java:3.22.3")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0-M1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.google.flogger:flogger-system-backend:0.7.4")

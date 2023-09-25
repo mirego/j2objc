@@ -26,9 +26,23 @@
 
 // kotlin interop >>
 @class CommonKotlinArray;
+@class CommonKotlinBooleanArray;
 @class CommonKotlinByteArray;
-@class IOSByteArray;
+@class CommonKotlinCharArray;
+@class CommonKotlinDoubleArray;
+@class CommonKotlinFloatArray;
+@class CommonKotlinIntArray;
+@class CommonKotlinLongArray;
+@class CommonKotlinShortArray;
 @class IOSObjectArray;
+@class IOSBooleanArray;
+@class IOSByteArray;
+@class IOSCharArray;
+@class IOSDoubleArray;
+@class IOSFloatArray;
+@class IOSIntArray;
+@class IOSLongArray;
+@class IOSShortArray;
 @protocol JavaUtilCollection;
 @protocol JavaUtilList;
 @protocol JavaUtilMap;
@@ -141,10 +155,9 @@ __attribute__((always_inline)) inline id JreRetainedAutoreleasedReturnValue(id v
 CF_EXTERN_C_BEGIN
 
 id JreThrowNullPointerException(void) __attribute__((noreturn));
+id JreThrowNullPointerExceptionWithString(NSString *msg) __attribute__((noreturn));
 void JreThrowClassCastException(id p, Class cls) __attribute__((noreturn));
-// kotlin interop >>
 void JreThrowClassCastExceptionWithProtocol(id p, Protocol* protocol) __attribute__((noreturn));
-// kotlin interop <<
 void JreThrowClassCastExceptionWithIOSClass(id p, IOSClass *cls) __attribute__((noreturn));
 void JreThrowArithmeticExceptionWithNSString(NSString *msg) __attribute__((noreturn));
 
@@ -188,7 +201,7 @@ CF_EXTERN_C_END
  *
  * @param p The object to check for nil.
  */
-#define nil_chk(p) (p ?: JreThrowNullPointerException())
+#define nil_chk(p) (p ?: JreThrowNullPointerExceptionWithString(@#p))
 
 #if !__has_feature(objc_arc)
 __attribute__((always_inline)) inline id JreAutoreleasedAssign(
@@ -380,13 +393,25 @@ typedef struct J2ObjCClass_t J2ObjCClass_t;
 
 // kotlin interop >>
 
-IOSObjectArray *toIOSObjectArray(CommonKotlinArray *sourceArray);
+IOSObjectArray *toIOSObjectArray(CommonKotlinArray *array);
+IOSBooleanArray *toIOSBooleanArray(CommonKotlinBooleanArray *array);
+IOSByteArray *toIOSByteArray(CommonKotlinByteArray *array);
+IOSCharArray *toIOSCharArray(CommonKotlinCharArray *array);
+IOSDoubleArray *toIOSDoubleArray(CommonKotlinDoubleArray *array);
+IOSFloatArray *toIOSFloatArray(CommonKotlinFloatArray *array);
+IOSIntArray *toIOSIntArray(CommonKotlinIntArray *array);
+IOSLongArray *toIOSLongArray(CommonKotlinLongArray *array);
+IOSShortArray *toIOSShortArray(CommonKotlinShortArray *array);
 
-IOSByteArray *toIOSByteArray(CommonKotlinByteArray *sourceArray);
-
-id toKotlinArray(IOSObjectArray *sourceArray);
-
-id toKotlinArrayFromByteArray(IOSByteArray *sourceArray);
+id toKotlinArray(IOSObjectArray *array);
+id toKotlinBooleanArray(IOSBooleanArray *array);
+id toKotlinByteArray(IOSByteArray *array);
+id toKotlinCharArray(IOSCharArray *array);
+id toKotlinDoubleArray(IOSDoubleArray *array);
+id toKotlinFloatArray(IOSFloatArray *array);
+id toKotlinIntArray(IOSIntArray *array);
+id toKotlinLongArray(IOSLongArray *array);
+id toKotlinShortArray(IOSShortArray *array);
 
 id javaWrapArray(id<JavaUtilCollection> elements);
 

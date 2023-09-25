@@ -50,7 +50,6 @@ __attribute__((always_inline)) inline id cast_check(id __unsafe_unretained p, IO
   return p;
 }
 
-// kotlin interop >>
 // Similar to above, but with an IOSClass parameter instead of a Class
 // parameter. This check is necessary for interface and array types and is
 // faster than a conformsToProtocol check for interfaces.
@@ -60,7 +59,6 @@ __attribute__((always_inline)) inline id conformsToProtocol_check(id __unsafe_un
   }
   return p;
 }
-// kotlin interop <<
 
 FOUNDATION_EXPORT void JreThrowAssertionError(id __unsafe_unretained msg);
 

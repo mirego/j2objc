@@ -112,8 +112,6 @@ public class StatementGeneratorTest extends GenerationTest {
         + "(id<JavaUtilList>) cast_check(al, JavaUtilList_class_());", result);
   }
 
-  // kotlin interop >>
-
   public void testInterfaceCastTranslationForKotlinMappedClass() throws IOException {
     String source = "Object obj = Integer.valueOf(1);"
         + "java.lang.Comparable comparable = (java.lang.Comparable) obj;";
@@ -133,8 +131,6 @@ public class StatementGeneratorTest extends GenerationTest {
     assertEquals("IOSObjectArray *comparableArray = (IOSObjectArray *) objArray;", result);
   }
 
-  // kotlin interop <<
-
   public void testCatchTranslation() throws IOException {
     String source = "try { ; } catch (Exception e) {}";
     List<Statement> stmts = translateStatements(source);
@@ -151,8 +147,6 @@ public class StatementGeneratorTest extends GenerationTest {
     assertEquals("if ([e isKindOfClass:[JavaLangThrowable class]]) {\n}", result);
   }
 
-  // kotlin interop >>
-
   public void testInstanceOfTranslationForKotlinMappedClass() throws IOException {
     String source = "Object o = Integer.valueOf(1);" +
         " if (o instanceof Comparable) {}";
@@ -161,8 +155,6 @@ public class StatementGeneratorTest extends GenerationTest {
     String result = generateStatement(stmts.get(1));
     assertEquals("if ([o conformsToProtocol:@protocol(CommonKotlinComparable)]) {\n}", result);
   }
-
-  // kotlin interop <<
 
   public void testFullyQualifiedTypeTranslation() throws IOException {
     String source = "java.lang.Exception e = null;";
@@ -601,8 +593,6 @@ public class StatementGeneratorTest extends GenerationTest {
         + "[IOSCharArray arrayWithChars:(jchar[]){ '4', '5' } count:2];", result);
   }
 
-  // kotlin interop >>
-
   public void testArrayForKotlinMappedType() {
     String source = "Comparable[] comparableArray = { Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3) };";
     List<Statement> stmts = translateStatements(source);
@@ -611,8 +601,6 @@ public class StatementGeneratorTest extends GenerationTest {
     assertEquals("IOSObjectArray *comparableArray = [IOSObjectArray arrayWithObjects:(id[]){ CommonInt_valueOfWithInt_(1), CommonInt_valueOfWithInt_(2), CommonInt_valueOfWithInt_(3) } count:3 type:IOSClass_fromProtocol(@protocol(CommonKotlinComparable))];",
         result);
   }
-
-  // kotlin interop <<
 
   /**
    * Verify that static array initializers are rewritten as method calls.
@@ -921,9 +909,7 @@ public class StatementGeneratorTest extends GenerationTest {
     stmts = translateStatements(source);
     assertEquals(1, stmts.size());
     result = generateStatement(stmts.get(0));
-    assertEquals("IOSObjectArray *a = [IOSObjectArray "
-        + "arrayWithObjects:(id[]){ @\"one\", @\"two\", @\"three\" } "
-        + "count:3 type:IOSClass_fromProtocol(@protocol(CommonKotlinComparable))];", result);
+    assertEquals("IOSObjectArray *a = [IOSObjectArray arrayWithObjects:(id[]){ @\"one\", @\"two\", @\"three\" } count:3 type:IOSClass_fromProtocol(@protocol(CommonKotlinComparable))];", result);
   }
 
   public void testArrayPlusAssign() throws IOException {

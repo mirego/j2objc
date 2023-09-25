@@ -208,7 +208,7 @@
   }
 
   // NOTE This is supposed to be a view of this ArrayList so any modifications also affect this ArrayList
-  return [[self subarrayWithRange:NSMakeRange(fromIndex, (toIndex - fromIndex))] mutableCopy];
+  return AUTORELEASE([[self subarrayWithRange:NSMakeRange(fromIndex, (toIndex - fromIndex))] mutableCopy]);
 }
 
 @end

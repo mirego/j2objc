@@ -54,19 +54,21 @@ id JreThrowNullPointerException() {
   @throw create_JavaLangNullPointerException_init(); // NOLINT
 }
 
+id JreThrowNullPointerExceptionWithString(NSString *msg) {
+  @throw create_JavaLangNullPointerException_initWithNSString_(msg); // NOLINT
+}
+
 void JreThrowClassCastException(id obj, Class cls) {
   @throw create_JavaLangClassCastException_initWithNSString_(  // NOLINT
       [NSString stringWithFormat:@"Cannot cast object of type %@ to %@",
           [[obj java_getClass] getName], NSStringFromClass(cls)]);
 }
 
-// kotlin interop >>
 void JreThrowClassCastExceptionWithProtocol(id obj, Protocol* protocol) {
   @throw create_JavaLangClassCastException_initWithNSString_(  // NOLINT
       [NSString stringWithFormat:@"Cannot cast object of type %@ to %@",
           [[obj java_getClass] getName], NSStringFromProtocol(protocol)]);
 }
-// kotlin interop <<
 
 void JreThrowClassCastExceptionWithIOSClass(id obj, IOSClass *cls) {
   @throw create_JavaLangClassCastException_initWithNSString_(  // NOLINT
@@ -531,30 +533,156 @@ NSUInteger JreDefaultFastEnumeration(
 
 // kotlin interop >>
 
-IOSObjectArray *toIOSObjectArray(CommonKotlinArray *sourceArray) {
-  IOSObjectArray *destArray = [IOSObjectArray newArrayWithLength:sourceArray.size type:NSObject_class_()];
-  id<CommonKotlinIterator> iterator = sourceArray.iterator;
+IOSObjectArray *toIOSObjectArray(CommonKotlinArray *array) {
+  IOSObjectArray *result = [IOSObjectArray newArrayWithLength:array.size type:NSObject_class_()];
+  id<CommonKotlinIterator> iterator = array.iterator;
 
   NSUInteger index = 0;
   while (iterator.hasNext) {
-    IOSObjectArray_Set(destArray, index++, [iterator next]);
+    IOSObjectArray_Set(result, index++, [iterator next]);
   }
 
-  return AUTORELEASE(destArray);
+  return AUTORELEASE(result);
 }
 
-IOSByteArray *toIOSByteArray(CommonKotlinByteArray *sourceArray) {
-  return [IOSByteArray arrayWithNSData:sourceArray.toNSData];
+IOSBooleanArray *toIOSBooleanArray(CommonKotlinBooleanArray *array) {
+  IOSBooleanArray *result = [IOSBooleanArray newArrayWithLength:array.size];
+  CommonKotlinBooleanIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceBooleanAtIndex:index++ withBoolean:[iterator nextBoolean]];
+  }
+
+  return AUTORELEASE(result);
 }
 
-id toKotlinArray(IOSObjectArray *sourceArray) {
-  return [CommonKotlinArray arrayWithSize:(int32_t)sourceArray.length init:^(CommonInt *index) {
-    return IOSObjectArray_Get(sourceArray, index.intValue);
+IOSByteArray *toIOSByteArray(CommonKotlinByteArray *array) {
+  return [IOSByteArray arrayWithNSData:array.toNSData];
+}
+
+IOSCharArray *toIOSCharArray(CommonKotlinCharArray *array) {
+  IOSCharArray *result = [IOSCharArray newArrayWithLength:array.size];
+  CommonKotlinCharIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceCharAtIndex:index++ withChar:[iterator nextChar]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+IOSDoubleArray *toIOSDoubleArray(CommonKotlinDoubleArray *array) {
+  IOSDoubleArray *result = [IOSDoubleArray newArrayWithLength:array.size];
+  CommonKotlinDoubleIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceDoubleAtIndex:index++ withDouble:[iterator nextDouble]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+IOSFloatArray *toIOSFloatArray(CommonKotlinFloatArray *array) {
+  IOSFloatArray *result = [IOSFloatArray newArrayWithLength:array.size];
+  CommonKotlinFloatIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceFloatAtIndex:index++ withFloat:[iterator nextFloat]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+IOSIntArray *toIOSIntArray(CommonKotlinIntArray *array) {
+  IOSIntArray *result = [IOSIntArray newArrayWithLength:array.size];
+  CommonKotlinIntIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceIntAtIndex:index++ withInt:[iterator nextInt]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+IOSLongArray *toIOSLongArray(CommonKotlinLongArray *array) {
+  IOSLongArray *result = [IOSLongArray newArrayWithLength:array.size];
+  CommonKotlinLongIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceLongAtIndex:index++ withLong:[iterator nextLong]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+IOSShortArray *toIOSShortArray(CommonKotlinShortArray *array) {
+  IOSShortArray *result = [IOSShortArray newArrayWithLength:array.size];
+  CommonKotlinShortIterator *iterator = array.iterator;
+
+  NSUInteger index = 0;
+  while (iterator.hasNext) {
+    [result replaceShortAtIndex:index++ withShort:[iterator nextShort]];
+  }
+
+  return AUTORELEASE(result);
+}
+
+id toKotlinArray(IOSObjectArray *array) {
+  return [CommonKotlinArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return IOSObjectArray_Get(array, index.intValue);
   }];
 }
 
-id toKotlinArrayFromByteArray(IOSByteArray *sourceArray) {
-  return [CommonBridgesKt toByteArray:sourceArray.toNSData];
+id toKotlinBooleanArray(IOSBooleanArray *array) {
+  return [CommonKotlinBooleanArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonBoolean numberWithBool:IOSBooleanArray_Get(array, index.intValue)];
+  }];
+}
+
+id toKotlinByteArray(IOSByteArray *array) {
+  return [CommonBridgesKt toByteArray:array.toNSData];
+}
+
+id toKotlinCharArray(IOSCharArray *array) {
+  return [CommonKotlinCharArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return @(IOSCharArray_Get(array, index.intValue));
+  }];
+}
+
+id toKotlinDoubleArray(IOSDoubleArray *array) {
+  return [CommonKotlinDoubleArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonDouble numberWithDouble:IOSDoubleArray_Get(array, index.intValue)];
+  }];
+}
+
+id toKotlinFloatArray(IOSFloatArray *array) {
+  return [CommonKotlinFloatArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonFloat numberWithFloat:IOSFloatArray_Get(array, index.intValue)];
+  }];
+}
+
+id toKotlinIntArray(IOSIntArray *array) {
+  return [CommonKotlinIntArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonInt numberWithInt:IOSIntArray_Get(array, index.intValue)];
+  }];
+}
+
+id toKotlinLongArray(IOSLongArray *array) {
+  return [CommonKotlinLongArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonLong numberWithLongLong:IOSLongArray_Get(array, index.intValue)];
+  }];
+}
+
+id toKotlinShortArray(IOSShortArray *array) {
+  return [CommonKotlinShortArray arrayWithSize:(int32_t)array.length init:^(CommonInt *index) {
+    return [CommonShort numberWithShort:IOSShortArray_Get(array, index.intValue)];
+  }];
 }
 
 id javaWrapArray(id<JavaUtilCollection> elements) {
@@ -567,9 +695,9 @@ id javaWrapArray(id<JavaUtilCollection> elements) {
   }
 
   NSMutableArray *array = [NSMutableArray arrayWithCapacity:elements.size];
-  id<JavaUtilIterator> iter = [elements iterator];
-  while ([iter hasNext]) {
-    [array addObject:javaWrapNull([iter next])];
+  id<JavaUtilIterator> iterator = [elements iterator];
+  while ([iterator hasNext]) {
+    [array addObject:javaWrapNull([iterator next])];
   }
 
   return array;
@@ -585,9 +713,9 @@ id javaWrapSet(id<JavaUtilCollection> elements) {
   }
 
   NSMutableSet *set = [NSMutableSet setWithCapacity:elements.size];
-  id<JavaUtilIterator> iter = [elements iterator];
-  while ([iter hasNext]) {
-    [set addObject:javaWrapNull([iter next])];
+  id<JavaUtilIterator> iterator = [elements iterator];
+  while ([iterator hasNext]) {
+    [set addObject:javaWrapNull([iterator next])];
   }
 
   return set;
@@ -602,14 +730,14 @@ id javaWrapMap(id<JavaUtilMap> original) {
     @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"original must be a java.util.Map");
   }
 
-  NSMutableDictionary<id, id> *map = [NSMutableDictionary dictionaryWithCapacity:original.size];
-  id<JavaUtilIterator> iter = [original.entrySet iterator];
-  while ([iter hasNext]) {
-    id<JavaUtilMap_Entry> entry = RETAIN_AND_AUTORELEASE([iter next]);
-    [map setObject:javaWrapNull(entry.getValue) forKey:javaWrapKey(entry.getKey)];
+  NSMutableDictionary<id, id> *dictionary = [NSMutableDictionary dictionaryWithCapacity:original.size];
+  id<JavaUtilIterator> iterator = [original.entrySet iterator];
+  while ([iterator hasNext]) {
+    id<JavaUtilMap_Entry> entry = RETAIN_AND_AUTORELEASE([iterator next]);
+    [dictionary setObject:javaWrapNull(entry.getValue) forKey:javaWrapKey(entry.getKey)];
   }
 
-  return map;
+  return dictionary;
 }
 
 IOSClass *kotlinGetClass(id object) {

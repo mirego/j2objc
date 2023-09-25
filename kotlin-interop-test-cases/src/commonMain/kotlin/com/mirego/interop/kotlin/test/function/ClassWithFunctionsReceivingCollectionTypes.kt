@@ -1,8 +1,7 @@
 package com.mirego.interop.kotlin.test.function
 
-import kotlin.native.ObjCName
-
 class ClassWithFunctionsReceivingCollectionTypes {
+
     fun receive(map: Map<String, String>) {
         println("Map received: $map")
     }

@@ -77,6 +77,8 @@ import sun.nio.cs.StreamEncoder;
 public class OutputStreamWriter extends Writer {
 
     private final StreamEncoder se;
+    // MIREGO -- Use a lock object instead of this
+    private final Object lock = new Object();
 
     /**
      * Creates an OutputStreamWriter that uses the named charset.
@@ -97,7 +99,7 @@ public class OutputStreamWriter extends Writer {
         super(out);
         if (charsetName == null)
             throw new NullPointerException("charsetName");
-        se = StreamEncoder.forOutputStreamWriter(out, this, charsetName);
+        se = StreamEncoder.forOutputStreamWriter(out, lock, charsetName);
     }
 
     /**
@@ -108,7 +110,7 @@ public class OutputStreamWriter extends Writer {
     public OutputStreamWriter(OutputStream out) {
         super(out);
         try {
-            se = StreamEncoder.forOutputStreamWriter(out, this, (String)null);
+            se = StreamEncoder.forOutputStreamWriter(out, lock, (String)null);
         } catch (UnsupportedEncodingException e) {
             throw new Error(e);
         }
@@ -130,7 +132,7 @@ public class OutputStreamWriter extends Writer {
         super(out);
         if (cs == null)
             throw new NullPointerException("charset");
-        se = StreamEncoder.forOutputStreamWriter(out, this, cs);
+        se = StreamEncoder.forOutputStreamWriter(out, lock, cs);
     }
 
     /**
@@ -149,7 +151,7 @@ public class OutputStreamWriter extends Writer {
         super(out);
         if (enc == null)
             throw new NullPointerException("charset encoder");
-        se = StreamEncoder.forOutputStreamWriter(out, this, enc);
+        se = StreamEncoder.forOutputStreamWriter(out, lock, enc);
     }
 
     /**

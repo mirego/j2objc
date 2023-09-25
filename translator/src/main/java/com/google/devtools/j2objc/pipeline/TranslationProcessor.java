@@ -219,9 +219,6 @@ public class TranslationProcessor extends FileProcessor {
     // kotlin interop >>
     // new ClassExtendsCollectionCheck(unit).run();
     // ticker.tick("ClassExtendsCollectionCheck");
-
-    new KotlinCollectionsConverter(unit).run();
-    ticker.tick("KotlinCollectionsConverter");
     // kotlin interop <<
 
     // Rewrite enhanced for loops into correct C code.
@@ -303,6 +300,9 @@ public class TranslationProcessor extends FileProcessor {
 
     new KotlinNativeBridgeConverter(unit).run();
     ticker.tick("KotlinNativeBridgeConverter");
+
+    new KotlinCollectionsConverter(unit).run();
+    ticker.tick("KotlinCollectionsConverter");
     // kotlin interop >>
 
     // Before: StaticVarRewriter - Generates static variable access expressions.

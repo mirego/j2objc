@@ -14,10 +14,10 @@ FOUNDATION_EXPORT CommonMutableSet *create_CommonMutableSet_initWithInt_(jint in
 FOUNDATION_EXPORT CommonMutableSet *create_CommonMutableSet_initWithInt_withFloat_(jint initialCapacity, jfloat loadFactor);
 FOUNDATION_EXPORT CommonMutableSet *create_CommonMutableSet_initWithJavaUtilCollection_(id<JavaUtilCollection> elements);
 
-FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_init() __attribute__((ns_returns_retained));
-FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithInt_(jint initialCapacity) __attribute__((ns_returns_retained));
-FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithInt_withFloat_(jint initialCapacity, jfloat loadFactor) __attribute__((ns_returns_retained));
-FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) __attribute__((ns_returns_retained));
+FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_init() NS_RETURNS_RETAINED;
+FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithInt_(jint initialCapacity) NS_RETURNS_RETAINED;
+FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithInt_withFloat_(jint initialCapacity, jfloat loadFactor) NS_RETURNS_RETAINED;
+FOUNDATION_EXPORT CommonMutableSet *new_CommonMutableSet_initWithJavaUtilCollection_(id<JavaUtilCollection> elements) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT void CommonMutableSet_init(CommonMutableSet *self);
 FOUNDATION_EXPORT void CommonMutableSet_initWithInt_(CommonMutableSet *self, jint initialCapacity);

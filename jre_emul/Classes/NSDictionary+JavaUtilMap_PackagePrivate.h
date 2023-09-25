@@ -9,7 +9,7 @@
 
 @interface NSDictionary<KeyType, ObjectType> (PrivatePackage)
 
-- (NSDictionary_Entry *)java_entryForKey:(KeyType)key __attribute__((ns_returns_retained));
+- (NSDictionary_Entry *)java_entryForKey:(KeyType)key NS_RETURNS_RETAINED;
 
 @end
 

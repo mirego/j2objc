@@ -154,8 +154,7 @@ public class CastResolver extends UnitTreeVisitor {
     }
     // kotlin interop <<
 
-    if (!KotlinUtil.isKotlinInterface(type) // kotlin interop
-        && (TypeUtil.isInterface(type) || isObjectArray(type))) {
+    if (!KotlinUtil.isKotlinInterface(type) && (TypeUtil.isInterface(type) || isObjectArray(type))) {
       // Interfaces and object arrays require an isInstance call.
       FunctionElement element = new FunctionElement("cast_check", idType, null)
           .addParameters(idType, TypeUtil.IOS_CLASS.asType());
@@ -163,9 +162,7 @@ public class CastResolver extends UnitTreeVisitor {
       invocation.addArgument(TreeUtil.remove(expr));
       invocation.addArgument(new TypeLiteral(type, typeUtil));
       return invocation;
-    } else if (!KotlinUtil.isKotlinInterface(type) // kotlin interop
-        && (TypeUtil.isArray(type)
-        || (TypeUtil.isDeclaredType(type) && needsCastChk(expr, type)))) {
+    } else if (!KotlinUtil.isKotlinInterface(type) && (TypeUtil.isArray(type) || (TypeUtil.isDeclaredType(type) && needsCastChk(expr, type)))) {
       // Primitive array and non-interface type casts are checked using Objective-C's
       // isKindOfClass:.
       TypeElement objcClass = typeUtil.getObjcClass(type);
@@ -180,11 +177,9 @@ public class CastResolver extends UnitTreeVisitor {
           new MethodInvocation(new ExecutablePair(classElement), new SimpleName(objcClass));
       invocation.addArgument(classInvocation);
       return invocation;
-      // kotlin interop >>
     } else if (KotlinUtil.isKotlinInterface(type)) {
       // TODO : Correctly implement a "protocol_check"
       return null;
-      // kotlin interop <<
     }
     return null;
   }

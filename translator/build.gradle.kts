@@ -1,10 +1,5 @@
+val kotlin_version: String by extra
 val checkerFrameworkVersion: String by extra
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    google()
-}
 
 plugins {
     java
@@ -13,6 +8,13 @@ plugins {
     `maven-publish`
     kotlin("jvm")
     // id("org.checkerframework")
+    id("com.adarshr.test-logger")
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
 }
 
 java {
@@ -40,16 +42,16 @@ dependencies {
     implementation("com.google.j2objc:jre_emul:3.0")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:32.1.2-jre")
     implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
     implementation("org.bitbucket.mstrobel:procyon-core:0.6.0")
     implementation("org.jspecify:jspecify:0.3.0")
-    implementation("org.plumelib:plume-util:1.6.5")
+    implementation("org.plumelib:plume-util:1.8.1")
 
     implementation("org.checkerframework:checker:$checkerFrameworkVersion")
     annotationProcessor("org.checkerframework:checker:$checkerFrameworkVersion")
 
-    implementation(platform("org.junit:junit-bom:5.10.0-M1"))
+    implementation(platform("org.junit:junit-bom:5.10.0"))
     implementation("org.junit.vintage:junit-vintage-engine")
 
     testImplementation("com.google.flogger:flogger:0.7.4")
@@ -57,8 +59,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
 
     // kotlin interop >>
-    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.6.0")
-    implementation(kotlin("stdlib", "1.8.22"))
+    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0")
 
     testImplementation("com.mirego:kotlin-test-cases:$version")
     // kotlin interop <<
@@ -74,6 +75,10 @@ tasks.withType<Test>().configureEach {
         gradle.includedBuild("j2objc-kompat").task(":j2objcKotlinTypes"),
     )
     // kotlin interop <<
+}
+
+testlogger {
+    showPassed = false
 }
 
 tasks.named<JavaCompile>("compileJava") {

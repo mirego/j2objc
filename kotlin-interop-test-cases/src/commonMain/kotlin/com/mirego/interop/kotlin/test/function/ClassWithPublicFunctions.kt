@@ -8,6 +8,7 @@ import kotlin.native.ObjCName
 class ClassWithPublicFunctions {
 
     companion object {
+        @Suppress("FunctionOnlyReturningConstant")
         fun staticReturnString(): String {
             return "staticString"
         }
@@ -17,36 +18,45 @@ class ClassWithPublicFunctions {
         }
     }
 
-    fun returnUnit() {}
+    fun returnUnit() {
+        // NO-OP
+    }
 
     fun returnShort(): Short {
         return 1.toShort()
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnString(): String {
         return "testString"
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnInt(): Int {
         return 1
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnLong(): Long {
         return 1
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnBoolean(): Boolean {
         return false
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnCharacter(): Char {
         return 'a'
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnFloat(): Float {
         return 1.0f
     }
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun returnDouble(): Double {
         return 1.0
     }
@@ -77,7 +87,9 @@ class ClassWithPublicFunctions {
         return "$string1 $string2"
     }
 
-    fun singleExpression() = "single expression"
+    @Suppress("FunctionOnlyReturningConstant")
+    fun singleExpression() =
+        "single expression"
 
     fun localFunction(): String {
         var testString = ""
@@ -86,15 +98,6 @@ class ClassWithPublicFunctions {
         }
         testString = concatInput("local")
         return concatInput(" function")
-    }
-
-    @JsName("variableArgumentsSum")
-    fun variableArgumentsSum(vararg numbers: Int): Int {
-        var result = 0
-        for (number in numbers) {
-            result += number
-        }
-        return result
     }
 
     @JsName("recursiveFunction")
@@ -118,7 +121,8 @@ class ClassWithPublicFunctions {
 
     val lambdaFunction = { number: Int -> number * number }
 
-    fun String.removeFirstChar(): String = this.substring(1, this.length)
+    private fun String.removeFirstChar(): String =
+        this.substring(1, this.length)
 
     @JsName("extensionFunction")
     fun extensionFunction(string: String): String {

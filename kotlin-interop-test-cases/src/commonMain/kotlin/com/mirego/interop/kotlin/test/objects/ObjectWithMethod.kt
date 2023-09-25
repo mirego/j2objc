@@ -5,11 +5,13 @@ import kotlin.jvm.JvmStatic
 
 object ObjectWithMethod {
 
+    @Suppress("FunctionOnlyReturningConstant")
     fun staticMethodWithoutParam(): String {
         return "return"
     }
 
     @JvmStatic
+    @Suppress("FunctionOnlyReturningConstant")
     fun staticMethodWithoutParamWithAnnotation(): String {
         return "return"
     }

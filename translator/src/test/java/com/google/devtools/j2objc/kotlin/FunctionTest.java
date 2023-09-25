@@ -24,6 +24,15 @@ import com.mirego.interop.java.test.function.PublicOverloadedFunction;
 import com.mirego.interop.java.test.function.PublicRecursiveFunction;
 import com.mirego.interop.java.test.function.PublicSingleExpressionFunction;
 import com.mirego.interop.java.test.function.PublicTailRecursiveFunction;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionAny;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionBooleanArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionByteArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionCharArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionDoubleArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionFloatArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionIntArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionLongArray;
+import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionShortArray;
 import com.mirego.interop.java.test.function.UsingKotlinTopLevelFunction;
 import com.mirego.interop.java.test.function.WithGenericMethods;
 
@@ -209,15 +218,6 @@ public class FunctionTest extends GenerationTest {
     assertTranslation(translation, "return CommonLong_valueOfWithLong_([classWithPublicFunctions tailRecursiveFunctionN:4 accum:1]);");
   }
 
-  // todo param names
-//  public void testPublicVariableArgumentsFunction() throws IOException {
-//
-//    String className = PublicVariableArgumentsFunction.class.getSimpleName();
-//    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-//
-//    assertTranslation(translation, "xxxxxx");
-//  }
-
   public void testFunctionHavingAKotlinTypeAsParameter_TheKotlinTypeInMethodNameDoesNotIncludeCommon() throws IOException {
     String className = PublicFunctionUsingKotlinTypeAsParameter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
@@ -272,5 +272,50 @@ public class FunctionTest extends GenerationTest {
   public void testCallingGenericFunctionWithCollectionType() throws Exception {
     String translation = translateJavaSourceFileForKotlinTest(WithGenericMethods.class.getSimpleName(), testPackage, ".m");
     assertTranslation(translation, "[[CommonGenericFunctions genericFunctions] validateNotNullTarget:javaCollectionToNSMutableArray(objects)];");
+  }
+
+  public void testPublicVariableArgumentsFunctionAny() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionAny.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg anyArgs:toKotlinArray([IOSObjectArray arrayWithObjects:(id[]){ CommonBoolean_valueOfWithBoolean_(true), JavaLangCharacter_valueOfWithChar_('a'), @\"abc\", CommonInt_valueOfWithInt_(1), CommonDouble_valueOfWithDouble_(2.2) } count:5 type:NSObject_class_()])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionBooleanArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionBooleanArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg booleanArrayArgs:toKotlinBooleanArray([IOSBooleanArray arrayWithBooleans:(jboolean[]){ false, true } count:2])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionByteArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionByteArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg byteArrayArgs:toKotlinByteArray([IOSByteArray arrayWithBytes:(jbyte[]){ (jbyte) 1, (jbyte) 2, (jbyte) 3, (jbyte) 4 } count:4])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionCharArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionCharArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg charArrayArgs:toKotlinCharArray([IOSCharArray arrayWithChars:(jchar[]){ 'a', 'b', 'c' } count:3])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionDoubleArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionDoubleArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg doubleArrayArgs:toKotlinDoubleArray([IOSDoubleArray arrayWithDoubles:(jdouble[]){ 1.1, 2.2, 3.3, 4.4 } count:4])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionFloatArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionFloatArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg floatArrayArgs:toKotlinFloatArray([IOSFloatArray arrayWithFloats:(jfloat[]){ 1.1f, 2.2f, 3.3f, 4.4f } count:4])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionIntArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionIntArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg intArrayArgs:toKotlinIntArray([IOSIntArray arrayWithInts:(jint[]){ 1, 2, 3, 4 } count:4])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionLongArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionLongArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg longArrayArgs:toKotlinLongArray([IOSLongArray arrayWithLongs:(jlong[]){ 1, 2, 3, 4 } count:4])];");
+  }
+
+  public void testPublicVariableArgumentsFunctionShortArray() throws IOException {
+    String translation = translateJavaSourceFileForKotlinTest(PublicVariableArgumentsFunctionShortArray.class.getSimpleName(), testPackage, ".m");
+    assertTranslation(translation, "return [classWithFunctionsUsingVararg shortArrayArgs:toKotlinShortArray([IOSShortArray arrayWithShorts:(jshort[]){ (jshort) 1, (jshort) 2, (jshort) 3, (jshort) 4 } count:4])];");
   }
 }

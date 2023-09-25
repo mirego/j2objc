@@ -2,18 +2,18 @@ package com.mirego.interop.kotlin.test.arrays
 
 import kotlin.js.JsName
 
-public class ArrayBasics() {
+class ArrayBasics() {
     constructor(byteArray: ByteArray) : this() {
         // to bypass warning as error for unused parameter with J2Objc
         byteArray.size
     }
 
-    val propertySingleItemArray = arrayOf("a")
+    private val propertySingleItemArray = arrayOf("a")
 
-    val propertyManyItemArray = arrayOf("a", "b", "c", "d", "e")
+    private val propertyManyItemArray = arrayOf("a", "b", "c", "d", "e")
 
     fun emptyArray(): Array<String> {
-        return arrayOf<String>()
+        return arrayOf()
     }
 
     fun singleItemArray(): Array<String> {

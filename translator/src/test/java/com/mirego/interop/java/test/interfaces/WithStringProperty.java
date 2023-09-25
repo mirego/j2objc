@@ -1,13 +1,14 @@
 package com.mirego.interop.java.test.interfaces;
 
-import javax.annotation.Nonnull;
+// javax.annotations doesn't work with command line tests
+import org.jetbrains.annotations.NotNull;
 
 import com.mirego.interop.kotlin.test.interfaces.KotlinInterfaceWithStringProperty;
 
 public class WithStringProperty {
 
   public static class WithStringPropertyImplementation implements JavaInterfaceThatExtendsAKotlinInterfaceWithAProperty {
-    @Nonnull
+    @NotNull
     @Override
     public String getKey() {
       return "this is the value of my key";
