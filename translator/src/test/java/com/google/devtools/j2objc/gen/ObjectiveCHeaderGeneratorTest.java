@@ -16,6 +16,8 @@
 
 package com.google.devtools.j2objc.gen;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.devtools.j2objc.GenerationTest;
 import com.google.devtools.j2objc.util.HeaderMap;
 import java.io.File;
@@ -270,7 +272,8 @@ public class ObjectiveCHeaderGeneratorTest extends GenerationTest {
     String header = translateCombinedFiles(
         "unit/Foo", ".h",
         "unit/TestDependent.java", "unit/AnotherTest.java", "unit/Test.java");
-    assert header.indexOf("@interface UnitTest") < header.indexOf("@interface UnitAnotherTest");
+    assertThat(header.indexOf("@interface UnitTest")
+        < header.indexOf("@interface UnitAnotherTest")).isTrue();
   }
 
   public void testCombinedJarHeaderMapping() throws IOException {
@@ -506,6 +509,25 @@ public class ObjectiveCHeaderGeneratorTest extends GenerationTest {
         "J2OBJC_ENUM_CONSTANT(Color, BLUE)");
   }
 
+  public void testEnumIsImplicitlyNonnullWhenNullMarked() throws IOException {
+    options.setNullMarked(true);
+    options.setNullability(true);
+    String translation =
+        translateSourceFile("public enum Color { RED, WHITE, BLUE }", "Color", "Color.h");
+    assertTranslatedLines(
+        translation, "NS_ASSUME_NONNULL_BEGIN", "@interface Color : JavaLangEnum");
+    assertTranslatedLines(
+        translation,
+        "typedef NS_ENUM(jint, Color_Enum) {",
+        "  Color_Enum_RED = 0,",
+        "  Color_Enum_WHITE = 1,",
+        "  Color_Enum_BLUE = 2,",
+        "};");
+    assertTranslation(translation, "FOUNDATION_EXPORT Color *_Nullable Color_values_[];");
+    assertTranslatedLines(
+        translation, "J2OBJC_TYPE_LITERAL_HEADER(Color)", "", "NS_ASSUME_NONNULL_END");
+  }
+
   public void testEnumWithParameters() throws IOException {
     String translation = translateSourceFile(
         "public enum Color { RED(0xff0000), WHITE(0xffffff), BLUE(0x0000ff); "
@@ -734,6 +756,53 @@ public class ObjectiveCHeaderGeneratorTest extends GenerationTest {
     assertOccurrences(translation, "J2OBJC_FIELD_SETTER", 1);
   }
 
+  public void testFieldSetterGenerationWithNullMarked() throws IOException {
+    options.setNullMarked(true);
+    options.setNullability(true);
+    addSourceFile(
+        "@NullMarked package foo.bar;" + "import org.jspecify.nullness.NullMarked;",
+        "foo/bar/package-info.java");
+    String translation =
+        translateSourceFile(
+            "package foo.bar;import javax.annotation.*;"
+                + "class Test { @Nullable String a; String b; @Nullable Object c;}",
+            "foo.bar.Test",
+            "foo/bar/Test.h");
+    assertTranslation(translation, "J2OBJC_FIELD_SETTER(FooBarTest, a_, NSString *_Nullable)");
+    assertTranslation(translation, "J2OBJC_FIELD_SETTER(FooBarTest, b_, NSString *)");
+    assertTranslation(translation, "J2OBJC_FIELD_SETTER(FooBarTest, c_, id)");
+  }
+
+  public void testStaticFieldObject() throws IOException {
+    String translation =
+        translateSourceFile(
+            "class Test { public static final String str = \"str\"; }", "Test", "Test.h");
+    assertTranslation(translation, "J2OBJC_STATIC_FIELD_OBJ_FINAL(Test, str, NSString *)");
+  }
+
+  public void testStaticFieldObjectWithNullMarked() throws IOException {
+    options.setNullMarked(true);
+    options.setNullability(true);
+    addSourceFile(
+        "@NullMarked package foo.bar;" + "import org.jspecify.nullness.NullMarked;",
+        "foo/bar/package-info.java");
+    String translation =
+        translateSourceFile(
+            "package foo.bar; import javax.annotation.*;"
+                + "class Test { public static final String a = \"a\";"
+                + "@Nullable public static final String b = null; }",
+            "foo.bar.Test",
+            "foo/bar/Test.h");
+    assertTranslation(translation, "inline NSString *FooBarTest_get_a(void);");
+    assertTranslation(translation, "FOUNDATION_EXPORT NSString *FooBarTest_a;");
+    assertTranslation(translation, "J2OBJC_STATIC_FIELD_OBJ_FINAL(FooBarTest, a, NSString *)");
+
+    assertTranslation(translation, "inline NSString *_Nullable FooBarTest_get_b(void);");
+    assertTranslation(translation, "FOUNDATION_EXPORT NSString *_Nullable FooBarTest_b;");
+    assertTranslation(
+        translation, "J2OBJC_STATIC_FIELD_OBJ_FINAL(FooBarTest, b, NSString *_Nullable)");
+  }
+
   public void testEnumWithNameAndOrdinalParameters() throws IOException {
     String translation = translateSourceFile(
       "public enum Test { FOO(\"foo\", 3), BAR(\"bar\", 5); "
@@ -892,5 +961,27 @@ public class ObjectiveCHeaderGeneratorTest extends GenerationTest {
 
     assertTranslation(kytheMetadata, "kythe0");
     assertTranslation(kytheMetadata, "{\"type\":\"anchor_anchor\"");
+  }
+
+  // Verifies that properly encoded Kythe metadata and associated pragmas are generated when
+  // using the Kythe mapping flag with a source jar.
+  public void testKytheMetadataMappingsWithSourceJar() throws Exception {
+    options.setEmitKytheMappings(true);
+    addJarFile(
+        "some/path/test.jar", "foo/Test.java", "package foo; class Test { public void test() {}}");
+    runPipeline("some/path/test.jar");
+
+    String translation = getTranslatedFile("foo/Test.h");
+    assertTranslation(translation, "#ifdef KYTHE_IS_RUNNING");
+    assertTranslation(
+        translation, "#pragma kythe_inline_metadata" + " \"This file contains Kythe metadata.\"");
+    assertTranslation(translation, "/* This file contains Kythe metadata.");
+
+    // Verify metadata paths don't contain jar URL paths ...
+    String kytheMetadata = extractKytheMetadata(translation);
+    assertNotInTranslation(kytheMetadata, "jar:file:some/path/test.jar");
+
+    // ... just the source file entry in that jar file.
+    assertTranslation(kytheMetadata, "\"path\":\"foo/Test.java\"");
   }
 }

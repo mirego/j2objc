@@ -259,16 +259,7 @@ NATIVE_SOURCES = dalvik_system_JniTest.cpp
 
 # TODO(b/265202484): packages that are commmented need to be moved for Java 11
 # or fixed because of ICU difference between each xcode version.
-# DateFormatTest.java \
-# LocaleTest.java \
-# MaxFloatingPointTest.java \
-# NoPackageTest.java \
-# NSDictionaryMapTest.java \
-# PackagePrefixesTest.java \
-# RetentionTest.java \
 # SerializationTest.java \
-# UTF16EncodingTest.java \
-# android/icu/dev/test/timezone/TimeZoneTest.java \
 # com/google/j2objc/ArrayTest.java \
 # com/google/j2objc/AssertTest.java \
 # com/google/j2objc/ClassTest.java \
@@ -305,17 +296,7 @@ NATIVE_SOURCES = dalvik_system_JniTest.cpp
 # com/google/j2objc/security/IosSecureRandomImplTest.java \
 # com/google/j2objc/util/NativeTimeZoneTest.java \
 # dalvik/system/JniTest.java \
-# java/io/FileTest.java \
-# java/lang/SystemTest.java \
-# java/lang/ref/PhantomReferenceTest.java \
-# java/lang/ref/SoftReferenceTest.java \
-# java/lang/ref/WeakReferenceTest.java \
-# java/lang/reflect/MethodTest.java \
 # java/nio/file/attribute/FileTimeTest.java \
-# java/util/HashMapTest.java \
-# java/util/TreeMapTest.java \
-# java/util/WeakHashMapTest.java \
-# java/util/regex/MatcherTest.java \
 # libcore/icu/NativeDecimalFormatTest.java \
 # libcore/io/PosixTest.java \
 # libcore/java/io/ObjectOutputStreamTest.java \
@@ -368,6 +349,15 @@ NATIVE_SOURCES = dalvik_system_JniTest.cpp
 # tests/security/spec/EncodedKeySpec2Test.java \
 
 TEST_SOURCES := \
+    DateFormatTest.java \
+    LocaleTest.java \
+    MaxFloatingPointTest.java \
+    NoPackageTest.java \
+    NSDictionaryMapTest.java \
+    PackagePrefixesTest.java \
+    RetentionTest.java \
+    UTF16EncodingTest.java \
+    android/icu/dev/test/timezone/TimeZoneTest.java \
     android/icu/dev/test/timezone/TimeZoneAliasTest.java \
     android/icu/dev/test/timezone/TimeZoneBoundaryTest.java \
     android/icu/dev/test/timezone/TimeZoneOffsetLocalTest.java \
@@ -446,6 +436,16 @@ TEST_SOURCES := \
     jsr166/TreeSetTest.java \
     jsr166/TreeSubMapTest.java \
     jsr166/TreeSubSetTest.java \
+    j2objc/java/io/FileTest.java \
+    j2objc/java/lang/SystemTest.java \
+    j2objc/java/lang/ref/PhantomReferenceTest.java \
+    j2objc/java/lang/ref/SoftReferenceTest.java \
+    j2objc/java/lang/ref/WeakReferenceTest.java \
+    j2objc/java/lang/reflect/MethodTest.java \
+    j2objc/java/util/HashMapTest.java \
+    j2objc/java/util/TreeMapTest.java \
+    j2objc/java/util/WeakHashMapTest.java \
+    j2objc/java/util/regex/MatcherTest.java \
     libcore/java/awt/font/TextAttributeTest.java \
     libcore/java/io/CharArrayWriterTest.java \
     libcore/java/io/DataOutputStreamTest.java \

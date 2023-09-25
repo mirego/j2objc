@@ -616,4 +616,52 @@ public class DeadCodeEliminatorTest extends GenerationTest {
     assertTranslation(translation, "NSString *A_B_FOO = @\"foo\";");
     assertTranslation(translation, "static NSString *A_B_BAR = @\"bar\";");
   }
+
+  public void testDeadClass_stringConstants_nullMarked() throws IOException {
+    addSourceFile(
+        "@NullMarked" + "package foo.bar;" + "import org.jspecify.nullness.NullMarked;",
+        "foo/bar/package-info.java");
+    String source =
+        "package foo.bar;"
+            + "import javax.annotation.*;"
+            + "class A {"
+            + "  public static class B {"
+            + "    @Nullable public static final String FOO = \"foo\";"
+            + "    private static final String BAR = \"bar\";"
+            + "  }"
+            + "  @Nullable String test() {"
+            + "    return B.FOO + B.BAR;"
+            + "  }"
+            + "}";
+    CodeReferenceMap map = CodeReferenceMap.builder().addClass("A$B").build();
+    setDeadCodeMap(map);
+    // Check that accessors from a dead class are not generated.
+    options.setStaticAccessorMethods(true);
+    options.setNullMarked(true);
+    options.setNullability(true);
+    String translation = translateSourceFile(source, "foo.bar.A", "foo/bar/A.h");
+    assertTranslation(translation, "FOUNDATION_EXPORT NSString *_Nullable FooBarA_B_FOO;");
+
+    translation = getTranslatedFile("foo/bar/A.m");
+    assertTranslation(translation, "NSString *_Nullable FooBarA_B_FOO = @\"foo\";");
+    assertTranslation(translation, "static NSString *FooBarA_B_BAR = @\"bar\";");
+  }
+
+  // Verify when an outer type is dead, a live inner type is still generated. b/289536498
+  public void testDeadOuterInterface_liveAnnotation() throws IOException {
+    CodeReferenceMap map =
+        CodeReferenceMap.builder().addClass("Foo").addClass("Foo$Inner2").build();
+    setDeadCodeMap(map);
+    String source = "interface Foo {  public @interface Inner {} public @interface Inner2 {} }";
+    String translation = translateSourceFile(source, "Foo", "Foo.h");
+    assertNotInTranslation(translation, "@protocol Foo < JavaObject >");
+    assertTranslation(translation, "@protocol Foo_Inner < JavaLangAnnotationAnnotation >");
+    assertTranslation(translation, "@interface Foo_Inner : NSObject < Foo_Inner >");
+    assertNotInTranslation(translation, "@protocol Foo_Inner2 < JavaObject >");
+
+    translation = getTranslatedFile("Foo.m");
+    assertNotInTranslation(translation, "J2OBJC_INTERFACE_TYPE_LITERAL_SOURCE(Foo)");
+    assertTranslation(translation, "J2OBJC_INTERFACE_TYPE_LITERAL_SOURCE(Foo_Inner)");
+    assertNotInTranslation(translation, "J2OBJC_INTERFACE_TYPE_LITERAL_SOURCE(Foo_Inner2)");
+  }
 }

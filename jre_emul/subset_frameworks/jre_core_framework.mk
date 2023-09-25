@@ -21,12 +21,16 @@ include jre_sources.mk
 .DEFAULT_GOAL = framework
 
 FRAMEWORK_NAME = JRE_Core
-FRAMEWORK_HEADERS = $(JAVA_PUBLIC_SOURCES_CORE:.java=.h)
+FRAMEWORK_HEADERS = $(PUBLIC_NATIVE_HEADERS) $(JAVA_PUBLIC_SOURCES_CORE:.java=.h)
 STATIC_LIBRARY_NAME = jre_core
 STATIC_HEADERS_DIR = $(ARCH_INCLUDE_DIR)
 include ../make/framework.mk
 
-dist:
+LIBS := $(call emit_library_rules,jre_core,$(CORE_OBJS_RELATIVE))
+
+dist: framework
+
+lib: $(LIBS)
 
 clean:
 	@rm -rf $(FRAMEWORK_DIR)

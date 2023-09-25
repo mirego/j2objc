@@ -699,7 +699,7 @@ public final class ElementUtil {
         // If --strip-reflection flag is off, CLASS or SOURCE annotations will be removed.
         return !isRuntimeAnnotation(e);
       }
-    } 
+    }
     return false;
   }
 
@@ -859,10 +859,39 @@ public final class ElementUtil {
     return options.getPackageInfoLookup().hasParametersAreNonnullByDefault(pkgName);
   }
 
+  public boolean isNullMarked(Element element, Options options) {
+    if (!options.nullMarked()) {
+      return false;
+    }
+    if (ElementUtil.isAnnotatedWithNullMarked(element)) {
+      return true;
+    }
+    PackageElement pkg = getPackage(element);
+    if (ElementUtil.isAnnotatedWithNullMarked(pkg)) {
+      return true;
+    }
+    String pkgName = pkg.getQualifiedName().toString();
+    return options.getPackageInfoLookup().isNullMarked(pkgName);
+  }
+
+  // TODO: b/286259161 - Remove the below method and check for the NullMarked class once
+  //                     the org.jspecify.annotations migration is complete.
   /**
-   * Returns true if there's a SuppressedWarning annotation with the specified warning.
-   * The SuppressWarnings annotation can be inherited from the owning method or class,
-   * but does not have package scope.
+   * Returns {@code true} when {@code element} is annotated with {@code @NullMarked}.
+   *
+   * <p><b>Note:</b> Qualified names are checked rather than classes to ensure that annotations are
+   * correctly promoted to generated code for clients which reference the legacy
+   * `org.jspecify.nullness.NullMarked` package.
+   */
+  private static boolean isAnnotatedWithNullMarked(Element element) {
+    return hasQualifiedNamedAnnotation(element, "org.jspecify.nullness.NullMarked")
+        || hasQualifiedNamedAnnotation(element, "org.jspecify.annotations.NullMarked");
+  }
+
+  /**
+   * Returns true if there's a SuppressedWarning annotation with the specified warning. The
+   * SuppressWarnings annotation can be inherited from the owning method or class, but does not have
+   * package scope.
    */
   @SuppressWarnings("unchecked")
   public static boolean suppressesWarning(String warning, Element element) {

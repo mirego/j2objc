@@ -58,6 +58,22 @@ import javax.lang.model.type.TypeMirror;
  */
 public class TypeDeclarationGenerator extends TypeGenerator {
 
+  /** Represents Objective-C's audited nullability regions. */
+  protected enum AuditedRegion {
+    BEGIN("NS_ASSUME_NONNULL_BEGIN"),
+    END("NS_ASSUME_NONNULL_END");
+
+    private final String macro;
+
+    private AuditedRegion(String macro) {
+      this.macro = macro;
+    }
+
+    public String getMacro() {
+      return macro;
+    }
+  }
+
   private static final String DEPRECATED_ATTRIBUTE = "__attribute__((deprecated))";
 
   private final GeneratedSourceMappings generatedSourceMappings;
@@ -114,9 +130,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printNativeEnum();
 
     printTypeDocumentation();
-    if (options.defaultNonnull()) {
-      println("NS_ASSUME_NONNULL_BEGIN");
-    }
+    printNonnullAuditedRegion(AuditedRegion.BEGIN);
     if (typeElement.getKind().isInterface()) {
       printf("@protocol %s", typeName);
     } else {
@@ -134,12 +148,10 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     }
     printInnerDeclarations();
     println("\n@end");
-    if (options.defaultNonnull()) {
-      println("NS_ASSUME_NONNULL_END");
-    }
 
     if (ElementUtil.isPackageInfo(typeElement)) {
       printOuterDeclarations();
+      printNonnullAuditedRegion(AuditedRegion.END);
       return;
     }
     printCompanionClassDeclaration();
@@ -152,6 +164,9 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printBoxedOperators();
 
     printUnprefixedAlias();
+
+    newline();
+    printNonnullAuditedRegion(AuditedRegion.END);
   }
 
   private void printNativeEnum() {
@@ -275,7 +290,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
         VariableElement var = fragment.getVariableElement();
         TypeMirror type = var.asType();
         String accessorName = nameTable.getStaticAccessorName(var);
-        String objcType = nameTable.getObjCTypeDeclaration(type);
+        String objcType = paddedType(nameTable.getObjCTypeDeclaration(type), var).trim();
         TypeElement declaringClass = ElementUtil.getDeclaringClass(var);
         String baseName = nameTable.getVariableBaseName(var);
         ExecutableElement getter =
@@ -292,11 +307,16 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       if (typeNode instanceof EnumDeclaration) {
         for (EnumConstantDeclaration constant : ((EnumDeclaration) typeNode).getEnumConstants()) {
           String accessorName = nameTable.getStaticAccessorName(constant.getVariableElement());
-          if (options.nullability()) {
-            printf("\n+ (%s * __nonnull)%s;\n", typeName, accessorName);
-          } else {
-            printf("\n+ (%s *)%s;\n", typeName, accessorName);
+          String nullabilitySpecifier = "";
+          TypeElement element = typeNode.getTypeElement();
+          if (shouldAddNullableAnnotation(element)) {
+            nullabilitySpecifier = " _Nullable";
+          } else if (options.nullability() && !nullMarked) {
+            // Only add a nonnull annotation if null marked is not enabled as it is implied
+            // when annotated regions are in use. This code block preserves legacy behavior.
+            nullabilitySpecifier = " _Nonnull";
           }
+          printf("\n+ (%s *%s)%s;\n", typeName, nullabilitySpecifier, accessorName);
         }
       }
     }
@@ -347,6 +367,9 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       }
       if (needsAsterisk) {
         print('*');
+        if (shouldAddNullableAnnotation(varElement)) {
+          print("_Nullable ");
+        }
       }
       print(nameTable.getVariableShortName(varElement));
     }
@@ -404,7 +427,14 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     if (typeNode instanceof EnumDeclaration) {
       newline();
       println("/*! INTERNAL ONLY - Use enum accessors declared below. */");
-      printf("FOUNDATION_EXPORT %s *%s_values_[];\n", typeName, typeName);
+
+      // If the generated source is annotated with nonnull nullability regions,
+      // ensure this type is explicitly marked as nullable. Failing to do so leads
+      // to the following error: `inferring '_Nonnull' for pointer type within array
+      // is deprecated [-Werror,-Wnullability-inferred-on-nested-type]`.
+      String arrayTypeNamePrefix = nullMarked ? "_Nullable " : "";
+      String arrayTypeName = arrayTypeNamePrefix + typeName;
+      printf("FOUNDATION_EXPORT %s *%s_values_[];\n", typeName, arrayTypeName);
       for (EnumConstantDeclaration constant : ((EnumDeclaration) typeNode).getEnumConstants()) {
         String varName = nameTable.getVariableBaseName(constant.getVariableElement());
         newline();
@@ -442,10 +472,13 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       if (typeStr.contains(",")) {
         typeStr = "J2OBJC_ARG(" + typeStr + ')';
       }
+      String objcTypePadded = paddedType(typeStr, var).trim();
       String fieldName = nameTable.getVariableShortName(var);
       String isVolatile = ElementUtil.isVolatile(var) ? "_VOLATILE" : "";
-      println(UnicodeUtils.format("J2OBJC%s_FIELD_SETTER(%s, %s, %s)",
-          isVolatile, typeName, fieldName, typeStr));
+      println(
+          UnicodeUtils.format(
+              "J2OBJC%s_FIELD_SETTER(%s, %s, %s)",
+              isVolatile, typeName, fieldName, objcTypePadded));
     }
   }
 
@@ -470,9 +503,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     VariableElement var = fragment.getVariableElement();
     boolean isVolatile = ElementUtil.isVolatile(var);
     String objcType = nameTable.getObjCTypeDeclaration(var.asType());
-    String objcTypePadded = objcType + (objcType.endsWith("*") ? "" : " ");
-    String declType = getDeclarationType(var);
-    declType += (declType.endsWith("*") ? "" : " ");
+    String objcTypePadded = paddedType(objcType, var);
+    String declType = paddedType(getDeclarationType(var), var);
     String name = nameTable.getVariableShortName(var);
     boolean isFinal = ElementUtil.isFinal(var);
     boolean isPrimitive = var.asType().getKind().isPrimitive();
@@ -498,7 +530,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       printStaticFieldDeclaration(
           fragment, UnicodeUtils.format("%s%s_%s", declType, typeName, name));
     }
-    printf("J2OBJC_STATIC_FIELD%s(%s, %s, %s)\n", qualifiers, typeName, name, objcType);
+    printf(
+        "J2OBJC_STATIC_FIELD%s(%s, %s, %s)\n", qualifiers, typeName, name, objcTypePadded.trim());
   }
 
   // Overridden in TypePrivateDeclarationGenerator
@@ -506,8 +539,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     VariableElement var = fragment.getVariableElement();
     Object value = var.getConstantValue();
     assert value != null;
-    String declType = getDeclarationType(var);
-    declType += (declType.endsWith("*") ? "" : " ");
+    String declType = paddedType(getDeclarationType(var), var);
     String name = nameTable.getVariableShortName(var);
     if (ElementUtil.isPrimitiveConstant(var)) {
       printf("#define %s_%s %s\n", typeName, name, LiteralGenerator.generate(value));
@@ -683,6 +715,12 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     println(";");
   }
 
+  protected void printNonnullAuditedRegion(AuditedRegion state) {
+    if (nullMarked) {
+      println(state.getMacro());
+    }
+  }
+
   /**
    * Defines the categories for grouping declarations in the header. The categories will be emitted
    * in the header in the same order that they are declared here.
@@ -763,10 +801,10 @@ public class TypeDeclarationGenerator extends TypeGenerator {
   protected String nullability(Element element) {
     if (options.nullability()) {
       if (ElementUtil.hasNullableAnnotation(element)) {
-        return " __nullable";
+        return " _Nullable";
       }
       if (ElementUtil.isNonnull(element, parametersNonnullByDefault)) {
-        return " __nonnull";
+        return " _Nonnull";
       }
     }
     return "";

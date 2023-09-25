@@ -14,8 +14,11 @@
 
 package com.google.devtools.treeshaker;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.flogger.GoogleLogger;
 import com.google.common.io.Files;
 import com.google.devtools.j2objc.ast.CompilationUnit;
@@ -30,6 +33,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,6 +42,7 @@ import java.util.stream.Collectors;
 import org.jspecify.nullness.Nullable;
 
 /** A tool for finding unused code in a Java program. */
+@SuppressWarnings("FloggerRedundantIsEnabled")
 public class TreeShaker {
   private static final GoogleLogger logger = GoogleLogger.forEnclosingClass();
   private final Options options;
@@ -54,22 +60,24 @@ public class TreeShaker {
   TreeShaker(Options options) throws IOException {
     this.options = options;
     j2objcOptions = new com.google.devtools.j2objc.Options();
-    j2objcOptions.load(
-        new String[] {
-          "-sourcepath",
-          Strings.nullToEmpty(options.getSourcepath()),
-          "-classpath",
-          Strings.nullToEmpty(options.getClasspath()),
-          "-encoding",
-          options.fileEncoding(),
-          "-source",
-          options.sourceVersion().flag(),
+    List<String> list =
+        new ArrayList<>(
+            Arrays.asList(
+                "-sourcepath",
+                Strings.nullToEmpty(options.getSourcepath()),
+                "-classpath",
+                Strings.nullToEmpty(options.getClasspath()),
+                "-encoding",
+                options.fileEncoding(),
+                "-source",
+                options.sourceVersion().flag(),
 
-          // Disable all warnings, minimize diagnostic output to save memory.
-          "-Xlint:none",
-          "-Xjavac-warnings:true",
-          "-Xignore-jar-warnings"
-        });
+                // Disable all warnings, minimize diagnostic output to save memory.
+                "-Xlint:none",
+                "-Xjavac-warnings:true",
+                "-Xignore-jar-warnings"));
+    list.addAll(options.getPlatformModuleSystemOptions());
+    j2objcOptions.load(list.toArray(new String[0]));
     j2objcOptions.setStripReflection(options.stripReflection());
   }
 
@@ -144,9 +152,8 @@ public class TreeShaker {
     return strippedDir;
   }
 
-  @Nullable
   @VisibleForTesting
-  CodeReferenceMap findUnusedCode() throws IOException {
+  @Nullable CodeReferenceMap findUnusedCode() throws IOException {
     TypeGraphBuilder tgb = createTypeGraphBuilder();
     if (tgb == null) {
       return null;
@@ -155,7 +162,7 @@ public class TreeShaker {
       logger.atFine().log("External Types: %s", String.join(", ", tgb.getExternalTypeReferences()));
     }
     Collection<String> unknownMethodReferences = tgb.getUnknownMethodReferences();
-    if (!unknownMethodReferences.isEmpty() && logger.atWarning().isEnabled()) {
+    if (!unknownMethodReferences.isEmpty()) {
       logger.atWarning().log("Unknown Methods: %s", String.join(", ", unknownMethodReferences));
     }
     if (options.useClassHierarchyAnalyzer()) {
@@ -166,9 +173,28 @@ public class TreeShaker {
   }
 
   private TypeGraphBuilder createTypeGraphBuilder() throws IOException {
-    UsedCodeMarker.Context context =
-        new UsedCodeMarker.Context(
-            ProGuardUsageParser.parseDeadCodeFile(options.getTreeShakerRoots()));
+    if (options.getSummary() != null) {
+      LibraryInfo info = options.getSummary();
+      LibraryInfo markedInfo = UsedCodeMarker.mark(info, options.getTreeShakerRoots());
+      return new TypeGraphBuilder(ImmutableList.of(markedInfo));
+    } else if (!options.getSummaries().isEmpty()) {
+    ImmutableList<LibraryInfo> markedInfo =
+        options.getSummaries().stream()
+            .map(summary -> UsedCodeMarker.mark(summary, options.getTreeShakerRoots()))
+            .collect(toImmutableList());
+    return new TypeGraphBuilder(markedInfo);
+    } else {
+      return new TypeGraphBuilder(ImmutableList.of(createLibraryInfo()));
+    }
+  }
+
+  @Nullable LibraryInfo createLibraryInfo() throws IOException {
+    UsedCodeMarker.Context context;
+    if (options.getTreeShakerRoots() == null) {
+      context = new UsedCodeMarker.Context();
+    } else {
+      context = new UsedCodeMarker.Context(ProGuardUsageParser.parseDeadCodeFile(options.getTreeShakerRoots()));
+    }
     Parser parser = createParser(options);
     List<String> sourceFiles = getSourceFiles();
     if (ErrorUtil.errorCount() > 0) {
@@ -189,7 +215,7 @@ public class TreeShaker {
     if (ErrorUtil.errorCount() > 0) {
       return null;
     }
-    return new TypeGraphBuilder(context.getLibraryInfo());
+    return context.getLibraryInfo();
   }
 
   private List<String> getSourceFiles() {

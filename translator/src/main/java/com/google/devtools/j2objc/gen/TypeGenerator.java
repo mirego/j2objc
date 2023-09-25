@@ -21,6 +21,7 @@ import com.google.devtools.j2objc.Options;
 import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
 import com.google.devtools.j2objc.ast.BodyDeclaration;
 import com.google.devtools.j2objc.ast.CompilationUnit;
+import com.google.devtools.j2objc.ast.EnumDeclaration;
 import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.FieldDeclaration;
 import com.google.devtools.j2objc.ast.FunctionDeclaration;
@@ -67,6 +68,7 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
   protected final String typeName;
   protected final Options options;
   protected final boolean parametersNonnullByDefault;
+  protected final boolean nullMarked;
 
   private final List<BodyDeclaration> declarations;
 
@@ -84,6 +86,14 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
     options = env.options();
     parametersNonnullByDefault = options.nullability()
         && env.elementUtil().areParametersNonnullByDefault(node.getTypeElement(), options);
+
+    boolean isElementNullMarked = env.elementUtil().isNullMarked(node.getTypeElement(), options);
+    // Note: Enums are implicitly marked as nonnull when the `nullMarked` experimental
+    //       feature is enabled. This is true even if the `@NullMarked` annotation is
+    //       not present on the package or type.
+    boolean nullMarkedEnabled = options.nullMarked();
+    boolean isEnumDeclaration = (typeNode instanceof EnumDeclaration);
+    nullMarked = isElementNullMarked || (nullMarkedEnabled && isEnumDeclaration);
   }
 
   protected boolean shouldPrintDeclaration(BodyDeclaration decl) {
@@ -352,8 +362,9 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
 
   protected String getFunctionSignature(FunctionDeclaration function, boolean isPrototype) {
     StringBuilder sb = new StringBuilder();
-    String returnType = nameTable.getObjCType(function.getReturnType().getTypeMirror());
-    returnType += returnType.endsWith("*") ? "" : " ";
+    TypeMirror returnTypeMirror = function.getReturnType().getTypeMirror();
+    String returnType =
+        paddedType(nameTable.getObjCType(returnTypeMirror), function.getExecutableElement());
     sb.append(returnType).append(function.getName()).append('(');
     if (isPrototype && function.getParameters().isEmpty()) {
       sb.append("void");
@@ -361,8 +372,7 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
       for (Iterator<SingleVariableDeclaration> iter = function.getParameters().iterator();
            iter.hasNext(); ) {
         VariableElement var = iter.next().getVariableElement();
-        String paramType = nameTable.getObjCType(var.asType());
-        paramType += (paramType.endsWith("*") ? "" : " ");
+        String paramType = paddedType(nameTable.getObjCType(var.asType()), var);
         sb.append(paramType + nameTable.getVariableShortName(var));
         if (iter.hasNext()) {
           sb.append(", ");
@@ -371,6 +381,42 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
     }
     sb.append(')');
     return sb.toString();
+  }
+
+  /**
+   * Returns a String representation of a type with trailing padding and nullable annotations, if
+   * applicable.
+   *
+   * <p><b>Note:</b> If {@code type} is not a pointer, a new String is returned with a trailing
+   * space. If {@code type} represents a pointer, {@code element} represents a nullable type, and
+   * NullMarked is enabled, an Objective-C nullability specifier is appended with a trailing space.
+   * Otherwise, trailing padding is not added to the returned String.
+   *
+   * @param type the string representation of the data type.
+   * @param element represents a program element such as a package, class, or method.
+   */
+  protected String paddedType(String type, Element element) {
+    String suffix = " ";
+    if (type.endsWith("*")) {
+      suffix = shouldAddNullableAnnotation(element) ? "_Nullable " : "";
+    }
+    return type + suffix;
+  }
+
+  // TODO: b/287612419 - Update call-sites to pass through a String representation of
+  //                     the related type to ensure false is returned in those cases.
+  /**
+   * Returns a boolean indicating if {@code element} should have a nullable annotation applied to it
+   * if it is a pointer type.
+   *
+   * <p><b>Warning:</b> The method should only be called when {@code element} is known to be a
+   * pointer type.
+   *
+   * @param element represents a program element such as a package, class, or method.
+   */
+  protected boolean shouldAddNullableAnnotation(Element element) {
+    boolean hasNullableAnnotation = element != null && ElementUtil.hasNullableAnnotation(element);
+    return hasNullableAnnotation && nullMarked;
   }
 
   protected String generateExpression(Expression expr) {
