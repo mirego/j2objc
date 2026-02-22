@@ -76,9 +76,9 @@ static GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable 
 }
 
 - (NSString *)getName {
-  // can't call an abstract method
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
+// kotlin interop >>
+  JreThrowCantCallAnAbstractMethodException();
+// kotlin interop <<
 }
 
 - (int)getModifiers {
@@ -115,13 +115,14 @@ static GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable 
       if (!result) {
         IOSObjectArray *paramTypes = [self getParameterTypesInternal];
         jint nParams = paramTypes->size_;
-        result = [IOSObjectArray newArrayWithLength:nParams type:JavaLangReflectParameter_class_()];
+        result = AUTORELEASE([IOSObjectArray newArrayWithLength:nParams type:JavaLangReflectParameter_class_()]);
         for (jint i = 0; i < nParams; i++) {
           NSString *name = [NSString stringWithFormat:@"arg%d", i];
           id param =
               new_JavaLangReflectParameter_initWithNSString_withInt_withJavaLangReflectExecutable_withInt_(
                   name, 0, self, i);
           IOSObjectArray_Set(result, i, param);
+          RELEASE_(param);
         }
         __c11_atomic_store(&params_, result, __ATOMIC_RELEASE);
       }
@@ -189,12 +190,12 @@ static GenericInfo *getMethodOrConstructorGenericInfo(JavaLangReflectExecutable 
 }
 
 - (IOSObjectArray *)getAnnotatedParameterTypes {
-  return [IOSObjectArray newArrayWithLength:0 type:IOSClass_class_()];
+  return AUTORELEASE([IOSObjectArray newArrayWithLength:0 type:IOSClass_class_()]);
 }
 
 - (NSString *)toGenericString {
   // Code generated from Android's java.lang.reflect.AbstractMethod class.
-  JavaLangStringBuilder *sb = [[JavaLangStringBuilder alloc] initWithInt:80];
+  JavaLangStringBuilder *sb = AUTORELEASE([[JavaLangStringBuilder alloc] initWithInt:80]);
   GenericInfo *info = getMethodOrConstructorGenericInfo(self);
   jint modifiers = metadata_->modifiers;
   if (modifiers != 0) {

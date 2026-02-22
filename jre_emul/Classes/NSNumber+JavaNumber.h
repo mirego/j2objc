@@ -21,6 +21,7 @@
 #define _JavaLangNumber_H_
 
 #include "J2ObjC_common.h"
+#include "J2ObjC_kotlinTypes.h" // kotlin interop
 #include "java/io/Serializable.h"
 
 //
@@ -29,6 +30,14 @@
 @interface NSNumber (JavaNumber) <JavaIoSerializable>
 
 @end
+
+// kotlin interop >>
+
+@interface NSNumber (CommonKotlinComparable) < CommonKotlinComparable >
+
+@end
+
+// kotlin interop <<
 
 __attribute__((always_inline)) inline void NSNumber_init(NSObject *self) {
   #pragma unused(self)

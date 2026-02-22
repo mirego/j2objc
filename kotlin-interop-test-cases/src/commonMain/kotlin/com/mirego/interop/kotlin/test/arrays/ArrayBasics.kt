@@ -2,11 +2,7 @@ package com.mirego.interop.kotlin.test.arrays
 
 import kotlin.js.JsName
 
-class ArrayBasics() {
-    constructor(byteArray: ByteArray) : this() {
-        // to bypass warning as error for unused parameter with J2Objc
-        byteArray.size
-    }
+class ArrayBasics {
 
     private val propertySingleItemArray = arrayOf("a")
 

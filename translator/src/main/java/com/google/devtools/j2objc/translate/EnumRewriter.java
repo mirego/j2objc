@@ -189,7 +189,7 @@ public class EnumRewriter extends UnitTreeVisitor {
     TypeMirror voidType = typeUtil.getVoid();
     VariableElement localEnum = GeneratedVariableElement.newLocalVar("e", TypeUtil.ID_TYPE, null);
 
-    int i = 0;
+    int i = 0; int last = node.getEnumConstants().size() - 1;
     for (EnumConstantDeclaration constant : node.getEnumConstants()) {
       VariableElement varElement = constant.getVariableElement();
       String varName = ElementUtil.getName(varElement);
@@ -207,15 +207,19 @@ public class EnumRewriter extends UnitTreeVisitor {
         baseTypeCount++;
       }
 
-      initStatements.add(new ExpressionStatement(
-          new CommaExpression(
-              new CastExpression(voidType, new ParenthesizedExpression(
-                  new Assignment(new SimpleName(varElement),
-                  new Assignment(new SimpleName(localEnum),
-                  new NativeExpression(
-                      UnicodeUtils.format("objc_constructInstance(%s, (void *)ptr)", classExpr),
-                      type.asType()))))),
-              new NativeExpression("ptr += " + sizeName, voidType))));
+      // kotlin interop >> Modified to remove last `ptr += objSize` that generate a warning in static analysis
+      CommaExpression expression = new CommaExpression(
+          new CastExpression(voidType, new ParenthesizedExpression(
+              new Assignment(new SimpleName(varElement),
+              new Assignment(new SimpleName(localEnum),
+              new NativeExpression(
+                  UnicodeUtils.format("objc_constructInstance(%s, (void *)ptr)", classExpr),
+                  type.asType()))))));
+      if (i != last) {
+        expression.addExpression(new NativeExpression("ptr += " + sizeName, voidType));
+      }
+      initStatements.add(new ExpressionStatement(expression));
+      // kotlin interop <<
       String initName = nameTable.getFullFunctionName(methodElement);
       FunctionElement initElement = new FunctionElement(initName, voidType, valueType)
           .addParameters(valueType.asType())

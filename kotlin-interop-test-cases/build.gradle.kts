@@ -1,16 +1,13 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
-import java.io.ByteArrayOutputStream
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
 
-val kotlin_version: String by extra
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+
 val detekt_version: String by extra
+val kotlin_version: String by extra
+
+val isCi = System.getenv().containsKey("CI")
 
 repositories {
-    mavenLocal()
     mavenCentral()
     google()
 }
@@ -18,22 +15,14 @@ repositories {
 plugins {
     idea
     kotlin("multiplatform")
-    id("io.gitlab.arturbosch.detekt")
-    // id("io.github.detekt.gradle.compiler-plugin")
+    id("dev.detekt")
     `maven-publish`
 }
 
-@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
-
     jvmToolchain(11)
 
-    jvm {
-        compilations.all {
-            kotlinOptions.allWarningsAsErrors = true
-        }
-    }
+    jvm()
 
     macosArm64 {
         binaries {
@@ -46,38 +35,16 @@ kotlin {
         }
     }
 
-    ios { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-    iosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
+    iosArm64()
+    iosSimulatorArm64()
 
-    val iosMain by sourceSets.getting
-    val iosTest by sourceSets.getting
-    val iosSimulatorArm64Main by sourceSets.getting
-    val iosSimulatorArm64Test by sourceSets.getting
-    iosSimulatorArm64Main.dependsOn(iosMain)
-    iosSimulatorArm64Test.dependsOn(iosTest)
+    tvosArm64()
+    tvosSimulatorArm64()
 
-    tvos { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-    tvosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-
-    val tvosMain by sourceSets.getting
-    val tvosTest by sourceSets.getting
-    val tvosSimulatorArm64Main by sourceSets.getting
-    val tvosSimulatorArm64Test by sourceSets.getting
-    tvosSimulatorArm64Main.dependsOn(tvosMain)
-    tvosSimulatorArm64Test.dependsOn(tvosTest)
-
-    // Xcode 15 new linker is incompatible with Kotlin, tell it to use the old linker
-    val isXcode15 = if (!OperatingSystem.current().isMacOsX) false else {
-        val xcodeBuildOutput = ByteArrayOutputStream()
-        exec { commandLine("xcrun", "xcodebuild", "-version"); standardOutput = xcodeBuildOutput; isIgnoreExitValue = true }
-        xcodeBuildOutput.toString().contains("Xcode 15.")
-    }
-    if (isXcode15) {
-        targets.withType<KotlinNativeTarget> { binaries.withType<TestExecutable> { linkerOpts += "-ld64" } }
-    }
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
-        named("commonMain") {
+        commonMain {
             dependencies {
                 api("com.google.j2objc:j2objc-kompat:$version")
             }
@@ -85,25 +52,53 @@ kotlin {
 
         all {
             languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCRefinement")
             languageSettings.optIn("kotlin.js.ExperimentalJsExport")
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
     }
+
+    compilerOptions {
+        allWarningsAsErrors.set(isCi)
+        extraWarnings.set(true)
+        freeCompilerArgs.add("-Xallow-condition-implies-returns-contracts")
+        freeCompilerArgs.add("-Xallow-contracts-on-more-functions")
+        freeCompilerArgs.add("-Xallow-holdsin-contract")
+        freeCompilerArgs.add("-Xallow-reified-type-in-catch")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+        freeCompilerArgs.add("-Xannotation-target-all")
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+        freeCompilerArgs.add("-Xcontext-parameters")
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution")
+        freeCompilerArgs.add("-Xdata-flow-based-exhaustiveness")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
+        freeCompilerArgs.add("-Xnested-type-aliases")
+        freeCompilerArgs.add("-Xnon-local-break-continue")
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
+        freeCompilerArgs.add("-Xwhen-guards")
+    }
 }
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detekt_version")
+    detektPlugins("dev.detekt:detekt-rules-ktlint-wrapper:$detekt_version")
+}
+
+// Disable interfaces and swift name mangling
+tasks.withType<KotlinNativeCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xbinary=objcExportDisableSwiftMemberNameMangling=true")
+        freeCompilerArgs.add("-Xbinary=objcExportIgnoreInterfaceMethodCollisions=true")
+    }
 }
 
 detekt {
-    autoCorrect = true
+    autoCorrect = !isCi
+    ignoreFailures = !isCi
     buildUponDefaultConfig = true
     config.setFrom("../../../detekt-config.yml")
     source.setFrom(file("src").listFiles()!!.filter { it.name.endsWith("Main") || it.name.endsWith("Test") })
 }
-
-tasks.withType<Detekt>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
-tasks.withType<DetektCreateBaselineTask>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
 
 idea {
     module {

@@ -12,6 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -37,7 +38,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonFloat (JavaLangFloat) < CommonKotlinComparable >
+@interface CommonFloat (JavaLangFloat) < JavaIoSerializable, CommonKotlinComparable >
 @property (readonly, class) jfloat POSITIVE_INFINITY NS_SWIFT_NAME(POSITIVE_INFINITY);
 @property (readonly, class) jfloat NEGATIVE_INFINITY NS_SWIFT_NAME(NEGATIVE_INFINITY);
 @property (readonly, class) jfloat NaN NS_SWIFT_NAME(NaN);
@@ -65,7 +66,7 @@
   represented by the string.The string is converted to a
  <code>float</code> value as if by the <code>valueOf</code> method.
  @param s a string to be converted to a <code>Float</code> .
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
                 parsable number.
  - seealso: java.lang.Float#valueOf(java.lang.String)
  */
@@ -177,7 +178,7 @@
            <code>false</code> otherwise.
  - seealso: java.lang.Float#floatToIntBits(float)
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns a representation of the specified floating-point value
@@ -250,7 +251,7 @@
   object.
  @return a hash code value for this object.
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>float</code> value; compatible with
@@ -410,7 +411,7 @@
  @return the <code>float</code> value represented by the string
           argument.
  @throw NullPointerExceptionif the string is null
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
                 parsable <code>float</code>.
  - seealso: java.lang.Float#valueOf(String)
  @since 1.2
@@ -705,7 +706,7 @@
  @param s the string to be parsed.
  @return a <code>Float</code> object holding the value
            represented by the <code>String</code> argument.
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
            parsable number.
  */
 + (CommonFloat * __nonnull)valueOfWithNSString:(NSString *)s;

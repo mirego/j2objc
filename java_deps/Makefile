@@ -68,7 +68,7 @@ $(BUILD_DIR)/$(JAVAC_JAR): | $(BUILD_DIR)
 
 $(BUILD_DIR)/$(SCENELIB_JAR): | $(BUILD_DIR)
 	@curl -L -s -o $@.zip \
-    https://github.com/eisop/annotation-tools/releases/download/3.34.0-eisop1/annotation-tools-3.34.0-eisop1.zip
+    https://github.com/eisop/annotation-tools/releases/download/3.49.3-eisop1/annotation-tools-3.49.3-eisop1.zip
 	@unzip -qq -d $(BUILD_DIR) $@.zip annotation-file-utilities/annotation-file-utilities-all.jar
 	@unzip -qq -d $(BUILD_DIR) $(BUILD_DIR)/annotation-file-utilities/annotation-file-utilities-all.jar \
     "org/checkerframework/afu/scenelib/*" "org/objectweb/asm/*"

@@ -173,6 +173,10 @@ IOSClass *CommonLong_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 - (jbyte)charValue {
     return (jbyte) self.longLongValue;
 }
@@ -201,20 +205,20 @@ IOSClass *CommonLong_TYPE;
   return CommonLong_toStringWithLong_(self.longLongValue);
 }
 
-- (NSUInteger)hash {
-  return CommonLong_hashCodeWithLong_(self.longLongValue);
-}
+//- (NSUInteger)hash {
+//  return CommonLong_hashCodeWithLong_(self.longLongValue);
+//}
 
 + (jint)hashCodeWithLong:(jlong)value {
   return CommonLong_hashCodeWithLong_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  if ([obj isKindOfClass:[CommonLong class]]) {
-    return self.longLongValue == [((CommonLong *) nil_chk(((CommonLong *) obj))) longLongValue];
-  }
-  return false;
-}
+//- (jboolean)isEqual:(id)obj {
+//  if ([obj isKindOfClass:[CommonLong class]]) {
+//    return self.longLongValue == [((CommonLong *) nil_chk(((CommonLong *) obj))) longLongValue];
+//  }
+//  return false;
+//}
 
 + (CommonLong *)getLongWithNSString:(NSString *)nm {
   return CommonLong_getLongWithNSString_(nm);
@@ -439,7 +443,7 @@ IOSClass *CommonLong_TYPE;
     { "serialVersionUID", "J", .constantValue.asLong = CommonLong_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "JI", "toUnsignedString", "toUnsignedBigInteger", "J", "toHexString", "toOctalString", "toBinaryString", "toUnsignedString0", "getChars", "JI[C", "stringSize", "parseLong", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "parseUnsignedLong", "valueOf", "decode", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "getLong", "LNSString;J", "LNSString;LCommonLong;", "compareTo", "LCommonLong;", "compare", "JJ", "compareUnsigned", "divideUnsigned", "remainderUnsigned", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "bitCount", "rotateLeft", "rotateRight", "reverse", "signum", "reverseBytes", "sum", "max", "min", &CommonLong_TYPE, "Ljava/lang/Class<Ljava/lang/Long;>;", "LCommonLong_LongCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Long;>;" };
-  static const J2ObjcClassInfo _CommonLong = { "Long", "java.lang", ptrTable, methods, fields, 7, 0x11, 52, 7, -1, 49, -1, 50, -1 };
+  static const J2ObjcClassInfo _CommonLong = { "Long", "java.lang", ptrTable, methods, fields, 7, 0x11, 52, 6, -1, 49, -1, 50, -1 };
   return &_CommonLong;
 }
 
@@ -703,11 +707,11 @@ void CommonLong_initWithLongLong_(CommonLong *self, jlong value) {
 }
 
 CommonLong *new_CommonLong_initWithLongLong_(jlong value) {
-  J2OBJC_NEW_IMPL(CommonLong, initWithLongLong_, value)
+  return [[CommonLong alloc] initWithLongLong:value];
 }
 
 CommonLong *create_CommonLong_initWithLongLong_(jlong value) {
-  J2OBJC_CREATE_IMPL(CommonLong, initWithLongLong_, value)
+  return [CommonLong numberWithLongLong:value];
 }
 
 void CommonLong_initWithNSString_(CommonLong *self, NSString *s) {
@@ -715,16 +719,15 @@ void CommonLong_initWithNSString_(CommonLong *self, NSString *s) {
 }
 
 CommonLong *new_CommonLong_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonLong, initWithNSString_, s)
+  return [[CommonLong alloc] initWithLongLong:CommonLong_parseLongWithNSString_withInt_(s, 10)];
 }
 
 CommonLong *create_CommonLong_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonLong, initWithNSString_, s)
+  return [CommonLong numberWithLongLong:CommonLong_parseLongWithNSString_withInt_(s, 10)];
 }
 
 jint CommonLong_hashCodeWithLong_(jlong value) {
-  CommonLong_initialize();
-  return (jint) (value ^ (JreURShift64(value, 32)));
+  return (jint) CommonLong_valueOfWithLong_(value).hash;
 }
 
 CommonLong *CommonLong_getLongWithNSString_(NSString *nm) {

@@ -18,9 +18,30 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class CommonKotlinArray<T>, CommonKotlinBooleanArray, CommonKotlinByteArray, CommonKotlinCharArray, CommonKotlinDoubleArray, CommonKotlinFloatArray, CommonKotlinIntArray, CommonKotlinLongArray, CommonKotlinShortArray, CommonKotlinByteIterator, NSData, CommonKotlinBooleanIterator, CommonKotlinCharIterator, CommonKotlinDoubleIterator, CommonKotlinFloatIterator, CommonKotlinIntIterator, CommonKotlinLongIterator, CommonKotlinShortIterator;
+@class NSString, NSSet<ObjectType>, NSObject, NSNumber, NSMutableSet<ObjectType>, NSMutableDictionary<KeyType, ObjectType>, NSMutableArray<ObjectType>, NSError, NSDictionary<KeyType, ObjectType>, NSData, NSArray<ObjectType>, CommonUShort, CommonULong, CommonUInt, CommonUByte, CommonShort, CommonNumber, CommonMutableSet<ObjectType>, CommonMutableDictionary<KeyType, ObjectType>, CommonLong, CommonKotlinShortIterator, CommonKotlinShortArray, CommonKotlinLongIterator, CommonKotlinLongArray, CommonKotlinIntIterator, CommonKotlinIntArray, CommonKotlinFloatIterator, CommonKotlinFloatArray, CommonKotlinDoubleIterator, CommonKotlinDoubleArray, CommonKotlinCharIterator, CommonKotlinCharArray, CommonKotlinByteIterator, CommonKotlinByteArray, CommonKotlinBooleanIterator, CommonKotlinBooleanArray, CommonKotlinArray<T>, CommonInt, CommonFloat, CommonDouble, CommonByte, CommonBridgesKt, CommonBoolean, CommonBase;
 
-@protocol CommonKotlinComparable, CommonKotlinIterator;
+@protocol NSCopying, CommonKotlinIterator, CommonKotlinComparable, CommonJ2ObjCKompatDummyComparable, CommonJ2ObjCKompatDummy;
+
+// Due to an Obj-C/Swift interop limitation, SKIE cannot generate Swift types with a lambda type argument.
+// Example of such type is: A<() -> Unit> where A<T> is a generic class.
+// To avoid compilation errors SKIE replaces these type arguments with __SkieLambdaErrorType, resulting in A<__SkieLambdaErrorType>.
+// Generated declarations that reference __SkieLambdaErrorType cannot be called in any way and the __SkieLambdaErrorType class cannot be used.
+// The original declarations can still be used in the same way as other declarations hidden by SKIE (and with the same limitations as without SKIE).
+@interface __SkieLambdaErrorType : NSObject
+- (instancetype _Nonnull)init __attribute__((unavailable));
++ (instancetype _Nonnull)new __attribute__((unavailable));
+@end
+
+// Due to an Obj-C/Swift interop limitation, SKIE cannot generate Swift code that uses external Obj-C types for which SKIE doesn't know a fully qualified name.
+// This problem occurs when custom Cinterop bindings are used because those do not contain the name of the Framework that provides implementation for those binding.
+// The name can be configured manually using the SKIE Gradle configuration key 'ClassInterop.CInteropFrameworkName' in the same way as other SKIE features.
+// To avoid compilation errors SKIE replaces types with unknown Framework name with __SkieUnknownCInteropFrameworkErrorType.
+// Generated declarations that reference __SkieUnknownCInteropFrameworkErrorType cannot be called in any way and the __SkieUnknownCInteropFrameworkErrorType class cannot be used.
+@interface __SkieUnknownCInteropFrameworkErrorType : NSObject
+- (instancetype _Nonnull)init __attribute__((unavailable));
++ (instancetype _Nonnull)new __attribute__((unavailable));
+@end
+
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -165,8 +186,6 @@ __attribute__((swift_name("J2ObjCKompatDummy")))
 - (CommonKotlinCharArray *)charArray __attribute__((swift_name("charArray()")));
 - (CommonKotlinDoubleArray *)doubleArray __attribute__((swift_name("doubleArray()")));
 - (CommonKotlinFloatArray *)floatArray __attribute__((swift_name("floatArray()")));
-- (CommonMutableDictionary<id, id> *)hashMap __attribute__((swift_name("hashMap()")));
-- (CommonMutableSet<id> *)hashSet __attribute__((swift_name("hashSet()")));
 - (CommonKotlinIntArray *)intArray __attribute__((swift_name("intArray()")));
 - (CommonKotlinLongArray *)longArray __attribute__((swift_name("longArray()")));
 - (CommonKotlinShortArray *)shortArray __attribute__((swift_name("shortArray()")));
@@ -186,6 +205,7 @@ __attribute__((swift_name("J2ObjCKompatDummyComparable")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinByteArray")))
 @interface CommonKotlinByteArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonByte *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -193,7 +213,6 @@ __attribute__((swift_name("KotlinByteArray")))
 - (int8_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinByteIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 @interface CommonKotlinByteArray (Extensions)
@@ -209,18 +228,19 @@ __attribute__((swift_name("BridgesKt")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinArray")))
 @interface CommonKotlinArray<T> : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 - (T _Nullable)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (id<CommonKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinBooleanArray")))
 @interface CommonKotlinBooleanArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonBoolean *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -228,12 +248,12 @@ __attribute__((swift_name("KotlinBooleanArray")))
 - (BOOL)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinBooleanIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(BOOL)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinCharArray")))
 @interface CommonKotlinCharArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(id (^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -241,12 +261,12 @@ __attribute__((swift_name("KotlinCharArray")))
 - (unichar)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinCharIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(unichar)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinDoubleArray")))
 @interface CommonKotlinDoubleArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonDouble *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -254,12 +274,12 @@ __attribute__((swift_name("KotlinDoubleArray")))
 - (double)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinDoubleIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(double)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinFloatArray")))
 @interface CommonKotlinFloatArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonFloat *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -267,12 +287,12 @@ __attribute__((swift_name("KotlinFloatArray")))
 - (float)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinFloatIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(float)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinIntArray")))
 @interface CommonKotlinIntArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonInt *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -280,12 +300,12 @@ __attribute__((swift_name("KotlinIntArray")))
 - (int32_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinIntIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(int32_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinLongArray")))
 @interface CommonKotlinLongArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonLong *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -293,12 +313,12 @@ __attribute__((swift_name("KotlinLongArray")))
 - (int64_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinLongIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(int64_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinShortArray")))
 @interface CommonKotlinShortArray : CommonBase
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 + (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
 + (instancetype)arrayWithSize:(int32_t)size init:(CommonShort *(^)(CommonInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
@@ -306,7 +326,6 @@ __attribute__((swift_name("KotlinShortArray")))
 - (int16_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
 - (CommonKotlinShortIterator *)iterator __attribute__((swift_name("iterator()")));
 - (void)setIndex:(int32_t)index value:(int16_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((swift_name("KotlinIterator")))

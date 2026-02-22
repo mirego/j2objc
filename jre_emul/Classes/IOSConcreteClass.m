@@ -79,6 +79,11 @@
   }
   Class superclass = [class_ superclass];
   if (superclass != nil) {
+// kotlin interop >>
+    if (strcmp("CommonNumber", class_getName(superclass)) == 0) {
+      return NSObject_class_();
+    }
+// kotlin interop <<
     return IOSClass_fromClass(superclass);
   }
   return nil;

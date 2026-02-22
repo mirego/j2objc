@@ -51,6 +51,10 @@ IOSClass *CommonBoolean_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 + (jboolean)parseBooleanWithNSString:(NSString *)s {
   return CommonBoolean_parseBooleanWithNSString_(s);
 }
@@ -75,20 +79,20 @@ IOSClass *CommonBoolean_TYPE;
   return self.boolValue ? @"true" : @"false";
 }
 
-- (NSUInteger)hash {
-  return CommonBoolean_hashCodeWithBoolean_(self.boolValue);
-}
+//- (NSUInteger)hash {
+//  return CommonBoolean_hashCodeWithBoolean_(self.boolValue);
+//}
 
 + (jint)hashCodeWithBoolean:(jboolean)value {
   return CommonBoolean_hashCodeWithBoolean_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  if ([obj isKindOfClass:[CommonBoolean class]]) {
-    return self.boolValue == [((CommonBoolean *) nil_chk(((CommonBoolean *) obj))) booleanValue];
-  }
-  return false;
-}
+//- (jboolean)isEqual:(id)obj {
+//  if ([obj isKindOfClass:[CommonBoolean class]]) {
+//    return self.boolValue == [((CommonBoolean *) nil_chk(((CommonBoolean *) obj))) booleanValue];
+//  }
+//  return false;
+//}
 
 + (jboolean)getBooleanWithNSString:(NSString *)name {
   return CommonBoolean_getBooleanWithNSString_(name);
@@ -167,7 +171,7 @@ IOSClass *CommonBoolean_TYPE;
     { "serialVersionUID", "J", .constantValue.asLong = CommonBoolean_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "Z", "LNSString;", "parseBoolean", "valueOf", "toString", "hashCode", "equals", "LNSObject;", "getBoolean", "compareTo", "LCommonBoolean;", "compare", "ZZ", "logicalAnd", "logicalOr", "logicalXor", &CommonBoolean_TRUE, &CommonBoolean_FALSE, &CommonBoolean_TYPE, "Ljava/lang/Class<Ljava/lang/Boolean;>;", "Ljava/lang/Object;Ljava/io/Serializable;Ljava/lang/Comparable<Ljava/lang/Boolean;>;" };
-  static const J2ObjcClassInfo _CommonBoolean = { "Boolean", "java.lang", ptrTable, methods, fields, 7, 0x11, 17, 5, -1, -1, -1, 20, -1 };
+  static const J2ObjcClassInfo _CommonBoolean = { "Boolean", "java.lang", ptrTable, methods, fields, 7, 0x11, 17, 4, -1, -1, -1, 20, -1 };
   return &_CommonBoolean;
 }
 
@@ -187,7 +191,7 @@ void CommonBoolean_initWithBoolean_(CommonBoolean *self, jboolean value) {
 }
 
 CommonBoolean *new_CommonBoolean_initWithBoolean_(jboolean value) {
-  return [CommonBoolean numberWithBool:value];
+  return [[CommonBoolean alloc] initWithBool:value];
 }
 
 CommonBoolean *create_CommonBoolean_initWithBoolean_(jboolean value) {
@@ -199,7 +203,7 @@ void CommonBoolean_initWithNSString_(CommonBoolean *self, NSString *s) {
 }
 
 CommonBoolean *new_CommonBoolean_initWithNSString_(NSString *s) {
-  return [CommonBoolean numberWithBool:CommonBoolean_parseBooleanWithNSString_(s)];
+  return [[CommonBoolean alloc] initWithBool:CommonBoolean_parseBooleanWithNSString_(s)];
 }
 
 CommonBoolean *create_CommonBoolean_initWithNSString_(NSString *s) {
@@ -227,8 +231,7 @@ NSString *CommonBoolean_toStringWithBoolean_(jboolean b) {
 }
 
 jint CommonBoolean_hashCodeWithBoolean_(jboolean value) {
-  CommonBoolean_initialize();
-  return value ? 1231 : 1237;
+  return (jint) CommonBoolean_valueOfWithBoolean_(value).hash;
 }
 
 jboolean CommonBoolean_getBooleanWithNSString_(NSString *name) {

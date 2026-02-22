@@ -683,7 +683,8 @@ public final class ElementUtil {
   }
 
   public static boolean isRuntimeAnnotation(Element e) {
-    return isAnnotationType(e) && hasRetentionPolicy(e, "RUNTIME");
+    return isAnnotationType(e) && hasRetentionPolicy(e, "RUNTIME")
+        && !KotlinUtil.isKotlinType(e); // kotlin interop
   }
 
   public static boolean isGeneratedAnnotation(AnnotationMirror mirror) {

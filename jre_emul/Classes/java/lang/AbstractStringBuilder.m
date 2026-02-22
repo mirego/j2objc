@@ -707,17 +707,17 @@ jint JavaLangCharacter_offsetByCodePointsRaw(
 }
 
 - (id<JavaLangAppendable>)appendWithJavaLangCharSequence:(id<JavaLangCharSequence>)cs {
-  // can't call an abstract method
-  [self doesNotRecognizeSelector:_cmd];
-  return 0;
+// kotlin interop >>
+  JreThrowCantCallAnAbstractMethodException();
+// kotlin interop <<
 }
 
 - (id<JavaLangAppendable>)appendWithJavaLangCharSequence:(id<JavaLangCharSequence>)cs
                                                  withInt:(jint)start
                                                  withInt:(jint)end {
-  // can't call an abstract method
-  [self doesNotRecognizeSelector:_cmd];
-  return 0;
+// kotlin interop >>
+  JreThrowCantCallAnAbstractMethodException();
+// kotlin interop <<
 }
 
 - (jint)compareToWithJavaLangAbstractStringBuilder:(JavaLangAbstractStringBuilder *)other {

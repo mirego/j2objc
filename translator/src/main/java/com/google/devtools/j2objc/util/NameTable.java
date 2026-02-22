@@ -55,16 +55,17 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-import kotlinx.metadata.Flag.Type;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmClassifier;
-import kotlinx.metadata.KmConstructor;
-import kotlinx.metadata.KmDeclarationContainer;
-import kotlinx.metadata.KmFunction;
-import kotlinx.metadata.KmType;
-import kotlinx.metadata.KmTypeParameter;
-import kotlinx.metadata.KmTypeProjection;
-import kotlinx.metadata.KmValueParameter;
+import kotlin.Pair;
+import kotlin.metadata.Attributes;
+import kotlin.metadata.KmClass;
+import kotlin.metadata.KmClassifier;
+import kotlin.metadata.KmConstructor;
+import kotlin.metadata.KmDeclarationContainer;
+import kotlin.metadata.KmFunction;
+import kotlin.metadata.KmType;
+import kotlin.metadata.KmTypeParameter;
+import kotlin.metadata.KmTypeProjection;
+import kotlin.metadata.jvm.KotlinClassMetadata;
 
 /**
  * Singleton service for type/method/variable name support.
@@ -820,9 +821,32 @@ public class NameTable {
         --innerClassIndex;
       }
       return binaryName.substring(innerClassIndex);
+    // kotlin interop >>
+    } else if (KotlinUtil.isKotlinType(element) && hasJvmNameOverrideAnnotation(element)) {
+      return getStandardKotlinFileFacadeClassName(element);
     }
+    // << kotlin interop
     return ElementUtil.getName(element).replace('$', '_');
   }
+
+  // kotlin interop >>
+  private boolean hasJvmNameOverrideAnnotation(TypeElement element) {
+    KotlinClassMetadata metadata = KotlinUtil.tryGetElementMetaData(element);
+    if (metadata instanceof KotlinClassMetadata.FileFacade) {
+      // The @JvmName annotation is not available from Java compiler (this is a Kotlin annotation).
+      // However, we can detect if the current class name is named following the standard (or not)
+      String expectedClassNameFromFileName = getStandardKotlinFileFacadeClassName(element);
+      return !ElementUtil.getName(element).equals(expectedClassNameFromFileName);
+    }
+
+    return false;
+  }
+
+  private static String getStandardKotlinFileFacadeClassName(TypeElement element) {
+    String sourceFile = ElementUtil.getSourceFile(element);
+    return sourceFile.substring(0, sourceFile.length() - 3) + "Kt";
+  }
+  // << kotlin interop
 
   private static boolean isReservedName(String name) {
     return reservedNames.contains(name) || nsObjectMessages.contains(name);
@@ -892,12 +916,12 @@ public class NameTable {
     KmDeclarationContainer declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(method);
 
     String methodName = method.getSimpleName().toString();
-    Multimap<String, List<KmValueParameter>> potentialValueParameters = ArrayListMultimap.create();
+    Multimap<String, List<Pair<String, KmType>>> potentialValueParameters = ArrayListMultimap.create();
     Multimap<String, List<KmTypeParameter>> potentialTypeParameters = ArrayListMultimap.create();
-    List<KmValueParameter> matchingParams = null;
+    List<Pair<String, KmType>> matchingParams = null;
 
     List<String> jvmArgumentTypes = method.getParameters().stream()
-      .map(variableElement -> getCleanedJvmParameter(variableElement))
+      .map(this::getCleanedJvmParameter)
       .collect(Collectors.toList());
 
     List<KmTypeParameter> classTypeParameters = new ArrayList<>();
@@ -906,40 +930,39 @@ public class NameTable {
     }
 
     if (ElementUtil.isConstructor(method)) {
-      KmClass kmClass = (KmClass)declarationContainer;
+      assert declarationContainer instanceof KmClass;
+      KmClass kmClass = (KmClass) declarationContainer;
       for (KmConstructor loopConstructor : kmClass.getConstructors()) {
-        potentialValueParameters.put(methodName, loopConstructor.getValueParameters());
+        potentialValueParameters.put(methodName, loopConstructor.getValueParameters().stream().map(it -> new Pair<>(it.getName(), it.getType())).collect(Collectors.toList()));
         potentialTypeParameters.put(methodName, null);
       }
     } else {
+      assert declarationContainer != null;
       for (KmFunction loopFunction : declarationContainer.getFunctions()) {
         String functionName = loopFunction.getName();
         if (methodName.equals(functionName)) {
           if (KotlinUtil.isExtensionFunction(loopFunction)) {
-            List<KmValueParameter> kmValueParameters = new ArrayList<>();
-            KmType receiverParameterType = loopFunction.getReceiverParameterType();
-            KmValueParameter receiver = new KmValueParameter(receiverParameterType.getFlags(), "");
-            receiver.type = receiverParameterType;
-            kmValueParameters.add(receiver);
-            kmValueParameters.addAll(loopFunction.getValueParameters());
-            potentialValueParameters.put(functionName, kmValueParameters);
+            List<Pair<String, KmType>> kmValueParametersTypes = new ArrayList<>();
+            kmValueParametersTypes.add(new Pair<>("", loopFunction.getReceiverParameterType()));
+            kmValueParametersTypes.addAll(loopFunction.getValueParameters().stream().map(it -> new Pair<>(it.getName(), it.getType())).collect(Collectors.toList()));
+            potentialValueParameters.put(functionName, kmValueParametersTypes);
             potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
           } else {
-            potentialValueParameters.put(functionName, loopFunction.getValueParameters());
+            potentialValueParameters.put(functionName, loopFunction.getValueParameters().stream().map(it -> new Pair<>(it.getName(), it.getType())).collect(Collectors.toList()));
             potentialTypeParameters.put(functionName, loopFunction.getTypeParameters());
           }
         }
       }
     }
 
-    Iterator<Entry<String, List<KmValueParameter>>> valueParametersIterator = potentialValueParameters.entries().iterator();
+    Iterator<Entry<String, List<Pair<String, KmType>>>> valueParametersIterator = potentialValueParameters.entries().iterator();
     Iterator<Entry<String, List<KmTypeParameter>>> typeParametersIterator = potentialTypeParameters.entries().iterator();
     while (valueParametersIterator.hasNext() && typeParametersIterator.hasNext()) {
-      Entry<String, List<KmValueParameter>> methodEntry = valueParametersIterator.next();
-      List<KmValueParameter> valueParams = methodEntry.getValue();
+      Entry<String, List<Pair<String, KmType>>> methodEntry = valueParametersIterator.next();
+      List<Pair<String, KmType>> valueParams = methodEntry.getValue();
       List<KmTypeParameter> typeParams = typeParametersIterator.next().getValue();
       List<String> kmArgumentTypes = valueParams.stream()
-        .map(kmValueParameter -> toJavaType(kmValueParameter.getType(), classTypeParameters, typeParams))
+        .map(kmValueParameter -> toJavaType(kmValueParameter.component2(), classTypeParameters, typeParams))
         .collect(Collectors.toList());
 
       if (methodEntry.getKey().equals(methodName) && jvmArgumentTypes.equals(kmArgumentTypes)) {
@@ -964,7 +987,7 @@ public class NameTable {
 
       String paramName = param.getSimpleName().toString();
       if (matchingParams != null) {
-        paramName = matchingParams.get(idx).getName();
+        paramName = matchingParams.get(idx).component1();
       }
 
       first = appendParamKeywordKotlin(sb, paramName, delim, first);
@@ -991,11 +1014,8 @@ public class NameTable {
       checkEnclosedElementsForField(
         ElementUtil.getDeclaringClass(method).getEnclosedElements(),
         selector.substring(3));
-    if (getterName.isPresent()) {
-      return getterName.get();
-    }
+    return getterName.orElse(selector);
 
-    return selector;
   }
 
   private String getPrefixKotlin(TypeElement element) {
@@ -1080,10 +1100,12 @@ public class NameTable {
     kotlinToJavaType.put("kotlin/collections/MutableMap.MutableEntry", "java.util.Map.Entry");
   }
 
-  private String toJavaType(KmType kmType,
-                            List<KmTypeParameter> kmClassTypeParameters,
-                            List<KmTypeParameter> kmFunctionTypeParams) {
-    boolean isNullable = Type.IS_NULLABLE.invoke(kmType.getFlags());
+  private String toJavaType(
+    KmType kmType,
+    List<KmTypeParameter> kmClassTypeParameters,
+    List<KmTypeParameter> kmFunctionTypeParams
+  ) {
+    boolean isNullable = Attributes.isNullable(kmType);
 
     KmClassifier classifier = kmType.getClassifier();
     String kotlinType;
@@ -1120,9 +1142,11 @@ public class NameTable {
     return javaType;
   }
 
-  private String toJavaArrayType(KmType kmType,
-                                 List<KmTypeParameter> kmClassTypeParameters,
-                                 List<KmTypeParameter> kmFunctionTypeParams) {
+  private String toJavaArrayType(
+    KmType kmType,
+    List<KmTypeParameter> kmClassTypeParameters,
+    List<KmTypeParameter> kmFunctionTypeParams
+  ) {
     List<KmTypeProjection> arguments = kmType.getArguments();
     if (arguments.size() == 1) {
       KmType type = arguments.get(0).getType();
@@ -1134,9 +1158,11 @@ public class NameTable {
     }
   }
 
-  private String findParamNameInTypeParameters(KmClassifier.TypeParameter typeParameter,
-                                               List<KmTypeParameter> kmClassTypeParameters,
-                                               List<KmTypeParameter> kmFunctionTypeParams) {
+  private String findParamNameInTypeParameters(
+    KmClassifier.TypeParameter typeParameter,
+    List<KmTypeParameter> kmClassTypeParameters,
+    List<KmTypeParameter> kmFunctionTypeParams
+  ) {
     int id = typeParameter.getId();
     if (id < kmClassTypeParameters.size()) {
       return kmClassTypeParameters.get(id).getName();

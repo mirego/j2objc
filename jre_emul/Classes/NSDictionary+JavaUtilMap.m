@@ -82,7 +82,7 @@
 }
 
 - (id<JavaUtilSet>)entrySet {
-  id<JavaUtilSet> entrySet = AUTORELEASE(new_CommonMutableSet_init());
+  id<JavaUtilSet> entrySet = AUTORELEASE(new_NSMutableSet_init());
   [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
     [entrySet addWithId:AUTORELEASE([self java_entryForKey:javaUnwrapKey(key)])];
   }];

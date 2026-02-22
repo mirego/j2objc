@@ -78,22 +78,20 @@ public final class TypeUtil {
   public static final TypeElement IOS_OBJECT_ARRAY =
       GeneratedTypeElement.newIosClass("IOSObjectArray", NS_OBJECT, "IOSObjectArray.h");
   // kotlin interop >>
-  public static final TypeElement COMMON_NUMBER =
-      GeneratedTypeElement.newIosClass("CommonNumber", NS_NUMBER, "");
   public static final TypeElement COMMON_BOOLEAN =
       GeneratedTypeElement.newIosClass("CommonBoolean", NS_NUMBER, "java/lang/Boolean.h");
   public static final TypeElement COMMON_BYTE =
       GeneratedTypeElement.newIosClass("CommonByte", NS_NUMBER, "java/lang/Byte.h");
   public static final TypeElement COMMON_DOUBLE =
-      GeneratedTypeElement.newIosClass("CommonDouble", COMMON_NUMBER, "java/lang/Double.h");
+      GeneratedTypeElement.newIosClass("CommonDouble", NS_NUMBER, "java/lang/Double.h");
   public static final TypeElement COMMON_FLOAT =
-      GeneratedTypeElement.newIosClass("CommonFloat", COMMON_NUMBER, "java/lang/Float.h");
+      GeneratedTypeElement.newIosClass("CommonFloat", NS_NUMBER, "java/lang/Float.h");
   public static final TypeElement COMMON_INT =
-      GeneratedTypeElement.newIosClass("CommonInt", COMMON_NUMBER, "java/lang/Integer.h");
+      GeneratedTypeElement.newIosClass("CommonInt", NS_NUMBER, "java/lang/Integer.h");
   public static final TypeElement COMMON_LONG =
-      GeneratedTypeElement.newIosClass("CommonLong", COMMON_NUMBER, "java/lang/Long.h");
+      GeneratedTypeElement.newIosClass("CommonLong", NS_NUMBER, "java/lang/Long.h");
   public static final TypeElement COMMON_SHORT =
-      GeneratedTypeElement.newIosClass("CommonShort", COMMON_NUMBER, "java/lang/Short.h");
+      GeneratedTypeElement.newIosClass("CommonShort", NS_NUMBER, "java/lang/Short.h");
   public static final TypeElement NS_ARRAY =
       GeneratedTypeElement.newIosClass("NSArray", NS_OBJECT, "");
   public static final TypeElement NS_MUTABLE_ARRAY =
@@ -101,15 +99,11 @@ public final class TypeUtil {
   public static final TypeElement NS_SET =
       GeneratedTypeElement.newIosClass("NSSet", NS_OBJECT, "");
   public static final TypeElement NS_MUTABLE_SET =
-      GeneratedTypeElement.newIosClass("NSMutableSet", NS_SET, "");
-  public static final TypeElement COMMON_MUTABLE_SET =
-      GeneratedTypeElement.newIosClass("CommonMutableSet", NS_MUTABLE_SET, "java/util/HashSet.h");
+      GeneratedTypeElement.newIosClass("NSMutableSet", NS_SET, "java/util/HashSet.h");
   public static final TypeElement NS_DICTIONARY =
       GeneratedTypeElement.newIosClass("NSDictionary", NS_OBJECT, "");
   public static final TypeElement NS_MUTABLE_DICTIONARY =
-      GeneratedTypeElement.newIosClass("NSMutableDictionary", NS_DICTIONARY, "");
-  public static final TypeElement COMMON_MUTABLE_DICTIONARY =
-      GeneratedTypeElement.newIosClass("CommonMutableDictionary", NS_MUTABLE_DICTIONARY, "java/util/HashMap.h");
+      GeneratedTypeElement.newIosClass("NSMutableDictionary", NS_DICTIONARY, "java/util/HashMap.h");
   // kotlin interop <<
   public static final TypeMirror NATIVE_CHAR_PTR = new NativeType("char *");
   private static final Map<TypeKind, TypeElement> PRIMITIVE_IOS_ARRAYS;
@@ -204,10 +198,10 @@ public final class TypeUtil {
 
     // kotlin interop >>
     typeMapBuilder.put(javaArrayList, NS_MUTABLE_ARRAY);
-    typeMapBuilder.put(javaHashMap, COMMON_MUTABLE_DICTIONARY);
-    typeMapBuilder.put(javaHashSet, COMMON_MUTABLE_SET);
-    typeMapBuilder.put(javaLinkedHashMap, COMMON_MUTABLE_DICTIONARY);
-    typeMapBuilder.put(javaLinkedHashSet, COMMON_MUTABLE_SET);
+    typeMapBuilder.put(javaHashMap, NS_MUTABLE_DICTIONARY);
+    typeMapBuilder.put(javaHashSet, NS_MUTABLE_SET);
+    typeMapBuilder.put(javaLinkedHashMap, NS_MUTABLE_DICTIONARY);
+    typeMapBuilder.put(javaLinkedHashSet, NS_MUTABLE_SET);
     typeMapBuilder.put(javaBoolean, COMMON_BOOLEAN);
     typeMapBuilder.put(javaByte, COMMON_BYTE);
     typeMapBuilder.put(javaDouble, COMMON_DOUBLE);

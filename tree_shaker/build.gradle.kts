@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
+
 plugins {
     java
     idea
@@ -6,35 +8,35 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
-
-    withSourcesJar()
+    toolchain.languageVersion = JavaLanguageVersion.of(11)
 }
 
 dependencies {
-    implementation("com.google.j2objc:j2objc-annotations:3.0")
+    implementation("com.google.j2objc:j2objc-annotations:3.1")
     implementation("com.google.j2objc:translator:3.0")
 
-    implementation("com.google.flogger:flogger:0.7.4")
-    implementation("com.google.flogger:google-extensions:0.7.4")
-    implementation("com.google.guava:guava:32.1.2-jre")
-    implementation("com.google.protobuf:protobuf-java:3.22.3")
+    implementation("com.google.flogger:flogger:0.9")
+    implementation("com.google.flogger:google-extensions:0.9")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation("com.google.protobuf:protobuf-java:3.25.8")
+
+    //noinspection NewerVersionAvailable - 6.0.0+ require JDK 17
+    testImplementation(platform("org.junit:junit-bom:5.14.2"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
+    testImplementation("org.slf4j:slf4j-nop:2.0.17")
 
-    testImplementation("com.google.flogger:flogger-system-backend:0.7.4")
-    testImplementation("com.google.truth:truth:1.1.5")
+    testImplementation("com.google.flogger:flogger-system-backend:0.9")
+    testImplementation("com.google.truth:truth:1.4.5")
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
 }
 
 publishing {

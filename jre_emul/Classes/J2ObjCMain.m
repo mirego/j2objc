@@ -59,7 +59,7 @@ void handleUncaughtThrowable(JavaLangThrowable *t) {
 void handleUncaughtException(NSException *e) {
   JavaLangThread *currentThread = JavaLangThread_currentThread();
   id uncaughtHandler = [currentThread getUncaughtExceptionHandler];
-  [uncaughtHandler uncaughtExceptionWithJavaLangThread:currentThread withJavaLangThrowable:[[JavaLangThrowable alloc] initWithNSString:e.description]];
+  [uncaughtHandler uncaughtExceptionWithJavaLangThread:currentThread withJavaLangThrowable:AUTORELEASE([[JavaLangThrowable alloc] initWithNSString:e.description])];
 }
 
 // Adds log handler that writes to stderr.

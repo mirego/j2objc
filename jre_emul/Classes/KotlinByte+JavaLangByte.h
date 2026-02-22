@@ -12,6 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -35,7 +36,7 @@
  - seealso: java.lang.Number
  @since JDK1.1
  */
-@interface CommonByte (JavaLangByte) < CommonKotlinComparable >
+@interface CommonByte (JavaLangByte) < JavaIoSerializable, CommonKotlinComparable >
 
 @property (readonly, class) jbyte MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jbyte MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
@@ -61,7 +62,7 @@
  <code>parseByte</code> method for radix 10.
  @param s the <code>String</code>  to be converted to a
  <code>Byte</code>
- @throw NumberFormatExceptionIf the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
                    does not contain a parsable <code>byte</code>.
  - seealso: java.lang.Byte#parseByte(java.lang.String, int)
  */
@@ -140,7 +141,7 @@
  @param nm the <code>String</code>  to decode.
  @return a <code>Byte</code> object holding the <code>byte</code>
            value represented by <code>nm</code>
- @throw NumberFormatExceptionif the <code>String</code> does not
+ @throw NumberFormatException If the <code>String</code> does not
              contain a parsable <code>byte</code>.
  - seealso: java.lang.Byte#parseByte(java.lang.String, int)
  */
@@ -161,7 +162,7 @@
  @return <code>true</code> if the objects are the same;
                    <code>false</code> otherwise.
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Byte</code> as a <code>float</code> after
@@ -174,7 +175,7 @@
   of invoking <code>intValue()</code>.
  @return a hash code value for this <code>Byte</code>
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>byte</code> value; compatible with
@@ -212,7 +213,7 @@
  <code>byte</code>  representation to be parsed
  @return the <code>byte</code> value represented by the
                    argument in decimal
- @throw NumberFormatExceptionif the string does not
+ @throw NumberFormatException If the string does not
                    contain a parsable <code>byte</code>.
  */
 + (jbyte)parseByteWithNSString:(NSString *)s;
@@ -252,7 +253,7 @@
  @param radix the radix to be used while parsing <code>s</code>
  @return the <code>byte</code> value represented by the string
                     argument in the specified radix
- @throw NumberFormatExceptionIf the string does
+ @throw NumberFormatException If the string does
                    not contain a parsable <code>byte</code>.
  */
 + (jbyte)parseByteWithNSString:(NSString *)s
@@ -352,7 +353,7 @@
  @param s the string to be parsed
  @return a <code>Byte</code> object holding the value
                    represented by the string argument
- @throw NumberFormatExceptionIf the <code>String</code> does
+ @throw NumberFormatException If the <code>String</code> does
                    not contain a parsable <code>byte</code>.
  */
 + (CommonByte * __nonnull)valueOfWithNSString:(NSString *)s;
@@ -378,7 +379,7 @@
  @return a <code>Byte</code> object holding the value
                    represented by the string argument in the
                    specified radix.
- @throw NumberFormatExceptionIf the <code>String</code> does
+ @throw NumberFormatException If the <code>String</code> does
                    not contain a parsable <code>byte</code>.
  */
 + (CommonByte * __nonnull)valueOfWithNSString:(NSString *)s

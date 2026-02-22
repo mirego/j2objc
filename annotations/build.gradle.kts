@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
+
 plugins {
     java
     idea
@@ -6,9 +8,7 @@ plugins {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
-
-    withSourcesJar()
+    toolchain.languageVersion = JavaLanguageVersion.of(11)
 }
 
 publishing {

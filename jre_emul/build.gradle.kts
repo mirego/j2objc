@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName", "SpellCheckingInspection")
+
 plugins {
     java
     idea
@@ -6,39 +8,37 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-
-    withSourcesJar()
+    toolchain.languageVersion = JavaLanguageVersion.of(11)
 }
 
 sourceSets {
     main {
         java {
-            setSrcDirs(listOf(
-                "Classes",
-                "android/frameworks/base/core/java",
-                "android/platform/external/icu/android_icu4j/libcore_bridge/src/java",
-                "android/platform/external/icu/android_icu4j/src/main/java",
-                "android/platform/external/okhttp/okio/okio/src/main/java",
-                "android/platform/libcore/dalvik/src/main/java",
-                "android/platform/libcore/json/src/main/java",
-                "android/platform/libcore/luni/src/main/java",
-                "android/platform/libcore/luni/src/objc/java",
-                "android/platform/libcore/ojluni/src/lambda/java",
-                "android/platform/libcore/ojluni/src/main/java",
-                "android/platform/libcore/xml/src/main/java",
-                "android/tools/platform-compat/java",
-                "apache_harmony/classlib/modules/beans/src/main/java",
-                "openjdk/src/macosx/classes",
-                "openjdk/src/share/classes",
-                "stub_classes/java",
-            ).map { file(it) })
+            setSrcDirs(
+                listOf(
+                    "Classes",
+                    "android/frameworks/base/core/java",
+                    "android/platform/external/icu/android_icu4j/libcore_bridge/src/java",
+                    "android/platform/external/icu/android_icu4j/src/main/java",
+                    "android/platform/external/okhttp/okio/okio/src/main/java",
+                    "android/platform/libcore/dalvik/src/main/java",
+                    "android/platform/libcore/json/src/main/java",
+                    "android/platform/libcore/luni/src/main/java",
+                    "android/platform/libcore/luni/src/objc/java",
+                    "android/platform/libcore/ojluni/src/lambda/java",
+                    "android/platform/libcore/ojluni/src/main/java",
+                    "android/platform/libcore/xml/src/main/java",
+                    "android/tools/platform-compat/java",
+                    "apache_harmony/classlib/modules/beans/src/main/java",
+                    "openjdk/src/macosx/classes",
+                    "openjdk/src/share/classes",
+                    "stub_classes/java",
+                ).map { file(it) },
+            )
         }
     }
 
@@ -68,19 +68,23 @@ sourceSets {
 }
 
 dependencies {
-    implementation("com.google.j2objc:j2objc-annotations:3.0")
+    implementation("com.google.j2objc:j2objc-annotations:3.1")
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    //noinspection NewerVersionAvailable - 6.0.0+ require JDK 17
+    testImplementation(platform("org.junit:junit-bom:5.14.2"))
     testImplementation("org.junit.vintage:junit-vintage-engine")
+    testImplementation("org.slf4j:slf4j-nop:2.0.17")
 
+    //noinspection NewerVersionAvailable - Use the same version as `jars.mk`
     testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-    testImplementation("org.hamcrest:hamcrest:2.2")
+    //noinspection NewerVersionAvailable - Use the same version as `jars.mk`
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("pl.pragmatists:JUnitParams:1.1.1")
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
 }
 
 tasks.named<JavaCompile>("compileJava") {
@@ -90,7 +94,7 @@ tasks.named<JavaCompile>("compileJava") {
 }
 
 tasks.named<JavaCompile>("compileTestJava") {
-    val sources = (sourceSets.named("test").get().java.srcDirs + project.file("${project.buildDir}/classes/java")).joinToString(":") { it.path }
+    val sources = (sourceSets.named("test").get().java.srcDirs + layout.buildDirectory.file("classes/java").get().asFile).joinToString(":") { it.path }
     options.compilerArgs.add("--patch-module=java.base=$sources")
 }
 

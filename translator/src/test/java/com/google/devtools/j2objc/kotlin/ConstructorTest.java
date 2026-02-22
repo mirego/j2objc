@@ -24,7 +24,7 @@ public class ConstructorTest extends GenerationTest {
     String className = WithoutConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithoutConstructor alloc] init]");
+    assertTranslation(translation, "[[[CommonClassWithoutConstructor alloc] init] autorelease]");
   }
 
   public void testClassWithDefaultConstructor() throws IOException {
@@ -32,7 +32,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructor alloc] initWithName:@\"ClassWithDefaultConstructor\"]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructor alloc] initWithName:@\"ClassWithDefaultConstructor\"] autorelease]");
   }
 
   public void testClassWithDefaultConstructorMultipleParameters() throws IOException {
@@ -40,7 +40,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorMultipleParameters.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorMultipleParameters alloc] initWithFirstParameter:@\"First\" secondParameter:@\"Second\"]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorMultipleParameters alloc] initWithFirstParameter:@\"First\" secondParameter:@\"Second\"] autorelease]");
   }
 
   // @Test
@@ -49,7 +49,7 @@ public class ConstructorTest extends GenerationTest {
   //   String className = DefaultConstructorWithDefaultValue.class.getSimpleName();
   //   String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-  //   assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithDefaultValue alloc] init]");
+  //   assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithDefaultValue alloc] init] autorelease]");
   // }
 
   public void testClassWithDefaultConstructorWithInitBlock() throws IOException {
@@ -57,7 +57,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithInitBlock.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithInitBlock alloc] initWithName:@\"ClassWithDefaultConstructorWithInitBlock\"]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithInitBlock alloc] initWithName:@\"ClassWithDefaultConstructorWithInitBlock\"] autorelease]");
   }
 
   public void testClassWithDefaultConstructorWithMultipleInitBlocks() throws IOException {
@@ -65,7 +65,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithMultipleInitBlocks.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithMultipleInitBlocks alloc] initWithName:@\"ClassWithDefaultConstructorWithMultipleInitBlocks\"]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithMultipleInitBlocks alloc] initWithName:@\"ClassWithDefaultConstructorWithMultipleInitBlocks\"] autorelease]");
   }
 
   public void testClassWithDefaultConstructorWithPrivateProperty() throws IOException {
@@ -73,7 +73,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithPrivateProperty.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithPrivateProperty alloc] initWithName:@\"ClassWithDefaultConstructorWithPrivateProperty\"]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithPrivateProperty alloc] initWithName:@\"ClassWithDefaultConstructorWithPrivateProperty\"] autorelease]");
   }
 
   public void testClassWithSecondaryConstructor() throws IOException {
@@ -81,7 +81,7 @@ public class ConstructorTest extends GenerationTest {
     String className = SecondaryConstructor.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithSecondaryConstructor alloc] init]");
+    assertTranslation(translation, "[[[CommonClassWithSecondaryConstructor alloc] init] autorelease]");
   }
 
   public void testClassWithDefaultConstructorWithIntParameter() throws IOException {
@@ -89,7 +89,7 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithIntParameter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithIntParameter alloc] initWithIntParameter:1]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithIntParameter alloc] initWithIntParameter:1] autorelease]");
   }
 
   // @Test
@@ -98,8 +98,8 @@ public class ConstructorTest extends GenerationTest {
   //   String className = DefaultConstructorWithNullableIntParameter.class.getSimpleName();
   //   String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-  //   assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithNullableIntParameter alloc] "
-  //       + "initWithNullableIntParameter:nullableInteger]");
+  //   assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithNullableIntParameter alloc] "
+  //       + "initWithNullableIntParameter:nullableInteger] autorelease]");
   // }
 
   // @Test
@@ -108,9 +108,9 @@ public class ConstructorTest extends GenerationTest {
   //   String className = DefaultConstructorWithListParameter.class.getSimpleName();
   //   String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-  //   assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithListParameter alloc] "
+  //   assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithListParameter alloc] "
   //       + "initWithListParameter:JavaUtilArrays_asListWithNSObjectArray_([IOSObjectArray arrayWithObjects:(id[])"
-  //       + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])]");
+  //       + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])] autorelease]");
   // }
 
   // @Test
@@ -119,9 +119,9 @@ public class ConstructorTest extends GenerationTest {
   //   String className = DefaultConstructorWithMutableListParameter.class.getSimpleName();
   //   String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-  //   assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithMutableListParameter alloc] "
-  //       + "initWithMutableListParemeter:JavaUtilArrays_asListWithNSObjectArray_([IOSObjectArray arrayWithObjects:(id[])"
-  //       + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])]");
+  //   assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithMutableListParameter alloc] "
+  //       + "initWithMutableListParameter:JavaUtilArrays_asListWithNSObjectArray_([IOSObjectArray arrayWithObjects:(id[])"
+  //       + "{ CommonInt_valueOfWithInt_(1) } count:1 type:CommonInt_class_()])] autorelease]");
   // }
 
   public void testClassWithDefaultConstructorWithUserClassParameter() throws IOException {
@@ -129,14 +129,14 @@ public class ConstructorTest extends GenerationTest {
     String className = DefaultConstructorWithUserClassParameter.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithDefaultConstructorWithUserClassParameter alloc] "
-        + "initWithUserClassParameter:[[CommonClassWithoutConstructor alloc] init]]");
+    assertTranslation(translation, "[[[CommonClassWithDefaultConstructorWithUserClassParameter alloc] "
+        + "initWithUserClassParameter:[[[CommonClassWithoutConstructor alloc] init] autorelease]] autorelease]");
   }
 
   public void testClassNameWithUnderscores() throws IOException {
     String className = JavaUsingClassWithUnderscoresInItsName.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[[CommonClassWithUnderscores_In_Its_Name alloc] init]");
+    assertTranslation(translation, "[[[CommonClassWithUnderscores_In_Its_Name alloc] init] autorelease]");
   }
 }

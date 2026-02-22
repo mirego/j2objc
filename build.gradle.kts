@@ -1,10 +1,12 @@
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
+
 plugins {
-    java
     idea
+    java
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    toolchain.languageVersion = JavaLanguageVersion.of(11)
 }
 
 tasks.named("clean") {

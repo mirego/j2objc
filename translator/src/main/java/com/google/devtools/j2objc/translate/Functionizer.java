@@ -16,7 +16,6 @@ package com.google.devtools.j2objc.translate;
 
 import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
 import com.google.devtools.j2objc.ast.AnnotationTypeDeclaration;
-import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.Block;
 import com.google.devtools.j2objc.ast.BodyDeclaration;
 import com.google.devtools.j2objc.ast.ClassInstanceCreation;
@@ -31,7 +30,6 @@ import com.google.devtools.j2objc.ast.MethodDeclaration;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.NativeStatement;
 import com.google.devtools.j2objc.ast.NormalAnnotation;
-import com.google.devtools.j2objc.ast.PropertyAccess;
 import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.ReturnStatement;
 import com.google.devtools.j2objc.ast.SimpleName;
@@ -46,7 +44,6 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.TreeVisitor;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
-import com.google.devtools.j2objc.types.ExecutablePair;
 import com.google.devtools.j2objc.types.FunctionElement;
 import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
@@ -62,17 +59,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import kotlinx.metadata.KmDeclarationContainer;
-import kotlinx.metadata.KmFunction;
-import kotlinx.metadata.KmProperty;
 
 /**
  * Converts methods that don't need dynamic dispatch to C functions. This optimization
@@ -259,7 +250,6 @@ public class Functionizer extends UnitTreeVisitor {
 
     // kotlin interop >>
     if (KotlinUtil.isKotlinType(method)) {
-      endVisitKotlin(node, method);
       return;
     }
     // kotlin interop <<
@@ -332,7 +322,6 @@ public class Functionizer extends UnitTreeVisitor {
 
     // kotlin interop >>
     if (KotlinUtil.isKotlinType(element)) {
-      endVisitKotlin(node, element);
       return;
     }
     // kotlin interop <<
@@ -674,142 +663,4 @@ public class Functionizer extends UnitTreeVisitor {
     return false;
   }
 
-  // kotlin interop >>
-
-  private void endVisitKotlin(ClassInstanceCreation node, ExecutableElement element) {
-    String fullName = nameTable.getFullFunctionName(element);
-
-    String className = node.getExecutableElement().getEnclosingElement().getSimpleName().toString();
-    int idx = fullName.indexOf(className);
-    fullName = fullName.substring(0, idx + className.length());
-
-    GeneratedExecutableElement classElement = GeneratedExecutableElement
-      .newMethodWithSelector(fullName, node.getTypeMirror(), ElementUtil.getDeclaringClass(element));
-
-    GeneratedExecutableElement allocElement = GeneratedExecutableElement
-      .newMethodWithSelector("alloc", node.getExecutableType().getReturnType(),
-        ElementUtil.getDeclaringClass(element));
-    ExecutablePair allocPair = new ExecutablePair(allocElement, node.getExecutableType());
-
-    MethodInvocation allocMethod = new MethodInvocation(allocPair, new SimpleName(classElement));
-
-    MethodInvocation initMethod = new MethodInvocation(node.getExecutablePair(), allocMethod);
-    TreeUtil.moveList(node.getCaptureArgs(), initMethod.getArguments());
-    TreeUtil.moveList(node.getArguments(), initMethod.getArguments());
-
-    node.replaceWith(initMethod);
-  }
-
-  private void endVisitKotlin(MethodInvocation node, ExecutableElement element) {
-    KmDeclarationContainer declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(element);
-    KmFunction kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, declarationContainer);
-    // if we did not find the function directly on the container, check is this class has a companion and look there
-    Element actualContainingElement = null;
-    if (kotlinFunction == null && ElementUtil.isStatic(element)) {
-      List<? extends Element> enclosedElements = element.getEnclosingElement().getEnclosedElements();
-      // Check in the enclosed elements what we have for the companion
-      Optional<? extends Element> first = enclosedElements.stream().filter(KotlinUtil::isElementKotlinCompanionObjectOrObject).findFirst();
-      if (first.isPresent()) {
-        actualContainingElement = first.get();
-        declarationContainer = KotlinUtil.getElementKotlinDeclarationContainer(actualContainingElement);
-        kotlinFunction = KotlinUtil.matchFunctionNameWithKotlin(element, declarationContainer);
-      }
-    }
-
-    KmProperty propertyAccessor = null;
-    if (kotlinFunction == null) {
-      propertyAccessor = KotlinUtil.getKotlinPropertyAccessor(element, declarationContainer);
-    }
-
-    // Enum property access or function calls do not happen on the Enum but on an instance
-    // so we don't need any special handling
-    if (kotlinFunction == null && propertyAccessor == null
-      && (KotlinUtil.isKotlinEnum(declarationContainer) || KotlinUtil.isKotlinEnumSpecialMethodCall(element))) {
-      Expression expression = convertEnumExpression(node, element);
-      node.setExpression(expression);
-      return;
-    }
-
-    if (KotlinUtil.isKotlinCompanionObjectOrObject(declarationContainer)) {
-      Expression expression = convertCompanionObjectOrObjectExpression(node, element, actualContainingElement);
-      node.setExpression(expression);
-    }
-
-    if (propertyAccessor != null) {
-      convertPropertyAccessExpression(node, element, propertyAccessor);
-    }
-  }
-
-  private void convertPropertyAccessExpression(MethodInvocation node, ExecutableElement element, KmProperty getterOrSetterProperty) {
-    SimpleName simpleName = new SimpleName(getterOrSetterProperty.getName());
-    simpleName.setTypeMirror(element.getReturnType());
-    PropertyAccess propertyAccess = new PropertyAccess(node.getExpression(), simpleName);
-
-    if (KotlinUtil.isKotlinGetter(element)) {
-      node.replaceWith(propertyAccess);
-    } else {
-      List<Expression> arguments = node.getArguments();
-      if (arguments.size() != 1) {
-        throw new RuntimeException("Kotlin interop assumes 1 argument when handling auto generated setter ... " + node.toString());
-      }
-      Assignment assignment = new Assignment(propertyAccess, arguments.get(0).copy());
-      node.replaceWith(assignment);
-    }
-  }
-
-  private Expression convertCompanionObjectOrObjectExpression(MethodInvocation node, ExecutableElement element, @Nullable Element actualContainingElement) {
-    String executableElementName = KotlinUtil.getKotlinElementName(element, nameTable);
-    TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-    Expression nodeExpression = node.getExpression();
-
-    String instanceSelector;
-    SimpleName executableExpression;
-    if (ElementUtil.isStatic(element)) {
-      if (actualContainingElement != null) {
-        instanceSelector = "companion";
-      } else if (nodeExpression != null) {
-        instanceSelector = NameTable.uncapitalize(nodeExpression.toString());
-      } else {
-        instanceSelector = "shared";
-      }
-      executableExpression = new SimpleName(executableElementName);
-    } else if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(nodeExpression)) {
-      FieldAccess fieldAccess = (FieldAccess) nodeExpression;
-      instanceSelector = NameTable.uncapitalize(fieldAccess.getExpression().toString());
-      executableExpression = new SimpleName(executableElementName);
-    } else {
-      instanceSelector = getCompanionObjectOrObjectInstanceSelector(nodeExpression.toString());
-      executableExpression = new SimpleName(executableElementName + NameTable.capitalize(instanceSelector));
-    }
-    executableExpression.setTypeMirror(typeMirror);
-
-    if (instanceSelector != null) {
-      GeneratedExecutableElement getInstanceElement = GeneratedExecutableElement
-          .newMethodWithSelector(instanceSelector, typeMirror,
-              ElementUtil.getDeclaringClass(element));
-
-      ExecutablePair getInstancePair = new ExecutablePair(getInstanceElement);
-      return new MethodInvocation(getInstancePair, executableExpression);
-    } else {
-      return executableExpression;
-    }
-  }
-
-  private String getCompanionObjectOrObjectInstanceSelector(String nodeExpression) {
-    String[] nodeExpressionSplit = nodeExpression.split("\\.");
-
-    if (nodeExpressionSplit.length < 2 || nodeExpressionSplit.length > 3) {
-      throw new RuntimeException("Expected a instance selector with the pattern Class.Companion or Class.Object.INSTANCE: " + nodeExpression);
-    }
-    return NameTable.uncapitalize(nodeExpressionSplit[1]);
-  }
-
-  private Expression convertEnumExpression(MethodInvocation node, ExecutableElement element) {
-    String fullName = KotlinUtil.getKotlinElementName(element, nameTable);
-    TypeMirror typeMirror = ElementUtil.getDeclaringClass(element).asType();
-    return new SimpleName(fullName)
-      .setTypeMirror(typeMirror);
-  }
-
-  // kotlin interop <<
 }

@@ -121,6 +121,10 @@ IOSClass *CommonByte_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 //- (jbyte)charValue {
 //  return (jbyte) self.charValue;
 //}
@@ -149,20 +153,20 @@ IOSClass *CommonByte_TYPE;
   return CommonInt_toStringWithInt_((jint) self.charValue);
 }
 
-- (NSUInteger)hash {
-  return CommonByte_hashCodeWithByte_((jbyte) self.charValue);
-}
+//- (NSUInteger)hash {
+//  return CommonByte_hashCodeWithByte_((jbyte) self.charValue);
+//}
 
 + (jint)hashCodeWithByte:(jbyte)value {
   return CommonByte_hashCodeWithByte_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  if ([obj isKindOfClass:[CommonByte class]]) {
-    return ((jbyte) self.charValue) == ((jbyte) [((CommonByte *) nil_chk(((CommonByte *) obj))) charValue]);
-  }
-  return false;
-}
+//- (jboolean)isEqual:(id)obj {
+//  if ([obj isKindOfClass:[CommonByte class]]) {
+//    return ((jbyte) self.charValue) == ((jbyte) [((CommonByte *) nil_chk(((CommonByte *) obj))) charValue]);
+//  }
+//  return false;
+//}
 
 - (jint)compareToOther:(CommonByte *)anotherByte {
   cast_chk(anotherByte, [CommonByte class]);
@@ -261,7 +265,7 @@ IOSClass *CommonByte_TYPE;
     { "UPPER_CASE_DIGITS", "[C", .constantValue.asLong = 0, 0x1a, -1, 24, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "B", "valueOf", "parseByte", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "decode", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonByte;", "compare", "BB", "toUnsignedInt", "toUnsignedLong", "toHexString", "BZ", &CommonByte_TYPE, "Ljava/lang/Class<Ljava/lang/Byte;>;", &CommonByte_DIGITS, &CommonByte_UPPER_CASE_DIGITS, "LCommonByte_ByteCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Byte;>;" };
-  static const J2ObjcClassInfo _CommonByte = { "Byte", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 9, -1, 25, -1, 26, -1 };
+  static const J2ObjcClassInfo _CommonByte = { "Byte", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 8, -1, 25, -1, 26, -1 };
   return &_CommonByte;
 }
 
@@ -321,7 +325,7 @@ void CommonByte_initWithByte_(CommonByte *self, jbyte value) {
 }
 
 CommonByte *new_CommonByte_initWithByte_(jbyte value) {
-  return [CommonByte numberWithChar:value];
+  return [[CommonByte alloc] initWithChar:value];
 }
 
 CommonByte *create_CommonByte_initWithByte_(jbyte value) {
@@ -333,7 +337,7 @@ void CommonByte_initWithNSString_(CommonByte *self, NSString *s) {
 }
 
 CommonByte *new_CommonByte_initWithNSString_(NSString *s) {
-  return [CommonByte numberWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
+  return [[CommonByte alloc] initWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
 }
 
 CommonByte *create_CommonByte_initWithNSString_(NSString *s) {
@@ -341,8 +345,7 @@ CommonByte *create_CommonByte_initWithNSString_(NSString *s) {
 }
 
 jint CommonByte_hashCodeWithByte_(jbyte value) {
-  CommonByte_initialize();
-  return (jint) value;
+  return (jint) CommonByte_valueOfWithByte_(value).hash;
 }
 
 jint CommonByte_compareWithByte_withByte_(jbyte x, jbyte y) {

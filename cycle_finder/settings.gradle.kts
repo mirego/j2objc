@@ -1,14 +1,10 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("LocalVariableName", "VariableNaming")
 
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
         google()
-    }
-
-    plugins {
-        id("org.checkerframework") version "0.6.25"
+        gradlePluginPortal()
     }
 }
 

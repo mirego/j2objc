@@ -66,9 +66,9 @@ void JavaLangReflectAccessibleObject_init(JavaLangReflectAccessibleObject *self)
 }
 
 - (IOSObjectArray *)getDeclaredAnnotations {
-  // can't call an abstract method
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
+// kotlin interop >>
+  JreThrowCantCallAnAbstractMethodException();
+// kotlin interop <<
 }
 
 - (IOSObjectArray *)getAnnotations {
@@ -90,9 +90,9 @@ void JavaLangReflectAccessibleObject_init(JavaLangReflectAccessibleObject *self)
 }
 
 - (NSString *)toGenericString {
-  // can't call an abstract method
-  [self doesNotRecognizeSelector:_cmd];
-  return nil;
+// kotlin interop >>
+  JreThrowCantCallAnAbstractMethodException();
+// kotlin interop <<
 }
 
 // Default methods in java.lang.reflect.AnnotatedElement.

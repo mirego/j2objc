@@ -102,4 +102,4 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-${JAVA} ${JAVA_ARGS[*]} -jar "${JAR}" "${J2OBJC_ARGS[@]}"
+${JAVA} ${JAVA_ARGS[*]} --add-exports java.compiler/javax.lang.model.element=ALL-UNNAMED --add-exports java.compiler/javax.lang.model.type=ALL-UNNAMED --add-exports java.compiler/javax.lang.model.util=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED -jar "${JAR}" "${J2OBJC_ARGS[@]}"

@@ -1,18 +1,17 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("LocalVariableName", "VariableNaming")
 
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal()
         google()
+        gradlePluginPortal()
     }
 
     val kotlin_version: String by settings
 
     plugins {
         kotlin("jvm") version kotlin_version
-        id("org.checkerframework") version "0.6.25"
-        id("com.adarshr.test-logger") version "3.2.0"
+        id("com.adarshr.test-logger") version "4.0.0"
     }
 }
 

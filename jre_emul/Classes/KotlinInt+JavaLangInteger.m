@@ -171,6 +171,10 @@ IOSIntArray *CommonInt_sizeTable;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 - (jbyte)charValue {
   return (jbyte) self.intValue;
 }
@@ -199,20 +203,20 @@ IOSIntArray *CommonInt_sizeTable;
   return CommonInt_toStringWithInt_(self.intValue);
 }
 
-- (NSUInteger)hash {
-  return CommonInt_hashCodeWithInt_(self.intValue);
-}
+//- (NSUInteger)hash {
+//  return CommonInt_hashCodeWithInt_(self.intValue);
+//}
 
 + (jint)hashCodeWithInt:(jint)value {
   return CommonInt_hashCodeWithInt_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  if ([obj isKindOfClass:[CommonInt class]]) {
-    return self.intValue == [((CommonInt *) nil_chk(((CommonInt *) obj))) intValue];
-  }
-  return false;
-}
+//- (jboolean)isEqual:(id)obj {
+//  if ([obj isKindOfClass:[CommonInt class]]) {
+//    return self.intValue == [((CommonInt *) nil_chk(((CommonInt *) obj))) intValue];
+//  }
+//  return false;
+//}
 
 + (CommonInt *)getIntegerWithNSString:(NSString *)nm {
   return CommonInt_getIntegerWithNSString_(nm);
@@ -447,7 +451,7 @@ IOSIntArray *CommonInt_sizeTable;
     { "serialVersionUID", "J", .constantValue.asLong = CommonInt_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "II", "toUnsignedString", "toHexString", "I", "toOctalString", "toBinaryString", "toUnsignedString0", "getChars", "II[C", "stringSize", "parseInt", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "parseUnsignedInt", "valueOf", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "getInteger", "LNSString;LCommonInt;", "decode", "compareTo", "LCommonInt;", "compare", "compareUnsigned", "toUnsignedLong", "divideUnsigned", "remainderUnsigned", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "bitCount", "rotateLeft", "rotateRight", "reverse", "signum", "reverseBytes", "sum", "max", "min", &CommonInt_TYPE, "Ljava/lang/Class<Ljava/lang/Integer;>;", &CommonInt_sizeTable, "LCommonInt_IntegerCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Integer;>;" };
-  static const J2ObjcClassInfo _CommonInt = { "Integer", "java.lang", ptrTable, methods, fields, 7, 0x11, 52, 8, -1, 48, -1, 49, -1 };
+  static const J2ObjcClassInfo _CommonInt = { "Integer", "java.lang", ptrTable, methods, fields, 7, 0x11, 52, 7, -1, 48, -1, 49, -1 };
   return &_CommonInt;
 }
 
@@ -627,11 +631,11 @@ void CommonInt_initWithInt_(CommonInt *self, jint value) {
 }
 
 CommonInt *new_CommonInt_initWithInt_(jint value) {
-  J2OBJC_NEW_IMPL(CommonInt, initWithInt_, value)
+  return [[CommonInt alloc] initWithInt:value];
 }
 
 CommonInt *create_CommonInt_initWithInt_(jint value) {
-  J2OBJC_CREATE_IMPL(CommonInt, initWithInt_, value)
+  return [CommonInt numberWithInt:value];
 }
 
 void CommonInt_initWithNSString_(CommonInt *self, NSString *s) {
@@ -639,16 +643,15 @@ void CommonInt_initWithNSString_(CommonInt *self, NSString *s) {
 }
 
 CommonInt *new_CommonInt_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonInt, initWithNSString_, s)
+  return [[CommonInt alloc] initWithInt:CommonInt_parseIntWithNSString_withInt_(s, 10)];
 }
 
 CommonInt *create_CommonInt_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonInt, initWithNSString_, s)
+  return [CommonInt numberWithInt:CommonInt_parseIntWithNSString_withInt_(s, 10)];
 }
 
 jint CommonInt_hashCodeWithInt_(jint value) {
-  CommonInt_initialize();
-  return value;
+  return (jint) CommonInt_valueOfWithInt_(value).hash;
 }
 
 CommonInt *CommonInt_getIntegerWithNSString_(NSString *nm) {

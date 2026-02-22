@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-if type -p /usr/local/bin/ccache >/dev/null 2>&1; then
-  CCACHE=/usr/local/bin/ccache
-elif type -p /opt/homebrew/bin/ccache >/dev/null 2>&1; then
+if type -p /opt/homebrew/bin/ccache >/dev/null 2>&1; then
   CCACHE=/opt/homebrew/bin/ccache
+elif type -p /usr/local/bin/ccache >/dev/null 2>&1; then
+  CCACHE=/usr/local/bin/ccache
 fi
 
-if type -p $CCACHE >/dev/null 2>&1; then
+if [ -n ${CCACHE+x} ]; then
   export CCACHE_CPP2="true"
   export CCACHE_DEPEND="true"
   export CCACHE_DIRECT="true"

@@ -12,6 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -35,7 +36,7 @@
  - seealso: java.lang.Number
  @since JDK1.1
  */
-@interface CommonShort (JavaLangShort) < CommonKotlinComparable >
+@interface CommonShort (JavaLangShort) < JavaIoSerializable, CommonKotlinComparable >
 @property (readonly, class) jshort MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jshort MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
@@ -52,7 +53,7 @@
  <code>parseShort</code> method for radix 10.
  @param s the <code>String</code>  to be converted to a
             <code>Short</code>
- @throw NumberFormatExceptionIf the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
            does not contain a parsable <code>short</code>.
  - seealso: java.lang.Short#parseShort(java.lang.String, int)
  */
@@ -131,7 +132,7 @@
  @param nm the <code>String</code>  to decode.
  @return a <code>Short</code> object holding the <code>short</code>
              value represented by <code>nm</code>
- @throw NumberFormatExceptionif the <code>String</code> does not
+ @throw NumberFormatException If the <code>String</code> does not
              contain a parsable <code>short</code>.
  - seealso: java.lang.Short#parseShort(java.lang.String, int)
  */
@@ -152,7 +153,7 @@
  @return <code>true</code> if the objects are the same;
                    <code>false</code> otherwise.
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Short</code> as a <code>float</code>
@@ -165,7 +166,7 @@
   of invoking <code>intValue()</code>.
  @return a hash code value for this <code>Short</code>
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>short</code> value; compatible with
@@ -203,7 +204,7 @@
             representation to be parsed
  @return the <code>short</code> value represented by the
            argument in decimal.
- @throw NumberFormatExceptionIf the string does not
+ @throw NumberFormatException If the string does not
            contain a parsable <code>short</code>.
  */
 + (jshort)parseShortWithNSString:(NSString *)s;
@@ -243,7 +244,7 @@
  @param radix the radix to be used while parsing <code>s</code>
  @return the <code>short</code> represented by the string
                    argument in the specified radix.
- @throw NumberFormatExceptionIf the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
                    does not contain a parsable <code>short</code>.
  */
 + (jshort)parseShortWithNSString:(NSString *)s
@@ -344,7 +345,7 @@
  @param s the string to be parsed
  @return a <code>Short</code> object holding the value
            represented by the string argument
- @throw NumberFormatExceptionIf the <code>String</code> does
+ @throw NumberFormatException If the <code>String</code> does
            not contain a parsable <code>short</code>.
  */
 + (CommonShort *)valueOfWithNSString:(NSString *)s;
@@ -370,7 +371,7 @@
  @return a <code>Short</code> object holding the value
                    represented by the string argument in the
                    specified radix.
- @throw NumberFormatExceptionIf the <code>String</code> does
+ @throw NumberFormatException If the <code>String</code> does
                    not contain a parsable <code>short</code>.
  */
 + (CommonShort *)valueOfWithNSString:(NSString *)s

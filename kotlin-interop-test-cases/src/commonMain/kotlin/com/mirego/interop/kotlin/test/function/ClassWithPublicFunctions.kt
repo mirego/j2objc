@@ -94,8 +94,9 @@ class ClassWithPublicFunctions {
     fun localFunction(): String {
         var testString = ""
         fun concatInput(input: String): String {
-            return testString.plus(input)
+            return testString + input
         }
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         testString = concatInput("local")
         return concatInput(" function")
     }

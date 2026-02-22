@@ -534,9 +534,9 @@ public class Options {
       } else if (arg.equals("--no-extract-unsequenced")) {
         extractUnsequencedModifications = false;
       } else if (arg.equals("--doc-comments")) {
-        docCommentsEnabled = true;
+        // docCommentsEnabled = true;
       } else if (arg.equals("--doc-comment-warnings")) {
-        reportJavadocWarnings = true;
+        // reportJavadocWarnings = true;
       } else if (arg.equals("--static-accessor-methods")) {
         staticAccessorMethods = true;
       } else if (arg.equals("--class-properties")) {

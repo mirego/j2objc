@@ -84,11 +84,9 @@ public class AbstractMethodRewriter extends UnitTreeVisitor {
 
     Block body = new Block();
     // Generate a body which throws a NSInvalidArgumentException.
-    String bodyCode = "// can't call an abstract method\n"
-        + "[self doesNotRecognizeSelector:_cmd];";
-    if (!TypeUtil.isVoid(node.getReturnTypeMirror())) {
-      bodyCode += "\nreturn 0;"; // Never executes, but avoids a gcc warning.
-    }
+// kotlin interop >>
+    String bodyCode = "JreThrowCantCallAnAbstractMethodException();";
+// kotlin interop <<
     body.addStatement(new NativeStatement(bodyCode));
     node.setBody(body);
     node.removeModifiers(java.lang.reflect.Modifier.ABSTRACT);

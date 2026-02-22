@@ -7,6 +7,7 @@ import java.io.IOException;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassConstructor;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassEquals;
 import com.mirego.interop.java.test.dataclass.SimpleDataClassGetter;
+import com.mirego.interop.java.test.dataclass.DataClassInitializedWithCollectionFields;
 
 public class DataClassTest extends GenerationTest {
 
@@ -43,5 +44,15 @@ public class DataClassTest extends GenerationTest {
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
     assertTranslation(translation, "return [simpleDataClass isEqual:simpleDataClass2];");
+  }
+
+  public void testDataClassInitializedWithCollectionFields() throws Exception {
+    String className = DataClassInitializedWithCollectionFields.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, " initWithCollection:javaWrapCollection(stringCollection)");
+    assertTranslation(translation, " list:javaWrapCollection(stringList)");
+    assertTranslation(translation, " set:javaWrapSet(stringSet)");
+    assertTranslation(translation, " map:javaWrapMap(stringMap)");
   }
 }

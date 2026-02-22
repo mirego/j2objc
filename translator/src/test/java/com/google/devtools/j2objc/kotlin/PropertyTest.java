@@ -22,6 +22,7 @@ import com.mirego.interop.java.test.property.LongProperty;
 import com.mirego.interop.java.test.property.NullableBooleanProperty;
 import com.mirego.interop.java.test.property.NullableProperty;
 import com.mirego.interop.java.test.property.PropertyAnnotatedWithJvmField;
+import com.mirego.interop.java.test.property.PropertyAnnotatedWithJvmFieldInsideAnEnum;
 import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGeneratedGetter;
 import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
 import com.mirego.interop.java.test.property.ShortProperty;
@@ -225,6 +226,12 @@ public class PropertyTest extends GenerationTest {
   public void testPropertyWithJvmFieldAnnotation() throws IOException {
     String className = PropertyAnnotatedWithJvmField.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
-    assertTranslation(translation, "return classWithBackingPropertyCustomGetter.name;");
+    assertTranslation(translation, "return classWithJvmFieldProperty.name;");
+  }
+
+  public void testPropertyWithJvmFieldAnnotationBeginningWithIs() throws IOException {
+    String className = PropertyAnnotatedWithJvmFieldInsideAnEnum.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    assertTranslation(translation, "return ((CommonEnumWithJvmFieldProperty *) nil_chk(enumWithJvmFieldProperty)).fieldWithCamelCaseName;");
   }
 }

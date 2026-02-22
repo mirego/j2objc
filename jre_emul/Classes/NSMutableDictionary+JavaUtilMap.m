@@ -44,7 +44,7 @@
 }
 
 - (id)java_clone {
-  return AUTORELEASE([[CommonMutableDictionary alloc] initWithDictionary:self]);
+  return AUTORELEASE([[NSMutableDictionary alloc] initWithDictionary:self]);
 }
 
 // JavaUtilMap
@@ -294,7 +294,7 @@ withJavaUtilFunctionBiFunction:(id<JavaUtilFunctionBiFunction>)remappingFunction
 }
 
 - (NSUInteger)hash {
-  return [javaWrapSet([mutableDictionary_ allKeys]) hash];
+  return [[mutableDictionary_ allKeys] hash];
 }
 
 - (NSString *)description {
@@ -483,7 +483,7 @@ withJavaUtilFunctionBiFunction:(id<JavaUtilFunctionBiFunction>)remappingFunction
 }
 
 - (jboolean)isEqual:(id)o {
-  return [[mutableDictionary_ allKeys] isEqualToArray:javaWrapArray(o)];
+  return [[mutableDictionary_ allKeys] isEqualToArray:javaWrapCollection(o)];
 }
 
 - (NSString *)description {

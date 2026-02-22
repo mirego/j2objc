@@ -106,6 +106,10 @@ IOSClass *CommonShort_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 - (jbyte)charValue {
   return (jbyte) self.shortValue;
 }
@@ -134,20 +138,20 @@ IOSClass *CommonShort_TYPE;
   return CommonInt_toStringWithInt_((jint) self.shortValue);
 }
 
-- (NSUInteger)hash {
-  return CommonShort_hashCodeWithShort_(self.shortValue);
-}
+//- (NSUInteger)hash {
+//  return CommonShort_hashCodeWithShort_(self.shortValue);
+//}
 
 + (jint)hashCodeWithShort:(jshort)value {
   return CommonShort_hashCodeWithShort_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  if ([obj isKindOfClass:[CommonShort class]]) {
-    return self.shortValue == [((CommonShort *) nil_chk(((CommonShort *) obj))) shortValue];
-  }
-  return false;
-}
+//- (jboolean)isEqual:(id)obj {
+//  if ([obj isKindOfClass:[CommonShort class]]) {
+//    return self.shortValue == [((CommonShort *) nil_chk(((CommonShort *) obj))) shortValue];
+//  }
+//  return false;
+//}
 
 - (jint)compareToOther:(CommonShort *)anotherShort {
   cast_chk(anotherShort, [CommonShort class]);
@@ -243,7 +247,7 @@ IOSClass *CommonShort_TYPE;
     { "serialVersionUID", "J", .constantValue.asLong = CommonShort_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "S", "parseShort", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "valueOf", "decode", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonShort;", "compare", "SS", "reverseBytes", "toUnsignedInt", "toUnsignedLong", &CommonShort_TYPE, "Ljava/lang/Class<Ljava/lang/Short;>;", "LCommonShort_ShortCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Short;>;" };
-  static const J2ObjcClassInfo _CommonShort = { "Short", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 7, -1, 22, -1, 23, -1 };
+  static const J2ObjcClassInfo _CommonShort = { "Short", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 6, -1, 22, -1, 23, -1 };
   return &_CommonShort;
 }
 
@@ -305,11 +309,11 @@ void CommonShort_initWithShort_(CommonShort *self, jshort value) {
 }
 
 CommonShort *new_CommonShort_initWithShort_(jshort value) {
-  J2OBJC_NEW_IMPL(CommonShort, initWithShort_, value)
+  return [[CommonShort alloc] initWithShort:value];
 }
 
 CommonShort *create_CommonShort_initWithShort_(jshort value) {
-  J2OBJC_CREATE_IMPL(CommonShort, initWithShort_, value)
+  return [CommonShort numberWithShort:value];
 }
 
 void CommonShort_initWithNSString_(CommonShort *self, NSString *s) {
@@ -317,16 +321,15 @@ void CommonShort_initWithNSString_(CommonShort *self, NSString *s) {
 }
 
 CommonShort *new_CommonShort_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonShort, initWithNSString_, s)
+  return [[CommonShort alloc] initWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
 }
 
 CommonShort *create_CommonShort_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonShort, initWithNSString_, s)
+  return [CommonShort numberWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
 }
 
 jint CommonShort_hashCodeWithShort_(jshort value) {
-  CommonShort_initialize();
-  return (jint) value;
+  return (jint) CommonShort_valueOfWithShort_(value).hash;
 }
 
 jint CommonShort_compareWithShort_withShort_(jshort x, jshort y) {

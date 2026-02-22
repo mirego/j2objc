@@ -12,6 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -44,7 +45,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonInt (JavaLangInteger) < CommonKotlinComparable >
+@interface CommonInt (JavaLangInteger) < JavaIoSerializable, CommonKotlinComparable >
 @property (readonly, class) jint MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
 @property (readonly, class) jint MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
@@ -70,7 +71,7 @@
  <code>parseInt</code> method for radix 10.
  @param s the <code>String</code>  to be converted to an
  <code>Integer</code> .
- @throw NumberFormatExceptionif the <code>String</code> does not
+ @throw NumberFormatException If the <code>String</code> does not
                 contain a parsable integer.
  - seealso: java.lang.Integer#parseInt(java.lang.String, int)
  */
@@ -174,7 +175,7 @@
  @param nm the <code>String</code>  to decode.
  @return an <code>Integer</code> object holding the <code>int</code>
               value represented by <code>nm</code>
- @throw NumberFormatExceptionif the <code>String</code> does not
+ @throw NumberFormatException If the <code>String</code> does not
              contain a parsable integer.
  - seealso: java.lang.Integer#parseInt(java.lang.String, int)
  */
@@ -214,7 +215,7 @@
  @return <code>true</code> if the objects are the same;
            <code>false</code> otherwise.
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Integer</code> as a <code>float</code>
@@ -334,7 +335,7 @@
            primitive <code>int</code> value represented by this
            <code>Integer</code> object.
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>int</code> value; compatible with
@@ -460,7 +461,7 @@
   method.
  @param s a <code>String</code>  containing the <code>int</code>              representation to be parsed
  @return the integer value represented by the argument in decimal.
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
                 parsable integer.
  */
 + (jint)parseIntWithNSString:(NSString *)s;
@@ -515,7 +516,7 @@
  @param radix the radix to be used while parsing <code>s</code> .
  @return the integer represented by the string argument in the
               specified radix.
- @throw NumberFormatExceptionif the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
               does not contain a parsable <code>int</code>.
  */
 + (jint)parseIntWithNSString:(NSString *)s
@@ -532,7 +533,7 @@
   method.
  @param s a <code>String</code>  containing the unsigned <code>int</code>             representation to be parsed
  @return the unsigned integer value represented by the argument in decimal.
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
              parsable unsigned integer.
  @since 1.8
  */
@@ -570,7 +571,7 @@
  @param radix the radix to be used while parsing <code>s</code> .
  @return the integer represented by the string argument in the
               specified radix.
- @throw NumberFormatExceptionif the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
               does not contain a parsable <code>int</code>.
  @since 1.8
  */
@@ -934,7 +935,7 @@
  @param s the string to be parsed.
  @return an <code>Integer</code> object holding the value
               represented by the string argument.
- @throw NumberFormatExceptionif the string cannot be parsed
+ @throw NumberFormatException If the string cannot be parsed
               as an integer.
  */
 + (CommonInt * __nonnull)valueOfWithNSString:(NSString *)s;
@@ -959,7 +960,7 @@
  @return an <code>Integer</code> object holding the value
               represented by the string argument in the specified
               radix.
- @throw NumberFormatExceptionif the <code>String</code>
+ @throw NumberFormatException If the <code>String</code>
              does not contain a parsable <code>int</code>.
  */
 + (CommonInt * __nonnull)valueOfWithNSString:(NSString *)s

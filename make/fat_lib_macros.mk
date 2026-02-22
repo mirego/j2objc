@@ -24,41 +24,41 @@ FAT_LIB_WATCHSIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_pa
 FAT_LIB_TV_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvos)
 FAT_LIB_TVSIMULATOR_SDK_DIR := $(shell bash $(J2OBJC_ROOT)/scripts/sysroot_path.sh --appletvsimulator)
 
-FAT_LIB_MACOSX_FLAGS = $(FAT_LIB_OSX_FLAGS) -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mmacosx-version-min=10.7 \
+FAT_LIB_MACOSX_FLAGS = $(FAT_LIB_OSX_FLAGS) -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mmacosx-version-min=11.0 \
   -isysroot $(FAT_LIB_MACOSX_SDK_DIR)
 FAT_LIB_MACOSX64_FLAGS = $(FAT_LIB_OSX_FLAGS) -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 \
   --target=arm64-apple-macos11 \
   -isysroot $(FAT_LIB_MACOSX_SDK_DIR)
 
-FAT_LIB_IPHONE_FLAGS = -arch armv7 -DJ2OBJC_BUILD_ARCH=armv7 -miphoneos-version-min=5.0 \
+FAT_LIB_IPHONE_FLAGS = -arch armv7 -DJ2OBJC_BUILD_ARCH=armv7 -miphoneos-version-min=15.0 \
   -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
-FAT_LIB_IPHONE64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -miphoneos-version-min=5.0 \
+FAT_LIB_IPHONE64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -miphoneos-version-min=15.0 \
   -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
-FAT_LIB_IPHONE64E_FLAGS = -arch arm64e -DJ2OBJC_BUILD_ARCH=arm64e -miphoneos-version-min=12.0 \
+FAT_LIB_IPHONE64E_FLAGS = -arch arm64e -DJ2OBJC_BUILD_ARCH=arm64e -miphoneos-version-min=15.0 \
   -isysroot $(FAT_LIB_IPHONE_SDK_DIR)
-FAT_LIB_WATCHV7K_FLAGS = -arch armv7k -DJ2OBJC_BUILD_ARCH=armv7k -mwatchos-version-min=2.0 \
+FAT_LIB_WATCHV7K_FLAGS = -arch armv7k -DJ2OBJC_BUILD_ARCH=armv7k -mwatchos-version-min=8.0 \
   -isysroot $(FAT_LIB_WATCH_SDK_DIR)
-FAT_LIB_WATCH64_FLAGS = -arch arm64_32 -DJ2OBJC_BUILD_ARCH=arm64_32 -mwatchos-version-min=2.0 \
+FAT_LIB_WATCH64_FLAGS = -arch arm64_32 -DJ2OBJC_BUILD_ARCH=arm64_32 -mwatchos-version-min=8.0 \
   -isysroot $(FAT_LIB_WATCH_SDK_DIR)
-FAT_LIB_WATCHSIMULATORI386_FLAGS = -arch i386 -DJ2OBJC_BUILD_ARCH=i386 -mwatchos-version-min=2.0 \
+FAT_LIB_WATCHSIMULATORI386_FLAGS = -arch i386 -DJ2OBJC_BUILD_ARCH=i386 -mwatchos-version-min=8.0 \
   -isysroot $(FAT_LIB_WATCHSIMULATOR_SDK_DIR)
-FAT_LIB_WATCHSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mwatchos-version-min=6.1 \
+FAT_LIB_WATCHSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mwatchos-version-min=8.0 \
   -isysroot $(FAT_LIB_WATCHSIMULATOR_SDK_DIR)
-FAT_LIB_WATCHSIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mwatchos-version-min=6.1 \
+FAT_LIB_WATCHSIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mwatchos-version-min=8.0 \
   -isysroot $(FAT_LIB_WATCHSIMULATOR_SDK_DIR)  --target=arm64-apple-watchos-simulator
-FAT_LIB_SIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -miphoneos-version-min=5.0 \
+FAT_LIB_SIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -miphoneos-version-min=15.0 \
   -isysroot $(FAT_LIB_SIMULATOR_SDK_DIR)
-FAT_LIB_SIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -miphoneos-version-min=12.0 \
+FAT_LIB_SIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -miphoneos-version-min=15.0 \
   -isysroot $(FAT_LIB_SIMULATOR_SDK_DIR) --target=arm64-apple-ios-simulator
 
-FAT_LIB_TV_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=9.0 \
+FAT_LIB_TV_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=15.0 \
   -isysroot $(FAT_LIB_TV_SDK_DIR)
-FAT_LIB_TVSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mappletvos-version-min=9.0 \
+FAT_LIB_TVSIMULATOR_FLAGS = -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 -mappletvos-version-min=15.0 \
   -isysroot $(FAT_LIB_TVSIMULATOR_SDK_DIR)
-FAT_LIB_TVSIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=9.0 \
+FAT_LIB_TVSIMULATOR64_FLAGS = -arch arm64 -DJ2OBJC_BUILD_ARCH=arm64 -mappletvos-version-min=15.0 \
   -isysroot $(FAT_LIB_TVSIMULATOR_SDK_DIR) --target=arm64-apple-tvos-simulator
 
-FAT_LIB_XCODE_FLAGS = -arch $(1) -DJ2OBJC_BUILD_ARCH=$(1) -miphoneos-version-min=5.0 \
+FAT_LIB_XCODE_FLAGS = -arch $(1) -DJ2OBJC_BUILD_ARCH=$(1) -miphoneos-version-min=15.0 \
   -isysroot $(SDKROOT)
 
 FAT_LIB_MAC_CATALYST_FLAGS = $(FAT_LIB_OSX_FLAGS) -arch x86_64 -DJ2OBJC_BUILD_ARCH=x86_64 \

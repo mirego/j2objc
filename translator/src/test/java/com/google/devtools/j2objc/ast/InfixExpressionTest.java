@@ -23,11 +23,11 @@ import java.io.IOException;
  */
 public class InfixExpressionTest extends GenerationTest {
 
-  public void testVeryDeeplyNextedExpression() throws IOException {
+  public void testVeryDeeplyNestedExpression() throws IOException {
     StringBuilder sb = new StringBuilder("return i == -1");
     // Create a 2000 node deep infix expression.
     for (int i = 0; i < 2000; i++) {
-      sb.append(" || i == " + i);
+      sb.append(" || i == ").append(i);
     }
     sb.append(";");
     String exprStr = sb.toString();

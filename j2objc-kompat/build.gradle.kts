@@ -1,58 +1,44 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import org.gradle.internal.os.OperatingSystem
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
-import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
-import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
-import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
-import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
-import java.io.ByteArrayOutputStream
+@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
 
-val kotlin_version: String by extra
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.npm.LockFileMismatchReport
+import org.jetbrains.kotlin.gradle.targets.js.npm.NpmExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import java.net.URI
+
 val detekt_version: String by extra
+val kotlin_version: String by extra
 
 val isCi = System.getenv().containsKey("CI")
 
 repositories {
-    mavenLocal()
     mavenCentral()
     google()
+    maven(url = URI("https://oss.sonatype.org/content/repositories/snapshots"))
 }
 
 plugins {
     idea
     kotlin("multiplatform")
-    id("io.gitlab.arturbosch.detekt")
-    // id("io.github.detekt.gradle.compiler-plugin")
+    id("com.google.devtools.ksp")
+    id("dev.detekt")
+    id("dev.mokkery")
     `maven-publish`
 }
 
-@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
-
     jvmToolchain(11)
 
-    jvm {
-        compilations.all {
-            kotlinOptions.allWarningsAsErrors = true
-        }
-    }
+    jvm()
 
     js(IR) {
-        moduleName = "j2objc-kompat"
+        outputModuleName.set("j2objc-kompat")
         browser()
         binaries.executable()
 
-        rootProject.plugins.withType(YarnPlugin::class.java).configureEach {
-            rootProject.the<YarnRootExtension>().yarnLockMismatchReport = YarnLockMismatchReport.WARNING
-            rootProject.the<YarnRootExtension>().yarnLockAutoReplace = true
-        }
-
-        rootProject.tasks.withType(KotlinNpmInstallTask::class.java).named("kotlinNpmInstall").configure {
-            args.addAll(listOf("--network-concurrency", "1", "--mutex", "network"))
+        rootProject.plugins.withType<NodeJsRootPlugin> {
+            rootProject.the<NpmExtension>().packageLockMismatchReport.set(LockFileMismatchReport.WARNING)
+            rootProject.the<NpmExtension>().packageLockAutoReplace.set(true)
         }
     }
 
@@ -66,58 +52,76 @@ kotlin {
         }
     }
 
-    ios { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-    iosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
+    iosArm64()
+    iosSimulatorArm64()
 
-    val iosMain by sourceSets.getting
-    val iosTest by sourceSets.getting
-    val iosSimulatorArm64Main by sourceSets.getting
-    val iosSimulatorArm64Test by sourceSets.getting
-    iosSimulatorArm64Main.dependsOn(iosMain)
-    iosSimulatorArm64Test.dependsOn(iosTest)
+    tvosArm64()
+    tvosSimulatorArm64()
 
-    tvos { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-    tvosSimulatorArm64 { compilations.configureEach { compilerOptions.configure { freeCompilerArgs.add("-Xallocator=custom") } } }
-
-    val tvosMain by sourceSets.getting
-    val tvosTest by sourceSets.getting
-    val tvosSimulatorArm64Main by sourceSets.getting
-    val tvosSimulatorArm64Test by sourceSets.getting
-    tvosSimulatorArm64Main.dependsOn(tvosMain)
-    tvosSimulatorArm64Test.dependsOn(tvosTest)
-
-    // Xcode 15 new linker is incompatible with Kotlin, tell it to use the old linker
-    val isXcode15 = if (!OperatingSystem.current().isMacOsX) false else {
-        val xcodeBuildOutput = ByteArrayOutputStream()
-        exec { commandLine("xcrun", "xcodebuild", "-version"); standardOutput = xcodeBuildOutput; isIgnoreExitValue = true }
-        xcodeBuildOutput.toString().contains("Xcode 15.")
-    }
-    if (isXcode15) {
-        targets.withType<KotlinNativeTarget> { binaries.withType<TestExecutable> { linkerOpts += "-ld64" } }
-    }
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
-        named("commonTest") {
+        commonMain {
+        }
+
+        commonTest {
             dependencies {
-                api(kotlin("test", kotlin_version))
+                implementation(kotlin("test"))
+                implementation("org.slf4j:slf4j-nop:2.0.17")
+            }
+        }
+
+        jsMain {
+            dependencies {
+                api(kotlin("stdlib-js"))
             }
         }
 
         all {
             languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCRefinement")
             languageSettings.optIn("kotlin.js.ExperimentalJsExport")
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
     }
+
+    compilerOptions {
+        allWarningsAsErrors.set(isCi)
+        extraWarnings.set(true)
+        freeCompilerArgs.add("-Xallow-condition-implies-returns-contracts")
+        freeCompilerArgs.add("-Xallow-contracts-on-more-functions")
+        freeCompilerArgs.add("-Xallow-holdsin-contract")
+        freeCompilerArgs.add("-Xallow-reified-type-in-catch")
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+        freeCompilerArgs.add("-Xannotation-target-all")
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+        freeCompilerArgs.add("-Xcontext-parameters")
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution")
+        freeCompilerArgs.add("-Xdata-flow-based-exhaustiveness")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
+        freeCompilerArgs.add("-Xnested-type-aliases")
+        freeCompilerArgs.add("-Xnon-local-break-continue")
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
+        freeCompilerArgs.add("-Xwhen-guards")
+    }
 }
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detekt_version")
+    detektPlugins("dev.detekt:detekt-rules-ktlint-wrapper:$detekt_version")
+}
+
+// Disable interfaces and swift name mangling
+tasks.withType<KotlinNativeCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xbinary=objcExportDisableSwiftMemberNameMangling=true")
+        freeCompilerArgs.add("-Xbinary=objcExportIgnoreInterfaceMethodCollisions=true")
+    }
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
 }
 
 tasks.register("j2objcKotlinTypes") {
@@ -127,8 +131,8 @@ tasks.register("j2objcKotlinTypes") {
     if (!isCi) {
         doFirst {
             copy {
-                from("${layout.buildDirectory.asFile.get()}/bin/macosArm64/debugFramework/common.framework/Headers")
-                into("${layout.buildDirectory.asFile.get()}/interop")
+                from(layout.buildDirectory.file("bin/macosArm64/debugFramework/common.framework/Headers").get().asFile)
+                into(layout.buildDirectory.file("interop").get().asFile)
 
                 include("common.h")
                 rename { "J2ObjC_kotlinTypes.h" }
@@ -154,16 +158,16 @@ ${file.readText().trim('\n')}
 #endif /* J2ObjC_kotlinTypes_h */
 
 // kotlin interop <<
-"""
+""",
                     )
                 }
             }
 
-            exec {
+            providers.exec {
                 commandLine(
                     "rsync", "-acI", "--no-times",
-                    file("${layout.buildDirectory.asFile.get()}/interop/J2ObjC_kotlinTypes.h").absolutePath,
-                    file("../jre_emul/Classes").absolutePath
+                    layout.buildDirectory.file("interop/J2ObjC_kotlinTypes.h").get().asFile.absolutePath,
+                    layout.projectDirectory.file("../jre_emul/Classes").asFile.absolutePath,
                 )
             }
         }
@@ -178,17 +182,16 @@ ${file.readText().trim('\n')}
 }
 
 detekt {
-    autoCorrect = true
+    autoCorrect = !isCi
+    ignoreFailures = !isCi
     buildUponDefaultConfig = true
     config.setFrom("../../../detekt-config.yml")
     source.setFrom(file("src").listFiles()!!.filter { it.name.endsWith("Main") || it.name.endsWith("Test") })
 }
 
-tasks.withType<Detekt>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
-tasks.withType<DetektCreateBaselineTask>().configureEach { jvmTarget = JavaVersion.VERSION_11.toString() }
-
 idea {
     module {
         excludeDirs.add(file("gradle/wrapper"))
+        excludeDirs.add(file("kotlin-js-store"))
     }
 }

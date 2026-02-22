@@ -34,6 +34,7 @@ import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionIntA
 import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionLongArray;
 import com.mirego.interop.java.test.function.PublicVariableArgumentsFunctionShortArray;
 import com.mirego.interop.java.test.function.UsingKotlinTopLevelFunction;
+import com.mirego.interop.java.test.function.UsingKotlinTopLevelFunctionReference;
 import com.mirego.interop.java.test.function.WithGenericMethods;
 
 public class FunctionTest extends GenerationTest {
@@ -157,7 +158,23 @@ public class FunctionTest extends GenerationTest {
     String className = UsingKotlinTopLevelFunction.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "return [CommonKotlinFileWithTopLevelFunctionKt aTopLevelFunctionParam1:@\"hello\"];");
+    // The annotation @file:JvmName has no effect in Kotlin Native.
+    // Therefore, we must call the Top Level Function using its original filename
+    // namespace: `{ClassFilename}Kt`
+    assertTranslation(translation, "[CommonKotlinFileWithTopLevelFunctionKt aTopLevelFunctionParam1:@\"hello\"], '-', [CommonKotlinTopLevelFunctionWithOverriddenJvmFilenameKt topLevelFunctionInOverriddenJvmFilename]");
+  }
+
+  public void testTopLevelFunctionReference() throws IOException {
+
+    String className = UsingKotlinTopLevelFunctionReference.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    // The annotation @file:JvmName has no effect in Kotlin Native.
+    // Therefore, we must call the Top Level Function using its original filename
+    // namespace: `{ClassFilename}Kt`
+    assertTranslation(translation, "- (id)applyWithId:(NSString *)a {\n" +
+                                    "  return JreRetainedLocalValue([CommonKotlinFileWithTopLevelFunctionKt aTopLevelFunctionParam1:a]);\n" +
+                                    "}\n");
   }
 
   // todo lambda is a property getter not working properly
@@ -248,10 +265,10 @@ public class FunctionTest extends GenerationTest {
     String className = FunctionReceivingCollectionParam.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
-    assertTranslation(translation, "[testClass receiveList:javaCollectionToNSMutableArray(stringList)];");
-    assertTranslation(translation, "[testClass receiveSet:javaSetToKotlinMutableSet(stringSet)];");
-    assertTranslation(translation, "[testClass receiveMap:javaMapToKotlinMutableDictionary(stringMap)];");
-    assertTranslation(translation, "[testClass receiveCollection:javaCollectionToNSMutableArray(stringCollection)];");
+    assertTranslation(translation, "[testClass receiveList:javaWrapCollection(stringList)];");
+    assertTranslation(translation, "[testClass receiveSet:javaWrapSet(stringSet)];");
+    assertTranslation(translation, "[testClass receiveMap:javaWrapMap(stringMap)];");
+    assertTranslation(translation, "[testClass receiveCollection:javaWrapCollection(stringCollection)];");
   }
 
   public void testCallingGlobalFunction() throws Exception {
@@ -271,7 +288,7 @@ public class FunctionTest extends GenerationTest {
 
   public void testCallingGenericFunctionWithCollectionType() throws Exception {
     String translation = translateJavaSourceFileForKotlinTest(WithGenericMethods.class.getSimpleName(), testPackage, ".m");
-    assertTranslation(translation, "[[CommonGenericFunctions genericFunctions] validateNotNullTarget:javaCollectionToNSMutableArray(objects)];");
+    assertTranslation(translation, "[[CommonGenericFunctions genericFunctions] validateNotNullTarget:javaWrapCollection(objects)];");
   }
 
   public void testPublicVariableArgumentsFunctionAny() throws IOException {

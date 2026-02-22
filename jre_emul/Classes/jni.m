@@ -557,10 +557,13 @@ static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list
   IOSObjectArray *paramTypes = [(JavaLangReflectConstructor *)methodID getParameterTypesInternal];
   size_t numArgs = paramTypes->size_;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-folding-constant"
   ALLOC_JARGS(jargs, numArgs);
   ToArgsArray(paramTypes, jargs, args);
   jobject result = NewObjectA(env, clazz, methodID, jargs);
   DEALLOC_JARGS(jargs);
+#pragma GCC diagnostic pop
 
   return result;
 }
@@ -578,10 +581,13 @@ static void CallMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list ar
   IOSObjectArray *paramTypes = [(JavaLangReflectMethod *)methodID getParameterTypesInternal];
   size_t numArgs = paramTypes->size_;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-folding-constant"
   ALLOC_JARGS(jargs, numArgs);
   ToArgsArray(paramTypes, jargs, args);
   CallMethodA(env, obj, methodID, jargs, result);
   DEALLOC_JARGS(jargs);
+#pragma GCC diagnostic pop
 }
 
 #define DEFINE_CALL_METHOD_VARIANTS(RESULT_NAME, RESULT_TYPE, RESULT_CODE) \

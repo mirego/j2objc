@@ -1,8 +1,12 @@
 package com.google.devtools.j2objc.runtime.kotlin;
 
+import com.mirego.interop.java.test.function.ConstructorAsFunctionReference;
+import com.mirego.interop.java.test.function.TopLevelFunctionStaticallyImported;
 import junit.framework.TestCase;
 
 import com.mirego.interop.java.test.objects.AccessingJvmStaticWithStaticImport;
+import com.mirego.interop.java.test.objects.StandAloneObjectInstance;
+import com.mirego.interop.java.test.objects.StaticMethodStaticallyImported;
 import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
@@ -14,6 +18,10 @@ import com.mirego.interop.java.test.objects.WithObject;
 public class ObjectsRuntimeTest extends TestCase {
 
   private static final String[] NO_ARGS = {""};
+
+  public void testStandAloneObjectInstance() {
+    assertEquals("StandAloneObject", StandAloneObjectInstance.main(NO_ARGS));
+  }
 
   public void testStaticMethodWithoutParamsWithAnnotation() {
     assertEquals("return", StaticMethodWithoutParamWithAnnotation.main(NO_ARGS));
@@ -27,17 +35,31 @@ public class ObjectsRuntimeTest extends TestCase {
     assertEquals("stringGeneric", StaticMethodWithGenericParamWithAnnotation.main(NO_ARGS));
   }
 
+  public void testStaticMethodStaticallyImported() {
+    assertEquals("return", StaticMethodStaticallyImported.main(NO_ARGS));
+  }
+
+  public void testTopLevelFunctionStaticallyImported() {
+    assertEquals("echoed value from aTopLevelFunction", TopLevelFunctionStaticallyImported.main(NO_ARGS));
+  }
+
+  public void testConstructorAsFunctionRef() {
+    assertEquals("Constructor no params: ClassWithoutConstructor\n" +
+                  "Constructor single param: VALUE_OF_THE_PARAM",
+                  ConstructorAsFunctionReference.main(NO_ARGS));
+  }
+
   // todo javautilList vs NSArray
   // public void testStaticMethodWithListParamsWithAnnotation() {
   //   assertNotNull(StaticMethodWithListParamWithAnnotation.main(NO_ARGS).get(0));
   // }
 
   public void testWithCompanionObject() {
-    assertEquals("companionString_functionString_jvmStaticFunction", WithCompanionObject.main(NO_ARGS));
+    assertEquals("instanceString_instanceStringAsJvmField_companionString_companionStringAsJvmField_functionString_jvmStaticFunction", WithCompanionObject.main(NO_ARGS));
   }
 
   public void testWithNamedCompanionObject() {
-    assertEquals("namedCompanionString_jvmStaticFunction", WithNamedCompanionObject.main(NO_ARGS));
+    assertEquals("companionStringWithJvmField_namedCompanionString_jvmStaticFunction", WithNamedCompanionObject.main(NO_ARGS));
   }
 
   public void testWithObject() {

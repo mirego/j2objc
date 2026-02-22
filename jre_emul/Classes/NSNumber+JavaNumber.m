@@ -57,6 +57,18 @@
 
 @end
 
+// kotlin interop >>
+
+@implementation NSNumber (CommonKotlinComparable)
+
+- (jint)compareToOther:(NSNumber *)anotherNumber {
+  return (jint) [self compare:anotherNumber];
+}
+
+@end
+
+// kotlin interop <<
+
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(NSNumber)
 
 J2OBJC_NAME_MAPPING(NSNumber, "java.lang.Number", "NSNumber")

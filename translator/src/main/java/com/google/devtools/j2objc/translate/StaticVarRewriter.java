@@ -90,6 +90,13 @@ public class StaticVarRewriter extends UnitTreeVisitor {
 
   @Override
   public boolean visit(FieldAccess node) {
+    // kotlin interop >>
+    // There is no such thing as a static var in Kotlin
+    if (KotlinUtil.isKotlinType(node.getVariableElement())) {
+      return true;
+    }
+    // << kotlin interop
+
     VariableElement var = node.getVariableElement();
     if (ElementUtil.isInstanceVar(var)) {
       node.getExpression().accept(this);

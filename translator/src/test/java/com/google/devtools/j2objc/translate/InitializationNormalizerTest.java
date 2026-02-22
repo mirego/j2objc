@@ -197,7 +197,7 @@ public class InitializationNormalizerTest extends GenerationTest {
         + "  static { iSet.add(I); } "
         + "  public static final int iSetSize = iSet.size(); }";
     String translation = translateSourceFile(source, "Test", "Test.m");
-    String setInit = "JreStrongAssignAndConsume(&Test_iSet, new_CommonMutableSet_init())";
+    String setInit = "JreStrongAssignAndConsume(&Test_iSet, new_NSMutableSet_init())";
     String setAdd = "[Test_iSet addWithId:CommonInt_valueOfWithInt_(Test_I)]";
     String setSize = "Test_iSetSize = [Test_iSet size]";
     assertTranslation(translation, setInit);
@@ -259,7 +259,7 @@ public class InitializationNormalizerTest extends GenerationTest {
         + "new HashMap<String, String>() {{ put(\"123\", \"123\"); }}; }", "Test", "Test.m");
     assertTranslatedLines(translation,
         "void Test_1_init(Test_1 *self) {",
-        "CommonMutableDictionary_init(self);",
+        "NSMutableDictionary_init(self);",
         "{",
         "[self putWithId:@\"123\" withId:@\"123\"];",
         "}",

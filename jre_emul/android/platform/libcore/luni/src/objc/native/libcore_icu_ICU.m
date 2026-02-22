@@ -55,6 +55,7 @@ jarray Java_libcore_icu_ICU_getAvailableDateFormatLocalesNative(JNIEnv *env, jcl
     }
     [locale release];
   }
+  [formatter release];
   return [IOSObjectArray arrayWithNSArray:localesWithDateFormats type:NSString_class_()];
 }
 
@@ -75,6 +76,7 @@ jarray Java_libcore_icu_ICU_getAvailableNumberFormatLocalesNative(JNIEnv *env, j
     }
     [locale release];
   }
+  [formatter release];
   return [IOSObjectArray arrayWithNSArray:localesWithNumberFormats type:NSString_class_()];
 }
 
@@ -335,6 +337,7 @@ jboolean Java_libcore_icu_ICU_initLocaleDataNative(
   if (!nf) {
     // Full locale description isn't recognized, try one with just language and country codes.
     languageTag = [NSString stringWithFormat:@"%@-%@", [locale languageCode], [locale countryCode]];
+    [locale release];
     locale = [[NSLocale alloc] initWithLocaleIdentifier:languageTag];
     cfLocale = (CFLocaleRef)locale;
     nf = CFNumberFormatterCreate(kCFAllocatorDefault, cfLocale, kCFNumberFormatterNoStyle);
@@ -366,8 +369,8 @@ jboolean Java_libcore_icu_ICU_initLocaleDataNative(
     // Number formats.
     nf = CFNumberFormatterCreate(kCFAllocatorDefault, cfLocale, kCFNumberFormatterDecimalStyle);
     CFStringRef formatStr = CFStringCreateCopy(kCFAllocatorDefault, CFNumberFormatterGetFormat(nf));
-    LibcoreIcuLocaleData_setAndConsume_integerPattern_(result, (NSString *)formatStr);
-    LibcoreIcuLocaleData_set_numberPattern_(result, (NSString *)formatStr);
+    LibcoreIcuLocaleData_set_integerPattern_(result, (NSString *)formatStr);
+    LibcoreIcuLocaleData_setAndConsume_numberPattern_(result, (NSString *)formatStr);
     CFRelease(nf);
     nf = CFNumberFormatterCreate(kCFAllocatorDefault, cfLocale, kCFNumberFormatterCurrencyStyle);
     formatStr = CFStringCreateCopy(kCFAllocatorDefault, CFNumberFormatterGetFormat(nf));

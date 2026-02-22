@@ -78,14 +78,14 @@ NATIVE_JRE_SOURCES_CORE += \
   KotlinFloat+JavaLangFloat.m \
   KotlinInt+JavaLangInteger.m \
   KotlinLong+JavaLangLong.m \
-  KotlinMutableDictionary+JavaHashMap.m \
-  KotlinMutableSet+JavaHashSet.m \
   KotlinShort+JavaLangShort.m \
   NSArray+JavaUtilList.m \
   NSDictionary+JavaUtilMap.m \
   NSMutableArray+JavaArrayList.m \
   NSMutableArray+JavaUtilList.m \
+  NSMutableDictionary+JavaHashMap.m \
   NSMutableDictionary+JavaUtilMap.m \
+  NSMutableSet+JavaHashSet.m \
   NSMutableSet+JavaUtilSet.m \
   NSSet+JavaUtilSet.m
 # kotlin interop <<
@@ -2409,14 +2409,14 @@ PUBLIC_NATIVE_HEADERS += \
   KotlinFloat+JavaLangFloat.h \
   KotlinInt+JavaLangInteger.h \
   KotlinLong+JavaLangLong.h \
-  KotlinMutableDictionary+JavaHashMap.h \
-  KotlinMutableSet+JavaHashSet.h \
   KotlinShort+JavaLangShort.h \
   NSArray+JavaUtilList.h \
   NSDictionary+JavaUtilMap.h \
   NSMutableArray+JavaArrayList.h \
   NSMutableArray+JavaUtilList.h \
+  NSMutableDictionary+JavaHashMap.h \
   NSMutableDictionary+JavaUtilMap.h \
+  NSMutableSet+JavaHashSet.h \
   NSMutableSet+JavaUtilSet.h \
   NSSet+JavaUtilSet.h \
   java/lang/Boolean.h \

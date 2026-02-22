@@ -39,6 +39,7 @@
 #import "os/lock.h"
 
 // kotlin interop >>
+#import "IOSPrimitiveArray.h"
 #import "J2ObjC_kotlinTypes.h"
 #import "NSDictionary+JavaUtilMap_PackagePrivate.h"
 
@@ -79,6 +80,14 @@ void JreThrowClassCastExceptionWithIOSClass(id obj, IOSClass *cls) {
 void JreThrowArithmeticExceptionWithNSString(NSString *msg) {
   @throw create_JavaLangArithmeticException_initWithNSString_(msg);  // NOLINT
 }
+
+// kotlin interop >>
+
+void JreThrowCantCallAnAbstractMethodException() {
+  @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Can't call an abstract method" userInfo:nil]; // NOLINT
+}
+
+// kotlin interop <<
 
 void JreThrowAssertionError(id __unsafe_unretained msg) {
   @throw [[[JavaLangAssertionError alloc] initWithId:[msg description]] autorelease];  // NOLINT
@@ -685,7 +694,7 @@ id toKotlinShortArray(IOSShortArray *array) {
   }];
 }
 
-id javaWrapArray(id<JavaUtilCollection> elements) {
+id javaWrapCollection(id<JavaUtilCollection> elements) {
   if ([elements isKindOfClass:NSArray.class]) {
     return elements;
   }
@@ -703,13 +712,13 @@ id javaWrapArray(id<JavaUtilCollection> elements) {
   return array;
 }
 
-id javaWrapSet(id<JavaUtilCollection> elements) {
+id javaWrapSet(id<JavaUtilSet> elements) {
   if ([elements isKindOfClass:NSSet.class]) {
     return elements;
   }
 
-  if (![elements conformsToProtocol:@protocol(JavaUtilCollection)]) {
-    @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"elements must be a java.util.Collection");
+  if (![elements conformsToProtocol:@protocol(JavaUtilSet)]) {
+    @throw create_JavaLangIllegalArgumentException_initWithNSString_(@"elements must be a java.util.Set");
   }
 
   NSMutableSet *set = [NSMutableSet setWithCapacity:elements.size];

@@ -57,7 +57,6 @@ update_file Classes/KotlinDouble+JavaLangDouble.m java/lang/Double.java
 update_file Classes/KotlinFloat+JavaLangFloat.m java/lang/Float.java
 update_file Classes/KotlinInt+JavaLangInteger.m java/lang/Integer.java
 update_file Classes/KotlinLong+JavaLangLong.m java/lang/Long.java
-update_file Classes/KotlinNumber+JavaLangNumber.m java/lang/Number.java
 update_file Classes/KotlinShort+JavaLangShort.m java/lang/Short.java
 # kotlin interop <<
 

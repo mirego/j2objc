@@ -19,7 +19,7 @@
 @implementation NSSet (JavaUtilSet)
 
 - (instancetype)initWithJavaUtilCollection:(id<JavaUtilCollection>)elements {
-  return [self initWithArray:javaWrapArray(nil_chk(elements))];
+  return [self initWithArray:javaWrapCollection(nil_chk(elements))];
 }
 
 - (id)java_clone {

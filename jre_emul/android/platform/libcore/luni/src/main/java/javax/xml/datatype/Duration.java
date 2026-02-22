@@ -975,6 +975,6 @@ public abstract class   Duration {
      * @return Milliseconds of <code>cal</code>.
      */
     private static long getCalendarTimeInMillis(final Calendar cal) {
-        return cal.getTime().getTime();
+        return cal.getTimeInMillis();
     }
 }

@@ -100,6 +100,7 @@ import com.google.devtools.j2objc.ast.WhileStatement;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
+import com.google.devtools.j2objc.util.NativeObjectsUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
 import java.util.Arrays;
@@ -108,13 +109,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import kotlinx.metadata.Flag;
-import kotlinx.metadata.KmClass;
+import kotlin.metadata.Attributes;
+import kotlin.metadata.ClassKind;
+import kotlin.metadata.KmClass;
 
 /**
  * Returns an Objective-C equivalent of a Java AST node.
@@ -143,7 +146,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     return buffer.toString();
   }
 
-  private void printMethodInvocationNameAndArgs(String selector, List<Expression> args) {
+  private void printMethodInvocationNameAndArgs(boolean isKotlinElement, String selector, List<Expression> args) {
     String[] selParts = selector.split(":");
     if (args.isEmpty()) {
       assert selParts.length == 1 && !selector.endsWith(":");
@@ -159,7 +162,8 @@ public class StatementGenerator extends UnitTreeVisitor {
         buffer.append(' ');
         buffer.append(selParts[i]);
         buffer.append(':');
-        args.get(i).accept(this);
+        Expression argument = isKotlinElement ? NativeObjectsUtil.wrapArgument(args.get(i), typeUtil) : args.get(i);
+        argument.accept(this);
       }
     }
   }
@@ -411,14 +415,24 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   @Override
   public boolean visit(FieldAccess node) {
-    node.getExpression().accept(this);
     // kotlin interop >>
-    TypeMirror typeMirror = node.getExpression().getTypeMirror();
-    if (typeMirror != null && KotlinUtil.isKotlinType(typeMirror)) {
+    if (KotlinUtil.isKotlinType(node.getVariableElement())) {
+      node.getExpression().accept(this);
       buffer.append(".");
-    } else {
-      buffer.append("->");
+      if (isKotlinEnumReference(node)) {
+        buffer.append(NameTable.camelCaseEnumName(node.getName().toString()));
+      } else {
+        if (KotlinUtil.isKotlinObjectWithoutJvmStaticAnnotation(node)) {
+          buffer.append("shared");
+        } else {
+          // Annotated with @JvmField
+          buffer.append(node.getName().toString());
+        }
+      }
+      return false;
     }
+    node.getExpression().accept(this);
+    buffer.append("->");
     // kotlin interop <<
     node.getName().accept(this);
     return false;
@@ -597,7 +611,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
     buffer.append('[');
     if (ElementUtil.isStatic(element) &&
-      !KotlinUtil.isKotlinType(element)) // kotlin interop
+      (!KotlinUtil.isKotlinType(element) || KotlinUtil.isKotlinTopLevelFunction(element))) // kotlin interop
     {
       buffer.append(nameTable.getFullName(ElementUtil.getDeclaringClass(element)));
     } else if (receiver != null) {
@@ -606,7 +620,7 @@ public class StatementGenerator extends UnitTreeVisitor {
       buffer.append("self");
     }
     // kotlin interop >>
-    printMethodInvocationNameAndArgs(methodSelector, node.getArguments());
+    printMethodInvocationNameAndArgs(KotlinUtil.isKotlinType(element), methodSelector, node.getArguments());
     // kotlin interop <<
     buffer.append(']');
     return false;
@@ -804,7 +818,7 @@ public class StatementGenerator extends UnitTreeVisitor {
         : "Receivers expected to be handled by SuperMethodInvocationRewriter.";
     assert !ElementUtil.isStatic(element) : "Static invocations are rewritten by Functionizer.";
     buffer.append("[super");
-    printMethodInvocationNameAndArgs(nameTable.getMethodSelector(element), node.getArguments());
+    printMethodInvocationNameAndArgs(KotlinUtil.isKotlinType(element), nameTable.getMethodSelector(element), node.getArguments());
     buffer.append(']');
     return false;
   }
@@ -1097,8 +1111,7 @@ public class StatementGenerator extends UnitTreeVisitor {
     Element element = KotlinUtil.getElementFromExpression(expression);
     KmClass kotlinMetaData = KotlinUtil.getExecutableElementKotlinClassMetaData(element);
 
-    int flags = kotlinMetaData.getFlags();
-    if (Flag.Class.IS_ENUM_CLASS.invoke(flags)) {
+    if (Attributes.getKind(kotlinMetaData) == ClassKind.ENUM_CLASS) {
       String caseEnumValueName = element.toString();
       int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
 
@@ -1111,5 +1124,14 @@ public class StatementGenerator extends UnitTreeVisitor {
     }
   }
 
+  private boolean isKotlinEnumReference(FieldAccess fieldAccessNode) {
+    ElementKind kind = fieldAccessNode.getVariableElement().getKind();
+    if (kind != ElementKind.ENUM && kind != ElementKind.ENUM_CONSTANT) {
+      return false;
+    }
+
+    KmClass classMetaData = KotlinUtil.getElementKotlinClassMetaData(fieldAccessNode.getVariableElement().getEnclosingElement());
+    return KotlinUtil.isKotlinEnum(classMetaData);
+  }
   // kotlin interop <<
 }

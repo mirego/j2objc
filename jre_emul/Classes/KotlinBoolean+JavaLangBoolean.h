@@ -12,7 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
-// #include "java/io/Serializable.h"
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -33,7 +33,7 @@
  @author Arthur van Hoff
  @since JDK1.0
  */
-@interface CommonBoolean (JavaLangBoolean) < /*JavaIoSerializable, */CommonKotlinComparable >
+@interface CommonBoolean (JavaLangBoolean) < JavaIoSerializable, CommonKotlinComparable >
 @property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
 @property (readonly, class, strong, nonnull) CommonBoolean *TRUE_ NS_SWIFT_NAME(TRUE_);
 @property (readonly, class, strong, nonnull) CommonBoolean *FALSE_ NS_SWIFT_NAME(FALSE_);
@@ -111,7 +111,7 @@
  @return <code>true</code> if the Boolean objects represent the
            same value; <code>false</code> otherwise.
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns <code>true</code> if and only if the system property
@@ -140,7 +140,7 @@
  <code>true</code>; returns the integer <code>1237</code> if this
   object represents <code>false</code>.
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>boolean</code> value; compatible with

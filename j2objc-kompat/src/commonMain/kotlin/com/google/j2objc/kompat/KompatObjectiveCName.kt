@@ -14,7 +14,7 @@ package com.google.j2objc.kompat
  */
 @Target(
     AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION
+    AnnotationTarget.FUNCTION,
 )
 @Retention(AnnotationRetention.BINARY)
 annotation class KompatObjectiveCName(val name: String = "")

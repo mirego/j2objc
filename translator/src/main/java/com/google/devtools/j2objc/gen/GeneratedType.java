@@ -30,8 +30,8 @@ import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.sun.tools.javac.code.Symbol;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmProperty;
+import kotlin.metadata.KmClass;
+import kotlin.metadata.KmProperty;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -185,9 +185,7 @@ public class GeneratedType {
       if (elementKotlinMetaData != null) {
         properties = elementKotlinMetaData.getProperties();
         if (!properties.isEmpty()) {
-          properties.forEach(kmProperty -> {
-            generateKotlinNativeCompatiblePropertyGetter(typeNode, element, nameTable, kmProperty);
-          });
+          properties.forEach(kmProperty -> generateKotlinNativeCompatiblePropertyGetter(typeNode, element, nameTable, kmProperty));
         }
       }
     }

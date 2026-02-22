@@ -1,1 +1,1 @@
-#import "KotlinMutableDictionary+JavaHashMap.h"
+#import "NSMutableDictionary+JavaHashMap.h"

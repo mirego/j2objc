@@ -19,8 +19,8 @@
 }
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithKey:(KeyType __nullable)key;
-- (KeyType __nullable)key;
+- (instancetype)initWithKey:(KeyType)key;
+- (KeyType)key;
 
 @end
 

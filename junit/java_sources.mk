@@ -220,11 +220,14 @@ JUNIT_DATAPROVIDER_SOURCES = \
     com/tngtech/java/junit/dataprovider/DataProvider.java \
     com/tngtech/java/junit/dataprovider/DataProviderFilter.java \
     com/tngtech/java/junit/dataprovider/DataProviderFrameworkMethod.java \
+    com/tngtech/java/junit/dataprovider/DataProviderMethodResolver.java \
     com/tngtech/java/junit/dataprovider/DataProviderRunner.java \
     com/tngtech/java/junit/dataprovider/DataProviders.java \
     com/tngtech/java/junit/dataprovider/Placeholders.java \
     com/tngtech/java/junit/dataprovider/UseDataProvider.java \
+    com/tngtech/java/junit/dataprovider/common/Preconditions.java \
     com/tngtech/java/junit/dataprovider/internal/DataConverter.java \
+    com/tngtech/java/junit/dataprovider/internal/DefaultDataProviderMethodResolver.java \
     com/tngtech/java/junit/dataprovider/internal/TestGenerator.java \
     com/tngtech/java/junit/dataprovider/internal/TestValidator.java \
     com/tngtech/java/junit/dataprovider/internal/convert/AbstractObjectConverter.java \

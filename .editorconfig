@@ -3,13 +3,15 @@ root = true
 [*]
 charset = utf-8
 end_of_line = lf
-ij_continuation_indent_size = 4
 indent_size = 2
 indent_style = space
 insert_final_newline = true
 max_line_length = 80
 trim_trailing_whitespace = true
+ij_continuation_indent_size = 4
+ij_formatter_enabled = false
 
 [*.{kt,kts}]
 indent_size = 4
 max_line_length = 240
+ij_formatter_enabled = true

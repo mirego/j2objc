@@ -111,6 +111,10 @@ IOSClass *CommonDouble_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 - (jboolean)isNaN {
   return CommonDouble_isNaNWithDouble_(self.doubleValue);
 }
@@ -147,17 +151,17 @@ IOSClass *CommonDouble_TYPE;
 //  return (jdouble) self.doubleValue;
 //}
 
-- (NSUInteger)hash {
-  return CommonDouble_hashCodeWithDouble_(self.doubleValue);
-}
+//- (NSUInteger)hash {
+//  return CommonDouble_hashCodeWithDouble_(self.doubleValue);
+//}
 
 + (jint)hashCodeWithDouble:(jdouble)value {
   return CommonDouble_hashCodeWithDouble_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  return ([obj isKindOfClass:[CommonDouble class]]) && (CommonDouble_doubleToLongBitsWithDouble_(((CommonDouble *) nil_chk(((CommonDouble *) cast_chk(obj, [CommonDouble class])))).doubleValue) == CommonDouble_doubleToLongBitsWithDouble_(self.doubleValue));
-}
+//- (jboolean)isEqual:(id)obj {
+//  return ([obj isKindOfClass:[CommonDouble class]]) && (CommonDouble_doubleToLongBitsWithDouble_(((CommonDouble *) nil_chk(((CommonDouble *) cast_chk(obj, [CommonDouble class])))).doubleValue) == CommonDouble_doubleToLongBitsWithDouble_(self.doubleValue));
+//}
 
 + (jlong)doubleToLongBitsWithDouble:(jdouble)value {
   return CommonDouble_doubleToLongBitsWithDouble_(value);
@@ -286,7 +290,7 @@ IOSClass *CommonDouble_TYPE;
     { "serialVersionUID", "J", .constantValue.asLong = CommonDouble_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "D", "toHexString", "valueOf", "LNSString;", "LJavaLangNumberFormatException;", "parseDouble", "isNaN", "isInfinite", "isFinite", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "doubleToLongBits", "doubleToRawLongBits", "longBitsToDouble", "J", "compareTo", "LCommonDouble;", "compare", "DD", "sum", "max", "min", &CommonDouble_TYPE, "Ljava/lang/Class<Ljava/lang/Double;>;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Double;>;" };
-  static const J2ObjcClassInfo _CommonDouble = { "Double", "java.lang", ptrTable, methods, fields, 7, 0x11, 30, 13, -1, -1, -1, 28, -1 };
+  static const J2ObjcClassInfo _CommonDouble = { "Double", "java.lang", ptrTable, methods, fields, 7, 0x11, 30, 12, -1, -1, -1, 28, -1 };
   return &_CommonDouble;
 }
 
@@ -363,11 +367,11 @@ void CommonDouble_initWithDouble_(CommonDouble *self, jdouble value) {
 }
 
 CommonDouble *new_CommonDouble_initWithDouble_(jdouble value) {
-  J2OBJC_NEW_IMPL(CommonDouble, initWithDouble_, value)
+  return [[CommonDouble alloc] initWithDouble:value];
 }
 
 CommonDouble *create_CommonDouble_initWithDouble_(jdouble value) {
-  J2OBJC_CREATE_IMPL(CommonDouble, initWithDouble_, value)
+  return [CommonDouble numberWithDouble:value];
 }
 
 void CommonDouble_initWithNSString_(CommonDouble *self, NSString *s) {
@@ -375,17 +379,15 @@ void CommonDouble_initWithNSString_(CommonDouble *self, NSString *s) {
 }
 
 CommonDouble *new_CommonDouble_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonDouble, initWithNSString_, s)
+  return [[CommonDouble alloc] initWithDouble:CommonDouble_parseDoubleWithNSString_(s)];
 }
 
 CommonDouble *create_CommonDouble_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonDouble, initWithNSString_, s)
+  return [CommonDouble numberWithDouble:CommonDouble_parseDoubleWithNSString_(s)];
 }
 
 jint CommonDouble_hashCodeWithDouble_(jdouble value) {
-  CommonDouble_initialize();
-  jlong bits = CommonDouble_doubleToLongBitsWithDouble_(value);
-  return (jint) (bits ^ (JreURShift64(bits, 32)));
+  return (jint) CommonDouble_valueOfWithDouble_(value).hash;
 }
 
 jlong CommonDouble_doubleToLongBitsWithDouble_(jdouble value) {

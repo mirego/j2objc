@@ -110,6 +110,10 @@ IOSClass *CommonFloat_TYPE;
   return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+  return RETAIN_(self);
+}
+
 - (jboolean)isNaN {
   return CommonFloat_isNaNWithFloat_(self.floatValue);
 }
@@ -146,17 +150,17 @@ IOSClass *CommonFloat_TYPE;
   return (jdouble) self.floatValue;
 }
 
-- (NSUInteger)hash {
-  return CommonFloat_hashCodeWithFloat_(self.floatValue);
-}
+//- (NSUInteger)hash {
+//  return CommonFloat_hashCodeWithFloat_(self.floatValue);
+//}
 
 + (jint)hashCodeWithFloat:(jfloat)value {
   return CommonFloat_hashCodeWithFloat_(value);
 }
 
-- (jboolean)isEqual:(id)obj {
-  return ([obj isKindOfClass:[CommonFloat class]]) && (CommonFloat_floatToIntBitsWithFloat_(((CommonFloat *) nil_chk(((CommonFloat *) cast_chk(obj, [CommonFloat class])))).floatValue) == CommonFloat_floatToIntBitsWithFloat_(self.floatValue));
-}
+//- (jboolean)isEqual:(id)obj {
+//  return ([obj isKindOfClass:[CommonFloat class]]) && (CommonFloat_floatToIntBitsWithFloat_(((CommonFloat *) nil_chk(((CommonFloat *) cast_chk(obj, [CommonFloat class])))).floatValue) == CommonFloat_floatToIntBitsWithFloat_(self.floatValue));
+//}
 
 + (jint)floatToIntBitsWithFloat:(jfloat)value {
   return CommonFloat_floatToIntBitsWithFloat_(value);
@@ -287,7 +291,7 @@ IOSClass *CommonFloat_TYPE;
     { "serialVersionUID", "J", .constantValue.asLong = CommonFloat_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "F", "toHexString", "valueOf", "LNSString;", "LJavaLangNumberFormatException;", "parseFloat", "isNaN", "isInfinite", "isFinite", "D", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "floatToIntBits", "floatToRawIntBits", "intBitsToFloat", "I", "compareTo", "LCommonFloat;", "compare", "FF", "sum", "max", "min", &CommonFloat_TYPE, "Ljava/lang/Class<Ljava/lang/Float;>;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Float;>;" };
-  static const J2ObjcClassInfo _CommonFloat = { "Float", "java.lang", ptrTable, methods, fields, 7, 0x11, 31, 13, -1, -1, -1, 29, -1 };
+  static const J2ObjcClassInfo _CommonFloat = { "Float", "java.lang", ptrTable, methods, fields, 7, 0x11, 31, 12, -1, -1, -1, 29, -1 };
   return &_CommonFloat;
 }
 
@@ -349,11 +353,11 @@ void CommonFloat_initWithFloat_(CommonFloat *self, jfloat value) {
 }
 
 CommonFloat *new_CommonFloat_initWithFloat_(jfloat value) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithFloat_, value)
+  return [[CommonFloat alloc] initWithFloat:value];
 }
 
 CommonFloat *create_CommonFloat_initWithFloat_(jfloat value) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithFloat_, value)
+  return [CommonFloat numberWithFloat:value];
 }
 
 void CommonFloat_initWithDouble_(CommonFloat *self, jdouble value) {
@@ -361,11 +365,11 @@ void CommonFloat_initWithDouble_(CommonFloat *self, jdouble value) {
 }
 
 CommonFloat *new_CommonFloat_initWithDouble_(jdouble value) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithDouble_, value)
+  return [[CommonFloat alloc] initWithFloat:(jfloat)value];
 }
 
 CommonFloat *create_CommonFloat_initWithDouble_(jdouble value) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithDouble_, value)
+  return [CommonFloat numberWithFloat:(jfloat)value];
 }
 
 void CommonFloat_initWithNSString_(CommonFloat *self, NSString *s) {
@@ -373,16 +377,15 @@ void CommonFloat_initWithNSString_(CommonFloat *self, NSString *s) {
 }
 
 CommonFloat *new_CommonFloat_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithNSString_, s)
+  return [[CommonFloat alloc] initWithFloat:CommonFloat_parseFloatWithNSString_(s)];
 }
 
 CommonFloat *create_CommonFloat_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithNSString_, s)
+  return [CommonFloat numberWithFloat:CommonFloat_parseFloatWithNSString_(s)];
 }
 
 jint CommonFloat_hashCodeWithFloat_(jfloat value) {
-  CommonFloat_initialize();
-  return CommonFloat_floatToIntBitsWithFloat_(value);
+  return (jint) CommonFloat_valueOfWithFloat_(value).hash;
 }
 
 jint CommonFloat_floatToIntBitsWithFloat_(jfloat value) {

@@ -328,9 +328,7 @@ public class DefaultMethodsTest extends GenerationTest {
     // From R
     assertTranslatedLines(impl,
         "- (CommonLong *)f {",
-        "// can't call an abstract method",
-        "[self doesNotRecognizeSelector:_cmd];",
-        "return 0;",
+        "JreThrowCantCallAnAbstractMethodException();",
         "}");
   }
 

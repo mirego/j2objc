@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.mirego.interop.java.test.objects.AccessingJvmStaticWithStaticImport;
 import com.mirego.interop.java.test.objects.JavaObjectCallToStringOnKotlinInterface;
+import com.mirego.interop.java.test.objects.StandAloneObjectInstance;
 import com.mirego.interop.java.test.objects.StaticMethodWithGenericParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnotation;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
@@ -17,6 +18,14 @@ import com.mirego.interop.java.test.objects.WithObject;
 public class ObjectsTest extends GenerationTest {
 
   final private static String testPackage = "objects/";
+
+  public void testStandaloneObject() throws IOException {
+
+    String className = StandAloneObjectInstance.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+
+    assertTranslation(translation, "return [kotlinGetClass(CommonStandAloneObject.shared) getSimpleName];");
+  }
 
   public void testStaticMethodWithoutParamsWithAnnotation() throws IOException {
 
@@ -56,7 +65,10 @@ public class ObjectsTest extends GenerationTest {
     String className = WithCompanionObject.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 
+    assertTranslation(translation, "o.instanceString");
+    assertTranslation(translation, "o.instanceStringAsJvmField");
     assertTranslation(translation, "[CommonClassWithCompanionObjectCompanion companion].companionString");
+    assertTranslation(translation, "[CommonClassWithCompanionObjectCompanion companion].companionStringAsJvmField");
     assertTranslation(translation, "[[CommonClassWithCompanionObjectCompanion companion] companionFunction]");
     assertTranslation(translation, "[[CommonClassWithCompanionObject companion] companionJvmStaticFunction]");
   }
@@ -65,6 +77,7 @@ public class ObjectsTest extends GenerationTest {
 
     String className = WithNamedCompanionObject.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    assertTranslation(translation, "[CommonClassWithNamedCompanionObjectNamed named].companionStringWithJvmField");
     assertTranslation(translation, "[CommonClassWithNamedCompanionObjectNamed named].companionString");
     assertTranslation(translation, "[[CommonClassWithNamedCompanionObject companion] companionJvmStaticFunction]");
   }

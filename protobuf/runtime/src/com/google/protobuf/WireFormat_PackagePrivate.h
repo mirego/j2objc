@@ -65,7 +65,7 @@ static const uint32_t CGPWireFormatMessageSetItemTag =
 static const uint32_t CGPWireFormatMessageSetItemEndTag =
     (CGPWireFormatMessageSetItem << CGPWireFormatTagTypeBits) | CGPWireFormatEndGroup;
 static const uint32_t CGPWireFormatMessageSetTypeIdTag =
-    (CGPWireFormatMessageSetTypeId << CGPWireFormatTagTypeBits) | CGPWireFormatVarint;
+    (CGPWireFormatMessageSetTypeid<< CGPWireFormatTagTypeBits) | CGPWireFormatVarint;
 static const uint32_t CGPWireFormatMessageSetMessageTag =
     (CGPWireFormatMessageSetMessage << CGPWireFormatTagTypeBits) | CGPWireFormatLengthDelimited;
 

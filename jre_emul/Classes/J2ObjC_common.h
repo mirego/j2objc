@@ -160,6 +160,9 @@ void JreThrowClassCastException(id p, Class cls) __attribute__((noreturn));
 void JreThrowClassCastExceptionWithProtocol(id p, Protocol* protocol) __attribute__((noreturn));
 void JreThrowClassCastExceptionWithIOSClass(id p, IOSClass *cls) __attribute__((noreturn));
 void JreThrowArithmeticExceptionWithNSString(NSString *msg) __attribute__((noreturn));
+// kotlin interop >>
+void JreThrowCantCallAnAbstractMethodException(void) __attribute__((noreturn));
+// kotlin interop <<
 
 id JreStrongAssign(__strong id *pIvar, id value);
 id JreStrongAssignAndConsume(__strong id *pIvar, NS_RELEASES_ARGUMENT id value);
@@ -413,10 +416,8 @@ id toKotlinIntArray(IOSIntArray *array);
 id toKotlinLongArray(IOSLongArray *array);
 id toKotlinShortArray(IOSShortArray *array);
 
-id javaWrapArray(id<JavaUtilCollection> elements);
-
-id javaWrapSet(id<JavaUtilCollection> elements);
-
+id javaWrapCollection(id<JavaUtilCollection> elements);
+id javaWrapSet(id<JavaUtilSet> elements);
 id javaWrapMap(id<JavaUtilMap> original);
 
 static inline id javaWrapNull(id object) {
@@ -425,18 +426,6 @@ static inline id javaWrapNull(id object) {
 
 static inline id javaUnwrapNull(id object) {
   return (object != NSNull.null) ? object : nil;
-}
-
-static inline id javaCollectionToNSMutableArray(id<JavaUtilCollection> collection) {
-  return javaWrapArray(collection);
-}
-
-static inline id javaSetToKotlinMutableSet(id<JavaUtilCollection> set) {
-  return javaWrapSet(set);
-}
-
-static inline id javaMapToKotlinMutableDictionary(id<JavaUtilMap> map) {
-  return javaWrapMap(map);
 }
 
 IOSClass *kotlinGetClass(id object);

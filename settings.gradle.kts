@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName", "VariableNaming")
+
 includeBuild("annotations")
 includeBuild("cycle_finder")
 includeBuild("jre_emul")

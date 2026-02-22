@@ -23,43 +23,43 @@ JUNIT_JAR = j2objc_junit.jar
 JUNIT_ROOT_JAR = junit-4.13.1.jar
 JUNIT_SOURCE_JAR = junit-4.13.1-sources.jar
 
-JUNIT_DATAPROVIDER_JAR = junit-dataprovider-1.10.4.jar
-JUNIT_DATAPROVIDER_SOURCE_JAR = junit-dataprovider-1.10.4-sources.jar
+JUNIT_DATAPROVIDER_JAR = junit-dataprovider-1.13.1.jar
+JUNIT_DATAPROVIDER_SOURCE_JAR = junit-dataprovider-1.13.1-sources.jar
 
 # JUnit dependency
 HAMCREST_JAR = hamcrest-core-1.3.jar
 HAMCREST_SOURCE_JAR = hamcrest-core-1.3-sources.jar
 
-PROTOBUF_JAR = protobuf-java-3.22.3.jar
+PROTOBUF_JAR = protobuf-java-3.25.8.jar
 
-ERROR_PRONE_ANNOTATIONS_JAR = error_prone_annotations-2.11.0.jar
-ERROR_PRONE_ANNOTATIONS_SOURCE_JAR = error_prone_annotations-2.11.0-sources.jar
+ERROR_PRONE_ANNOTATIONS_JAR = error_prone_annotations-2.37.0.jar
+ERROR_PRONE_ANNOTATIONS_SOURCE_JAR = error_prone_annotations-2.37.0-sources.jar
 
-CHECKER_QUAL_JAR = checker-qual-3.34.0-eisop1.jar
-CHECKER_QUAL_SOURCE_JAR = checker-qual-3.34.0-eisop1-sources.jar
+CHECKER_QUAL_JAR = checker-qual-3.49.3-eisop1.jar
+CHECKER_QUAL_SOURCE_JAR = checker-qual-3.49.3-eisop1-sources.jar
 
-CHECKER_QUAL_ANDROID_JAR = checker-qual-android-3.34.0-eisop1.jar
-CHECKER_QUAL_ANDROID_SOURCE_JAR = checker-qual-android-3.34.0-eisop1-sources.jar
+CHECKER_QUAL_ANDROID_JAR = checker-qual-android-3.49.3-eisop1.jar
+CHECKER_QUAL_ANDROID_SOURCE_JAR = checker-qual-android-3.49.3-eisop1-sources.jar
 
-ANIMAL_SNIFFER_ANNOTATIONS_JAR = animal-sniffer-annotations-1.14.jar
-ANIMAL_SNIFFER_ANNOTATIONS_SOURCE_JAR = animal-sniffer-annotations-1.14-sources.jar
+ANIMAL_SNIFFER_ANNOTATIONS_JAR = animal-sniffer-annotations-1.24.jar
+ANIMAL_SNIFFER_ANNOTATIONS_SOURCE_JAR = animal-sniffer-annotations-1.24-sources.jar
 
-FAILUREACCESS_JAR = failureaccess-1.0.1.jar
-FAILUREACCESS_SOURCE_JAR = failureaccess-1.0.1-sources.jar
+FAILUREACCESS_JAR = failureaccess-1.0.3.jar
+FAILUREACCESS_SOURCE_JAR = failureaccess-1.0.3-sources.jar
 
-GUAVA_JAR = guava-32.1.2-jre.jar
-GUAVA_SOURCE_JAR = guava-32.1.2-jre-sources.jar
+GUAVA_JAR = guava-33.5.0-jre.jar
+GUAVA_SOURCE_JAR = guava-33.5.0-jre-sources.jar
 
-GUAVA_ANDROID_JAR = guava-31.1-android.jar
-GUAVA_ANDROID_SOURCE_JAR = guava-31.1-android-sources.jar
+GUAVA_ANDROID_JAR = guava-33.5.0-android.jar
+GUAVA_ANDROID_SOURCE_JAR = guava-33.5.0-android-sources.jar
 
 SCENELIB_JAR = scenelib.jar
-PLUME_UTIL_JAR = plume-util-1.8.1.jar
+PLUME_UTIL_JAR = plume-util-1.12.3.jar
 
 # kotlin interop >>
-KOTLIN_STDLIB_JAR = kotlin-stdlib-1.9.10.jar
-KOTLINX_METADATA_JVM_JAR = kotlinx-metadata-jvm-0.7.0.jar
-JETBRAIN_ANNOTATION_JAR = annotations-24.0.0.jar
+KOTLIN_STDLIB_JAR = kotlin-stdlib-2.3.10.jar
+KOTLIN_METADATA_JVM_JAR = kotlin-metadata-jvm-2.3.10.jar
+JETBRAIN_ANNOTATION_JAR = annotations-26.0.2.jar
 # kotlin interop <<
 
 MOCKITO_JAR = mockito-core-2.23.4.jar
@@ -83,15 +83,15 @@ PROCYON_JARS = \
 
 # Flogger support
 FLOGGER_JARS = \
-    flogger-0.5.1.jar \
-    flogger-system-backend-0.5.1.jar \
-    google-extensions-0.5.1.jar
+    flogger-0.9.jar \
+    flogger-system-backend-0.9.jar \
+    google-extensions-0.9.jar
 
-AUTOVALUE_JAR = auto-value-1.7.4.jar
-AUTOVALUE_ANNOTATIONS_JAR = auto-value-annotations-1.7.4.jar
+AUTOVALUE_JAR = auto-value-1.11.0.jar
+AUTOVALUE_ANNOTATIONS_JAR = auto-value-annotations-1.11.0.jar
 
-TRUTH_JAR = truth-1.1.2.jar
-TRUTH_SOURCE_JAR = truth-1.1.2-sources.jar
+TRUTH_JAR = truth-1.4.5.jar
+TRUTH_SOURCE_JAR = truth-1.4.5-sources.jar
 
-JSPECIFY_JAR = jspecify-0.2.0.jar
-JSPECIFY_SOURCE_JAR = jspecify-0.2.0-sources.jar
+JSPECIFY_JAR = jspecify-1.0.0.jar
+JSPECIFY_SOURCE_JAR = jspecify-1.0.0-sources.jar

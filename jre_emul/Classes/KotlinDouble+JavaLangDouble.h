@@ -12,6 +12,7 @@
 #import "J2ObjC_header.h"
 #import "J2ObjC_kotlinTypes.h"
 
+#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
 @class CommonBoolean;
@@ -37,7 +38,7 @@
  @author Joseph D. Darcy
  @since JDK1.0
  */
-@interface CommonDouble (JavaLangDouble) < CommonKotlinComparable >
+@interface CommonDouble (JavaLangDouble) < JavaIoSerializable, CommonKotlinComparable >
 
 @property (readonly, class) jdouble POSITIVE_INFINITY NS_SWIFT_NAME(POSITIVE_INFINITY);
 @property (readonly, class) jdouble NEGATIVE_INFINITY NS_SWIFT_NAME(NEGATIVE_INFINITY);
@@ -58,7 +59,7 @@
   represented by the string.The string is converted to a
  <code>double</code> value as if by the <code>valueOf</code> method.
  @param s a string to be converted to a <code>Double</code> .
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
              parsable number.
  - seealso: java.lang.Double#valueOf(java.lang.String)
  */
@@ -228,7 +229,7 @@
            <code>false</code> otherwise.
  - seealso: java.lang.Double#doubleToLongBits(double)
  */
-- (jboolean)isEqual:(id)obj;
+//- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Double</code> as a <code>float</code>
@@ -257,7 +258,7 @@
   </blockquote>
  @return a <code>hash code</code> value for this object.
  */
-- (NSUInteger)hash;
+//- (NSUInteger)hash;
 
 /*!
  @brief Returns a hash code for a <code>double</code> value; compatible with
@@ -420,7 +421,7 @@
  @return the <code>double</code> value represented by the string
           argument.
  @throw NullPointerExceptionif the string is null
- @throw NumberFormatExceptionif the string does not contain
+ @throw NumberFormatException If the string does not contain
           a parsable <code>double</code>.
  - seealso: java.lang.Double#valueOf(String)
  @since 1.2
@@ -749,7 +750,7 @@
  @param s the string to be parsed.
  @return a <code>Double</code> object holding the value
               represented by the <code>String</code> argument.
- @throw NumberFormatExceptionif the string does not contain a
+ @throw NumberFormatException If the string does not contain a
               parsable number.
  */
 + (CommonDouble * __nonnull)valueOfWithNSString:(NSString *)s;

@@ -40,7 +40,7 @@
 }
 
 - (id)java_clone {
-  return AUTORELEASE([[CommonMutableSet alloc] initWithSet:self]);
+  return AUTORELEASE([[NSMutableSet alloc] initWithSet:self]);
 }
 
 - (id<JavaUtilIterator>)iterator {

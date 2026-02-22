@@ -5,6 +5,6 @@ class ClassWithBackingPropertyCustomGetter {
 
     val backedProperty: String
         get() {
-            return _backedProperty.plus(" property")
+            return "$_backedProperty property"
         }
 }

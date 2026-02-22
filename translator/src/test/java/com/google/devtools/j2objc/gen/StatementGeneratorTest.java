@@ -716,7 +716,7 @@ public class StatementGeneratorTest extends GenerationTest {
             "A",
             "A.m");
     assertTranslation(translation,
-        "JreStrongAssignAndConsume(&self->map_, new_CommonMutableDictionary_init())");
+        "JreStrongAssignAndConsume(&self->map_, new_NSMutableDictionary_init())");
   }
 
   public void testCreatedFieldNotConsumedStrictFieldAssign() throws IOException {
@@ -727,7 +727,7 @@ public class StatementGeneratorTest extends GenerationTest {
             "A",
             "A.m");
     assertTranslation(
-        translation, "JreStrictFieldStrongAssign(&self->map_, create_CommonMutableDictionary_init())");
+        translation, "JreStrictFieldStrongAssign(&self->map_, create_NSMutableDictionary_init())");
   }
 
   public void testStringAddOperator() throws IOException {

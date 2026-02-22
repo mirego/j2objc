@@ -19,6 +19,7 @@ import com.mirego.interop.java.test.property.LongProperty;
 import com.mirego.interop.java.test.property.NullableBooleanProperty;
 import com.mirego.interop.java.test.property.NullableProperty;
 import com.mirego.interop.java.test.property.PropertyAnnotatedWithJvmField;
+import com.mirego.interop.java.test.property.PropertyAnnotatedWithJvmFieldInsideAnEnum;
 import com.mirego.interop.java.test.property.PublicImmutablePropertyWithGeneratedGetter;
 import com.mirego.interop.java.test.property.PublicMutablePropertyWithGeneratedSetter;
 import com.mirego.interop.java.test.property.ShortProperty;
@@ -125,7 +126,11 @@ public class PropertyRuntimeTest extends TestCase {
     assertEquals("mutatedMutableProperty", PublicMutablePropertyWithGeneratedSetter.main(args));
   }
 
-  public void testPropertyWithJvmField(){
+  public void testPropertyWithJvmField() {
     assertEquals("ClassWithJvmFieldProperty", PropertyAnnotatedWithJvmField.main(args));
+  }
+
+  public void testPropertyAnnotatedWithJvmFieldInsideAnEnum() {
+    assertTrue(PropertyAnnotatedWithJvmFieldInsideAnEnum.main(args));
   }
 }

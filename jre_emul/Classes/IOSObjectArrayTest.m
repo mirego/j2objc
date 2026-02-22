@@ -75,11 +75,11 @@
   IOSObjectArray *numbers = [IOSObjectArray arrayWithLength:5 type:type];
   for (int i = 0; i < 5; i++) {
     [numbers replaceObjectAtIndex:i
-                       withObject:[NSNumber numberWithInt:i]];
+                       withObject:[CommonInt numberWithInt:i]];
   }
   IOSObjectArray *numbers2 = [IOSObjectArray arrayWithObjects:(id[]){
-      [NSNumber numberWithInt:11], [NSNumber numberWithInt:12],
-      [NSNumber numberWithInt:13] }
+      [CommonInt numberWithInt:11], [CommonInt numberWithInt:12],
+      [CommonInt numberWithInt:13] }
       count:3 type:type];
   [numbers2 arraycopy:1
           destination:numbers
@@ -97,7 +97,7 @@
   IOSObjectArray *numbers = [IOSObjectArray arrayWithLength:5 type:type];
   for (int i = 0; i < 5; i++) {
     [numbers replaceObjectAtIndex:i
-                       withObject:[NSNumber numberWithInt:i]];
+                       withObject:[CommonInt numberWithInt:i]];
   }
   [numbers arraycopy:1
          destination:numbers
@@ -115,7 +115,7 @@
   IOSObjectArray *array = [IOSObjectArray arrayWithLength:10 type:type];
   for (int i = 0; i < 10; i++) {
     [array replaceObjectAtIndex:i
-                     withObject:[NSNumber numberWithInt:i]];
+                     withObject:[CommonInt numberWithInt:i]];
   }
   IOSObjectArray *clone = [array java_clone];
   XCTAssertEqual([array length], [clone length], @"counts don't match", nil);

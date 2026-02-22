@@ -8,14 +8,13 @@ import com.google.devtools.j2objc.ast.TreeUtil;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ErrorType;
@@ -32,21 +31,17 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.AbstractTypeVisitor9;
 
 import kotlin.Metadata;
-import kotlinx.metadata.Flag;
-import kotlinx.metadata.KmClass;
-import kotlinx.metadata.KmClassExtensionVisitor;
-import kotlinx.metadata.KmClassVisitor;
-import kotlinx.metadata.KmDeclarationContainer;
-import kotlinx.metadata.KmExtensionType;
-import kotlinx.metadata.KmFunction;
-import kotlinx.metadata.KmPackage;
-import kotlinx.metadata.KmPackageExtensionVisitor;
-import kotlinx.metadata.KmPackageVisitor;
-import kotlinx.metadata.KmProperty;
-import kotlinx.metadata.jvm.JvmClassExtensionVisitor;
-import kotlinx.metadata.jvm.JvmPackageExtensionVisitor;
-import kotlinx.metadata.jvm.KotlinClassHeader;
-import kotlinx.metadata.jvm.KotlinClassMetadata;
+import kotlin.metadata.Attributes;
+import kotlin.metadata.ClassKind;
+import kotlin.metadata.KmClass;
+import kotlin.metadata.KmDeclarationContainer;
+import kotlin.metadata.KmFunction;
+import kotlin.metadata.KmPackage;
+import kotlin.metadata.KmProperty;
+import kotlin.metadata.Visibility;
+import kotlin.metadata.jvm.JvmExtensionsKt;
+import kotlin.metadata.jvm.KotlinClassHeader;
+import kotlin.metadata.jvm.KotlinClassMetadata;
 
 public final class KotlinUtil {
 
@@ -151,7 +146,11 @@ public final class KotlinUtil {
       return null;
     }
 
-    return ((KotlinClassMetadata.Class) metadata).getKmClass();
+    if (metadata instanceof KotlinClassMetadata.Class) {
+      return ((KotlinClassMetadata.Class) metadata).getKmClass();
+    }
+
+    return null;
   }
 
   public static KmClass tryGetKotlinClassMetaData(Element element) {
@@ -179,7 +178,7 @@ public final class KotlinUtil {
     }
 
     KotlinClassHeader header = new KotlinClassHeader(meta.k(), meta.mv(), meta.d1(), meta.d2(), meta.xs(), meta.pn(), meta.xi());
-    return KotlinClassMetadata.read(header);
+    return KotlinClassMetadata.readStrict(header);
   }
 
   public static Element getElementFromExpression(Expression expression) {
@@ -240,18 +239,15 @@ public final class KotlinUtil {
   }
 
   private static boolean isEnumKmClass(KmClass kotlinMetaData) {
-    int flags = kotlinMetaData.getFlags();
-    return Flag.Class.IS_ENUM_CLASS.invoke(flags);
+    return Attributes.getKind(kotlinMetaData) == ClassKind.ENUM_CLASS;
   }
 
   private static boolean isCompanionObjectKmClass(KmClass kotlinMetaData) {
-    int flags = kotlinMetaData.getFlags();
-    return Flag.Class.IS_COMPANION_OBJECT.invoke(flags);
+    return Attributes.getKind(kotlinMetaData) == ClassKind.COMPANION_OBJECT;
   }
 
   private static boolean isObjectKmClass(KmClass kotlinMetaData) {
-    int flags = kotlinMetaData.getFlags();
-    return Flag.Class.IS_OBJECT.invoke(flags);
+    return Attributes.getKind(kotlinMetaData) == ClassKind.OBJECT;
   }
 
   /**
@@ -305,6 +301,14 @@ public final class KotlinUtil {
     return isKotlinType(node) && TypeUtil.isInterface(node);
   }
 
+  public static boolean isKotlinTopLevelFunction(ExecutableElement executableElement) {
+    Element clazz = executableElement.getEnclosingElement();
+    KotlinClassMetadata metadata = tryGetElementMetaData(clazz);
+
+    // This is a method on a Class that is a Kotlin's file facade: it means it's a top level function
+    return metadata instanceof KotlinClassMetadata.FileFacade;
+  }
+
   static private final String GETTER_PREFIX = "get";
   static private final String SETTER_PREFIX = "set";
 
@@ -319,16 +323,19 @@ public final class KotlinUtil {
   @Nullable
   public static KmFunction matchFunctionNameWithKotlin(ExecutableElement node, KmDeclarationContainer kotlinClass) {
     String simpleName = node.getSimpleName().toString();
-    KmFunction matchingFunction = null;
-    List<KmFunction> functions = kotlinClass.getFunctions();
-    for (KmFunction function : functions) {
-      if (simpleName.equals(function.getName())) {
-        matchingFunction = function;
-        break;
-      }
-    }
+    return kotlinClass.getFunctions().stream()
+        .filter(func -> simpleName.equals(func.getName()))
+        .findFirst()
+        .orElse(null);
+  }
 
-    return matchingFunction;
+  @Nullable
+  public static KmProperty matchVariableNameWithKotlin(VariableElement node, KmDeclarationContainer kotlinClass) {
+    String simpleName = node.getSimpleName().toString();
+    return kotlinClass.getProperties().stream()
+        .filter(property -> simpleName.equals(property.getName()))
+        .findFirst()
+        .orElse(null);
   }
 
   @Nullable
@@ -341,17 +348,14 @@ public final class KotlinUtil {
     String propertyName = NameTable.uncapitalize(simpleName.substring(3));
     List<KmProperty> properties = kotlinClass.getProperties();
     for (KmProperty property : properties) {
-      int flags = property.getFlags();
-
-      if (Flag.IS_PRIVATE.invoke(flags)) {
+      Visibility visibility = Attributes.getVisibility(property);
+      if (visibility == Visibility.PRIVATE) {
         continue;
       }
-      if (Flag.IS_PUBLIC.invoke(flags)) {
-        if (Flag.Property.HAS_GETTER.invoke(flags) ||
-            Flag.Property.HAS_SETTER.invoke(flags)) {
-          if (propertyName.equals(property.getName())) {
-            return property;
-          }
+
+      if (visibility == Visibility.PUBLIC) {
+        if (propertyName.equals(property.getName())) {
+          return property;
         }
       }
     }
@@ -363,38 +367,13 @@ public final class KotlinUtil {
     KmDeclarationContainer declarationContainer = Objects.requireNonNull(getElementKotlinDeclarationContainer(element),
         "Can query for getKotlinJsModuleName name on a Kotlin declaration Containers only: " + element);
 
-    AtomicReference<String> moduleName = new AtomicReference<>();
-
     if (declarationContainer instanceof KmClass) {
-      ((KmClass) declarationContainer).accept(new KmClassVisitor() {
-        @Override
-        public KmClassExtensionVisitor visitExtensions(@Nonnull KmExtensionType type) {
-          return new JvmClassExtensionVisitor() {
-            @Override
-            public void visitModuleName(@Nonnull String name) {
-              moduleName.set(name);
-              super.visitModuleName(name);
-            }
-          };
-        }
-      });
+      return JvmExtensionsKt.getModuleName((KmClass) declarationContainer);
     } else if (declarationContainer instanceof KmPackage) {
-      ((KmPackage) declarationContainer).accept(new KmPackageVisitor() {
-        @Override
-        public KmPackageExtensionVisitor visitExtensions(@Nonnull KmExtensionType type) {
-          return new JvmPackageExtensionVisitor() {
-            @Override
-            public void visitModuleName(@Nonnull String name) {
-              moduleName.set(name);
-              super.visitModuleName(name);
-            }
-          };
-        }
-      });
+      return JvmExtensionsKt.getModuleName((KmPackage) declarationContainer);
     }
 
-    return Objects.requireNonNull(moduleName.get(),
-        "Unable to extract Kotlin class module name from: " + element);
+    throw new RuntimeException("Unable to extract Kotlin class module name from: " + element);
   }
 
   private static class TypeKindTypeVisitor extends AbstractTypeVisitor9<TypeKind, Void> {

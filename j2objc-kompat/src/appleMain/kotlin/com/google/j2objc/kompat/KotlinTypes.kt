@@ -14,8 +14,6 @@ interface J2ObjCKompatDummy {
     fun intArray(): IntArray
     fun longArray(): LongArray
     fun shortArray(): ShortArray
-    fun hashSet(): HashSet<Any>
-    fun hashMap(): HashMap<Any, Any>
 }
 
 interface J2ObjCKompatDummyComparable : Comparable<Any>

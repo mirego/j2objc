@@ -43,6 +43,7 @@ import com.google.devtools.j2objc.translate.JavaCloneWriter;
 import com.google.devtools.j2objc.translate.JavaObjectMethodConverter;
 import com.google.devtools.j2objc.translate.JavaToIOSMethodTranslator;
 import com.google.devtools.j2objc.translate.KotlinCollectionsConverter;
+import com.google.devtools.j2objc.translate.KotlinImplicitCompanionAccessRewriter;
 import com.google.devtools.j2objc.translate.KotlinNativeBridgeConverter;
 import com.google.devtools.j2objc.translate.LabelRewriter;
 import com.google.devtools.j2objc.translate.LambdaRewriter;
@@ -303,6 +304,9 @@ public class TranslationProcessor extends FileProcessor {
 
     new KotlinCollectionsConverter(unit).run();
     ticker.tick("KotlinCollectionsConverter");
+
+    new KotlinImplicitCompanionAccessRewriter(unit).run();
+    ticker.tick("KotlinImplicitCompanionAccessRewriter");
     // kotlin interop >>
 
     // Before: StaticVarRewriter - Generates static variable access expressions.

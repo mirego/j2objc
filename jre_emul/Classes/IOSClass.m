@@ -1495,8 +1495,8 @@ J2OBJC_NAME_MAPPING(IOSClass, "java.lang.Class", "IOSClass")
 @implementation PackagePrefixLoader
 
 - (void)load__WithNSString:(NSString *)key withNSString:(NSString *)value {
-  [nil_chk(prefixMapping) addWithId:[[PackagePrefixEntry alloc] initWithNSString:key
-                                                                    withNSString:value]];
+  [nil_chk(prefixMapping) addWithId:AUTORELEASE([[PackagePrefixEntry alloc] initWithNSString:key
+                                                                                withNSString:value])];
 }
 
 @end

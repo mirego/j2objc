@@ -1,7 +1,7 @@
 package com.mirego.interop.kotlin.test.constructor
 
 class ClassWithSecondaryConstructor(
-    val name: String
+    val name: String,
 ) {
     constructor() : this("ClassWithSecondaryConstructor")
 }

@@ -34,29 +34,34 @@ public class NativeObjectsUtil {
       }
 
       // Convert collection arguments to proper type if needed
-      List<Expression> convertedParameters = node.getArguments().stream().map(argument -> {
-        if (NativeObjectsUtil.isNativelyBridgedObject(argument.getTypeMirror(), typeUtil)) {
-          String functionName;
-          if (typeUtil.getJavaMap().equals(TypeUtil.asTypeElement(argument.getTypeMirror()))) {
-            functionName = "javaMapToKotlinMutableDictionary";
-          } else if (typeUtil.getJavaSet().equals(TypeUtil.asTypeElement(argument.getTypeMirror()))) {
-            functionName = "javaSetToKotlinMutableSet";
-          } else {
-            functionName = "javaCollectionToNSMutableArray";
-          }
-
-          FunctionElement j2objcCreateSetElement =
-            new FunctionElement(functionName, TypeUtil.ID_TYPE, null);
-          FunctionInvocation createSetFunction =
-            new FunctionInvocation(j2objcCreateSetElement, TypeUtil.ID_TYPE);
-          createSetFunction.addArgument(argument.copy());
-          return createSetFunction;
-        } else {
-          return argument.copy();
-        }
-      }).collect(toList());
+      List<Expression> convertedParameters = node.getArguments()
+        .stream()
+        .map(it -> wrapArgument(it, typeUtil))
+        .collect(toList());
       node.setArguments(convertedParameters);
     }
+  }
+
+  public static Expression wrapArgument(Expression argument, TypeUtil typeUtil) {
+    if (!NativeObjectsUtil.isNativelyBridgedObject(argument.getTypeMirror(), typeUtil)) {
+      return argument;
+    }
+
+    String functionName;
+    if (typeUtil.getJavaMap().equals(TypeUtil.asTypeElement(argument.getTypeMirror()))) {
+      functionName = "javaWrapMap";
+    } else if (typeUtil.getJavaSet().equals(TypeUtil.asTypeElement(argument.getTypeMirror()))) {
+      functionName = "javaWrapSet";
+    } else {
+      functionName = "javaWrapCollection";
+    }
+
+    FunctionElement j2objcCreateSetElement =
+      new FunctionElement(functionName, TypeUtil.ID_TYPE, null);
+    FunctionInvocation createSetFunction =
+      new FunctionInvocation(j2objcCreateSetElement, TypeUtil.ID_TYPE);
+    createSetFunction.addArgument(argument.copy());
+    return createSetFunction;
   }
 
   private static boolean isNativelyBridgedObject(TypeMirror typeMirror, TypeUtil typeUtil) {
