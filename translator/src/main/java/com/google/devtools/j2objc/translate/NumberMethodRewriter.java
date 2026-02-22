@@ -20,6 +20,7 @@ import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.MethodDeclaration;
 import com.google.devtools.j2objc.ast.NativeStatement;
 import com.google.devtools.j2objc.ast.SingleVariableDeclaration;
+import com.google.devtools.j2objc.ast.SuperConstructorInvocation;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.types.ExecutablePair;
@@ -86,6 +87,16 @@ public class NumberMethodRewriter extends UnitTreeVisitor {
           new ExecutablePair(newMethodElement, invocation.getExecutableType()));
     }
   }
+  
+  @Override
+  public void endVisit(SuperConstructorInvocation invocation) {
+    if (isNumberLongConstructor(invocation.getExecutableElement())) {
+      ExecutableElement newMethodElement =
+          updateNumberLongConstructor(invocation.getExecutableElement());
+      SuperConstructorInvocation unused = invocation.setExecutablePair(
+          new ExecutablePair(newMethodElement, invocation.getExecutableType()));
+    }
+  }
 
   @SuppressWarnings("TypeEquals")
   private ExecutablePair findNumberMethod(DeclaredType type, String name, String... paramTypes) {
@@ -133,7 +144,7 @@ public class NumberMethodRewriter extends UnitTreeVisitor {
     return false;
   }
 
-  // Fix selector so constructor overrides NSNumber.initWithLongLong(), to match jlong type.
+  // Fix selector so constructor overrides NSNumber.initWithLongLong(), to match long long type.
   private ExecutableElement updateNumberLongConstructor(ExecutableElement constructor) {
     return GeneratedExecutableElement.mutableCopy("initWithLongLong:", constructor);
   }

@@ -15,6 +15,7 @@
 package com.google.devtools.j2objc.util;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.devtools.j2objc.types.AbstractTypeMirror;
 import com.google.devtools.j2objc.types.ExecutablePair;
@@ -22,6 +23,7 @@ import com.google.devtools.j2objc.types.GeneratedArrayType;
 import com.google.devtools.j2objc.types.GeneratedTypeElement;
 import com.google.devtools.j2objc.types.NativeType;
 import com.google.devtools.j2objc.types.PointerType;
+import com.google.j2objc.annotations.GenerateObjectiveCGenerics;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -57,12 +60,15 @@ import javax.lang.model.util.Types;
  */
 public final class TypeUtil {
 
+  public static final TypeMirror BOOL_TYPE = new NativeType("bool");
   public static final TypeMirror ID_TYPE = new NativeType("id");
   public static final TypeMirror ID_PTR_TYPE = new PointerType(ID_TYPE);
   public static final TypeElement NS_OBJECT =
       GeneratedTypeElement.newIosClass("NSObject", null, "");
   public static final TypeElement NS_STRING =
       GeneratedTypeElement.newIosClass("NSString", NS_OBJECT, "");
+  public static final TypeElement NS_ERROR =
+      GeneratedTypeElement.newIosClass("NSError", NS_OBJECT, "");
   public static final TypeElement NS_EXCEPTION =
       GeneratedTypeElement.newIosClass("NSException", NS_OBJECT, "");
   public static final TypeElement NS_NUMBER =
@@ -209,6 +215,18 @@ public final class TypeUtil {
     return t.getKind() == TypeKind.TYPEVAR;
   }
 
+  public static boolean isNativeType(TypeMirror t) {
+    return t instanceof NativeType;
+  }
+
+  public static boolean hasGenerateObjectiveCGenerics(TypeElement t) {
+    return ElementUtil.hasAnnotation(t, GenerateObjectiveCGenerics.class);
+  }
+
+  public static boolean hasGenerateObjectiveCGenerics(TypeMirror t) {
+    return asTypeElement(t) != null && hasGenerateObjectiveCGenerics(asTypeElement(t));
+  }
+
   public static TypeElement asTypeElement(TypeMirror t) {
     if (isDeclaredType(t)) {
       return (TypeElement) ((DeclaredType) t).asElement();
@@ -219,6 +237,16 @@ public final class TypeUtil {
       return asTypeElement(((IntersectionType) t).getBounds().iterator().next());
     }
     return null;
+  }
+
+  public static List<? extends TypeMirror> getTypeArguments(TypeMirror t) {
+    if (isDeclaredType(t)) {
+      return ((DeclaredType) t).getTypeArguments();
+    } else if (isNativeType(t)) {
+      return ((NativeType) t).getTypeArguments();
+    } else {
+      return ImmutableList.of();
+    }
   }
 
   public static boolean isJavaObject(TypeMirror t) {
@@ -593,7 +621,7 @@ public final class TypeUtil {
   }
 
   public static boolean isId(TypeMirror t) {
-    return t instanceof NativeType && ((NativeType) t).getName().equals("id");
+    return isNativeType(t) && ((NativeType) t).getName().equals("id");
   }
 
   public PrimitiveType getPrimitiveType(TypeKind kind) {
@@ -699,6 +727,25 @@ public final class TypeUtil {
     return true;
   }
 
+  public boolean isProtoClass(TypeMirror type) {
+    TypeElement element = asTypeElement(type);
+    if (element != null) {
+      PackageElement pkg = ElementUtil.getPackage(element);
+      if (pkg != null) {
+        if (pkg.toString().equals("com.google.protobuf")) {
+          return true;
+        }
+      }
+    }
+    for (TypeMirror t : directSupertypes(type)) {
+      boolean result = isProtoClass(t);
+      if (result) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean isObjcSubtype(TypeElement type, TypeElement targetSupertype) {
     if (type == null) {
       return false;
@@ -764,6 +811,9 @@ public final class TypeUtil {
   }
 
   public static String getName(TypeMirror t) {
+    if (t instanceof NativeType) {
+      return ((NativeType) t).getName();
+    }
     switch (t.getKind()) {
       case ARRAY:
         return getName(((ArrayType) t).getComponentType()) + "[]";

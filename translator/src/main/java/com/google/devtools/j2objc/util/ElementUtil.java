@@ -61,8 +61,11 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
 import javax.tools.JavaFileObject;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility methods for working with elements.
@@ -152,6 +155,10 @@ public final class ElementUtil {
             && hasQualifiedNamedAnnotation(element, LAZY_INIT));
   }
 
+  public static boolean isUnnamed(VariableElement element) {
+    return element.getSimpleName().contentEquals("");
+  }
+
   public static boolean isTopLevel(TypeElement type) {
     return type.getNestingKind() == NestingKind.TOP_LEVEL;
   }
@@ -189,6 +196,11 @@ public final class ElementUtil {
     return e.getKind() == ElementKind.PACKAGE;
   }
 
+  public static boolean isRecord(Element e) {
+    // Check it as a string so translator doesn't have to run with a Java 17 minimum.
+    return e.getKind().name().equals("RECORD");
+  }
+
   public static boolean isTypeElement(Element e) {
     ElementKind kind = e.getKind();
     return kind.isClass() || kind.isInterface();
@@ -216,8 +228,9 @@ public final class ElementUtil {
     return (TypeElement) element;
   }
 
-  public static TypeElement getSuperclass(TypeElement element) {
-    return TypeUtil.asTypeElement(element.getSuperclass());
+  public static @Nullable TypeElement getSuperclass(TypeElement element) {
+    TypeMirror superClass = element.getSuperclass();
+    return superClass != null ? TypeUtil.asTypeElement(element.getSuperclass()) : null;
   }
 
   public static List<TypeElement> getInterfaces(TypeElement element) {
@@ -300,6 +313,12 @@ public final class ElementUtil {
     return e instanceof GeneratedTypeElement ? ((GeneratedTypeElement) e).getHeader() : null;
   }
 
+  public static @Nullable String getForwardDeclaration(TypeElement e) {
+    return e instanceof GeneratedTypeElement
+        ? ((GeneratedTypeElement) e).getForwardDeclaration()
+        : null;
+  }
+
   public static boolean isIosType(TypeElement e) {
     return e instanceof GeneratedTypeElement && ((GeneratedTypeElement) e).isIosType();
   }
@@ -353,10 +372,17 @@ public final class ElementUtil {
   }
 
   public static boolean isVariable(Element element) {
-    ElementKind kind = element.getKind();
-    return kind == ElementKind.FIELD || kind == ElementKind.LOCAL_VARIABLE
-        || kind == ElementKind.PARAMETER || kind == ElementKind.EXCEPTION_PARAMETER
-        || kind == ElementKind.RESOURCE_VARIABLE || kind == ElementKind.ENUM_CONSTANT;
+    return switch (element.getKind()) {
+      case FIELD,
+          LOCAL_VARIABLE,
+          PARAMETER,
+          EXCEPTION_PARAMETER,
+          RESOURCE_VARIABLE,
+          ENUM_CONSTANT,
+          BINDING_VARIABLE ->
+          true;
+      default -> false;
+    };
   }
 
   public static boolean isField(Element element) {
@@ -724,7 +750,7 @@ public final class ElementUtil {
   }
 
   public static AnnotationMirror getAnnotation(Element element, Class<?> annotationClass) {
-    return getQualifiedNamedAnnotation(element, annotationClass.getName());
+    return getQualifiedNamedAnnotation(element, annotationClass.getCanonicalName());
   }
 
   public static boolean hasAnnotation(Element element, Class<?> annotationClass) {
@@ -796,18 +822,20 @@ public final class ElementUtil {
         return false;
       }
     }
-    if (isVariable(element) && element.asType().getKind().isPrimitive()) {
+    TypeMirror elementType = element.asType();
+    if (isVariable(element) && elementType.getKind().isPrimitive()) {
       return false;
     }
-    // The two if statements cover type annotations.
+    // The if statements cover type annotations.
     if (isMethod(element)
         && hasNamedAnnotation(((ExecutableElement) element).getReturnType(), pattern)) {
       return true;
     }
     if (isVariable(element)) {
-      if (hasNamedAnnotation(element.asType(), pattern)) {
+      if (hasNamedAnnotation(elementType, pattern)) {
         return true;
       }
+
       // Annotation may be saved as a type attribute in the javac symbol.
       if (element instanceof VarSymbol) {
         SymbolMetadata metadata = ((VarSymbol) element).getMetadata();
@@ -821,6 +849,17 @@ public final class ElementUtil {
         }
       }
     }
+    if (TypeUtil.isTypeVariable(elementType)) {
+      // Generics may be annotated as nullable and both the type variable and the bound
+      // may be annotated.
+      if (hasNamedAnnotation(((TypeVariable) elementType).asElement(), pattern)) {
+        return true;
+      }
+      if (hasNamedAnnotation(((TypeVariable) elementType).getUpperBound(), pattern)) {
+        return true;
+      }
+    }
+
     // This covers declaration annotations.
     return hasNamedAnnotation(element, pattern);
   }
@@ -863,29 +902,15 @@ public final class ElementUtil {
     if (!options.nullMarked()) {
       return false;
     }
-    if (ElementUtil.isAnnotatedWithNullMarked(element)) {
+    if (ElementUtil.hasAnnotation(element, NullMarked.class)) {
       return true;
     }
     PackageElement pkg = getPackage(element);
-    if (ElementUtil.isAnnotatedWithNullMarked(pkg)) {
+    if (ElementUtil.hasAnnotation(pkg, NullMarked.class)) {
       return true;
     }
     String pkgName = pkg.getQualifiedName().toString();
     return options.getPackageInfoLookup().isNullMarked(pkgName);
-  }
-
-  // TODO: b/286259161 - Remove the below method and check for the NullMarked class once
-  //                     the org.jspecify.annotations migration is complete.
-  /**
-   * Returns {@code true} when {@code element} is annotated with {@code @NullMarked}.
-   *
-   * <p><b>Note:</b> Qualified names are checked rather than classes to ensure that annotations are
-   * correctly promoted to generated code for clients which reference the legacy
-   * `org.jspecify.nullness.NullMarked` package.
-   */
-  private static boolean isAnnotatedWithNullMarked(Element element) {
-    return hasQualifiedNamedAnnotation(element, "org.jspecify.nullness.NullMarked")
-        || hasQualifiedNamedAnnotation(element, "org.jspecify.annotations.NullMarked");
   }
 
   /**
@@ -954,5 +979,9 @@ public final class ElementUtil {
       }
     }
     return null;
+  }
+
+  public TypeElement getTypeElement(String fullyQualifiedName) {
+    return javacElements.getTypeElement(fullyQualifiedName);
   }
 }

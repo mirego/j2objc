@@ -27,6 +27,7 @@ import java.util.Set;
  *
  * @author Tom Ball
  */
+@SuppressWarnings("UngroupedOverloads")
 public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGenerator {
 
   private final Options options;
@@ -122,18 +123,26 @@ public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGener
   private void printImports() {
     Set<String> includeFiles = Sets.newTreeSet();
     includeFiles.add("J2ObjC_source.h");
-    includeFiles.add(getGenerationUnit().getOutputPath() + ".h");
+    String outputPath = getGenerationUnit().getOutputPath();
+    if (options.generateSeparateHeaders()) {
+      for (GeneratedType generatedType : getOrderedTypes()) {
+        includeFiles.add(getHeaderPath(generatedType, outputPath) + ".h");
+      }
+    } else {
+      includeFiles.add(outputPath + ".h");
+    }
     for (GeneratedType generatedType : getOrderedTypes()) {
       for (Import imp : generatedType.getImplementationIncludes()) {
-        if (!isLocalType(imp.getTypeName())) {
+        if (!isLocalType(imp.getTypeName()) && !imp.getImportFileName().isEmpty()) {
           includeFiles.add(imp.getImportFileName());
         }
       }
     }
 
     newline();
+    String directive = options.generateSeparateHeaders() ? "#import" : "#include";
     for (String header : includeFiles) {
-      printf("#include \"%s\"\n", header);
+      printf("%s \"%s\"\n", directive, header);
     }
 
     for (String code : getGenerationUnit().getNativeImplementationBlocks()) {

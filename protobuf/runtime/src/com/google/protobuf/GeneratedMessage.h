@@ -54,13 +54,26 @@ typedef ComGoogleProtobufGeneratedMessage_GeneratedExtension CGPGeneratedExtensi
 
 @interface ComGoogleProtobufGeneratedMessage : ComGoogleProtobufAbstractMessage
 
-+ (id)getDescriptor;
-+ (id)parseFromWithByteString:(ComGoogleProtobufByteString *)byteString;
-+ (id)parseFromWithByteString:(ComGoogleProtobufByteString *)byteString
++ (nonnull ComGoogleProtobufDescriptors_Descriptor *)getDescriptor;
++ (nonnull instancetype)getDefaultInstance;
+- (nonnull instancetype)getDefaultInstanceForType;
++ (instancetype)parseFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)byteString;
++ (instancetype)parseFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)byteString
+              withComGoogleProtobufExtensionRegistryLite:
+                  (ComGoogleProtobufExtensionRegistryLite *)registry;
++ (instancetype)parseFromNSData:(NSData *)data;
++ (instancetype)parseFromNSData:(NSData *)data
+                       registry:(ComGoogleProtobufExtensionRegistryLite *)registry;
++ (instancetype)parseFromWithByteArray:(IOSByteArray *)bytes;
++ (instancetype)parseFromWithByteArray:(IOSByteArray *)bytes
     withComGoogleProtobufExtensionRegistryLite:(ComGoogleProtobufExtensionRegistryLite *)registry;
-+ (id)parseFromNSData:(NSData *)data;
-+ (id)parseFromNSData:(NSData *)data registry:(ComGoogleProtobufExtensionRegistryLite *)registry;
-
++ (instancetype)parseFromWithJavaIoInputStream:(JavaIoInputStream *)input;
++ (instancetype)parseFromWithJavaIoInputStream:(JavaIoInputStream *)bytes
+    withComGoogleProtobufExtensionRegistryLite:(ComGoogleProtobufExtensionRegistryLite *)registry;
++ (instancetype)parseDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)input;
++ (instancetype)parseDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)bytes
+             withComGoogleProtobufExtensionRegistryLite:
+                 (ComGoogleProtobufExtensionRegistryLite *)registry;
 @end
 
 J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufGeneratedMessage)
@@ -69,18 +82,19 @@ J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufGeneratedMessage)
 
 @interface ComGoogleProtobufGeneratedMessage_Builder : ComGoogleProtobufAbstractMessage_Builder
 
-- (id)mergeFromWithJavaIoInputStream:(JavaIoInputStream *)input;
-- (id)mergeFromWithJavaIoInputStream:(JavaIoInputStream *)input
+- (instancetype)mergeFromWithJavaIoInputStream:(JavaIoInputStream *)input;
+- (instancetype)mergeFromWithJavaIoInputStream:(JavaIoInputStream *)input
     withComGoogleProtobufExtensionRegistryLite:
         (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
-- (id)mergeFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)data;
-- (id)mergeFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)data
+- (instancetype)mergeFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)data;
+- (instancetype)mergeFromWithComGoogleProtobufByteString:(ComGoogleProtobufByteString *)data
+              withComGoogleProtobufExtensionRegistryLite:
+                  (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
+- (instancetype)mergeFromWithByteArray:(IOSByteArray *)data;
+- (instancetype)mergeFromWithByteArray:(IOSByteArray *)data
     withComGoogleProtobufExtensionRegistryLite:
         (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
-- (id)mergeFromWithByteArray:(IOSByteArray *)data;
-- (id)mergeFromWithByteArray:(IOSByteArray *)data
-    withComGoogleProtobufExtensionRegistryLite:
-        (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
+- (instancetype)mergeFromWithComGoogleProtobufMessage:(id<ComGoogleProtobufMessage>)message;
 
 @end
 
@@ -88,26 +102,26 @@ J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufGeneratedMessage_Builder)
 
 J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufGeneratedMessage_Builder)
 
-@protocol ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder
-    <ComGoogleProtobufMessageOrBuilder, JavaObject>
+@protocol
+    ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder <ComGoogleProtobufMessageOrBuilder,
+                                                                  JavaObject>
 
-- (jboolean)hasExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension;
-- (jboolean)hasExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension;
-- (jboolean)hasExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
+- (bool)hasExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension;
+- (bool)hasExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension;
+- (bool)hasExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
     (CGPGeneratedExtension *)extension;
 
-- (id)getExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension;
+- (id)getExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension;
 - (id)getExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension;
 - (id)getExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
     (CGPGeneratedExtension *)extension;
 
-- (id)getExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension withInt:(jint)index;
+- (id)getExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension
+                                             withInt:(jint)index;
 - (id)getExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension withInt:(jint)index;
 - (id)getExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
-    (CGPGeneratedExtension *)extension withInt:(jint)index;
+          (CGPGeneratedExtension *)extension
+                                                                   withInt:(jint)index;
 
 - (jint)getExtensionCountWithComGoogleProtobufExtensionLite:
     (ComGoogleProtobufExtensionLite *)extension;
@@ -121,36 +135,44 @@ J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBu
 
 J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder)
 
-@interface ComGoogleProtobufGeneratedMessage_ExtendableMessage :
-    ComGoogleProtobufGeneratedMessage<ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder>
+@interface ComGoogleProtobufGeneratedMessage_ExtendableMessage
+    : ComGoogleProtobufGeneratedMessage <
+          ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder>
 @end
 
 J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufGeneratedMessage_ExtendableMessage)
 
 J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufGeneratedMessage_ExtendableMessage)
 
-@interface ComGoogleProtobufGeneratedMessage_ExtendableBuilder :
-    ComGoogleProtobufGeneratedMessage_Builder
-    <ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder>
+@interface ComGoogleProtobufGeneratedMessage_ExtendableBuilder
+    : ComGoogleProtobufGeneratedMessage_Builder <
+          ComGoogleProtobufGeneratedMessage_ExtendableMessageOrBuilder>
 
-- (id)setExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension withId:(id)value;
-- (id)setExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension withInt:(jint)index withId:(id)value;
+- (id)setExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension
+                                              withId:(id)value;
+- (id)setExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension
+                                             withInt:(jint)index
+                                              withId:(id)value;
 - (id)setExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension withId:(id)value;
+- (id)setExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension
+                                         withInt:(jint)index
+                                          withId:(id)value;
 - (id)setExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
-    (CGPGeneratedExtension *)extension withId:(id)value;
+          (CGPGeneratedExtension *)extension
+                                                                    withId:(id)value;
 - (id)setExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
-     (CGPGeneratedExtension *)extension withInt:(jint)index withId:(id)value;
+          (CGPGeneratedExtension *)extension
+                                                                   withInt:(jint)index
+                                                                    withId:(id)value;
 
-- (id)addExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension withId:(id)value;
+- (id)addExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension
+                                              withId:(id)value;
 - (id)addExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension withId:(id)value;
 - (id)addExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
-    (CGPGeneratedExtension *)extension withId:(id)value;
+          (CGPGeneratedExtension *)extension
+                                                                    withId:(id)value;
 
-- (id)clearExtensionWithComGoogleProtobufExtensionLite:
-    (ComGoogleProtobufExtensionLite *)extension;
+- (id)clearExtensionWithComGoogleProtobufExtensionLite:(ComGoogleProtobufExtensionLite *)extension;
 - (id)clearExtensionWithComGoogleProtobufExtension:(CGPExtension *)extension;
 - (id)clearExtensionWithComGoogleProtobufGeneratedMessage_GeneratedExtension:
     (CGPGeneratedExtension *)extension;
@@ -168,4 +190,4 @@ J2OBJC_EMPTY_STATIC_INIT(ComGoogleProtobufGeneratedMessage_GeneratedExtension)
 
 J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufGeneratedMessage_GeneratedExtension)
 
-#endif // __ComGoogleProtobufGeneratedMessage_H__
+#endif  // __ComGoogleProtobufGeneratedMessage_H__

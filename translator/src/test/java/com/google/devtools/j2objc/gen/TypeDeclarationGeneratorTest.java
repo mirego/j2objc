@@ -36,8 +36,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     String translation = translateSourceFile(
       "public class Example { Runnable run = new Runnable() { public void run() {} }; }",
       "Example", "Example.m");
-    assertTranslation(translation, "@interface Example_1 : NSObject < JavaLangRunnable >");
-    assertTranslation(translation, "- (void)run;");
+    assertInTranslation(translation, "@interface Example_1 : NSObject < JavaLangRunnable >");
+    assertInTranslation(translation, "- (void)run;");
     // Outer reference is not required.
     assertNotInTranslation(translation, "Example *this");
     assertNotInTranslation(translation, "- (id)initWithExample:");
@@ -51,7 +51,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  Foo<Integer> foo = new Foo<Integer>() {"
         + "    public void foo1(Integer i) { } }; }",
         "Test", "Test.m");
-    assertTranslation(translation, "foo1WithId:(JavaLangInteger *)i");
+    assertInTranslation(translation, "foo1WithId:(JavaLangInteger *)i");
   }
 
   public void testAccessorForStaticPrimitiveConstant() throws IOException {
@@ -59,8 +59,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     // accessor to be consistent with other static variables.
     String translation = translateSourceFile(
         "class Test { static final int FOO = 1; }", "Test", "Test.h");
-    assertTranslation(translation, "#define Test_FOO 1");
-    assertTranslation(translation, "J2OBJC_STATIC_FIELD_CONSTANT(Test, FOO, jint)");
+    assertInTranslation(translation, "#define Test_FOO 1");
+    assertInTranslation(translation, "J2OBJC_STATIC_FIELD_CONSTANT(Test, FOO, int32_t)");
   }
 
   // Verify that accessor methods for static vars and constants are generated on request.
@@ -72,13 +72,13 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "static final Test DEFAULT = new Test(); "
         + "static boolean DEBUG; }";
     String translation = translateSourceFile(source, "Test", "Test.h");
-    assertTranslation(translation, "+ (NSString *)ID;");
-    assertTranslation(translation, "+ (void)setID:(NSString *)value;");
-    assertTranslation(translation, "+ (Test *)DEFAULT;");
-    assertTranslation(translation, "+ (jboolean)DEBUG_;");
-    assertTranslation(translation, "+ (void)setDEBUG_:(jboolean)value");
-    assertNotInTranslation(translation, "+ (jint)i");
-    assertNotInTranslation(translation, "+ (void)setI:(jint)value");
+    assertInTranslation(translation, "+ (NSString *)ID;");
+    assertInTranslation(translation, "+ (void)setID:(NSString *)value;");
+    assertInTranslation(translation, "+ (Test *)DEFAULT;");
+    assertInTranslation(translation, "+ (bool)DEBUG_;");
+    assertInTranslation(translation, "+ (void)setDEBUG_:(bool)value");
+    assertNotInTranslation(translation, "+ (int32_t)i");
+    assertNotInTranslation(translation, "+ (void)setI:(int32_t)value");
     assertNotInTranslation(translation, "+ (void)setDEFAULT:(Test *)value");
   }
 
@@ -86,7 +86,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
   // is annotated with @NullMarked.
   public void testStaticFieldAccessorMethodWithNullMarkedClass() throws IOException {
     String source =
-        "import javax.annotation.*; import org.jspecify.nullness.NullMarked;"
+        "import javax.annotation.*; import org.jspecify.annotations.NullMarked;"
             + "@NullMarked public class Test {"
             + "  @Nullable public static String nullableStr;"
             + "  public static String nonNullStr;"
@@ -97,17 +97,17 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     options.setNullMarked(true);
     options.setNullability(true);
     String translation = translateSourceFile(source, "Test", "Test.h");
-    assertTranslation(translation, "+ (NSString *_Nullable)nullableStr;");
-    assertTranslation(translation, "+ (void)setNullableStr:(NSString *_Nullable)value;");
-    assertTranslation(translation, "+ (NSString *)nonNullStr;");
-    assertTranslation(translation, "+ (void)setNonNullStr:(NSString *)value;");
+    assertInTranslation(translation, "+ (NSString *_Nullable)nullableStr;");
+    assertInTranslation(translation, "+ (void)setNullableStr:(NSString *_Nullable)value;");
+    assertInTranslation(translation, "+ (NSString *)nonNullStr;");
+    assertInTranslation(translation, "+ (void)setNonNullStr:(NSString *)value;");
   }
 
   // Verify accessor methods are properly annotated for nullability when the package
   // is annotated with @NullMarked.
   public void testStaticFieldAccessorMethodWithNullMarkedPackage() throws IOException {
     addSourceFile(
-        "@NullMarked package foo.bar; import org.jspecify.nullness.NullMarked;",
+        "@NullMarked package foo.bar; import org.jspecify.annotations.NullMarked;",
         "foo/bar/package-info.java");
     String source =
         "package foo.bar; "
@@ -122,10 +122,10 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     options.setNullMarked(true);
     options.setNullability(true);
     String translation = translateSourceFile(source, "foo.bar.Test", "foo/bar/Test.h");
-    assertTranslation(translation, "+ (NSString *_Nullable)nullableStr;");
-    assertTranslation(translation, "+ (void)setNullableStr:(NSString *_Nullable)value;");
-    assertTranslation(translation, "+ (NSString *)nonNullStr;");
-    assertTranslation(translation, "+ (void)setNonNullStr:(NSString *)value;");
+    assertInTranslation(translation, "+ (NSString *_Nullable)nullableStr;");
+    assertInTranslation(translation, "+ (void)setNullableStr:(NSString *_Nullable)value;");
+    assertInTranslation(translation, "+ (NSString *)nonNullStr;");
+    assertInTranslation(translation, "+ (void)setNonNullStr:(NSString *)value;");
   }
 
   // Verify that accessor methods for static vars and constants aren't generated by default.
@@ -138,8 +138,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     assertNotInTranslation(translation, "+ (NSString *)ID");
     assertNotInTranslation(translation, "+ (void)setID:(NSString *)value");
     assertNotInTranslation(translation, "+ (Test *)DEFAULT");
-    assertNotInTranslation(translation, "+ (jint)i");
-    assertNotInTranslation(translation, "+ (void)setI:(jint)value");
+    assertNotInTranslation(translation, "+ (int32_t)i");
+    assertNotInTranslation(translation, "+ (void)setI:(int32_t)value");
     assertNotInTranslation(translation, "+ (void)setDEFAULT:(Test *)value");
   }
 
@@ -156,8 +156,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     String translation = translateSourceFile(source, "Test", "Test.h");
     assertNotInTranslation(translation, "+ (NSString *)ID;");
     assertNotInTranslation(translation, "+ (void)setID:(NSString *)value;");
-    assertTranslation(translation, "+ (NSString *)getID;");
-    assertTranslation(translation, "+ (void)setIDWithNSString:(NSString *)ID;");
+    assertInTranslation(translation, "+ (NSString *)getID;");
+    assertInTranslation(translation, "+ (void)setIDWithNSString:(NSString *)ID;");
   }
 
   // Verify that accessor methods for enum constants are generated on request.
@@ -165,9 +165,9 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     options.setStaticAccessorMethods(true);
     String source = "enum Test { ONE, TWO, EOF }";  // EOF is a reserved name.
     String translation = translateSourceFile(source, "Test", "Test.h");
-    assertTranslation(translation, "+ (Test *)ONE;");
-    assertTranslation(translation, "+ (Test *)TWO;");
-    assertTranslation(translation, "+ (Test *)EOF_;");
+    assertInTranslation(translation, "+ (Test *)ONE;");
+    assertInTranslation(translation, "+ (Test *)TWO;");
+    assertInTranslation(translation, "+ (Test *)EOF_;");
   }
 
   // Verify that accessor methods for enum constants are generated with nonnull
@@ -178,8 +178,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     String source = "enum Test { ONE, TWO }";
     String translation = translateSourceFile(source, "Test", "Test.h");
     assertNotInTranslation(translation, "NS_ASSUME_NONNULL_BEGIN");
-    assertTranslation(translation, "+ (Test * _Nonnull)ONE;");
-    assertTranslation(translation, "+ (Test * _Nonnull)TWO;");
+    assertInTranslation(translation, "+ (Test * _Nonnull)ONE;");
+    assertInTranslation(translation, "+ (Test * _Nonnull)TWO;");
     assertNotInTranslation(translation, "NS_ASSUME_NONNULL_END");
   }
 
@@ -197,43 +197,59 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     String translation = translateSourceFile(source, "Test", "Test.h");
     assertTranslatedLines(
         translation, "NS_ASSUME_NONNULL_BEGIN", "@interface NullableTest : JavaLangEnum");
-    assertTranslation(translation, "+ (NullableTest * _Nullable)ONE;");
-    assertTranslation(translation, "+ (NullableTest * _Nullable)TWO;");
-    assertTranslation(translation, "+ (NonnullTest *)THREE;");
-    assertTranslation(translation, "+ (NonnullTest *)FOUR;");
-    assertTranslation(translation, "NS_ASSUME_NONNULL_END");
+    assertInTranslation(translation, "+ (NullableTest * _Nullable)ONE;");
+    assertInTranslation(translation, "+ (NullableTest * _Nullable)TWO;");
+    assertInTranslation(translation, "+ (NonnullTest *)THREE;");
+    assertInTranslation(translation, "+ (NonnullTest *)FOUR;");
+    assertInTranslation(translation, "NS_ASSUME_NONNULL_END");
   }
 
   // Verify that class properties for enum constants are generated on request.
   public void testEnumConstantClassProperties() throws IOException {
     options.setClassProperties(true);
     options.setNullability(true);
+    options.setSwiftEnums(false);
     String source = "enum Test { ONE, TWO, EOF }"; // EOF is a reserved name.
     String translation = translateSourceFile(source, "Test", "Test.h");
-    assertTranslation(
+    assertInTranslation(
         translation, "@property (readonly, class, nonnull) Test *ONE NS_SWIFT_NAME(ONE);");
-    assertTranslation(
+    assertInTranslation(
         translation, "@property (readonly, class, nonnull) Test *TWO NS_SWIFT_NAME(TWO);");
-    assertTranslation(
+    assertInTranslation(
         translation, "@property (readonly, class, nonnull) Test *EOF_ NS_SWIFT_NAME(EOF_);");
   }
 
   // Verify that accessor methods for enum constants are generated by --swift-friendly flag.
   public void testSwiftFriendlyEnumConstantAccessorMethods() throws IOException {
     options.setSwiftFriendly(true);
-    String source = "enum Test { ONE, TWO, EOF }";  // EOF is a reserved name.
+    String source = "enum Test { ONE, TWO, EOF, TWO_WORDS }"; // EOF is a reserved name.
     String translation = translateSourceFile(source, "Test", "Test.h");
-    assertTranslation(translation,
-        "@property (readonly, class, nonnull) Test *ONE NS_SWIFT_NAME(ONE);");
-    assertTranslation(translation,
-        "@property (readonly, class, nonnull) Test *TWO NS_SWIFT_NAME(TWO);");
-    assertTranslation(translation,
-        "@property (readonly, class, nonnull) Test *EOF_ NS_SWIFT_NAME(EOF_);");
+    assertInTranslation(
+        translation, "@property (readonly, class, nonnull) Test *ONE NS_SWIFT_NAME(one);");
+    assertInTranslation(
+        translation, "@property (readonly, class, nonnull) Test *TWO NS_SWIFT_NAME(two);");
+    assertInTranslation(
+        translation, "@property (readonly, class, nonnull) Test *EOF_ NS_SWIFT_NAME(eof);");
+    assertInTranslation(
+        translation,
+        "@property (readonly, class, nonnull) Test *TWO_WORDS NS_SWIFT_NAME(twoWords);");
 
     translation = getTranslatedFile("Test.m");
-    assertTranslation(translation, "+ (Test *)ONE ");
-    assertTranslation(translation, "+ (Test *)TWO ");
-    assertTranslation(translation, "+ (Test *)EOF_ ");
+    assertInTranslation(translation, "+ (Test *)ONE ");
+    assertInTranslation(translation, "+ (Test *)TWO ");
+    assertInTranslation(translation, "+ (Test *)EOF_ ");
+    assertInTranslation(translation, "+ (Test *)TWO_WORDS ");
+  }
+
+  // Verify that NS_SWIFT_NAME is added to emums when --swift-enum flag is enabled.
+  public void testSwiftEnumSwiftName() throws IOException {
+    options.setSwiftEnums(true);
+    String source = "enum Test { ONE, TWO, EOF, TWO_WORDS }"; // EOF is a reserved name.
+    String translation = translateSourceFile(source, "Test", "Test.h");
+    assertInTranslation(translation, "Test_Enum_ONE NS_SWIFT_NAME(one) = 0,");
+    assertInTranslation(translation, "Test_Enum_TWO NS_SWIFT_NAME(two) = 1,");
+    assertInTranslation(translation, "Test_Enum_EOF NS_SWIFT_NAME(eof) = 2,");
+    assertInTranslation(translation, "Test_Enum_TWO_WORDS NS_SWIFT_NAME(twoWords) = 3,");
   }
 
   // Verify that accessor methods for enum constants are not generated by default.
@@ -268,7 +284,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         "",
         "@interface Test : NSObject",
         "",
-        "+ (jboolean)FOO;");
+        "+ (bool)FOO;");
   }
 
   public void testProperties() throws IOException {
@@ -289,33 +305,30 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
             + "  public void setAGenericProperty(T value) { }"
             + "}";
     String translation = translateSourceFile(source, "FooBar", "FooBar.h");
-    assertTranslation(translation, "@property (readonly, nonatomic) jint fieldBar;");
+    assertInTranslation(translation, "@property (readonly, nonatomic) int32_t fieldBar;");
 
     // Should split out fieldBaz and include the declared getter.
-    assertTranslation(translation,
-        "@property (readonly, nonatomic, getter=getFieldBaz) jint fieldBaz;");
+    assertInTranslation(
+        translation, "@property (readonly, nonatomic, getter=getFieldBaz) int32_t fieldBaz;");
 
     // Set copy for strings and drop readwrite.
-    assertTranslation(translation,
-        "@property (copy) NSString *fieldCopy;");
+    assertInTranslation(translation, "@property (copy) NSString *fieldCopy;");
 
     // Test boolean getter.
-    assertTranslation(translation,
-        "@property (nonatomic, getter=isFieldBool) jboolean fieldBool;");
+    assertInTranslation(translation, "@property (nonatomic, getter=isFieldBool) bool fieldBool;");
 
     // Reorder property attributes and pass setter through.
-    assertTranslation(translation,
-        "@property (weak, readonly, nonatomic) jint fieldReorder;");
+    assertInTranslation(translation, "@property (weak, readonly, nonatomic) int32_t fieldReorder;");
 
     // Test generic property.
-    assertTranslation(
+    assertInTranslation(
         translation,
         "@property (nonatomic, getter=getAGenericProperty, "
             + "setter=setAGenericPropertyWithJavaLangThrowable:, strong) "
             + "JavaLangThrowable *aGenericProperty;");
 
     // Test readonly property.
-    assertTranslation(translation, "@property (readonly) jint fieldFinal;");
+    assertInTranslation(translation, "@property (readonly) int32_t fieldFinal;");
   }
 
   public void testSynchronizedPropertyGetter() throws IOException {
@@ -325,7 +338,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  public synchronized int getFieldBar() { return fieldBar; }"
         + "}";
     String translation = translateSourceFile(source, "FooBar", "FooBar.h");
-    assertTranslation(translation, "@property (getter=getFieldBar) jint fieldBar;");
+    assertInTranslation(translation, "@property (getter=getFieldBar) int32_t fieldBar;");
   }
 
   public void testBadPropertyAttribute() throws IOException {
@@ -344,7 +357,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  public void setFieldBar(int val) { fieldBar = val; }"
         + "}";
     String translation = translateSourceFile(source, "FooBar", "FooBar.h");
-    assertTranslation(translation, "setter=setFieldBarWithInt:");
+    assertInTranslation(translation, "setter=setFieldBarWithInt:");
   }
 
   public void testBadPropertySetterSelector() throws IOException {
@@ -375,16 +388,16 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "}";
     String translation = translateSourceFile(source, "Foo", "Foo.h");
     // Add __weak instance variable
-    assertTranslation(translation, "WEAK_ Foo *barA_;");
-    assertTranslation(translation, "@property (weak) Foo *barA;");
+    assertInTranslation(translation, "WEAK_ Foo *barA_;");
+    assertInTranslation(translation, "@property (weak) Foo *barA;");
     assertNotInTranslation(translation, "J2OBJC_FIELD_SETTER(Foo, barA_, Foo *)");
     // Add weak property attribute
-    assertTranslation(translation, "WEAK_ Foo *barB_;");
-    assertTranslation(translation, "@property (weak, readonly) Foo *barB;");
+    assertInTranslation(translation, "WEAK_ Foo *barB_;");
+    assertInTranslation(translation, "@property (weak, readonly) Foo *barB;");
     assertNotInTranslation(translation, "J2OBJC_FIELD_SETTER(Foo, barB_, Foo *)");
     // Works with both
-    assertTranslation(translation, "WEAK_ Foo *barC_;");
-    assertTranslation(translation, "@property (weak, readonly) Foo *barC;");
+    assertInTranslation(translation, "WEAK_ Foo *barC_;");
+    assertInTranslation(translation, "@property (weak, readonly) Foo *barC;");
     assertNotInTranslation(translation, "J2OBJC_FIELD_SETTER(Foo, barC_, Foo *)");
   }
 
@@ -426,10 +439,11 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "@Property static int test; "
         + "@Property(\"nonatomic\") static double d; "
         + "@Property static final boolean flag = true; }", "Test", "Test.h");
-    assertTranslatedLines(translation,
-        "@property (class) jint test;",
-        "@property (nonatomic, class) jdouble d;",
-        "@property (readonly, class) jboolean flag;");
+    assertTranslatedLines(
+        translation,
+        "@property (class) int32_t test;",
+        "@property (nonatomic, class) double d;",
+        "@property (readonly, class) bool flag;");
 
     // Verify class attributes aren't assigned to instance fields.
     translateSourceFile(
@@ -476,16 +490,16 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
             "Test.h");
     assertTranslatedLines(
         translation,
-        "@property (class) jint test NS_SWIFT_NAME(test);",
-        "@property (class) jdouble d NS_SWIFT_NAME(d);",
-        "@property (readonly, class) jboolean flag NS_SWIFT_NAME(flag);",
+        "@property (class) int32_t test NS_SWIFT_NAME(test);",
+        "@property (class) double d NS_SWIFT_NAME(d);",
+        "@property (readonly, class) bool flag NS_SWIFT_NAME(flag);",
         "@property (copy, class) NSString *TRUE_ NS_SWIFT_NAME(TRUE_);");
-    assertTranslation(translation, "- (jint)getTest;");
-    assertNotInTranslation(translation, "+ (jint)test;");
+    assertInTranslation(translation, "- (int32_t)getTest;");
+    assertNotInTranslation(translation, "+ (int32_t)test;");
     assertNotInTranslation(translation, "@property (copy, class) NSString *s NS_SWIFT_NAME(s);");
 
     translation = getTranslatedFile("Test.m");
-    assertTranslation(translation, "+ (jint)test {");
+    assertInTranslation(translation, "+ (int32_t)test {");
   }
 
   public void testPropertiesInInterfaceType() throws IOException {
@@ -501,7 +515,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         "@end",
         "",
         "@interface Test : NSObject",
-        "@property (readonly, class) jboolean FOO NS_SWIFT_NAME(FOO);");
+        "@property (readonly, class) bool FOO NS_SWIFT_NAME(FOO);");
   }
 
   public void testNullabilityAttributes() throws IOException {
@@ -528,7 +542,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     assertTranslatedLines(translation, "- (NSString *)test2;");
 
     // Verify return type is annotated.
-    assertTranslation(translation, "- (NSString * _Nonnull)test3;");
+    assertInTranslation(translation, "- (NSString * _Nonnull)test3;");
   }
 
   // Verify ParametersAreNonnullByDefault sets unspecified parameter as non-null.
@@ -548,7 +562,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         // Verify default nonnull is specified.
         "withId:(id _Nonnull)var",
         // Default should not apply to primitive type.
-        "withInt:(jint)count;");
+        "withInt:(int32_t)count;");
   }
 
   // Verify a ParametersAreNonnullByDefault package annotation sets unspecified
@@ -571,7 +585,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         // Verify default nonnull is specified.
         "withId:(id _Nonnull)var",
         // Default should not apply to primitive type.
-        "withInt:(jint)count;");
+        "withInt:(int32_t)count;");
   }
 
   public void testNullabilityPragmas() throws IOException {
@@ -669,8 +683,8 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
 
     // Verify primitive properties don't have nullability parameters.
     assertTranslatedLines(translation,
-        "@property jint test7;",
-        "@property (readonly, nonatomic) jdouble test8;");
+        "@property int32_t test7;",
+        "@property (readonly, nonatomic) double test8;");
   }
 
   // Verify that constructors are always nonnull (issue #960).
@@ -681,9 +695,9 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  int i; "
         + "  public Test() { this(0); } "
         + "  private Test(int i) { this.i = i; }}", "Test", "Test.h");
-    assertTranslation(translation, "- (instancetype _Nonnull)init;");
+    assertInTranslation(translation, "- (instancetype _Nonnull)init;");
     translation = getTranslatedFile("Test.m");
-    assertTranslation(translation, "- (instancetype)initWithInt:(jint)i;");
+    assertInTranslation(translation, "- (instancetype)initWithInt:(int32_t)i;");
   }
 
   // Verify type nullability annotations.
@@ -702,7 +716,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
             + "}";
     options.setNullability(true);
     String translation = translateSourceFile(source, "foo.bar.Test", "foo/bar/Test.h");
-    assertTranslatedLines(
+    assertInTranslation(
         translation, "- (NSString * _Nullable)testWithNSString:(NSString * _Nonnull)msg");
   }
 
@@ -735,7 +749,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
 
   public void testNullMarked() throws IOException {
     addSourceFile(
-        "@NullMarked package foo.bar; import org.jspecify.nullness.NullMarked;",
+        "@NullMarked package foo.bar; import org.jspecify.annotations.NullMarked;",
         "foo/bar/package-info.java");
     String source =
         "package foo.bar; import javax.annotation.*; "
@@ -759,21 +773,21 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     assertTranslatedLines(
         translation, "NS_ASSUME_NONNULL_BEGIN", "@interface FooBarTest : NSObject {");
     assertTranslatedLines(translation, "@public", "NSString *_Nullable identifier_;");
-    assertTranslation(translation, "- (NSString * _Nullable)getToken;");
-    assertTranslation(
-        translation, "- (instancetype _Nonnull)initWithNSString:(NSString * _Nullable)token;");
+    assertInTranslation(translation, "- (NSString * _Nullable)getToken;");
+    assertInTranslation(
+        translation, "- (instancetype)initWithNSString:(NSString * _Nullable)token;");
     assertTranslatedLines(
         translation,
         "- (NSString * _Nullable)testNullableInstanceMethodWithNSString:(NSString *"
             + " _Nullable)msg",
         "withId:(id)var",
-        "withInt:(jint)count;");
+        "withInt:(int32_t)count;");
     assertTranslatedLines(
         translation,
         "+ (NSString * _Nullable)testNullableStaticMethodWithNSString:(NSString *"
             + " _Nullable)firstArg",
         "withId:(id)var",
-        "withInt:(jint)count;");
+        "withInt:(int32_t)count;");
     assertTranslatedLines(
         translation, "J2OBJC_TYPE_LITERAL_HEADER(FooBarTest)", "", "NS_ASSUME_NONNULL_END");
   }
@@ -781,7 +795,7 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
   public void testNullMarkedTypeAnnotation() throws IOException {
     String source =
         "import javax.annotation.*;"
-            + "import org.jspecify.nullness.NullMarked;"
+            + "import org.jspecify.annotations.NullMarked;"
             + "@NullMarked public class Test {"
             + "  private @Nullable String nullableStr;"
             + "  private String nonNullStr;"
@@ -796,24 +810,24 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     options.setNullability(true);
     String translation = translateSourceFile(source, "Test", "Test.h");
     assertTranslatedLines(translation, "NS_ASSUME_NONNULL_BEGIN", "@interface Test : NSObject");
+    assertInTranslation(translation, "- (instancetype)init;");
     assertTranslatedLines(
         translation,
         "- (NSString * _Nullable)testWithNSString:(NSString *)a",
         "withNSString:(NSString * _Nullable)b;");
-    assertTranslation(translation, "- (NSString *)getNonNullStr;");
-    assertTranslation(translation, "- (NSString * _Nullable)getNullableStr;");
-    assertTranslation(translation, "NS_ASSUME_NONNULL_END");
+    assertInTranslation(translation, "- (NSString *)getNonNullStr;");
+    assertInTranslation(translation, "- (NSString * _Nullable)getNullableStr;");
+    assertInTranslation(translation, "NS_ASSUME_NONNULL_END");
   }
 
   public void testNullMarkedPackageAnnotation() throws IOException {
     addSourceFile(
-        "@NullMarked package foo.bar;" + "import org.jspecify.nullness.NullMarked;",
+        "@NullMarked package foo.bar;" + "import org.jspecify.annotations.NullMarked;",
         "foo/bar/package-info.java");
     String source =
         "package foo.bar;"
             + "import javax.annotation.*;"
-            + "import org.jspecify.nullness.NullMarked;"
-            + "@NullMarked public class Test {"
+            + "public class Test {"
             + "  private @Nullable String nullableStr;"
             + "  private String nonNullStr;"
             + "  public @Nullable String test(String a,"
@@ -828,20 +842,68 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
     String translation = translateSourceFile(source, "foo.bar.Test", "foo/bar/Test.h");
     assertTranslatedLines(
         translation, "NS_ASSUME_NONNULL_BEGIN", "@interface FooBarTest : NSObject");
+    assertInTranslation(translation, "- (instancetype)init;");
     assertTranslatedLines(
         translation,
         "- (NSString * _Nullable)testWithNSString:(NSString *)a",
         "withNSString:(NSString * _Nullable)b;");
-    assertTranslation(translation, "- (NSString *)getNonNullStr;");
-    assertTranslation(translation, "- (NSString * _Nullable)getNullableStr;");
-    assertTranslation(translation, "NS_ASSUME_NONNULL_END");
+    assertInTranslation(translation, "- (NSString *)getNonNullStr;");
+    assertInTranslation(translation, "- (NSString * _Nullable)getNullableStr;");
+    assertInTranslation(translation, "NS_ASSUME_NONNULL_END");
+  }
+
+  public void testNullMarkedWithoutGenerics() throws IOException {
+    addSourceFile(
+        "@NullMarked package foo.bar;" + "import org.jspecify.annotations.NullMarked;",
+        "foo/bar/package-info.java");
+    String source =
+        "package foo.bar;"
+            + "import javax.annotation.*;"
+            + "import org.jspecify.annotations.Nullable;"
+            + "public class Test <T extends @Nullable String> {"
+            + "  public T getNullableStr() { return null; }"
+            + "  public void setNullableStr(T thing) { return; }"
+            + "}";
+    options.setNullMarked(true);
+    options.setNullability(true);
+    String translation = translateSourceFile(source, "foo.bar.Test", "foo/bar/Test.h");
+    assertTranslatedLines(
+        translation, "NS_ASSUME_NONNULL_BEGIN", "@interface FooBarTest : NSObject");
+    assertInTranslation(translation, "- (NSString * _Nullable)getNullableStr;");
+    assertInTranslation(
+        translation, "- (void)setNullableStrWithNSString:(NSString * _Nullable)thing;");
+    assertInTranslation(translation, "NS_ASSUME_NONNULL_END");
+  }
+
+  public void testNullMarkedWithGenerics() throws IOException {
+    addSourceFile(
+        "@NullMarked package foo.bar;" + "import org.jspecify.annotations.NullMarked;",
+        "foo/bar/package-info.java");
+    String source =
+        "package foo.bar;"
+            + "import javax.annotation.*;"
+            + "import org.jspecify.annotations.Nullable;"
+            + "public class Test <@Nullable T> {"
+            + "  public T getNullableStr() { return null; }"
+            + "  public void setNullableStr(T thing) { return; }"
+            + "}";
+    options.setNullMarked(true);
+    options.setNullability(true);
+    options.setAsObjCGenericDecl(true);
+    String translation = translateSourceFile(source, "foo.bar.Test", "foo/bar/Test.h");
+    assertTranslatedLines(
+        translation, "NS_ASSUME_NONNULL_BEGIN", "@interface FooBarTest<T> : NSObject");
+    assertInTranslation(translation, "- (T _Nullable)getNullableStr;");
+    assertInTranslation(translation, "- (void)setNullableStrWithId:(T _Nullable)thing;");
+    assertInTranslation(translation, "NS_ASSUME_NONNULL_END");
   }
 
   public void testFieldWithIntersectionType() throws IOException {
     String translation = translateSourceFile(
         "class Test <T extends Comparable & Runnable> { T foo; }", "Test", "Test.h");
     // Test that J2OBJC_ARG is used to wrap the type containing a comma.
-    assertTranslation(translation,
+    assertInTranslation(
+        translation,
         "J2OBJC_FIELD_SETTER(Test, foo_, J2OBJC_ARG(id<JavaLangComparable, JavaLangRunnable>))");
   }
 
@@ -898,11 +960,11 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "  static final boolean BAR = true || false;"
         + "}", "Test", "Test.h");
     // Verify boolean expressions are simplified.
-    assertTranslation(translation, "#define Test_FOO false");
-    assertTranslation(translation, "#define Test_BAR true");
+    assertInTranslation(translation, "#define Test_FOO false");
+    assertInTranslation(translation, "#define Test_BAR true");
 
     // This class should not have an initialize method or reinitialize the constants.
-    assertTranslation(translation, "J2OBJC_EMPTY_STATIC_INIT(Test)");
+    assertInTranslation(translation, "J2OBJC_EMPTY_STATIC_INIT(Test)");
     translation = getTranslatedFile("Test.m");
     assertNotInTranslation(translation, "+ (void)initialize {");
     assertNotInTranslation(translation, "Test_FOO = false;");
@@ -996,8 +1058,38 @@ public class TypeDeclarationGeneratorTest extends GenerationTest {
         + "    public static final int anotherState=2;\n"
         + "}\n", "State", "State.h");
     // Should have trailing underscore, to avoid class with class initialize function name.
-    assertTranslation(translation, "J2OBJC_STATIC_FIELD_CONSTANT(State, initialize_, jint)");
-    assertTranslation(translation, "inline jint State_get_initialize_(void);");
-    assertTranslation(translation, "State_initialize_");
+    assertInTranslation(translation, "J2OBJC_STATIC_FIELD_CONSTANT(State, initialize_, int32_t)");
+    assertInTranslation(translation, "inline int32_t State_get_initialize_(void);");
+    assertInTranslation(translation, "State_initialize_");
+  }
+
+  public void testAddTextSegmentAttribute() throws IOException {
+    options.setAddTextSegmentAttribute(true);
+    String source =
+        "class Test { \n"
+            + "  void methodTest() { \n"
+            + "    System.out.println(\"test\"); \n"
+            + "  } \n"
+            + "  native void nativeTest() /*-[ \n"
+            + "     printf(\"hello\\n\");"
+            + "  ]-*/;"
+            + "  static enum TestEnum { FOO, BAR }"
+            + "  static @interface TestAnnotation {}"
+            + "}";
+    String translation = translateSourceFile(source, "Test", "Test.h");
+    assertTranslatedLines(translation, "- (void)methodTest J2OBJC_TEXT_SEGMENT;");
+    assertTranslatedLines(translation, "- (void)nativeTest J2OBJC_TEXT_SEGMENT;");
+    assertTranslatedLines(translation, "- (instancetype)init J2OBJC_TEXT_SEGMENT;");
+
+    // Automatically generated enum methods.
+    assertTranslatedLines(
+        translation,
+        "+ (Test_TestEnum *)valueOfWithNSString:(NSString *)name J2OBJC_TEXT_SEGMENT;");
+    assertTranslatedLines(translation, "+ (IOSObjectArray *)values J2OBJC_TEXT_SEGMENT;");
+    assertTranslatedLines(translation, "- (Test_TestEnum_Enum)toNSEnum J2OBJC_TEXT_SEGMENT;");
+
+    // Automatically generated annotation methods.
+    assertTranslatedLines(translation, "- (bool)isEqual:(id)obj J2OBJC_TEXT_SEGMENT;");
+    assertTranslatedLines(translation, "- (NSUInteger)hash J2OBJC_TEXT_SEGMENT;");
   }
 }

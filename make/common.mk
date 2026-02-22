@@ -178,33 +178,27 @@ endif
 TRANSLATOR_DEPS = $(DIST_DIR)/j2objc $(DIST_JAR_DIR)/j2objc.jar
 
 ifndef JAVA_HOME
-JAVA_HOME = $(shell /usr/libexec/java_home -v 11)
+JAVA_HOME = $(shell /usr/libexec/java_home -v 21)
 endif
 JAVA = $(JAVA_HOME)/bin/java
 JAVAC = $(JAVA_HOME)/bin/javac
-ifneq (,$(findstring build 1.8, $(shell $(JAVA) -version 2>&1)))
-# Flag used to include tools.jar. This jar was removed in JDK 9.
-JAVA_8 = 1
-else ifneq (,$(findstring build 11, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 11
-else ifneq (,$(findstring build 12, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 12
-else ifneq (,$(findstring build 13, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 13
-else ifneq (,$(findstring build 14, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 14
-else ifneq (,$(findstring build 15, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 15
-else ifneq (,$(findstring build 16, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 16
-else ifneq (,$(findstring build 17, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 17
-else ifneq (,$(findstring build 18, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 18
-else ifneq (,$(findstring build 19, $(shell $(JAVA) -version 2>&1)))
-JAVA_VERSION = 19
+ifneq (,$(findstring build 21, $(shell $(JAVA) -version 2>&1)))
+JAVA_VERSION = 21
+else ifneq (,$(findstring build 22, $(shell $(JAVA) -version 2>&1)))
+JAVA_VERSION = 22
+else ifneq (,$(findstring build 23, $(shell $(JAVA) -version 2>&1)))
+JAVA_VERSION = 23
+else ifneq (,$(findstring build 24, $(shell $(JAVA) -version 2>&1)))
+JAVA_VERSION = 24
+else ifneq (,$(findstring build 25, $(shell $(JAVA) -version 2>&1)))
+JAVA_VERSION = 25
 else
-$(error JDK not supported. Please set JAVA_HOME to JDK 1.8, 11 or higher.)
+$(error JDK not supported. Please set JAVA_HOME to JDK 21 or higher.)
+endif
+
+# Used to build JRE module.
+ifndef JAVA_PLATFORM
+  JAVA_PLATFORM := $(shell $(J2OBJC_ROOT)/scripts/detect-java-platform.sh)
 endif
 
 ifndef MEMORY_MODEL_FLAG
@@ -218,7 +212,6 @@ endif
 
 TRANSLATOR_BUILD_FLAGS = \
   -Xlint:unchecked -encoding UTF-8 -nowarn
-ifndef JAVA_8
 TRANSLATOR_BUILD_FLAGS += \
   --add-exports java.compiler/javax.lang.model.element=ALL-UNNAMED \
   --add-exports java.compiler/javax.lang.model.type=ALL-UNNAMED \
@@ -228,7 +221,17 @@ TRANSLATOR_BUILD_FLAGS += \
   --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
   --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
   --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
-endif
+
+# Java flags needed to execute j2objc translator.
+J2OBJC_JAVA_FLAGS += \
+  --add-exports java.compiler/javax.lang.model.element=ALL-UNNAMED \
+  --add-exports java.compiler/javax.lang.model.type=ALL-UNNAMED \
+  --add-exports java.compiler/javax.lang.model.util=ALL-UNNAMED \
+  --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
+  --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
+  --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
+  --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
+  --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
 
 comma=,
 space=$(eval) $(eval)

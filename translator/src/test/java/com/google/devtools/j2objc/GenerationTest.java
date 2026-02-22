@@ -18,6 +18,7 @@ package com.google.devtools.j2objc;
 
 import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -64,8 +65,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
@@ -75,13 +76,14 @@ import javax.tools.ToolProvider;
 import junit.framework.TestCase;
 
 /**
- * Tests code generation. A string containing the source code for a list of Java
- * statements is parsed and translated, then iOS code is generated for one or
- * more of those statements for comparison in a specific generation test.
+ * Test support and assertions for j2objc code generation. The general design involves transpiling a
+ * string containing source code from one or more Java source file snippets, then verifying that the
+ * iOS code is generated as expected. Options (flags) may be set before transpilation. When a test
+ * fails, the full generated .m or .h file is included in the failure message.
  *
  * @author Tom Ball
  */
-public class GenerationTest extends TestCase {
+public abstract class GenerationTest extends TestCase {
 
   protected File tempDir;
   protected Parser parser;
@@ -99,9 +101,7 @@ public class GenerationTest extends TestCase {
   @Override
   protected void setUp() throws IOException {
     tempDir = FileUtil.createTempDir("testout");
-    if (onJava9OrAbove()) {
-      SourceVersion.setMaxSupportedVersion(SourceVersion.JAVA_11);
-    }
+    SourceVersion.setMaxSupportedVersion(SourceVersion.JAVA_21);
     loadOptions();
     createParser();
   }
@@ -291,7 +291,7 @@ public class GenerationTest extends TestCase {
     ByteArrayOutputStream errOut = new ByteArrayOutputStream();
     int numErrors = compiler.run(null, null, errOut, args.toArray(new String[0]));
     if (numErrors > 0) {
-      String errMsg = errOut.toString();
+      String errMsg = errOut.toString(Charset.defaultCharset());
       ErrorUtil.error(errMsg);
       failWithMessages("test compilation error" + (numErrors > 1 ? "s" : ""),
           Lists.newArrayList(errMsg));
@@ -314,7 +314,7 @@ public class GenerationTest extends TestCase {
         try {
           classpath.add(URLDecoder.decode(urls[i].getFile(), encoding));
         } catch (UnsupportedEncodingException e) {
-          throw new AssertionError("System doesn't have the default encoding");
+          throw new AssertionError("System doesn't have the default encoding", e);
         }
       }
     } else {
@@ -331,10 +331,8 @@ public class GenerationTest extends TestCase {
     return StatementGenerator.generate(statement, SourceBuilder.BEGINNING_OF_FILE).trim();
   }
 
-  /**
-   * Asserts that translated source contains a specified string.
-   */
-  protected void assertTranslation(String translation, String expected) {
+  /** Asserts that translated source contains a specified string. */
+  protected void assertInTranslation(String translation, String expected) {
     if (!translation.contains(expected)) {
       fail("expected:\"" + expected + "\" in:\n" + translation);
     }
@@ -347,20 +345,39 @@ public class GenerationTest extends TestCase {
   }
 
   /**
-   * Asserts that translated source contains an ordered, consecutive list of lines
-   * (each line's leading and trailing whitespace is ignored).
+   * Asserts that translated source contains a code fragment (each line's leading and trailing
+   * whitespace is ignored).
    */
-  protected void assertTranslatedLines(String translation, String... expectedLines)
+  protected void assertTranslatedLines(String translation, String code) throws IOException {
+    String[] lines = code.split("\n");
+    assertTranslatedLines(translation, lines[0], Arrays.copyOfRange(lines, 1, lines.length));
+  }
+
+  /**
+   * Asserts that translated source contains an ordered, consecutive list of lines (each line's
+   * leading and trailing whitespace is ignored).
+   */
+  // TODO(b/457746471): Inline above and simplify once all tests are written with text blocks.
+  protected void assertTranslatedLines(String translation, String first, String... rest)
       throws IOException {
-    int nLines = expectedLines.length;
-    if (nLines < 2) {
-      assertTranslation(translation, nLines == 1 ? expectedLines[0] : null);
-      return;
-    }
+    int nLines = rest.length + 1;
+    String[] expectedLines = new String[nLines];
+    expectedLines[0] = first;
+    System.arraycopy(rest, 0, expectedLines, 1, rest.length);
     int unmatchedLineIndex = unmatchedLineIndex(translation, expectedLines);
     if (unmatchedLineIndex != -1) {
-      fail("unmatched:\n\"" + expectedLines[unmatchedLineIndex] + "\"\n" + "expected lines:\n\""
-          + Joiner.on('\n').join(expectedLines) + "\"\nin:\n" + translation);
+      fail(
+          "unmatched:\n\""
+              + trim(expectedLines[unmatchedLineIndex])
+              + "\"\n"
+              + "expected lines:\n\""
+              + Joiner.on('\n')
+                  .join(
+                      Arrays.stream(expectedLines)
+                          .map(GenerationTest::trimKeepingIndentation)
+                          .collect(toList()))
+              + "\"\nin:\n"
+              + translation);
     }
   }
 
@@ -376,7 +393,7 @@ public class GenerationTest extends TestCase {
         if (nextLine == null) {
           return i;
         }
-        if (!nextLine.trim().equals(lines[i].trim())) {
+        if (!trim(nextLine).equals(trim(lines[i]))) {
           // Check if there is a subsequent match.
           int subsequentMatch = unmatchedLineIndex(s.substring(index + 1), lines);
           if (subsequentMatch == -1) {
@@ -391,6 +408,18 @@ public class GenerationTest extends TestCase {
     }
   }
 
+  private static String trim(String s) {
+    return s.replaceAll("\\s+", " ").trim();
+  }
+
+  private static String trimKeepingIndentation(String s) {
+    int indentation = 0;
+    for (;
+        indentation < s.length() && Character.isWhitespace(s.charAt(indentation));
+        indentation++) {}
+    return " ".repeat(indentation) + trim(s);
+  }
+
   /**
    * Asserts that translated source contains a list of strings in order, but not necessarily
    * consecutive. Differs from assertTranslatedLines in that it doesn't match entire lines, and that
@@ -401,7 +430,7 @@ public class GenerationTest extends TestCase {
       throws IOException {
     int nLines = expectedLines.length;
     if (nLines < 2) {
-      assertTranslation(translation, nLines == 1 ? expectedLines[0] : null);
+      assertInTranslation(translation, nLines == 1 ? expectedLines[0] : null);
       return;
     }
     String incorrectSegment = firstIncorrectSegment(translation, expectedLines);
@@ -430,15 +459,6 @@ public class GenerationTest extends TestCase {
     for (; matcher.find(); count++) {}
     if (count != times) {
       fail("expected:\"" + expected + "\" " + times + " times in:\n" + translation);
-    }
-  }
-
-  /**
-   * Verify that two AST nodes are equal, by comparing their toString() outputs.
-   */
-  protected void assertEqualASTs(TreeNode first, TreeNode second) {
-    if (!first.toString().equals(second.toString())) {
-      fail("unmatched:\n" + first + "vs:\n" + second);
     }
   }
 
@@ -606,7 +626,7 @@ public class GenerationTest extends TestCase {
     GenerationUnit genUnit = new GenerationUnit(unit.getSourceFilePath(), options);
     genUnit.incrementInputs();
     genUnit.addCompilationUnit(unit);
-    TranslationProcessor.generateObjectiveCSource(genUnit);
+    TranslationProcessor.generateObjectiveCSource(genUnit, new HashMap<>());
     return getTranslatedFile(filename);
   }
 
@@ -797,38 +817,31 @@ public class GenerationTest extends TestCase {
   }
 
   /**
-   * Enables both javac and j2objc gidebugging support in a test.
+   * Enables both javac and j2objc debugging support in a test.
    */
   protected void enableDebuggingSupport() {
     javacFlags.add("-parameters");
     javacFlags.add("-g");
   }
 
-  protected boolean onJava9OrAbove() {
-    try {
-      Class.forName("java.lang.Module");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
+  @FunctionalInterface
+  protected interface TestLambda {
+    void run() throws IOException;
+  }
+
+  protected void testOnJava22OrAbove(TestLambda test) throws IOException {
+    if (Runtime.version().feature() >= 22) {
+      SourceVersion.setMaxSupportedVersion(SourceVersion.JAVA_22);
+      options.setSourceVersion(SourceVersion.JAVA_22);
+      test.run();
     }
   }
 
-  protected boolean onJava10OrAbove() {
-    try {
-      // orElseThrow(Supplier) is in Java 8, orElseThrow() is new to Java 10.
-      Optional.class.getMethod("orElseThrow");
-      return true;
-    } catch (NoSuchMethodException e) {
-      return false;
-    }
-  }
-
-  protected boolean onJava11OrAbove() {
-    try {
-      Class.forName("java.net.http.HttpClient");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
+  protected void testOnJava25OrAbove(TestLambda test) throws IOException {
+    if (Runtime.version().feature() >= 25) {
+      SourceVersion.setMaxSupportedVersion(SourceVersion.JAVA_25);
+      options.setSourceVersion(SourceVersion.JAVA_25);
+      test.run();
     }
   }
 
@@ -848,7 +861,4 @@ public class GenerationTest extends TestCase {
             .trim();
     return new String(Base64.getDecoder().decode(encodedMetadata), UTF_8);
   }
-
-  // Empty test so Bazel won't report a "no tests" error.
-  public void testNothing() {}
 }

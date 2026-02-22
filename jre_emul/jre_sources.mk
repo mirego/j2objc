@@ -33,6 +33,8 @@ NATIVE_JRE_SOURCES_CORE = \
   J2ObjC_common.m \
   J2ObjC_icu.m \
   JavaThrowable.m \
+  JreCollectionAdapters.m \
+  JreExceptionAdapters.m \
   JreRetainedLocalValue.m \
   JreRetainedWith.m \
   MappedByteBuffer.m \
@@ -79,6 +81,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   android/system/Int64Ref.java \
   com/google/j2objc/util/AutoreleasePool.java \
   com/google/j2objc/util/CurrencyNumericCodes.java \
+  com/google/j2objc/util/XmlLoader.java \
   com/google/j2objc/util/logging/IOSLogHandler.java \
   java/io/BufferedInputStream.java \
   java/io/BufferedOutputStream.java \
@@ -186,6 +189,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/Iterable.java \
   java/lang/LinkageError.java \
   java/lang/Long.java \
+  java/lang/MatchException.java \
   java/lang/Math.java \
   java/lang/NegativeArraySizeException.java \
   java/lang/NoClassDefFoundError.java \
@@ -198,6 +202,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/OutOfMemoryError.java \
   java/lang/Package.java \
   java/lang/Readable.java \
+  java/lang/Record.java \
   java/lang/ReflectiveOperationException.java \
   java/lang/Runnable.java \
   java/lang/Runtime.java \
@@ -268,6 +273,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/lang/reflect/Parameter.java \
   java/lang/reflect/ParameterizedType.java \
   java/lang/reflect/Proxy.java \
+  java/lang/reflect/RecordComponent.java \
   java/lang/reflect/ReflectPermission.java \
   java/lang/reflect/Type.java \
   java/lang/reflect/TypeVariable.java \
@@ -395,6 +401,7 @@ JAVA_PUBLIC_SOURCES_CORE = \
   java/util/HashMap.java \
   java/util/HashSet.java \
   java/util/Hashtable.java \
+  java/util/HexFormat.java \
   java/util/IdentityHashMap.java \
   java/util/IllegalFormatCodePointException.java \
   java/util/IllegalFormatConversionException.java \
@@ -600,6 +607,7 @@ JAVA_PRIVATE_SOURCES_CORE = \
   java/io/SerialCallbackContext.java \
   java/io/UnixFileSystem.java \
   java/lang/JavaLangAccess.java \
+  java/lang/StringUTF16.java \
   java/lang/reflect/WeakCache.java \
   java/math/BitSieve.java \
   java/math/MutableBigInteger.java \
@@ -635,6 +643,7 @@ JAVA_PRIVATE_SOURCES_CORE = \
   java/util/KeyValueHolder.java \
   java/util/ImmutableCollections.java \
   java/util/RegularEnumSet.java \
+  java/util/Tripwire.java \
   java/util/logging/Logging.java \
   java/util/logging/LoggingProxyImpl.java \
   java/util/stream/AbstractPipeline.java \
@@ -661,6 +670,8 @@ JAVA_PRIVATE_SOURCES_CORE = \
   java/util/stream/StreamShape.java \
   java/util/stream/StreamSpliterators.java \
   java/util/stream/TerminalOp.java \
+  java/util/stream/Tripwire.java \
+  java/util/stream/WhileOps.java \
   jdk/internal/module/SystemModulesMap.java \
   jdk/internal/util/Preconditions.java \
   libcore/api/CorePlatformApi.java \
@@ -1434,6 +1445,7 @@ JAVA_PUBLIC_SOURCES_SECURITY = \
   javax/crypto/spec/RC2ParameterSpec.java \
   javax/crypto/spec/RC5ParameterSpec.java \
   javax/crypto/spec/SecretKeySpec.java \
+  javax/security/auth/AuthPermission.java \
   javax/security/auth/DestroyFailedException.java \
   javax/security/auth/Destroyable.java \
   javax/security/auth/PrivateCredentialPermission.java \
@@ -1993,6 +2005,7 @@ JAVA_PUBLIC_SOURCES_TIME = \
   java/time/DayOfWeek.java \
   java/time/Duration.java \
   java/time/Instant.java \
+  java/time/InstantSource.java \
   java/time/LocalDate.java \
   java/time/LocalDateTime.java \
   java/time/LocalTime.java \
@@ -2079,6 +2092,7 @@ JAVA_PUBLIC_SOURCES_ICU = \
   android/icu/text/DecimalFormat.java \
   android/icu/text/DecimalFormatSymbols.java \
   android/icu/text/DisplayContext.java \
+  android/icu/text/ListFormatter.java \
   android/icu/text/LocaleDisplayNames.java \
   android/icu/text/MessageFormat.java \
   android/icu/text/MessagePattern.java \

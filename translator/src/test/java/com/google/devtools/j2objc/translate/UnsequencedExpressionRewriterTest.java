@@ -34,8 +34,8 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
     String translation = translateSourceFile(
         "class Test { void test(int i) { int j = ++i - ++i; } }", "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint unseq$1 = ++i;",
-        "jint j = unseq$1 - ++i;");
+        "int32_t unseq$1 = ++i;",
+        "int32_t j = unseq$1 - ++i;");
   }
 
   public void testUnsequencedAssignmentExpression() throws IOException {
@@ -43,7 +43,7 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "class Test { int test(int[] data, int i) { return data[i += 2] + i; } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "int unseq$1 = i += 2;",
+        "int32_t unseq$1 = i += 2;",
         "return IOSIntArray_Get(nil_chk(data), unseq$1) + i;");
   }
 
@@ -52,12 +52,13 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "class Test { boolean test(int i) { "
         + "return i == 0 || i == 1 || ++i + i == 2 || i++ + i == 3 || i == 4; } }",
         "Test", "Test.m");
-    assertTranslatedLines(translation,
-        "jboolean unseq$1;",
+    assertTranslatedLines(
+        translation,
+        "bool unseq$1;",
         "if (!(unseq$1 = (i == 0 || i == 1))) {",
-        "  jint unseq$2 = ++i;",
+        "  int32_t unseq$2 = ++i;",
         "  if (!(unseq$1 = (unseq$2 + i == 2))) {",
-        "    jint unseq$3 = i++;",
+        "    int32_t unseq$3 = i++;",
         "    unseq$1 = (unseq$1 || unseq$3 + i == 3 || i == 4);",
         "  }",
         "}",
@@ -70,14 +71,15 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + " boolean test(int i) {  return i == 0 ? i++ + i == 0 || i++ + i == 0 : ++i == 1; }"
         + " boolean test2(int i) { return i == 0 ? ++i == 1 : i++ + i == 0 || i++ + i == 0; } }",
         "Test", "Test.m");
-    assertTranslatedLines(translation,
-        "- (jboolean)testWithInt:(jint)i {",
-        "  jboolean unseq$1;",
+    assertTranslatedLines(
+        translation,
+        "- (bool)testWithInt:(int32_t)i {",
+        "  bool unseq$1;",
         "  if (i == 0) {",
-        "    jint unseq$2 = i++;",
-        "    jboolean unseq$3;",
+        "    int32_t unseq$2 = i++;",
+        "    bool unseq$3;",
         "    if (!(unseq$3 = (unseq$2 + i == 0))) {",
-        "      jint unseq$4 = i++;",
+        "      int32_t unseq$4 = i++;",
         "      unseq$3 = (unseq$3 || unseq$4 + i == 0);",
         "    }",
         "    unseq$1 = unseq$3;",
@@ -87,17 +89,18 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "  }",
         "  return unseq$1;",
         "}");
-    assertTranslatedLines(translation,
-        "- (jboolean)test2WithInt:(jint)i {",
-        "  jboolean unseq$1;",
+    assertTranslatedLines(
+        translation,
+        "- (bool)test2WithInt:(int32_t)i {",
+        "  bool unseq$1;",
         "  if (i == 0) {",
         "    unseq$1 = (++i == 1);",
         "  }",
         "  else {",
-        "    jint unseq$2 = i++;",
-        "    jboolean unseq$3;",
+        "    int32_t unseq$2 = i++;",
+        "    bool unseq$3;",
         "    if (!(unseq$3 = (unseq$2 + i == 0))) {",
-        "      jint unseq$4 = i++;",
+        "      int32_t unseq$4 = i++;",
         "      unseq$3 = (unseq$3 || unseq$4 + i == 0);",
         "    }",
         "    unseq$1 = unseq$3;",
@@ -111,7 +114,7 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "class Test { void test(int i) { while (i + i++ < 10) {} } }", "Test", "Test.m");
     assertTranslatedLines(translation,
         "while (true) {",
-        "  jint unseq$1 = i;",
+        "  int32_t unseq$1 = i;",
         "  if (!(unseq$1 + i++ < 10)) break;");
   }
 
@@ -131,7 +134,7 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
             "Test.m");
     assertTranslatedLines(
         translation,
-        "jint unseq$1 = j = i;",
+        "int32_t unseq$1 = j = i;",
         "return [self cmpWithInt:unseq$1 withInt:(o == nil) ? j : j * 2];");
   }
 
@@ -147,18 +150,18 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
             "Test.m");
     assertTranslatedLines(
         translation,
-        "  jbyte unseq$1;",
+        "  int8_t unseq$1;",
         "if (tailLen > 1) {",
-        "jint unseq$2 = t++;",
+        "int32_t unseq$2 = t++;",
         "unseq$1 = IOSByteArray_Get(nil_chk(tail), unseq$2);",
         "}",
         "else {",
-        "jint unseq$3 = p++;",
+        "int32_t unseq$3 = p++;",
         "unseq$1 = IOSByteArray_Get(nil_chk(input), unseq$3);",
         "}",
-        "return (JreLShift32(((unseq$1) & (jint) 0xff), 10)) "
+        "return (JreLShift32(((unseq$1) & (int32_t) 0xff), 10)) "
             + "| (JreLShift32(((tailLen > 0 ? IOSByteArray_Get(nil_chk(tail), t++) "
-            + ": IOSByteArray_Get(nil_chk(input), p++)) & (jint) 0xff), 2));");
+            + ": IOSByteArray_Get(nil_chk(input), p++)) & (int32_t) 0xff), 2));");
   }
 
   public void testVariableDeclarationStatementIsSplit() throws IOException {
@@ -166,23 +169,24 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         "class Test { void test() { int i = 0, j = i++ + i, k = j, l = --k - k, m = 1; } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint i = 0;",
-        "jint unseq$1 = i++;",
-        "jint j = unseq$1 + i;",
-        "jint k = j;",
-        "jint unseq$2 = --k;",
-        "jint l = unseq$2 - k;",
-        "jint m = 1;");
+        "int32_t i = 0;",
+        "int32_t unseq$1 = i++;",
+        "int32_t j = unseq$1 + i;",
+        "int32_t k = j;",
+        "int32_t unseq$2 = --k;",
+        "int32_t l = unseq$2 - k;",
+        "int32_t m = 1;");
   }
 
   public void testAssertStatement() throws IOException {
     String translation = translateSourceFile(
         "class Test { void test(int i) { assert i++ + i++ == 0 : \"foo\" + i++ + i++; } }",
         "Test", "Test.m");
-    assertTranslatedLines(translation,
-        "jint unseq$1 = i++;",
-        "jboolean unseq$2 = unseq$1 + i++ == 0;",
-        "jint unseq$3 = i++;",
+    assertTranslatedLines(
+        translation,
+        "int32_t unseq$1 = i++;",
+        "bool unseq$2 = unseq$1 + i++ == 0;",
+        "int32_t unseq$3 = i++;",
         "JreAssert(unseq$2, JreStrcat(\"$II\", @\"foo\", unseq$3, i++));");
   }
 
@@ -192,15 +196,15 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + "for (i = i++ + i++, j = i++ + i++, k = i++ + i++;;) { } } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint i = 0;",
-        "jint j = 0;",
-        "jint k = 0;",
-        "jint unseq$1 = i++;",
-        "jint unseq$2 = i++;",
+        "int32_t i = 0;",
+        "int32_t j = 0;",
+        "int32_t k = 0;",
+        "int32_t unseq$1 = i++;",
+        "int32_t unseq$2 = i++;",
         "i = unseq$1 + unseq$2;",
-        "jint unseq$3 = i++;",
+        "int32_t unseq$3 = i++;",
         "j = unseq$3 + i++;",
-        "jint unseq$4 = i++;",
+        "int32_t unseq$4 = i++;",
         "for (k = unseq$4 + i++; ; ) {",
         "}");
   }
@@ -211,11 +215,11 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + "for (int i = k++ + k++, j = i++ + i++;;) { } } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint k = 0;",
-        "jint unseq$1 = k++;",
-        "jint i = unseq$1 + k++;",
-        "jint unseq$2 = i++;",
-        "for (jint j = unseq$2 + i++; ; ) {",
+        "int32_t k = 0;",
+        "int32_t unseq$1 = k++;",
+        "int32_t i = unseq$1 + k++;",
+        "int32_t unseq$2 = i++;",
+        "for (int32_t j = unseq$2 + i++; ; ) {",
         "}");
   }
 
@@ -226,14 +230,14 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + "  String s = \"foo\" + i; } } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint k = 0;",
-        "jint unseq$1 = k++;",
-        "for (jint i = unseq$1 + k++; ; ) {",
-        "  jint unseq$2 = i++;",
+        "int32_t k = 0;",
+        "int32_t unseq$1 = k++;",
+        "for (int32_t i = unseq$1 + k++; ; ) {",
+        "  int32_t unseq$2 = i++;",
         "  if (!(unseq$2 + i++ < 10)) break;",
         "  NSString *s = JreStrcat(\"$I\", @\"foo\", i);",
         "  i++;",
-        "  jint unseq$3 = i++;",
+        "  int32_t unseq$3 = i++;",
         "  k = unseq$3 + i++;",
         "}");
   }
@@ -244,11 +248,11 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + "if (i++ + i++ == 0) {} else if (i++ + i++ == 1) {} else {} } }",
         "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint unseq$1 = i++;",
+        "int32_t unseq$1 = i++;",
         "if (unseq$1 + i++ == 0) {",
         "}",
         "else {",
-        "  jint unseq$2 = i++;",
+        "  int32_t unseq$2 = i++;",
         "  if (unseq$2 + i++ == 1) {",
         "  }",
         "  else {",
@@ -260,7 +264,7 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
     String translation = translateSourceFile(
         "class Test { void test(int[] arr, int i) { arr[i] = i++; } }", "Test", "Test.m");
     assertTranslatedLines(translation,
-        "jint unseq$1 = i;",
+        "int32_t unseq$1 = i;",
         "*IOSIntArray_GetRef(nil_chk(arr), unseq$1) = i++;");
   }
 
@@ -273,18 +277,20 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
         + " boolean test2(boolean b, int i) { return b ? foo(i, i++) : false; } }",
         "Test", "Test.m");
     // test1
-    assertTranslatedLines(translation,
-        "jboolean unseq$1;",
+    assertTranslatedLines(
+        translation,
+        "bool unseq$1;",
         "if (!(unseq$1 = b)) {",
-        "  jint unseq$2 = i;",
+        "  int32_t unseq$2 = i;",
         "  unseq$1 = (unseq$1 || [self fooWithInt:unseq$2 withInt:i++]);",
         "}",
         "return unseq$1;");
     // test2
-    assertTranslatedLines(translation,
-        "jboolean unseq$1;",
+    assertTranslatedLines(
+        translation,
+        "bool unseq$1;",
         "if (b) {",
-        "  jint unseq$2 = i;",
+        "  int32_t unseq$2 = i;",
         "  unseq$1 = [self fooWithInt:unseq$2 withInt:i++];",
         "}",
         "else {",
@@ -298,6 +304,6 @@ public class UnsequencedExpressionRewriterTest extends GenerationTest {
   public void testInstanceVarIsNotUnsequenced() throws IOException {
     String translation = translateSourceFile(
         "class Test { int i; void test() { this.i = this.i + this.i++; } }", "Test", "Test.m");
-    assertTranslation(translation, "self->i_ = self->i_ + self->i_++;");
+    assertInTranslation(translation, "self->i_ = self->i_ + self->i_++;");
   }
 }

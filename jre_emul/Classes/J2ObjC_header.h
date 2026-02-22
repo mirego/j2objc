@@ -264,7 +264,7 @@ CF_EXTERN_C_END
  * @define BOXED_COMPOUND_ASSIGN
  * @param CNAME The capitalized name of the primitive type (eg. "Int").
  * @param VALUE_METHOD The method on the boxed type that returns the value.
- * @param TYPE The primitive type name (eg. "jint").
+ * @param TYPE The primitive type name (eg. "int32_t").
  * @param BOXED_TYPE The boxed type name (eg. "JavaLangInteger").
  * @param RTYPE The type of the right hand side of the assignment.
  * @param OPNAME The name of the operator, used to construct the function name.
@@ -322,17 +322,22 @@ CF_EXTERN_C_END
     BOXED_COMPOUND_ASSIGN(CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, TYPE, BitXor, BITXOR_OP, TYPE)
 #define BOXED_SHIFT_ASSIGN_32(CNAME, VALUE_METHOD, TYPE, BOXED_TYPE) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, LShift, LSHIFT_32_OP, jint) \
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, LShift, LSHIFT_32_OP, int32_t) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, RShift, RSHIFT_32_OP, jint) \
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, RShift, RSHIFT_32_OP, int32_t) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, URShift, RSHIFT_32_OP, uint32_t)
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, URShift, RSHIFT_32_OP, uint32_t)
 #define BOXED_SHIFT_ASSIGN_64(CNAME, VALUE_METHOD, TYPE, BOXED_TYPE) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, LShift, LSHIFT_64_OP, jlong) \
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, LShift, LSHIFT_64_OP, int64_t) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, RShift, RSHIFT_64_OP, jlong) \
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, RShift, RSHIFT_64_OP, int64_t) \
     BOXED_COMPOUND_ASSIGN( \
-        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, jlong, URShift, RSHIFT_64_OP, uint64_t)
+        CNAME, VALUE_METHOD, TYPE, BOXED_TYPE, int64_t, URShift, RSHIFT_64_OP, uint64_t)
+
+// This macro defines a custom-named text segmment attribute. Its main purpose is to
+// separate j2objc-translpiled code from the rest of the app code, so that developers
+// can measure how much of the app's size is due to transpiled Java code.
+#define J2OBJC_TEXT_SEGMENT __attribute__((section("__TEXT,__j2objc_text")))
 
 #endif  // _J2OBJC_HEADER_H_

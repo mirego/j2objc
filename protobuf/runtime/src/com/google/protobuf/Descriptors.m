@@ -30,6 +30,7 @@
 
 //  Hand written counterpart of com.google.protobuf.Descriptors.
 
+#import <Foundation/Foundation.h>
 #import "com/google/protobuf/Descriptors_PackagePrivate.h"
 
 #import "IOSClass.h"
@@ -90,8 +91,7 @@ IOSObjectArray *CreateFields(
       type:ComGoogleProtobufDescriptors_FieldDescriptor_class_()];
   CGPFieldDescriptor **fieldsBuf = fields->buffer_;
   for (jint i = 0; i < fieldCount; i++) {
-    fieldsBuf[i] = [[CGPFieldDescriptor alloc] initWithData:&fieldData[i]
-                                             containingType:containingType];
+    fieldsBuf[i] = [[CGPFieldDescriptor alloc] initWithData:&fieldData[i]];
   }
   return fields;
 }
@@ -137,7 +137,7 @@ CGPDescriptor *NewMapEntryDescriptor(CGPFieldData *fieldData) {
 
 CGPEnumDescriptor *CGPInitializeEnumType(
     Class enumClass, jint valuesCount, JavaLangEnum<ComGoogleProtobufProtocolMessageEnum> *values[],
-    NSString **names, jint *intValues) {
+    NSString **names, jint *intValues, bool is_closed) {
   Ivar valueIvar = class_getInstanceVariable(enumClass, "value_");
   ptrdiff_t valueOffset = ivar_getOffset(valueIvar);
 
@@ -175,7 +175,9 @@ CGPEnumDescriptor *CGPInitializeEnumType(
   // Construct the enum descriptor.
   CGPEnumDescriptor *enumDesc =
       objc_constructInstance([CGPEnumDescriptor class], (void *)enumDescPtr);
-  return [enumDesc initWithValueOffset:valueOffset retainedValues:valuesArray];
+  return [enumDesc initWithValueOffset:valueOffset
+                        retainedValues:valuesArray
+                             is_closed:is_closed];
 }
 
 void CGPInitializeOneofCaseEnum(
@@ -352,13 +354,11 @@ static void CGPFieldFixDefaultValue(CGPFieldDescriptor *descriptor) {
   }
 }
 
-- (instancetype)initWithData:(CGPFieldData *)data
-              containingType:(CGPDescriptor *)containingType {
+- (instancetype)initWithData:(CGPFieldData *)data {
   if (self = [self init]) {
     data_ = data;
     tag_ = TagFromData(data);
     javaType_ = [GetTypeObj(data->type)->javaType_ ordinal];
-    containingType_ = containingType;
     CGPFieldFixDefaultValue(self);
   }
   return self;
@@ -453,22 +453,27 @@ id CGPFieldGetDefaultValue(CGPFieldDescriptor *field) {
 
 CGPEnumValueDescriptor *CGPEnumValueDescriptorFromInt(CGPEnumDescriptor *enumType, jint value) {
   NSUInteger count = enumType->values_->size_;
+  NSUInteger numValues = enumType->is_closed_ ? count : count - 1;  // Skip the UNRECOGNIZED value.
   CGPEnumValueDescriptor **valuesBuf = enumType->values_->buffer_;
-  for (NSUInteger i = 0; i < count; i++) {
+  for (NSUInteger i = 0; i < numValues; i++) {
     CGPEnumValueDescriptor *valueDescriptor = valuesBuf[i];
     if (valueDescriptor->number_ == value) {
       return valueDescriptor;
     }
   }
-  return nil;
+  // If proto3 (not closed), the UNRECOGNIZED value is the last values element.
+  return enumType->is_closed_ ? nil : valuesBuf[count - 1];
 }
 
 @implementation ComGoogleProtobufDescriptors_EnumDescriptor
 
-- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset retainedValues:(IOSObjectArray *)values {
+- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset
+                     retainedValues:(IOSObjectArray *)values
+                          is_closed:(bool)is_closed {
   if (self = [super init]) {
     valueOffset_ = valueOffset;
     values_ = values; // Already retained.
+    is_closed_ = is_closed;
   }
   return self;
 }

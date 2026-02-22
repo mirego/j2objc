@@ -60,7 +60,7 @@
 
 - (jbyte)byteAtWithInt:(jint)index;
 - (jint)size;
-- (jboolean)isEmpty;
+- (bool)isEmpty;
 - (ComGoogleProtobufByteString *)substringWithInt:(jint)beginIndex;
 - (ComGoogleProtobufByteString *)substringWithInt:(jint)beginIndex withInt:(jint)endIndex;
 - (IOSByteArray *)toByteArray;
@@ -83,6 +83,7 @@
 @end
 
 typedef ComGoogleProtobufByteString CGPByteString;
+typedef ComGoogleProtobufByteString KNPComGoogleProtobufByteString;
 
 CF_EXTERN_C_BEGIN
 

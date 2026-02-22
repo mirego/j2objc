@@ -43,7 +43,7 @@ typedef union {
   jlong valueLong;
   jfloat valueFloat;
   jdouble valueDouble;
-  jboolean valueBool;
+  bool valueBool;
   __unsafe_unretained id valueId;
   const void *valuePtr;
 } CGPValue;
@@ -122,12 +122,10 @@ typedef struct CGPOneofData {
   // Either nil, a Descriptor or a EnumDescriptor depending on the field type.
   id valueType_;
   ComGoogleProtobufDescriptorProtos_FieldOptions *fieldOptions_;
-  CGPDescriptor *containingType_;
   CGPOneofDescriptor *containingOneof_;
 }
 
-- (instancetype)initWithData:(CGPFieldData *)data
-              containingType:(CGPDescriptor *)containingType;
+- (instancetype)initWithData:(CGPFieldData *)data;
 
 @end
 
@@ -135,9 +133,12 @@ typedef struct CGPOneofData {
  @public
   ptrdiff_t valueOffset_;
   IOSObjectArray *values_;
+  bool is_closed_;
 }
 
-- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset retainedValues:(IOSObjectArray *)values;
+- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset
+                     retainedValues:(IOSObjectArray *)values
+                          is_closed:(bool)is_closed;
 
 @end
 
@@ -194,7 +195,7 @@ IOSObjectArray *CGPGetSerializationOrderFields(CGPDescriptor *descriptor);
 CGPEnumDescriptor *CGPInitializeEnumType(
     Class enumClass, jint valuesCount,
     __strong JavaLangEnum<ComGoogleProtobufProtocolMessageEnum> *values[],
-    __strong NSString **names, jint *intValues);
+    __strong NSString **names, jint *intValues, bool is_closed);
 
 void CGPInitializeOneofCaseEnum(
     Class enumClass, jint valuesCount,

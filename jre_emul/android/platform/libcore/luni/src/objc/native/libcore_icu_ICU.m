@@ -197,8 +197,8 @@ jchar GetNumberPropChar(CFNumberFormatterRef nf, CFStringRef propKey, jchar defa
   return result;
 }
 
-jboolean Java_libcore_icu_ICU_initLocaleDataNative(
-    JNIEnv *env, jclass cls, jstring languageTag, jobject resultP) {
+bool Java_libcore_icu_ICU_initLocaleDataNative(JNIEnv *env, jclass cls, jstring languageTag,
+                                               jobject resultP) {
   LibcoreIcuLocaleData *result = (LibcoreIcuLocaleData *)resultP;
   NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:languageTag];
   CFLocaleRef cfLocale = (CFLocaleRef)locale;
@@ -337,7 +337,7 @@ jboolean Java_libcore_icu_ICU_initLocaleDataNative(
     languageTag = [NSString stringWithFormat:@"%@-%@", [locale languageCode], [locale countryCode]];
     locale = [[NSLocale alloc] initWithLocaleIdentifier:languageTag];
     cfLocale = (CFLocaleRef)locale;
-    nf = CFNumberFormatterCreate(kCFAllocatorDefault, cfLocale, kCFNumberFormatterNoStyle);
+    nf = CFNumberFormatterCreate(kCFAllocatorDefault, cfLocale, kCFNumberFormatterDecimalStyle);
   }
   if (nf) {
     result->zeroDigit_ = GetNumberPropChar(nf, kCFNumberFormatterZeroSymbol, '0');

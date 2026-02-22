@@ -87,13 +87,16 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   static final String PSEUDO_CONSTRUCTOR_PREFIX = "%%";
   static final String SIGNATURE_PREFIX = "##";
   private static final String USED_BY_NATIVE = "UsedByNative";
+  private static final String USED_BY_REFLECTION = "UsedByReflection";
 
   private final Context context;
+  private final boolean isEntryClass;
   private boolean needsReflection;
 
   UsedCodeMarker(CompilationUnit unit, Context context) {
     super(unit);
     this.context = context;
+    this.isEntryClass = context.exportedClasses.contains(unit.getMainTypeName());
     this.needsReflection = !options.stripReflection();
   }
 
@@ -480,7 +483,9 @@ final class UsedCodeMarker extends UnitTreeVisitor {
         context.exportedClasses.contains(typeName)
             || (ElementUtil.isRuntimeAnnotation(type) && needsReflection)
             || ElementUtil.hasNamedAnnotation(type, USED_BY_NATIVE)
-            || exportedClassInnerType;
+            || ElementUtil.hasNamedAnnotation(type, USED_BY_REFLECTION)
+            || exportedClassInnerType
+            || isEntryClass;
 
     startTypeScope(typeName, superName, interfaces, isExported);
   }
@@ -490,8 +495,11 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   }
 
   private static Annotations getAnnotations(AnnotatedConstruct annotatedConstruct) {
-    boolean usedByNative = ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_NATIVE);
-    return Annotations.newBuilder().setUsedByNative(usedByNative).build();
+    // From tree_shaker's perspective, the two annotations are synonymous.
+    boolean usedByNativeOrReflection =
+        ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_NATIVE)
+            || ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_REFLECTION);
+    return Annotations.newBuilder().setUsedByNativeOrReflection(usedByNativeOrReflection).build();
   }
 
   private void startTypeScope(

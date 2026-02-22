@@ -38,7 +38,7 @@ install-man-pages: $(MAN_PAGES)
 	@mkdir -p $(DIST_DIR)/man/man1
 	@install -C -m 0644 $? $(DIST_DIR)/man/man1
 
-EXTRA_DIST_FILES = LICENSE WORKSPACE BUILD
+EXTRA_DIST_FILES = LICENSE BUILD MODULE.bazel MODULE.bazel.lock
 
 $(DIST_DIR)/%: %.dist
 	@mkdir -p $(@D)
@@ -92,6 +92,8 @@ clean:
 
 test_translator: annotations_dist java_deps_dist jre_emul_dist
 	@cd translator && $(MAKE) test
+
+test_all_translator: test_translator
 	@cd translator && $(MAKE) regression-test
 
 test_jre_emul: jre_emul_dist junit_dist
@@ -111,11 +113,12 @@ test: test_translator test_jre_emul test_cycle_finder test_jre_cycles
 test_protobuf: junit_dist protobuf_compiler_dist protobuf_runtime_dist
 	@cd protobuf/tests && $(MAKE) test
 
-test_all: test test_protobuf
+test_all: test test_all_translator test_protobuf
 
 examples_dist: install_examples
 
 copy_examples:
+	@mkdir -p $(DIST_DIR)
 	@cp -r examples $(DIST_DIR)
 
 install_examples: copy_examples
@@ -124,8 +127,6 @@ install_examples: copy_examples
 	@sed -i '' 's/\/dist//' $(DIST_DIR)/examples/HelloSwift/config.xcconfig
 	@sed -i '' 's/\/dist//' $(DIST_DIR)/examples/HelloSwift/HelloSwift.xcodeproj/project.pbxproj
 	@sed -i '' 's/\/dist//' $(DIST_DIR)/examples/protobuf/Makefile
-	@sed -i '' 's/\<path to local j2objc distribution\>/..\/../' \
-	  $(DIST_DIR)/examples/Contacts/WORKSPACE
 
 print_environment:
 	@echo Locale: $${LANG}

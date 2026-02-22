@@ -37,6 +37,7 @@ SRCS = \
 	com/google/protobuf/MapField.m \
 	com/google/protobuf/ProtocolStringList.m \
 	com/google/protobuf/RepeatedField.m \
+	com/google/protobuf/TextFormat.mm \
 	com/google/protobuf/WireFormat.mm
 
 # This headers list defines those headers included by all client code
@@ -53,7 +54,8 @@ FRAMEWORK_PUBLIC_HEADERS = \
 	com/google/protobuf/GeneratedMessage.h \
 	com/google/protobuf/InvalidProtocolBufferException.h \
 	com/google/protobuf/MapEntry.h \
-	com/google/protobuf/ProtocolStringList.h
+	com/google/protobuf/ProtocolStringList.h \
+	com/google/protobuf/TextFormat.h
 
 SRC_DIR = $(CURDIR)/src
 
@@ -81,7 +83,7 @@ ALL_SOURCES_FULL = $(HEADERS) $(SOURCES_FULL)
 J2OBJCC = $(ARCH_BIN_DIR)/j2objcc
 
 C_FLAGS = $(DEBUGFLAGS) -Werror -Wobjc-missing-property-synthesis -Wshorten-64-to-32 \
-	-Wsign-compare -fobjc-abi-version=2 -fobjc-legacy-dispatch -stdlib=libc++ \
+	-Wsign-compare -fobjc-abi-version=2 -fobjc-legacy-dispatch \
 	-Wno-nullability-completeness
 INCLUDE_DIRS = src $(GEN_OBJC_DIR)
 

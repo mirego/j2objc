@@ -30,11 +30,13 @@ import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
+import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.Property;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -116,6 +118,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
       printStaticAccessors();
       printInnerDeclarations();
       printInitializeMethod();
+      printLinkProtocolsMethod();
       println("\n@end");
     }
 
@@ -266,6 +269,24 @@ public class TypeImplementationGenerator extends TypeGenerator {
     }
   }
 
+  private void printLinkProtocolsMethod() {
+    if (!options.linkProtocols() || options.stripReflection()) {
+      return;
+    }
+    List<String> interfaceNames = new ArrayList<>();
+    for (TypeElement intrface : TranslationUtil.getInterfaceTypes(typeNode)) {
+      interfaceNames.add(nameTable.getFullName(intrface));
+    }
+    if (!interfaceNames.isEmpty()) {
+      newline();
+      printf("+ (void)__linkProtocols {\n");
+      for (String name : interfaceNames) {
+        printf("  %s_class_();\n", NameTable.camelCaseQualifiedName(name));
+      }
+      printf("}\n");
+    }
+  }
+
   private void printNameMapping() {
     if (!options.stripNameMapping()) {
       Optional<String> mapping = nameTable.getNameMapping(typeElement, typeName);
@@ -298,6 +319,8 @@ public class TypeImplementationGenerator extends TypeGenerator {
       println("J2OBJC_IGNORE_DESIGNATED_BEGIN");
     }
     syncLineNumbers(m);  // avoid doc-comment
+    // Implementations should not contain generics as this allows us to avoid type errors
+    // when translating to ObjC's more limited system of generics.
     print(getMethodSignature(m, false) + " ");
     print(reindent(generateStatement(m.getBody())) + "\n");
     if (isDesignatedInitializer) {
@@ -313,7 +336,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
       printJniFunctionAndWrapper(function);
     } else {
       String functionBody = generateStatement(function.getBody());
-      println(getFunctionSignature(function, false) + " " + reindent(functionBody));
+      println(getFunctionSignature(function, false, true) + " " + reindent(functionBody));
     }
   }
 
@@ -349,7 +372,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
     println(";\n");
 
     // Generate a wrapper function that calls the matching JNI function.
-    print(getFunctionSignature(function, false));
+    print(getFunctionSignature(function, false, true));
     println(" {");
     print("  ");
     TypeMirror returnType = function.getReturnType().getTypeMirror();

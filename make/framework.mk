@@ -58,7 +58,6 @@ endif
 
 FRAMEWORK_DIR = $(DIST_FRAMEWORK_DIR)/$(FRAMEWORK_NAME).xcframework
 FRAMEWORK_HEADER = $(BUILD_DIR)/$(FRAMEWORK_NAME)/$(FRAMEWORK_NAME).h
-MODULE_MAP = $(BUILD_DIR)/$(FRAMEWORK_NAME)/module.modulemap
 
 FRAMEWORK_RESOURCES_DIR = $(FRAMEWORK_DIR)/Versions/A/Resources
 RESOURCE_FILES = $(FRAMEWORK_RESOURCE_FILES:%=$(FRAMEWORK_RESOURCES_DIR)/%)
@@ -94,17 +93,16 @@ framework:: lib $(FRAMEWORK_DIR) resources
 	@:
 
 # Create an xcframework from all appletv, iphone, maccatalyst, macosx, simulator and watchos libs.
-$(FRAMEWORK_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
+$(FRAMEWORK_DIR): lib $(FRAMEWORK_HEADER) | $(DIST_FRAMEWORK_DIR)
 	@echo building $(FRAMEWORK_NAME) framework
-	@rm -rf ${FRAMEWORK_DIR}
-	@mkdir -p $(FRAMEWORK_DIR)/Headers
+	@rm -rf $@
+	@mkdir -p $@/Headers
 	@tar cf - -C $(STATIC_HEADERS_DIR) $(FRAMEWORK_HEADERS:$(STATIC_HEADERS_DIR)/%=%) \
-		| tar xfp - -C $(FRAMEWORK_DIR)/Headers
-	@install -m 0644 $(FRAMEWORK_HEADER) $(FRAMEWORK_DIR)/Headers
-	@install -m 0644 $(MODULE_MAP) $(FRAMEWORK_DIR)/Headers/
-	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $(FRAMEWORK_DIR) \
+		| tar xfp - -C $@/Headers
+	@install -m 0644 $(FRAMEWORK_HEADER) $@/Headers
+	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $@ \
 		$(shell $(J2OBJC_ROOT)/scripts/list_framework_libraries.sh $(STATIC_LIBRARY_NAME))
-	@rm -rf ${FRAMEWORK_DIR}/Headers
+	@rm -rf $@/Headers
 	@touch $@
 
 # Creates a framework "master" header file that includes all the framework's header files.
@@ -128,20 +126,11 @@ test_warnings: $(FRAMEWORK_HEADER)
 		-fno-objc-arc $@
 	@rm $(FRAMEWORK_HEADER:%.h=%.o)
 
-$(MODULE_MAP):
-	@mkdir -p $$(dirname $@)
-	@echo "module" $(FRAMEWORK_NAME) "{" > $(MODULE_MAP)
-	@echo "  umbrella header" '"'$(FRAMEWORK_NAME).h'"' >> $(MODULE_MAP)
-	@echo >> $(MODULE_MAP)
-	@echo "  export *" >> $(MODULE_MAP)
-	@echo "  module * { export * }" >> $(MODULE_MAP)
-	@echo "}" >> $(MODULE_MAP)
-
 resources: $(RESOURCE_FILES)
 	@:
 
 $(FRAMEWORK_RESOURCES_DIR):
-	@mkdir -p $(FRAMEWORK_RESOURCES_DIR)
+	@mkdir -p $@
 	@/bin/ln -sfh Versions/Current/Resources $(FRAMEWORK_DIR)/Resources
 
 $(FRAMEWORK_RESOURCES_DIR)/%: % | $(FRAMEWORK_RESOURCES_DIR)

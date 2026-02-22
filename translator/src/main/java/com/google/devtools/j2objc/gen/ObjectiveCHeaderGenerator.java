@@ -25,6 +25,8 @@ import com.google.devtools.j2objc.types.Import;
 import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.UnicodeUtils;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,18 +37,18 @@ import java.util.Set;
 @SuppressWarnings("UngroupedOverloads")
 public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
 
-  private final Options options;
+  protected final Options options;
 
   // The prefix to use for preprocessor variable names. Derived from the path of
   // the generated file. For example if "my/pkg/Foo.h" is being generated the
   // prefix would be "MyPkgFoo".
-  protected final String varPrefix;
+  protected String varPrefix;
 
   /**
    * Generate an Objective-C header file for each type declared in the given {@link GenerationUnit}.
    */
-  public static void generate(GenerationUnit unit) {
-    new ObjectiveCHeaderGenerator(unit).generate();
+  public static void generate(GenerationUnit unit, Map<String, Set<String>> headerIncludesMap) {
+    new ObjectiveCHeaderGenerator(unit).generate(headerIncludesMap);
   }
 
   protected ObjectiveCHeaderGenerator(GenerationUnit unit) {
@@ -60,12 +62,18 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     return options.getLanguage().headerSuffix();
   }
 
-  public void generate() {
+  protected void generate() {
+    // For subclasses that don't track includes.
+    generate(new HashMap<>());
+  }
+
+  protected void generate(Map<String, Set<String>> headerIncludesMap) {
     println(J2ObjC.getFileHeader(options, getGenerationUnit().getSourceName()));
     for (String javadoc : getGenerationUnit().getJavadocBlocks()) {
       print(javadoc);
     }
-    generateFileHeader();
+    Set<String> includeFiles = generateFileHeader();
+    headerIncludesMap.put(getOutputPath(), includeFiles);
 
     if (getGenerationUnit().options().emitKytheMappings()) {
       generateKythePragma();
@@ -84,7 +92,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     save(getOutputPath(), options.fileUtil().getHeaderOutputDirectory());
 
     if (getGenerationUnit().options().linkSourcePathHeaders()) {
-      new RelativeSourcePathGenerator(getGenerationUnit()).generate();
+      new RelativeSourcePathGenerator(getGenerationUnit()).generate(headerIncludesMap);
     }
   }
 
@@ -93,7 +101,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     print(generatedType.getPublicDeclarationCode());
   }
 
-  protected void generateFileHeader() {
+  protected Set<String> generateFileHeader() {
     printf("#ifndef %s_H\n", varPrefix);
     printf("#define %s_H\n", varPrefix);
     pushIgnoreDeprecatedDeclarationsPragma();
@@ -111,14 +119,15 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
         seenTypes.add(name);
       }
       for (Import imp : type.getHeaderIncludes()) {
-        if (!isLocalType(imp.getTypeName())) {
+        if (!isLocalType(imp.getTypeName()) && !imp.getImportFileName().isEmpty()) {
           includeFiles.add(imp.getImportFileName());
         }
       }
       for (Import imp : type.getHeaderForwardDeclarations()) {
         // Filter out any declarations that are resolved by an include.
         if (!seenTypes.contains(imp.getTypeName())
-            && !includeFiles.contains(imp.getImportFileName())) {
+            && (imp.getImportFileName().isEmpty()
+                || !includeFiles.contains(imp.getImportFileName()))) {
           forwardDeclarations.add(imp);
         }
       }
@@ -126,6 +135,9 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
 
     // Print collected includes.
     newline();
+    print("#import <Foundation/Foundation.h>");
+    newline();
+
     for (String header : includeFiles) {
       printf("#include \"%s\"\n", header);
     }
@@ -135,6 +147,8 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     for (String code : getGenerationUnit().getNativeHeaderBlocks()) {
       print(code);
     }
+
+    return includeFiles;
   }
 
   protected void generateFileFooter() {
@@ -191,6 +205,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     println("#endif");
   }
 
+  @SuppressWarnings("ParameterComment")
   private void generateTypeMappings() {
     KytheIndexingMetadata metadata = new KytheIndexingMetadata();
 
@@ -249,7 +264,7 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
     }
 
     @Override
-    public final void generate() {
+    public final void generate(Map<String, Set<String>> headerIncludesMap) {
       // Create the source path for the header file being generated.
       String sourcePath = getGenerationUnit().getSourceName().replace(".java", getSuffix());
 
@@ -266,8 +281,14 @@ public class ObjectiveCHeaderGenerator extends ObjectiveCSourceFileGenerator {
         return;
       }
 
-      printf("#include \"%s\"\n", getOutputPath());
+      if (options.suppressHeaderClangTidyWarnings()) {
+        printf("#include \"%s\"  // IWYU pragma: export\n", getOutputPath());
+      } else {
+        printf("#include \"%s\"\n", getOutputPath());
+      }
+
       save(sourcePath, getGenerationUnit().options().fileUtil().getHeaderOutputDirectory());
+      headerIncludesMap.put(sourcePath, Sets.newHashSet(getOutputPath()));
     }
   }
 }

@@ -40,9 +40,7 @@ TRANSLATE_ARGS = -sourcepath $(JRE_SRC) \
   $(J2OBJC_DEBUGFLAGS) -encoding UTF-8 --doc-comments -Xtranslate-bootclasspath \
   --nullability -external-annotation-file $(ANDROID_ANNOTATIONS) \
   -external-annotation-file $(J2OBJC_ANNOTATIONS)
-ifndef JAVA_8
 TRANSLATE_ARGS += --patch-module java.base=$(JRE_SRC)
-endif
 ifdef J2OBJC_JRE_STRIP_REFLECTION
 TRANSLATE_ARGS += --strip-reflection
 endif
@@ -109,8 +107,9 @@ DIST_LIBS = $(LIBS:$(ARCH_BUILD_DIR)/%=$(ARCH_LIB_DIR)/%)
 # This list overlaps with EMULATION_HEADERS, but only includes those headers
 # supported for use by native code.
 PUBLIC_EMULATION_HEADERS = $(PUBLIC_NATIVE_HEADERS)
-PUBLIC_TRANSLATED_HEADERS = $(JAVA_PUBLIC_SOURCES:.java=.h) $(JSON_PUBLIC_SOURCES:.java=.h)
-INCLUDES = $(PUBLIC_TRANSLATED_HEADERS) $(PUBLIC_EMULATION_HEADERS)
+PUBLIC_TRANSLATED_HEADERS = $(JAVA_PUBLIC_SOURCES:.java=.h)
+JSON_TRANSLATED_HEADERS = $(JSON_PUBLIC_SOURCES:.java=.h)
+INCLUDES = $(PUBLIC_TRANSLATED_HEADERS) $(PUBLIC_EMULATION_HEADERS) $(JSON_TRANSLATED_HEADERS)
 DIST_INCLUDES = $(INCLUDES:%=$(DIST_INCLUDE_DIR)/%)
 
 FRAMEWORK_NAME = JRE
@@ -142,7 +141,7 @@ $(MAIN_LIB): $(MAIN_LIB_OBJS)
 	@echo $(LIBTOOL) -o $@
 	@$(LIBTOOL) -static -o $@ $^
 
-dist_includes: $(BUILD_DIR)/.jre_dist_includes
+dist_includes: $(BUILD_DIR)/.jre_dist_includes $(BUILD_DIR)/.json_dist_includes
 
 $(BUILD_DIR)/.jre_dist_includes: $(PUBLIC_TRANSLATED_HEADERS:%=$(GEN_OBJC_DIR)/%) \
     $(PUBLIC_EMULATION_HEADERS:%=$(EMULATION_CLASS_DIR)/%) | $(DIST_INCLUDE_DIR)
@@ -153,11 +152,20 @@ $(BUILD_DIR)/.jre_dist_includes: $(PUBLIC_TRANSLATED_HEADERS:%=$(GEN_OBJC_DIR)/%
 	    | tar xfp - -C $(DIST_INCLUDE_DIR)
 	@touch $@
 
+$(BUILD_DIR)/.json_dist_includes: $(JSON_TRANSLATED_HEADERS:%=$(GEN_OBJC_DIR)/%) \
+    | $(DIST_INCLUDE_DIR)
+	@echo copying json header files
+	@tar cf - -C $(GEN_OBJC_DIR) $(JSON_TRANSLATED_HEADERS) \
+	    | tar xfp - -C $(DIST_INCLUDE_DIR)
+	@touch $@
+
 $(ARCH_BUILD_DIR)/.includes: $(PUBLIC_TRANSLATED_HEADERS:%=$(GEN_OBJC_DIR)/%) \
     $(PUBLIC_EMULATION_HEADERS:%=$(EMULATION_CLASS_DIR)/%) | $(ARCH_BUILD_DIR) $(ARCH_INCLUDE_DIR)
 	@tar cf - -C $(EMULATION_CLASS_DIR) $(PUBLIC_EMULATION_HEADERS) \
 	    | tar xfp - -C $(ARCH_INCLUDE_DIR)
 	@tar cf - -C $(GEN_OBJC_DIR) $(PUBLIC_TRANSLATED_HEADERS) \
+	    | tar xfp - -C $(ARCH_INCLUDE_DIR)
+	@tar cf - -C $(GEN_OBJC_DIR) $(JSON_TRANSLATED_HEADERS) \
 	    | tar xfp - -C $(ARCH_INCLUDE_DIR)
 	@touch $@
 
@@ -179,7 +187,7 @@ icu_data: $(ICU_EMBEDDED_RES_DIR)/$(NATIVE_JRE_ICU_EMBEDDED_DATA)
 	@:
 
 test: libs_dist $(DIST_DIR)/j2objcc
-	$(MAKE) -f tests.mk all-tests
+	$(MAKE) -f tests.mk test
 
 clean:
 	@rm -rf $(BUILD_DIR) $(GEN_OBJC_DIR)

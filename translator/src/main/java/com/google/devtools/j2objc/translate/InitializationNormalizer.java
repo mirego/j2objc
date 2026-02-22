@@ -29,6 +29,7 @@ import com.google.devtools.j2objc.ast.ExpressionStatement;
 import com.google.devtools.j2objc.ast.FieldDeclaration;
 import com.google.devtools.j2objc.ast.Initializer;
 import com.google.devtools.j2objc.ast.MethodDeclaration;
+import com.google.devtools.j2objc.ast.RecordDeclaration;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.SuperConstructorInvocation;
@@ -77,6 +78,11 @@ public class InitializationNormalizer extends UnitTreeVisitor {
 
   @Override
   public void endVisit(AnnotationTypeDeclaration node) {
+    new TypeNormalizer(node).normalizeMembers();
+  }
+
+  @Override
+  public void endVisit(RecordDeclaration node) {
     new TypeNormalizer(node).normalizeMembers();
   }
 
@@ -190,9 +196,12 @@ public class InitializationNormalizer extends UnitTreeVisitor {
    */
   private List<Statement> getInitLocation(MethodDeclaration node) {
     List<Statement> stmts = node.getBody().getStatements();
-    if (!stmts.isEmpty() && stmts.get(0) instanceof SuperConstructorInvocation) {
-      return stmts.subList(0, 1);
+    for (int i = 0; i < stmts.size(); i++) {
+      if (stmts.get(i) instanceof SuperConstructorInvocation) {
+        return stmts.subList(0, i + 1);
+      }
     }
+
     // java.lang.Object supertype is null. All other types should have a super() call.
     assert TypeUtil.isNone(
         ElementUtil.getDeclaringClass(node.getExecutableElement()).getSuperclass())

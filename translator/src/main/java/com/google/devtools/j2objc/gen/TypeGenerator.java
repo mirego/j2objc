@@ -37,7 +37,6 @@ import com.google.devtools.j2objc.util.NameTable;
 import com.google.devtools.j2objc.util.TranslationEnvironment;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
-import com.google.j2objc.annotations.GenerateObjectiveCGenerics;
 import com.google.j2objc.annotations.ObjectiveCName;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
@@ -48,6 +47,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 
 /**
  * The base class for TypeDeclarationGenerator and TypeImplementationGenerator,
@@ -166,6 +166,11 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
           && !Modifier.isAbstract(((MethodDeclaration) decl).getModifiers());
     }
   };
+
+  protected boolean generateObjectiveCGenerics(TypeMirror t) {
+    return (options.asObjCGenericDecl() || TypeUtil.hasGenerateObjectiveCGenerics(t))
+        && !TypeUtil.isInterface(t);
+  }
 
   protected abstract void printFunctionDeclaration(FunctionDeclaration decl);
   protected abstract void printMethodDeclaration(MethodDeclaration decl);
@@ -289,21 +294,24 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
     }
   }
 
-  protected boolean hasGenerateObjectiveCGenerics(TypeMirror type) {
-    return TypeUtil.asTypeElement(type) != null
-        && ElementUtil.hasAnnotation(
-            TypeUtil.asTypeElement(type), GenerateObjectiveCGenerics.class);
+  protected String getReturnType(MethodDeclaration m, boolean generatorAllowsGenerics) {
+    ExecutableElement element = m.getExecutableElement();
+    boolean allowGenerics =
+        !typeUtil.isProtoClass(element.getReturnType()) && generatorAllowsGenerics;
+    return nameTable.getObjCTypeDeclaration(
+        element.getReturnType(),
+        allowGenerics
+            && (generateObjectiveCGenerics(element.getReturnType())
+                || generateObjectiveCGenerics(typeElement.asType())),
+        typeElement);
   }
 
   /** Create an Objective-C method signature string. */
-  protected String getMethodSignature(MethodDeclaration m, boolean asObjCGenericDecl) {
+  protected String getMethodSignature(MethodDeclaration m, boolean generatorAllowsGenerics) {
     StringBuilder sb = new StringBuilder();
     ExecutableElement element = m.getExecutableElement();
     char prefix = Modifier.isStatic(m.getModifiers()) ? '+' : '-';
-    String returnType =
-        nameTable.getObjCTypeDeclaration(
-            element.getReturnType(),
-            hasGenerateObjectiveCGenerics(element.getReturnType()) || asObjCGenericDecl);
+    String returnType = getReturnType(m, generatorAllowsGenerics);
     String selector = nameTable.getMethodSelector(element);
 
     // Verify the same number of parameters are defined by the method and the annotation.
@@ -327,7 +335,19 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
       // Explicitly test hashCode() because of NSObject's hash return value.
       returnType = "NSUInteger";
     }
-    sb.append(UnicodeUtils.format("%c (%s%s)", prefix, returnType, nullability(element)));
+
+    String returnTypeNullability = "";
+    TypeMirror returnTypeMirror = m.getReturnTypeMirror();
+    if (TypeUtil.isTypeVariable(returnTypeMirror)) {
+      returnTypeNullability = nullability(((TypeVariable) returnTypeMirror).asElement());
+    }
+    String methodReturnNullability = nullability(element);
+    String returnNullability =
+        returnTypeNullability.isEmpty() ? methodReturnNullability : returnTypeNullability;
+    sb.append(
+        UnicodeUtils.format(
+            "%c (%s%s%s)",
+            prefix, returnType, returnNullability.isEmpty() ? "" : " ", returnNullability));
 
     List<SingleVariableDeclaration> params = m.getParameters();
     String[] selParts = selector.split(":");
@@ -344,28 +364,55 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
           sb.append(pad(baseLength - selParts[i].length()));
         }
         VariableElement var = params.get(i).getVariableElement();
+        boolean allowGenerics = !typeUtil.isProtoClass(var.asType()) && generatorAllowsGenerics;
         String typeName =
             nameTable.getObjCTypeDeclaration(
-                var.asType(), hasGenerateObjectiveCGenerics(var.asType()) || asObjCGenericDecl);
+                var.asType(),
+                allowGenerics
+                    && (generateObjectiveCGenerics(var.asType())
+                        || generateObjectiveCGenerics(typeElement.asType())),
+                typeElement);
+        String varNullability = nullability(var);
         sb.append(
             UnicodeUtils.format(
-                "%s:(%s%s)%s",
-                selParts[i], typeName, nullability(var), nameTable.getVariableShortName(var)));
+                "%s:(%s%s%s)%s",
+                selParts[i],
+                typeName,
+                varNullability.isEmpty() ? "" : " ",
+                varNullability,
+                nameTable.getVariableShortName(var)));
       }
     }
 
     return sb.toString();
   }
 
-  /** Returns an Objective-C nullability attribute string if needed. */
-  protected abstract String nullability(Element element);
+  /**
+   * Returns an Objective-C nullability attribute string without padding if there is a matching
+   * JSR305 annotation, or an empty string.
+   */
+  protected String nullability(Element element) {
+    if (element != null) {
+      if (options.nullability()) {
+        if (ElementUtil.hasNullableAnnotation(element)) {
+          return "_Nullable";
+        }
+        if (ElementUtil.isNonnull(element, parametersNonnullByDefault) && !nullMarked) {
+          return "_Nonnull";
+        }
+      }
+    }
+    return "";
+  }
 
-  protected String getFunctionSignature(FunctionDeclaration function, boolean isPrototype) {
+  protected String getFunctionSignature(
+      FunctionDeclaration function, boolean isPrototype, boolean isPrivate) {
     StringBuilder sb = new StringBuilder();
     TypeMirror returnTypeMirror = function.getReturnType().getTypeMirror();
     String returnType =
         paddedType(nameTable.getObjCType(returnTypeMirror), function.getExecutableElement());
-    sb.append(returnType).append(function.getName()).append('(');
+    String functionName = function.getName();
+    sb.append(returnType).append(functionName).append('(');
     if (isPrototype && function.getParameters().isEmpty()) {
       sb.append("void");
     } else {
@@ -380,6 +427,14 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
       }
     }
     sb.append(')');
+
+    if (!isPrivate) {
+      String swiftName = nameTable.getSwiftFunctionNameFromAnnotation(function);
+      if (swiftName != null) {
+        sb.append(swiftName);
+      }
+    }
+
     return sb.toString();
   }
 
@@ -398,7 +453,18 @@ public abstract class TypeGenerator extends AbstractSourceGenerator {
   protected String paddedType(String type, Element element) {
     String suffix = " ";
     if (type.endsWith("*")) {
-      suffix = shouldAddNullableAnnotation(element) ? "_Nullable " : "";
+      // shouldAddNullableAnnotation() is partially redundant to checks inside nullability()
+      String nullabilitySuffix = shouldAddNullableAnnotation(element) ? nullability(element) : "";
+      if (nullabilitySuffix.isEmpty()) {
+        suffix = "";
+      } else {
+        suffix = nullabilitySuffix + " ";
+      }
+    } else if (type.contentEquals("id") || type.startsWith("id<")) {
+      // shouldAddNullableAnnotation() is partially redundant to checks inside nullability()
+      if (shouldAddNullableAnnotation(element)) {
+        suffix = " " + nullability(element) + " ";
+      }
     }
     return type + suffix;
   }

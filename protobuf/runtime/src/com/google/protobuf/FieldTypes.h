@@ -50,7 +50,7 @@
 #define TYPE_Long jlong
 #define TYPE_Float jfloat
 #define TYPE_Double jdouble
-#define TYPE_Bool jboolean
+#define TYPE_Bool bool
 #define TYPE_Enum id
 #define TYPE_Id id
 #define TYPE_Retainable id
@@ -79,14 +79,6 @@
 #define TYPE_ASSIGN_Retainable(assignee, value) \
   ([assignee autorelease], assignee = [value retain])
 #endif
-
-#define TYPE_RETAINED_ASSIGN_Int(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Long(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Float(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Double(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Bool(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Enum(assignee, value) assignee = value
-#define TYPE_RETAINED_ASSIGN_Retainable(assignee, value) assignee = RETAIN_(value)
 
 #define HASH_Int(value) value
 #define HASH_Long(value) (int)((uint64_t)value ^ ((uint64_t)value >> 32))
@@ -189,6 +181,16 @@
   MACRO(Bool) \
   MACRO(Enum) \
   MACRO(Retainable)
+
+// Declares the given macro once for each java field type except for retainable
+//types.
+#define FOR_EACH_TYPE_NO_RETAINABLE(MACRO) \
+  MACRO(Int) \
+  MACRO(Long) \
+  MACRO(Float) \
+  MACRO(Double) \
+  MACRO(Bool) \
+  MACRO(Enum)
 
 // The remainder of this file is copied from the translation of the types
 // FieldDescriptor.Type and FieldDescriptor.JavaType in Descriptor.java.

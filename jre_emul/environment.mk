@@ -61,8 +61,6 @@ J2OBJC_LUNI_NATIVE = $(LIBCORE_BASE)/luni/src/objc/native
 ANDROID_OPENJDK_ROOT = $(LIBCORE_BASE)/ojluni/src/main/java
 ANDROID_OPENJDK_NATIVE = $(LIBCORE_BASE)/ojluni/src/main/native
 ANDROID_XML_ROOT = $(LIBCORE_BASE)/xml/src/main/java
-OKIO_ROOT = $(ANDROID_PLATFORM)/external/okhttp/okio/okio/src/main/java
-OKIO_TEST_ROOT = $(ANDROID_PLATFORM)/external/okhttp/okio/okio/src/test/java
 OJLUNI_TEST_BASE = $(LIBCORE_BASE)/ojluni/src/test
 OJLUNI_NIO_TEST_ROOT = $(LIBCORE_BASE)/ojluni/src
 JAVA_TIME_TEST_ROOT = $(OJLUNI_TEST_BASE)/java/time
@@ -73,6 +71,7 @@ ICU_PROPERTIES_ROOT = $(ANDROID_PLATFORM)/external/icu/android_icu4j/resources
 ICU_RES_DIR = $(BUILD_DIR)/icu_res
 ICU_EMBEDDED_RES_DIR = $(ICU_RES_DIR)/embedded
 ANDROID_PLATFORM_COMPAT_ROOT = $(ANDROID_BASE)/tools/platform-compat/java
+LIBCORE_TEST_RULES=$(LIBCORE_BASE)/test-rules/src/main/java
 
 OPENJDK_SHARE_ROOT = openjdk/src/share/classes
 OPENJDK_MACOSX_ROOT = openjdk/src/macosx/classes
@@ -124,7 +123,7 @@ JRE_SRC_ROOTS = \
     $(ANDROID_XML_ROOT) $(EMULATION_CLASS_DIR) \
     $(ANDROID_CORE_ROOT) $(ANDROID_JSON_ROOT) \
     $(JRE_BEANS_ROOT) $(J2OBJC_LUNI_ROOT) $(ANDROID_OPENJDK_ROOT) \
-    $(OKIO_ROOT) $(LAMBDA_DIR) $(OPENJDK_SHARE_ROOT) $(OPENJDK_MACOSX_ROOT) \
+    $(LAMBDA_DIR) $(OPENJDK_SHARE_ROOT) $(OPENJDK_MACOSX_ROOT) \
     $(STUBS_DIR) $(ICU_ROOT) $(ICU_LIBCORE_BRIDGE) $(ANDROID_PLATFORM_COMPAT_ROOT)
 JRE_SRC = $(subst $(eval) ,:,$(JRE_SRC_ROOTS))
 TEST_SRC_ROOTS = \
@@ -134,9 +133,9 @@ TEST_SRC_ROOTS = \
     $(ANDROID_CORE_TESTS_ROOT) $(ANDROID_TESTS_RUNNER_ROOT) \
     $(ANDROID_JSON_TEST_ROOT) $(BEANS_TEST_ROOT) $(BEANS_TEST_SUPPORT_ROOT) \
     $(ANDROID_JSR166_TEST_ROOT) $(MOCKWEBSERVER_ROOT) \
-    $(OKIO_TEST_ROOT) $(ANDROID_DALVIK_TEST_ROOT) \
+    $(ANDROID_DALVIK_TEST_ROOT) \
     $(APACHE_COMMONS_LANG_TEST_ROOT) $(JAVA_TIME_TEST_ROOT) \
-    $(OJLUNI_NIO_TEST_ROOT) $(ICU_TEST_ROOT)
+    $(OJLUNI_NIO_TEST_ROOT) $(ICU_TEST_ROOT) $(LIBCORE_TEST_RULES)
 TEST_SRC = $(subst $(eval) ,:,$(TEST_SRC_ROOTS))
 vpath %.java $(JRE_SRC):$(TEST_SRC)
 
@@ -146,7 +145,8 @@ NATIVE_SOURCE_DIRS = $(EMULATION_CLASS_DIR) $(APPLE_ROOT) $(ANDROID_NATIVE_DIR) 
 
 # Clang warnings
 WARNINGS := $(CC_WARNINGS) $(WARNINGS) -Wno-unused-label -Wno-dangling-else \
-  -Wimplicit-function-declaration -Wint-conversion -Wshorten-64-to-32 -Wcomma -Wnonnull
+  -Wimplicit-function-declaration -Wint-conversion -Wshorten-64-to-32 -Wcomma \
+  -Wnonnull -Wno-bitwise-instead-of-logical
 
 ifeq ("$(strip $(XCODE_VERSION_MAJOR))", "0500")
 OBJCFLAGS += -DSET_MIN_IOS_VERSION

@@ -1324,12 +1324,12 @@ public class TreeShakerTest extends TestCase {
 
     assertThat(output)
         .isEqualTo(
-            "CoffeeMaker:\n"
+            "Boiler:\n"
+                + "    Boiler()\n"
+                + "CoffeeMaker:\n"
                 + "    CoffeeMaker()\n"
                 + "CoffeeMaker:\n"
-                + "    instanceMethod()\n"
-                + "Boiler:\n"
-                + "    Boiler()\n");
+                + "    instanceMethod()\n");
   }
 
   // Regression test for b/224994241
@@ -1506,9 +1506,9 @@ public class TreeShakerTest extends TestCase {
     assertThat(output)
         .isEqualTo(
             "Grinder$Setting:\n"
-                + "    Grinder$Setting[] values()\n"
+                + "    Grinder$Setting valueOf(java.lang.String)\n"
                 + "Grinder$Setting:\n"
-                + "    Grinder$Setting valueOf(java.lang.String)\n");
+                + "    Grinder$Setting[] values()\n");
   }
 
   // Regression test for b/224970952
@@ -1644,10 +1644,10 @@ public class TreeShakerTest extends TestCase {
         .isEqualTo(
             String.join(
                 "\n",
-                "OverheatException:",
-                "    OverheatException()",
                 "OutOfCoffeeException:",
-                "    OutOfCoffeeException()\n"));
+                "    OutOfCoffeeException()",
+                "OverheatException:",
+                "    OverheatException()\n"));
   }
 
   // Regression test for b/229773937
@@ -1789,7 +1789,7 @@ public class TreeShakerTest extends TestCase {
         "package com.google.j2objc.annotations;\n"
             + "import static java.lang.annotation.ElementType.*;\n"
             + "import java.lang.annotation.Target;\n"
-            + "@Target({TYPE, METHOD, CONSTRUCTOR})\n"
+            + "@Target({TYPE, METHOD, CONSTRUCTOR, FIELD})\n"
             + "public @interface UsedByNative {}");
     addSourceFile(
         "A.java",
@@ -1820,6 +1820,89 @@ public class TreeShakerTest extends TestCase {
     assertThat(getUnusedMethods(findUnusedCode()))
         .containsExactly(
             getMethodName("A$ReferencedByField", "unused", "()V"), getMethodName("A", "A", "()V"));
+  }
+
+  public void testUsedByReflectionAnnotation_class() throws IOException {
+    addTreeShakerRootsFile("CoffeeMaker:\n    start()");
+    addSourceFile(
+        "UsedByReflection.java",
+        "package com.google.j2objc.annotations;\n"
+            + "import static java.lang.annotation.ElementType.*;\n"
+            + "import java.lang.annotation.Target;\n"
+            + "@Target({TYPE, METHOD, CONSTRUCTOR, FIELD})\n"
+            + "public @interface UsedByReflection {}");
+    addSourceFile(
+        "CoffeeMaker.java",
+        "import com.google.j2objc.annotations.UsedByReflection;\n"
+            + "class CoffeeMaker {\n"
+            + "  @UsedByReflection\n"
+            + "  private static final class Constants {\n"
+            + "    private static final String NAME = \"CoffeeMaker\";\n"
+            + "  }\n"
+            + "}\n");
+    assertThat(getUnusedClasses(findUnusedCode())).doesNotContain("CoffeeMaker$Constants");
+  }
+
+  public void testUsedByReflectionAnnotation_method() throws IOException {
+    addTreeShakerRootsFile("A:\n    start()");
+    addSourceFile(
+        "UsedByReflection.java",
+        "package com.google.j2objc.annotations;\n"
+            + "import static java.lang.annotation.ElementType.*;\n"
+            + "import java.lang.annotation.Target;\n"
+            + "@Target({TYPE, METHOD, CONSTRUCTOR, FIELD})\n"
+            + "public @interface UsedByReflection {}");
+    addSourceFile(
+        "A.java",
+        "import com.google.j2objc.annotations.UsedByReflection;\n"
+            + "class A {\n"
+            + "  private ReferencedByField referencedByClass = new ReferencedByField();\n"
+            + "  public static native void start();\n"
+            + "  @UsedByReflection\n"
+            + "  private static final class WithAnnotation {\n"
+            + "    private static String getName() {return \"A\";}\n"
+            + "    private static void unused() {}\n"
+            + "  }\n"
+            + "  private static final class WithoutAnnotation {\n"
+            + "    @UsedByReflection\n"
+            + "    private static String getName() {return \"A\";}\n"
+            + "    private static void unused() {}\n"
+            + "  }\n"
+            + "  private static final class ReferencedByField {\n"
+            + "    @UsedByReflection\n"
+            + "    private static String getName() {return \"A\";}\n"
+            + "    private static void unused() {}\n"
+            + "  }\n"
+            + "}\n");
+    assertThat(getUnusedClasses(findUnusedCode()))
+        .containsExactly("A$WithoutAnnotation", "com.google.j2objc.annotations.UsedByReflection");
+    assertThat(getUnusedMethods(findUnusedCode()))
+        .containsExactly(
+            getMethodName("A$ReferencedByField", "unused", "()V"), getMethodName("A", "A", "()V"));
+  }
+
+  public void testEntryClassMembers() throws IOException {
+    addTreeShakerRootsFile("EntryClass");
+    addSourceFile(
+        "EntryClass.java",
+        "public class EntryClass {\n"
+            + "  private String field;\n"
+            + "  public void publicMethod() {\n"
+            + "    Runnable anonymousClass = new Runnable() {\n"
+            + "      public void run() {}\n"
+            + "    };\n"
+            + "  }\n"
+            + "  private void privateMethod() {}\n"
+            + "  class InnerClass {}\n"
+            + "  static class StaticInnerClass {}\n"
+            + "  static interface InnerInterface {}\n"
+            + "  static enum InnerEnum { A, B, C; }\n"
+            + "}\n");
+
+    CodeReferenceMap unused = findUnusedCode();
+    assertThat(getUnusedClasses(unused)).isEmpty();
+    String output = writeUnused(findUnusedCode());
+    assertThat(output).isEmpty();
   }
 
   private static String writeUnused(CodeReferenceMap unused) {

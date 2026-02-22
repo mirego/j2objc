@@ -119,7 +119,7 @@ void CGPMapFieldCopyData(CGPMapField *field, CGPFieldJavaType keyType, CGPFieldJ
 void CGPMapFieldAppendOther(
     CGPMapField *field, CGPMapField *other, CGPFieldJavaType keyType, CGPFieldJavaType valueType);
 
-void CGPMapFieldClear(CGPMapField *field, CGPFieldJavaType keyType, CGPFieldJavaType valueType);
+void CGPMapFieldClear(CGPMapField *field, CGPFieldJavaType keyType, CGPFieldJavaType valueType, BOOL releaseData);
 
 bool CGPMapFieldIsEqual(
     CGPMapField *fieldA, CGPMapField *fieldB, CGPFieldJavaType keyType, CGPFieldJavaType valueType);
@@ -140,6 +140,9 @@ void CGPMapFieldAssignFromList(
 
 id<JavaUtilMap> CGPMapFieldAsJavaMap(
     CGPMapField *field, CGPFieldJavaType keyType, CGPFieldJavaType valueType);
+
+NSDictionary *CGPMapFieldAsDict(CGPMapField *field, CGPFieldJavaType keyType,
+                                CGPFieldJavaType valueType);
 
 CF_EXTERN_C_END
 

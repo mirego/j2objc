@@ -77,6 +77,7 @@ public class Options {
   private HeaderMap headerMap = new HeaderMap();
   private boolean stripGwtIncompatible = false;
   private boolean segmentedHeaders = true;
+  private boolean separateHeaders = false;
   private boolean jsniWarnings = true;
   private boolean buildClosure = false;
   private EnumSet<MetadataSupport> includedMetadata =
@@ -90,6 +91,8 @@ public class Options {
   private String processors = null;
   private boolean disallowInheritedConstructors = true;
   private boolean nullability = false;
+  private boolean swiftEnums = true;
+  private boolean swiftNaming = false;
   private boolean nullMarked = false;
   private TimingLevel timingLevel = TimingLevel.NONE;
   private boolean dumpAST = false;
@@ -99,7 +102,7 @@ public class Options {
   private boolean translateClassfiles = false;
   private String annotationsJar = null;
   private CombinedOutput globalCombinedOutput = null;
-  private String bootclasspath = null;
+  private String bootclasspath = "";
   private boolean emitKytheMappings = false;
   private boolean emitSourceHeaders = true;
   private boolean injectLogSites = false;
@@ -109,6 +112,9 @@ public class Options {
   private boolean linkSourcePathHeaders = false;
   private boolean javacWarnings = true;
   private boolean stripReflectionErrors = false;
+  private boolean linkProtocols = false;
+  private boolean addTextSegmentAttribute = false;
+  private boolean suppressHeaderClangTidyWarnings = false;
 
   private Mappings mappings = new Mappings();
   private FileUtil fileUtil = new FileUtil();
@@ -121,11 +127,11 @@ public class Options {
 
   private File proGuardUsageFile = null;
 
-  private static String fileHeader;
+  private static final String FILE_HEADER;
   private static final String FILE_HEADER_KEY = "file-header";
-  private static String usageMessage;
-  private static String helpMessage;
-  private static String xhelpMessage;
+  private static final String USAGE_MESSAGE;
+  private static final String HELP_MESSAGE;
+  private static final String XHELP_MESSAGE;
   private static final String USAGE_MSG_KEY = "usage-message";
   private static final String HELP_MSG_KEY = "help-message";
   private static final String X_HELP_MSG_KEY = "x-help-message";
@@ -270,14 +276,14 @@ public class Options {
       System.err.println("unable to access tool properties: " + e);
       System.exit(1);
     }
-    fileHeader = properties.getProperty(FILE_HEADER_KEY);
-    Preconditions.checkNotNull(fileHeader);
-    usageMessage = properties.getProperty(USAGE_MSG_KEY);
-    Preconditions.checkNotNull(usageMessage);
-    helpMessage = properties.getProperty(HELP_MSG_KEY);
-    Preconditions.checkNotNull(helpMessage);
-    xhelpMessage = properties.getProperty(X_HELP_MSG_KEY);
-    Preconditions.checkNotNull(xhelpMessage);
+    FILE_HEADER = properties.getProperty(FILE_HEADER_KEY);
+    Preconditions.checkNotNull(FILE_HEADER);
+    USAGE_MESSAGE = properties.getProperty(USAGE_MSG_KEY);
+    Preconditions.checkNotNull(USAGE_MESSAGE);
+    HELP_MESSAGE = properties.getProperty(HELP_MSG_KEY);
+    Preconditions.checkNotNull(HELP_MESSAGE);
+    XHELP_MESSAGE = properties.getProperty(X_HELP_MSG_KEY);
+    Preconditions.checkNotNull(XHELP_MESSAGE);
 
     Logger rootLogger = Logger.getLogger("");
     for (Handler handler : rootLogger.getHandlers()) {
@@ -307,10 +313,9 @@ public class Options {
   }
 
   /**
-   * Load the options from a command-line, returning the arguments that were
-   * not option-related (usually files).  If help is requested or an error is
-   * detected, the appropriate status method is invoked and the app terminates.
-   * @throws IOException
+   * Load the options from a command-line, returning the arguments that were not option-related
+   * (usually files). If help is requested or an error is detected, the appropriate status method is
+   * invoked and the app terminates.
    */
   public List<String> load(String[] args) throws IOException {
     mappings.addJreMappings();
@@ -415,6 +420,10 @@ public class Options {
         headerMap.setIncludeGeneratedSources();
       } else if (arg.equals("-Xpublic-hdrs")) {
         fileUtil.setHeaderOutputDirectory(new File(getArgValue(args, arg)));
+      } else if (arg.equals("-Xlink-protocols")) {
+        linkProtocols = true;
+      } else if (arg.equals("--suppress-header-clang-tidy-warnings")) {
+        suppressHeaderClangTidyWarnings = true;
       } else if (arg.equals("-use-arc")) {
         checkMemoryManagementOption(MemoryManagementOption.ARC);
       } else if (arg.equals("-Xstrict-field-assign")) {
@@ -470,6 +479,10 @@ public class Options {
         stripGwtIncompatible = true;
       } else if (arg.equals("--strip-reflection")) {
         includedMetadata = EnumSet.of(MetadataSupport.ENUM_CONSTANTS);
+      } else if (arg.equals("--no-strip-reflection")) {
+        includedMetadata =
+            EnumSet.of(
+                MetadataSupport.FULL, MetadataSupport.ENUM_CONSTANTS, MetadataSupport.NAME_MAPPING);
       } else if (arg.equals("-Xstrip-reflection-errors:")) {
         String subArg = arg.substring(arg.indexOf(':') + 1);
         switch (subArg) {
@@ -540,6 +553,8 @@ public class Options {
         }
       } else if (arg.equals("--no-wrapper-methods")) {
         emitWrapperMethods = false;
+      } else if (arg.equals("--wrapper-methods")) {
+        emitWrapperMethods = true;
       } else if (arg.equals("--no-segmented-headers")) {
         segmentedHeaders = false;
       } else if (arg.equals("--build-closure")) {
@@ -550,6 +565,8 @@ public class Options {
         extractUnsequencedModifications = false;
       } else if (arg.equals("--doc-comments")) {
         docCommentsEnabled = true;
+      } else if (arg.equals("--no-doc-comments")) {
+        docCommentsEnabled = false;
       } else if (arg.equals("--doc-comment-warnings")) {
         reportJavadocWarnings = true;
       } else if (arg.equals("--static-accessor-methods")) {
@@ -560,6 +577,12 @@ public class Options {
         setClassProperties(false);
       } else if (arg.equals("--swift-friendly")) {
         setSwiftFriendly(true);
+      } else if (arg.equals("--swift-enums")) {
+        setSwiftEnums(true);
+      } else if (arg.equals("--no-swift-enums")) {
+        setSwiftEnums(false);
+      } else if (arg.equals("--swift-naming")) {
+        setSwiftNaming(true);
       } else if (arg.equals("-processor")) {
         processors = getArgValue(args, arg);
       } else if (arg.equals("--allow-inherited-constructors")) {
@@ -586,6 +609,8 @@ public class Options {
         emitSourceHeaders = false;
       } else if (arg.equals("-Xprint-args")) {
         printArgs = true;
+      } else if (arg.equals("-Xseparate-headers")) {
+        separateHeaders = true;
       } else if (arg.equals("-external-annotation-file")) {
         addExternalAnnotationFile(getArgValue(args, arg));
       } else if (arg.equals("--reserved-names")) {
@@ -603,6 +628,8 @@ public class Options {
       } else if (arg.equals("-XDallVersions")) {
         // For internal use only when adding new version support.
         allVersions = true;
+      } else if (arg.equals("-Xj2objc-text-segment")) {
+        addTextSegmentAttribute = true;
       } else if (arg.equals("-source")) {
         String s = getArgValue(args, arg);
         // Handle aliasing of version numbers as supported by javac.
@@ -726,6 +753,22 @@ public class Options {
     } else {
       platformModuleSystemOptions.clear();
     }
+    if (sourceVersion.version() >= 11) {
+      // Enable access to the javac packages.
+      String[] javacPackages = {
+        "java.compiler/javax.lang.model.element",
+        "java.compiler/javax.lang.model.type",
+        "java.compiler/javax.lang.model.util",
+        "jdk.compiler/com.sun.tools.javac.api",
+        "jdk.compiler/com.sun.tools.javac.code",
+        "jdk.compiler/com.sun.tools.javac.parser",
+        "jdk.compiler/com.sun.tools.javac.tree",
+        "jdk.compiler/com.sun.tools.javac.util"
+      };
+      for (String pkg : javacPackages) {
+        addPlatformModuleSystemOptions("--add-exports", pkg + "=ALL-UNNAMED");
+      }
+    }
   }
 
   private boolean hasKnownFileSuffix(String s) {
@@ -756,18 +799,18 @@ public class Options {
 
   public static void usage(String invalidUseMsg) {
     System.err.println("j2objc: " + invalidUseMsg);
-    System.err.println(usageMessage);
+    System.err.println(USAGE_MESSAGE);
     System.exit(1);
   }
 
   public static void help(boolean errorExit) {
-    System.err.println(helpMessage);
+    System.err.println(HELP_MESSAGE);
     // javac exits with 2, but any non-zero value works.
     System.exit(errorExit ? 2 : 0);
   }
 
   public static void xhelp() {
-    System.err.println(xhelpMessage);
+    System.err.println(XHELP_MESSAGE);
     System.exit(0);
   }
 
@@ -935,15 +978,15 @@ public class Options {
   }
 
   public static String getUsageMessage() {
-    return usageMessage;
+    return USAGE_MESSAGE;
   }
 
   public static String getHelpMessage() {
-    return helpMessage;
+    return HELP_MESSAGE;
   }
 
   public static String getFileHeader() {
-    return fileHeader;
+    return FILE_HEADER;
   }
 
   public void setProGuardUsageFile(File newProGuardUsageFile) {
@@ -999,6 +1042,16 @@ public class Options {
   @VisibleForTesting
   public void setSegmentedHeaders(boolean b) {
     segmentedHeaders = b;
+  }
+
+  public boolean generateSeparateHeaders() {
+    return separateHeaders;
+  }
+
+  @VisibleForTesting
+  public void setSeparateHeaders(boolean b) {
+    separateHeaders = b;
+    segmentedHeaders = false; // unnecessary with separate headers.
   }
 
   public boolean jsniWarnings() {
@@ -1133,6 +1186,7 @@ public class Options {
   public void setSwiftFriendly(boolean b) {
     setClassProperties(b);
     setNullability(b);
+    setSwiftEnums(b);
   }
 
   public boolean nullability() {
@@ -1142,6 +1196,24 @@ public class Options {
   @VisibleForTesting
   public void setNullability(boolean b) {
     nullability = b;
+  }
+
+  public boolean swiftEnums() {
+    return swiftEnums;
+  }
+
+  @VisibleForTesting
+  public void setSwiftEnums(boolean b) {
+    swiftEnums = b;
+  }
+
+  public boolean swiftNaming() {
+    return swiftNaming;
+  }
+
+  @VisibleForTesting
+  public void setSwiftNaming(boolean b) {
+    swiftNaming = b;
   }
 
   public boolean nullMarked() {
@@ -1264,5 +1336,27 @@ public class Options {
 
   public boolean stripReflectionErrors() {
     return stripReflectionErrors;
+  }
+
+  public boolean linkProtocols() {
+    return linkProtocols;
+  }
+
+  @VisibleForTesting
+  public void setLinkProtocols(boolean b) {
+    linkProtocols = b;
+  }
+
+  public boolean suppressHeaderClangTidyWarnings() {
+    return suppressHeaderClangTidyWarnings;
+  }
+
+  public boolean addTextSegmentAttribute() {
+    return addTextSegmentAttribute;
+  }
+
+  @VisibleForTesting
+  public void setAddTextSegmentAttribute(boolean b) {
+    addTextSegmentAttribute = b;
   }
 }
