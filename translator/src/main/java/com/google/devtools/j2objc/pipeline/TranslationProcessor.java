@@ -15,11 +15,13 @@
 package com.google.devtools.j2objc.pipeline;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.DebugASTDump;
 import com.google.devtools.j2objc.gen.GenerationUnit;
 import com.google.devtools.j2objc.gen.ObjectiveCHeaderGenerator;
 import com.google.devtools.j2objc.gen.ObjectiveCImplementationGenerator;
+import com.google.devtools.j2objc.gen.ObjectiveCMultiHeaderGenerator;
 import com.google.devtools.j2objc.gen.ObjectiveCSegmentedHeaderGenerator;
 import com.google.devtools.j2objc.translate.AbstractMethodRewriter;
 import com.google.devtools.j2objc.translate.AnnotationRewriter;
@@ -28,6 +30,7 @@ import com.google.devtools.j2objc.translate.Autoboxer;
 import com.google.devtools.j2objc.translate.CastResolver;
 import com.google.devtools.j2objc.translate.ClassExtendsCollectionCheck;
 import com.google.devtools.j2objc.translate.ComplexExpressionExtractor;
+import com.google.devtools.j2objc.translate.ComputeVariableModifiers;
 import com.google.devtools.j2objc.translate.ConstantBranchPruner;
 import com.google.devtools.j2objc.translate.DeadCodeEliminator;
 import com.google.devtools.j2objc.translate.DefaultMethodShimGenerator;
@@ -39,6 +42,7 @@ import com.google.devtools.j2objc.translate.Functionizer;
 import com.google.devtools.j2objc.translate.GwtConverter;
 import com.google.devtools.j2objc.translate.InitializationNormalizer;
 import com.google.devtools.j2objc.translate.InnerClassExtractor;
+import com.google.devtools.j2objc.translate.InstanceOfPatternRewriter;
 import com.google.devtools.j2objc.translate.JavaCloneWriter;
 import com.google.devtools.j2objc.translate.JavaObjectMethodConverter;
 import com.google.devtools.j2objc.translate.JavaToIOSMethodTranslator;
@@ -52,18 +56,25 @@ import com.google.devtools.j2objc.translate.LogSiteInjector;
 import com.google.devtools.j2objc.translate.MetadataWriter;
 import com.google.devtools.j2objc.translate.NilCheckResolver;
 import com.google.devtools.j2objc.translate.NumberMethodRewriter;
+import com.google.devtools.j2objc.translate.ObjectiveCAdapterMethodAnnotation;
+import com.google.devtools.j2objc.translate.ObjectiveCKmpMethodTranslator;
+import com.google.devtools.j2objc.translate.ObjectiveCNativeProtocolAnnotation;
 import com.google.devtools.j2objc.translate.OcniExtractor;
 import com.google.devtools.j2objc.translate.OperatorRewriter;
 import com.google.devtools.j2objc.translate.OuterReferenceResolver;
 import com.google.devtools.j2objc.translate.PackageInfoRewriter;
 import com.google.devtools.j2objc.translate.PrivateDeclarationResolver;
+import com.google.devtools.j2objc.translate.RecordExpander;
+import com.google.devtools.j2objc.translate.ReflectionCodeDetector;
 import com.google.devtools.j2objc.translate.Rewriter;
 import com.google.devtools.j2objc.translate.SerializationStripper;
 import com.google.devtools.j2objc.translate.StaticVarRewriter;
 import com.google.devtools.j2objc.translate.SuperMethodInvocationRewriter;
+import com.google.devtools.j2objc.translate.SwitchConstructRewriter;
 import com.google.devtools.j2objc.translate.SwitchRewriter;
 import com.google.devtools.j2objc.translate.UnsequencedExpressionRewriter;
 import com.google.devtools.j2objc.translate.VarargsRewriter;
+import com.google.devtools.j2objc.translate.VariableDeclarationHoister;
 import com.google.devtools.j2objc.translate.VariableRenamer;
 import com.google.devtools.j2objc.types.HeaderImportCollector;
 import com.google.devtools.j2objc.types.ImplementationImportCollector;
@@ -74,7 +85,10 @@ import com.google.devtools.j2objc.util.ExternalAnnotations;
 import com.google.devtools.j2objc.util.Parser;
 import com.google.devtools.j2objc.util.TimeTracker;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -122,9 +136,11 @@ public class TranslationProcessor extends FileProcessor {
 
   @Override
   protected void processOutputs(Iterable<ProcessingContext> outputs) {
+    HashMap<String, Set<String>> headerIncludesMap = new HashMap<>();
     for (ProcessingContext output : outputs) {
-      generateObjectiveCSource(output.getGenerationUnit());
+      generateObjectiveCSource(output.getGenerationUnit(), headerIncludesMap);
     }
+    checkNoIncludeCycles(headerIncludesMap);
   }
 
   // kotlin interop >>
@@ -176,6 +192,12 @@ public class TranslationProcessor extends FileProcessor {
       ticker.tick("DeadCodeEliminator");
     }
 
+    if (unit.getEnv().options().stripReflection()
+        && unit.getEnv().options().stripReflectionErrors()) {
+      new ReflectionCodeDetector(unit).run();
+      ticker.tick("ReflectionCodeDetector");
+    }
+
     LogSiteInjector logSiteInjector = new LogSiteInjector(unit);
     if (logSiteInjector.isEnabled()) {
       logSiteInjector.run();
@@ -187,6 +209,9 @@ public class TranslationProcessor extends FileProcessor {
 
     new OuterReferenceResolver(unit).run();
     ticker.tick("OuterReferenceResolver");
+
+    new RecordExpander(unit).run();
+    ticker.tick("RecordExpander");
 
     // Update code that has GWT references.
     new GwtConverter(unit).run();
@@ -214,21 +239,38 @@ public class TranslationProcessor extends FileProcessor {
     new AbstractMethodRewriter(unit, deadCodeMap).run();
     ticker.tick("AbstractMethodRewriter");
 
-    new VariableRenamer(unit).run();
-    ticker.tick("VariableRenamer");
+    // Before: Autoboxer - Must generate implementations so autoboxing can be applied to result.
+    // Before: InstanceOfPatternRewriter - so that there is a block where to add the
+    // temporary variable declarations.
+    new LambdaRewriter(unit).run();
+    ticker.tick("LambdaRewriter");
 
     // kotlin interop >>
     // new ClassExtendsCollectionCheck(unit).run();
     // ticker.tick("ClassExtendsCollectionCheck");
     // kotlin interop <<
 
+    // Before: InstanceOfPatternRewriter - to handle instanceof patterns from the switch rewrite.
+    new SwitchConstructRewriter(unit).run();
+    ticker.tick("SwitchConstructRewriter");
+
+    // Before: VariableRenamer - VariableRenamer renames variables in a scope-aware manner.
+    new InstanceOfPatternRewriter(unit).run();
+    ticker.tick("InstanceOfPatternRewriter");
+
+    // Before: VariableRenamer - VariableRenamer renames variables in a scope-aware manner.
     // Rewrite enhanced for loops into correct C code.
     new EnhancedForRewriter(unit).run();
     ticker.tick("EnhancedForRewriter");
 
-    // Before: Autoboxer - Must generate implementations so autoboxing can be applied to result.
-    new LambdaRewriter(unit).run();
-    ticker.tick("LambdaRewriter");
+    new VariableDeclarationHoister(unit).run();
+    ticker.tick("VariableDeclarationHoister");
+
+    new ComputeVariableModifiers(unit).run();
+    ticker.tick("ComputeVariableModifiers");
+
+    new VariableRenamer(unit).run();
+    ticker.tick("VariableRenamer");
 
     // Add auto-boxing conversions.
     new Autoboxer(unit).run();
@@ -329,6 +371,10 @@ public class TranslationProcessor extends FileProcessor {
     new SuperMethodInvocationRewriter(unit).run();
     ticker.tick("SuperMethodInvocationRewriter");
 
+    // Before OperatorRewriter - Needs to see the case expressions before they are rewritten.
+    new SwitchRewriter(unit).run();
+    ticker.tick("SwitchRewriter");
+
     new OperatorRewriter(unit).run();
     ticker.tick("OperatorRewriter");
 
@@ -341,9 +387,6 @@ public class TranslationProcessor extends FileProcessor {
     //   hasRetainedResult on ArrayCreation nodes.
     new ArrayRewriter(unit).run();
     ticker.tick("ArrayRewriter");
-
-    new SwitchRewriter(unit).run();
-    ticker.tick("SwitchRewriter");
 
     // Breaks up deeply nested expressions such as chained method calls.
     // Should be one of the last translations because other mutations will
@@ -361,6 +404,20 @@ public class TranslationProcessor extends FileProcessor {
     new PrivateDeclarationResolver(unit).run();
     ticker.tick("PrivateDeclarationResolver");
 
+    // Add native protocols after all prior translation. Occurs before
+    // adapter methods that may reference those protocols.
+    new ObjectiveCNativeProtocolAnnotation(unit).run();
+    ticker.tick("ObjectiveCNativeProtocolAnnotation");
+
+    // After all methods are resolved and functionized, add adapter methods to
+    // use their native types as annotated. Done last as the generated methods
+    // do not need other processing above.
+    new ObjectiveCAdapterMethodAnnotation(unit).run();
+    ticker.tick("ObjectiveCAdapterMethodAnnotation");
+
+    new ObjectiveCKmpMethodTranslator(unit).run();
+    ticker.tick("ObjectiveCKmpMethodTranslator");
+
     if (deadCodeMap != null) {
       deadCodeEliminator.removeDeadClasses();
       ticker.tick("removeDeadClasses");
@@ -373,7 +430,8 @@ public class TranslationProcessor extends FileProcessor {
   }
 
   @VisibleForTesting
-  public static void generateObjectiveCSource(GenerationUnit unit) {
+  public static void generateObjectiveCSource(
+      GenerationUnit unit, Map<String, Set<String>> headerIncludesMap) {
     assert unit.getOutputPath() != null;
     assert unit.isFullyParsed();
     TimeTracker ticker = TimeTracker.getTicker(unit.getSourceName(), unit.options().timingLevel());
@@ -384,11 +442,15 @@ public class TranslationProcessor extends FileProcessor {
         + unit.options().fileUtil().getHeaderOutputDirectory().getAbsolutePath());
     ticker.push();
 
-    // write header
-    if (unit.options().generateSegmentedHeaders()) {
+    // write header(s)
+    if (unit.options().generateSeparateHeaders()) {
+      ObjectiveCMultiHeaderGenerator.generate(unit);
+    } else if (unit.options().generateSegmentedHeaders()) {
       ObjectiveCSegmentedHeaderGenerator.generate(unit);
     } else {
-      ObjectiveCHeaderGenerator.generate(unit);
+      // Only need to populate headerIncludesMap in this case, since segmented or separate headers
+      // cannot produce include cycles.
+      ObjectiveCHeaderGenerator.generate(unit, headerIncludesMap);
     }
     ticker.tick("Header generation");
 
@@ -433,5 +495,64 @@ public class TranslationProcessor extends FileProcessor {
         closureQueue.addName(qualifiedName);
       }
     }
+  }
+
+  @VisibleForTesting
+  static void checkNoIncludeCycles(Map<String, Set<String>> headerIncludesMap) {
+    List<String> cycle = findIncludeCycle(headerIncludesMap);
+    if (!cycle.isEmpty()) {
+      ErrorUtil.error(
+          "This target contains an include cycle, but segmented headers are disabled. Enable"
+              + " segmented headers and try again. Cycle:\n"
+              + Joiner.on("\n").join(cycle));
+    }
+  }
+
+  /**
+   * Looks for an include cycle in the map. If a cycle is found, the path argument is populated with
+   * the path that found the cycle (in reverse order).
+   */
+  private static List<String> findIncludeCycle(Map<String, Set<String>> headerIncludesMap) {
+    HashSet<String> finished = new HashSet<>();
+    HashSet<String> visited = new HashSet<>();
+    ArrayList<String> path = new ArrayList<>();
+    for (String header : headerIncludesMap.keySet()) {
+      if (findIncludeCycle(headerIncludesMap, header, finished, visited, path)) {
+        String cycleHead = path.get(0);
+        return path.subList(0, path.lastIndexOf(cycleHead) + 1);
+      }
+    }
+    return new ArrayList<>();
+  }
+
+  /**
+   * Looks for a cycle in the map, starting at currentPath. If a cycle is found, the path argument
+   * is populated with the path that found the cycle (in reverse order).
+   */
+  private static boolean findIncludeCycle(
+      Map<String, Set<String>> headerIncludesMap,
+      String currentPath,
+      Set<String> finished,
+      Set<String> visited,
+      List<String> path) {
+    if (finished.contains(currentPath)) {
+      return false;
+    }
+    if (visited.contains(currentPath)) {
+      path.add(currentPath);
+      return true;
+    }
+    visited.add(currentPath);
+    Set<String> includes = headerIncludesMap.get(currentPath);
+    if (includes != null) {
+      for (String include : includes) {
+        if (findIncludeCycle(headerIncludesMap, include, finished, visited, path)) {
+          path.add(currentPath);
+          return true;
+        }
+      }
+    }
+    finished.add(currentPath);
+    return false;
   }
 }

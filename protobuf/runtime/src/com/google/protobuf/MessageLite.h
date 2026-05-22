@@ -50,6 +50,7 @@
 - (jint)getSerializedSize;
 - (ComGoogleProtobufByteString *)toByteString;
 - (IOSByteArray *)toByteArray;
+- (NSData *)toNSData;
 
 - (void)writeToWithJavaIoOutputStream:(JavaIoOutputStream *)output;
 - (void)writeDelimitedToWithJavaIoOutputStream:(JavaIoOutputStream *)output;
@@ -81,10 +82,10 @@ J2OBJC_TYPE_LITERAL_HEADER(ComGoogleProtobufMessageLite)
     mergeFromWithJavaIoInputStream:(JavaIoInputStream *)input
     withComGoogleProtobufExtensionRegistryLite:
         (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
-- (jboolean)mergeDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)input;
-- (jboolean)mergeDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)input
-    withComGoogleProtobufExtensionRegistryLite:
-        (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
+- (bool)mergeDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)input;
+- (bool)mergeDelimitedFromWithJavaIoInputStream:(JavaIoInputStream *)input
+     withComGoogleProtobufExtensionRegistryLite:
+         (ComGoogleProtobufExtensionRegistryLite *)extensionRegistry;
 
 @end
 

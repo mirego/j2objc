@@ -30,11 +30,13 @@ import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.NameTable;
+import com.google.devtools.j2objc.util.TranslationUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.Property;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -105,6 +107,8 @@ public class TypeImplementationGenerator extends TypeGenerator {
     syncFilename(getSourceFilePath());
 
     printInitFlagDefinition();
+    printEnumExterns();
+    printStaticFieldExterns();
     printStaticVars();
     printEnumValuesArray();
 
@@ -113,9 +117,14 @@ public class TypeImplementationGenerator extends TypeGenerator {
       syncLineNumbers(typeNode.getName()); // avoid doc-comment
       printf("@implementation %s\n", typeName);
       printProperties();
+      if (!typeElement.getKind().isInterface() && needsKotlinCompanionClass()) {
+        printf("\n+ (id<%sCompanion>)companion {", typeName);
+        printf("\n  return (id<%sCompanion>)self;\n}\n", typeName);
+      }
       printStaticAccessors();
       printInnerDeclarations();
       printInitializeMethod();
+      printLinkProtocolsMethod();
       println("\n@end");
     }
 
@@ -176,8 +185,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
       VariableElement varElement = fragment.getVariableElement();
       Expression initializer = fragment.getInitializer();
       String name = nameTable.getVariableQualifiedName(varElement);
-      String objcType = getDeclarationType(varElement);
-      objcType += objcType.endsWith("*") ? "" : " ";
+      String objcType = paddedType(getDeclarationType(varElement), varElement);
       if (initializer != null) {
         String cast = !varElement.asType().getKind().isPrimitive()
             && ElementUtil.isVolatile(varElement) ? "(void *)" : "";
@@ -259,11 +267,73 @@ public class TypeImplementationGenerator extends TypeGenerator {
     }
   }
 
+  /**
+   * Prints extern declarations for enum constant accessors.
+   *
+   * <p>Enum accessors are declared as {@code inline} in the header. If the compiler decides not to
+   * inline a call, it will expect an external definition. These extern declarations ensure that the
+   * compiler emits a non-inline version of the function in the implementation file.
+   */
+  private void printEnumExterns() {
+    if (typeNode instanceof EnumDeclaration enumDeclaration) {
+      newline();
+      for (EnumConstantDeclaration constant : enumDeclaration.getEnumConstants()) {
+        String varName = nameTable.getVariableBaseName(constant.getVariableElement());
+        printf("extern %s *%s_get_%s(void);\n", typeName, typeName, varName);
+      }
+    }
+  }
+
+  /**
+   * Prints extern declarations for static field accessors.
+   *
+   * <p>Static field accessors are declared as {@code inline} in the header. If the compiler decides
+   * not to inline a call, it will expect an external definition. These extern declarations ensure
+   * that the compiler emits a non-inline version of the function in the implementation file.
+   */
+  private void printStaticFieldExterns() {
+    if (typeNode.isDeadClass()) {
+      return;
+    }
+    for (VariableDeclarationFragment fragment : getStaticFields()) {
+      VariableElement var = fragment.getVariableElement();
+      String objcTypePadded = paddedType(nameTable.getObjCTypeDeclaration(var.asType()), var);
+      String name = nameTable.getVariableShortName(var);
+      newline();
+      printf("extern %s%s_get_%s(void);\n", objcTypePadded, typeName, name);
+      if (!ElementUtil.isFinal(var)) {
+        printf("extern %s%s_set_%s(%svalue);\n", objcTypePadded, typeName, name, objcTypePadded);
+        if (var.asType().getKind().isPrimitive() && !ElementUtil.isVolatile(var)) {
+          String objcType = nameTable.getObjCTypeDeclaration(var.asType());
+          printf("extern %s *%s_getRef_%s(void);\n", objcType, typeName, name);
+        }
+      }
+    }
+  }
+
   private void printTypeLiteralImplementation() {
     if (needsTypeLiteral()) {
       newline();
       printf("J2OBJC_%s_TYPE_LITERAL_SOURCE(%s)\n",
           isInterfaceType() ? "INTERFACE" : "CLASS", typeName);
+    }
+  }
+
+  private void printLinkProtocolsMethod() {
+    if (!options.linkProtocols() || options.stripReflection()) {
+      return;
+    }
+    List<String> interfaceNames = new ArrayList<>();
+    for (TypeElement intrface : TranslationUtil.getInterfaceTypes(typeNode)) {
+      interfaceNames.add(nameTable.getFullName(intrface));
+    }
+    if (!interfaceNames.isEmpty()) {
+      newline();
+      printf("+ (void)__linkProtocols {\n");
+      for (String name : interfaceNames) {
+        printf("  %s_class_();\n", NameTable.camelCaseQualifiedName(name));
+      }
+      printf("}\n");
     }
   }
 
@@ -299,7 +369,11 @@ public class TypeImplementationGenerator extends TypeGenerator {
       println("J2OBJC_IGNORE_DESIGNATED_BEGIN");
     }
     syncLineNumbers(m);  // avoid doc-comment
-    print(getMethodSignature(m, false) + " ");
+    // Implementations should not contain generics as this allows us to avoid type errors
+    // when translating to ObjC's more limited system of generics.
+    print(
+        getMethodSignature(m, /* generatorAllowsGenerics= */ false, /* staticToInstance= */ false)
+            + " ");
     print(reindent(generateStatement(m.getBody())) + "\n");
     if (isDesignatedInitializer) {
       println("J2OBJC_IGNORE_DESIGNATED_END");
@@ -314,7 +388,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
       printJniFunctionAndWrapper(function);
     } else {
       String functionBody = generateStatement(function.getBody());
-      println(getFunctionSignature(function, false) + " " + reindent(functionBody));
+      println(getFunctionSignature(function, false, true) + " " + reindent(functionBody));
     }
   }
 
@@ -350,7 +424,7 @@ public class TypeImplementationGenerator extends TypeGenerator {
     println(";\n");
 
     // Generate a wrapper function that calls the matching JNI function.
-    print(getFunctionSignature(function, false));
+    print(getFunctionSignature(function, false, true));
     println(" {");
     print("  ");
     TypeMirror returnType = function.getReturnType().getTypeMirror();

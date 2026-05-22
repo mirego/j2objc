@@ -37,7 +37,7 @@
 
 #include "J2ObjC_source.h"
 
-typedef std::pair<const CGPDescriptor *, jint> ExtensionRegistryKey;
+typedef std::pair<std::string, jint> ExtensionRegistryKey;
 typedef std::map<ExtensionRegistryKey, CGPFieldDescriptor *> ExtensionRegistryMap;
 
 @interface ComGoogleProtobufExtensionRegistryLite () {
@@ -64,7 +64,7 @@ static CGPExtensionRegistryLite *CGPExtensionRegistryLite_EMPTY_;
   return self;
 }
 
-- (instancetype)initWithBoolean:(jboolean)empty {
+- (instancetype)initWithBoolean:(bool)empty {
   ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(self, empty);
   return self;
 }
@@ -90,17 +90,18 @@ CGPExtensionRegistryLite *ComGoogleProtobufExtensionRegistryLite_getEmptyRegistr
 
 void CGPExtensionRegistryAdd(CGPExtensionRegistryLite *registry, CGPExtensionLite *extension) {
   CGPFieldDescriptor *field = extension->fieldDescriptor_;
-  CGPDescriptor *containingType = field->containingType_;
-  registry->map_[ExtensionRegistryKey(containingType, CGPFieldGetNumber(field))] = field;
+  registry->map_[ExtensionRegistryKey(std::string(field->data_->containingType),
+                                      CGPFieldGetNumber(field))] = field;
 }
 
 void ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(
-    ComGoogleProtobufExtensionRegistryLite *self, jboolean empty) {
+    ComGoogleProtobufExtensionRegistryLite *self, bool empty) {
+  ComGoogleProtobufExtensionRegistryLite_initialize();
   NSObject_init(self);
 }
 
-ComGoogleProtobufExtensionRegistryLite *
-new_ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(jboolean empty) {
+ComGoogleProtobufExtensionRegistryLite *new_ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(
+    bool empty) {
   ComGoogleProtobufExtensionRegistryLite *self = [ComGoogleProtobufExtensionRegistryLite alloc];
   ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(self, empty);
   return [self autorelease];
@@ -109,7 +110,8 @@ new_ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(jboolean empty) {
 CGPFieldDescriptor *CGPExtensionRegistryFind(
     CGPExtensionRegistryLite *registry, CGPDescriptor *descriptor, jint fieldNumber) {
   ExtensionRegistryMap *map = &registry->map_;
-  ExtensionRegistryMap::iterator it = map->find(ExtensionRegistryKey(descriptor, fieldNumber));
+  ExtensionRegistryMap::iterator it = map->find(ExtensionRegistryKey(
+      std::string(NSStringFromClass([descriptor->messageClass_ class]).UTF8String), fieldNumber));
   if (it != map->end()) {
     return it->second;
   }

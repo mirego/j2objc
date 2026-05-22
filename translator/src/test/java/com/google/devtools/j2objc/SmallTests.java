@@ -23,6 +23,7 @@ import com.google.devtools.j2objc.ast.MethodReferenceTest;
 import com.google.devtools.j2objc.gen.ArrayAccessTest;
 import com.google.devtools.j2objc.gen.ArrayCreationTest;
 import com.google.devtools.j2objc.gen.ArrayGenericsTest;
+import com.google.devtools.j2objc.gen.GenerateObjCCompanionTest;
 import com.google.devtools.j2objc.gen.GenerateObjectiveCGenericsTest;
 import com.google.devtools.j2objc.gen.JavadocGeneratorTest;
 import com.google.devtools.j2objc.gen.LineDirectivesTest;
@@ -59,6 +60,7 @@ import com.google.devtools.j2objc.translate.FunctionizerTest;
 import com.google.devtools.j2objc.translate.GwtConverterTest;
 import com.google.devtools.j2objc.translate.InitializationNormalizerTest;
 import com.google.devtools.j2objc.translate.InnerClassExtractorTest;
+import com.google.devtools.j2objc.translate.InstanceOfPatternRewriterTest;
 import com.google.devtools.j2objc.translate.JavaCloneWriterTest;
 import com.google.devtools.j2objc.translate.JavaToIOSMethodTranslatorTest;
 import com.google.devtools.j2objc.translate.LambdaTypeElementAdderTest;
@@ -66,15 +68,23 @@ import com.google.devtools.j2objc.translate.LogSiteInjectorTest;
 import com.google.devtools.j2objc.translate.MetadataWriterTest;
 import com.google.devtools.j2objc.translate.NilCheckResolverTest;
 import com.google.devtools.j2objc.translate.NumberMethodRewriterTest;
+import com.google.devtools.j2objc.translate.ObjectiveCAdapterMethodAnnotationTest;
+import com.google.devtools.j2objc.translate.ObjectiveCKmpMethodTranslatorTest;
+import com.google.devtools.j2objc.translate.ObjectiveCNativeEnumNameTest;
+import com.google.devtools.j2objc.translate.ObjectiveCNativeProtocolAnnotationTest;
 import com.google.devtools.j2objc.translate.OcniExtractorTest;
 import com.google.devtools.j2objc.translate.OperatorRewriterTest;
 import com.google.devtools.j2objc.translate.OuterReferenceFixerTest;
 import com.google.devtools.j2objc.translate.OuterReferenceResolverTest;
 import com.google.devtools.j2objc.translate.PackageInfoRewriterTest;
 import com.google.devtools.j2objc.translate.PrivateDeclarationResolverTest;
+import com.google.devtools.j2objc.translate.RecordExpanderTest;
+import com.google.devtools.j2objc.translate.ReflectionCodeDetectorTest;
 import com.google.devtools.j2objc.translate.RewriterTest;
+import com.google.devtools.j2objc.translate.SerializationStripperTest;
 import com.google.devtools.j2objc.translate.StaticVarRewriterTest;
 import com.google.devtools.j2objc.translate.SuperMethodInvocationRewriterTest;
+import com.google.devtools.j2objc.translate.SwitchConstructRewriterTest;
 import com.google.devtools.j2objc.translate.SwitchRewriterTest;
 import com.google.devtools.j2objc.translate.TypeUseAnnotationTest;
 import com.google.devtools.j2objc.translate.UnsequencedExpressionRewriterTest;
@@ -128,6 +138,7 @@ public class SmallTests {
         ExternalAnnotationInjectorTest.class,
         FileUtilTest.class,
         FunctionizerTest.class,
+        GenerateObjCCompanionTest.class,
         GenerateObjectiveCGenericsTest.class,
         GwtConverterTest.class,
         HeaderImportCollectorTest.class,
@@ -135,6 +146,7 @@ public class SmallTests {
         InfixExpressionTest.class,
         InitializationNormalizerTest.class,
         InnerClassExtractorTest.class,
+        InstanceOfPatternRewriterTest.class,
         J2ObjCIncompatibleStripperTest.class,
         J2ObjCTest.class,
         JavaCloneWriterTest.class,
@@ -152,8 +164,12 @@ public class SmallTests {
         NameTableTest.class,
         NilCheckResolverTest.class,
         NumberMethodRewriterTest.class,
+        ObjectiveCAdapterMethodAnnotationTest.class,
         ObjectiveCHeaderGeneratorTest.class,
         ObjectiveCImplementationGeneratorTest.class,
+        ObjectiveCNativeEnumNameTest.class,
+        ObjectiveCKmpMethodTranslatorTest.class,
+        ObjectiveCNativeProtocolAnnotationTest.class,
         ObjectiveCSegmentedHeaderGeneratorTest.class,
         ObjectiveCSourceFileGeneratorTest.class,
         OcniExtractorTest.class,
@@ -167,11 +183,15 @@ public class SmallTests {
         PrimitiveArrayTest.class,
         PrivateDeclarationResolverTest.class,
         ProGuardUsageParserTest.class,
+        RecordExpanderTest.class,
+        ReflectionCodeDetectorTest.class,
         RewriterTest.class,
+        SerializationStripperTest.class,
         SignatureGeneratorTest.class,
         StatementGeneratorTest.class,
         StaticVarRewriterTest.class,
         SuperMethodInvocationRewriterTest.class,
+        SwitchConstructRewriterTest.class,
         SwitchRewriterTest.class,
         TypeDeclarationGeneratorTest.class,
         TypeImplementationGeneratorTest.class,

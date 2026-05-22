@@ -37,6 +37,7 @@ import com.google.devtools.j2objc.ast.ConstructorInvocation;
 import com.google.devtools.j2objc.ast.ContinueStatement;
 import com.google.devtools.j2objc.ast.CreationReference;
 import com.google.devtools.j2objc.ast.DoStatement;
+import com.google.devtools.j2objc.ast.EmbeddedStatementExpression;
 import com.google.devtools.j2objc.ast.EmptyStatement;
 import com.google.devtools.j2objc.ast.EnhancedForStatement;
 import com.google.devtools.j2objc.ast.Expression;
@@ -79,6 +80,7 @@ import com.google.devtools.j2objc.ast.SuperFieldAccess;
 import com.google.devtools.j2objc.ast.SuperMethodInvocation;
 import com.google.devtools.j2objc.ast.SuperMethodReference;
 import com.google.devtools.j2objc.ast.SwitchCase;
+import com.google.devtools.j2objc.ast.SwitchExpression;
 import com.google.devtools.j2objc.ast.SwitchStatement;
 import com.google.devtools.j2objc.ast.SynchronizedStatement;
 import com.google.devtools.j2objc.ast.ThisExpression;
@@ -93,10 +95,12 @@ import com.google.devtools.j2objc.ast.TypeLiteral;
 import com.google.devtools.j2objc.ast.TypeMethodReference;
 import com.google.devtools.j2objc.ast.UnionType;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
+import com.google.devtools.j2objc.ast.VariableDeclaration.ObjectiveCModifier;
 import com.google.devtools.j2objc.ast.VariableDeclarationExpression;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.ast.WhileStatement;
+import com.google.devtools.j2objc.ast.YieldStatement;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.KotlinUtil;
 import com.google.devtools.j2objc.util.NameTable;
@@ -106,8 +110,12 @@ import com.google.devtools.j2objc.util.UnicodeUtils;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+// kotlin interop >>
 import java.util.Objects;
 import java.util.Optional;
+// kotlin interop <<
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -370,6 +378,17 @@ public class StatementGenerator extends UnitTreeVisitor {
     return false;
   }
 
+  @Override
+  public boolean visit(EmbeddedStatementExpression node) {
+    buffer.append(String.format("^ %s (){\n", nameTable.getObjCType(node.getTypeMirror())));
+    buffer.indent();
+    buffer.printIndent();
+    node.getStatement().accept(this);
+    buffer.unindent();
+    buffer.printIndent();
+    buffer.append(" }()");
+    return false;
+  }
 
   @Override
   public boolean visit(EmptyStatement node) {
@@ -786,6 +805,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   @Override
   public boolean visit(SingleVariableDeclaration node) {
+    printObjectiveCModifiers(node.getModifiers());
     buffer.append(nameTable.getObjCType(node.getVariableElement()));
     if (node.isVarargs()) {
       buffer.append("...");
@@ -841,21 +861,42 @@ public class StatementGenerator extends UnitTreeVisitor {
   @Override
   public boolean visit(SwitchCase node) {
     if (node.isDefault()) {
-      buffer.append("  default:\n");
+      buffer.append("  default");
     } else {
       buffer.append("  case ");
-
-      // kotlin interop >>
-      Expression expression = node.getExpression();
-      if (!KotlinUtil.isKotlinExpression(expression)) {
-        expression.accept(this);
-        buffer.append(":\n");
-      } else {
-        convertCaseKotlin(expression);
+      Iterator<Expression> caseIter = node.getExpressions().iterator();
+      while (caseIter.hasNext()) {
+        Expression expression = caseIter.next();
+        // kotlin interop >>
+        if (KotlinUtil.isKotlinExpression(expression)) {
+          convertCaseKotlin(expression);
+        } else {
+          expression.accept(this);
+        }
+        // kotlin interop <<
+        if (caseIter.hasNext()) {
+          buffer.println(':');
+          buffer.append("  case ");
+        }
       }
-      // kotlin interop <<
+    }
+    buffer.append(":\n");
+
+    TreeNode body = node.getBody();
+    if (body != null) {
+      buffer.indent();
+      buffer.printIndent();
+      body.accept(this);
+      buffer.unindent();
     }
     return false;
+  }
+
+  @Override
+  @SuppressWarnings("UngroupedOverloads")
+  public boolean visit(SwitchExpression node) {
+    // Switch expressions are rewritten to switch statements by SwitchConstructRewriter.
+    throw new AssertionError("switch expression not converted");
   }
 
   @Override
@@ -990,6 +1031,7 @@ public class StatementGenerator extends UnitTreeVisitor {
 
   @Override
   public boolean visit(VariableDeclarationExpression node) {
+    printObjectiveCModifiers(node.getModifiers());
     String typeString = nameTable.getObjCType(node.getTypeMirror());
     boolean needsAsterisk = typeString.endsWith("*");
     buffer.append(typeString);
@@ -1008,6 +1050,15 @@ public class StatementGenerator extends UnitTreeVisitor {
       }
     }
     return false;
+  }
+
+  private void printObjectiveCModifiers(Set<ObjectiveCModifier> modifiers) {
+    if (modifiers.isEmpty()) {
+      return;
+    }
+    buffer.append(
+        modifiers.stream().map(ObjectiveCModifier::asString).collect(Collectors.joining(" ")));
+    buffer.append(" ");
   }
 
   @Override
@@ -1030,6 +1081,8 @@ public class StatementGenerator extends UnitTreeVisitor {
         || ElementUtil.getName(element).startsWith("unused")) {
       buffer.append("__unused ");
     }
+
+    printObjectiveCModifiers(node.getModifiers());
     String objcType = nameTable.getObjCType(element);
     String objcTypePointers = " ";
     int idx = objcType.indexOf(" *");
@@ -1059,6 +1112,12 @@ public class StatementGenerator extends UnitTreeVisitor {
     buffer.append(") ");
     node.getBody().accept(this);
     return false;
+  }
+
+  @Override
+  public boolean visit(YieldStatement node) {
+    // Yield statements are rewritten to return statements in SwitchConstructRewriter.
+    throw new AssertionError("yield statement not converted");
   }
 
   @Override

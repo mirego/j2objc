@@ -100,14 +100,16 @@ ComGoogleProtobufExtensionRegistry *ComGoogleProtobufExtensionRegistry_getEmptyR
   return CGPExtensionRegistry_EMPTY_;
 }
 
-void ComGoogleProtobufExtensionRegistry_initWithBoolean_(
-    ComGoogleProtobufExtensionRegistry *self, jboolean empty) {
+void ComGoogleProtobufExtensionRegistry_initWithBoolean_(ComGoogleProtobufExtensionRegistry *self,
+                                                         bool empty) {
+  ComGoogleProtobufExtensionRegistry_initialize();
   ComGoogleProtobufExtensionRegistryLite_initWithBoolean_(self, empty);
 }
 
 ComGoogleProtobufExtensionRegistry_ExtensionInfo *
 ComGoogleProtobufExtensionRegistry_newExtensionInfoWithComGoogleProtobufExtension_(
     ComGoogleProtobufExtension *extension) {
+  ComGoogleProtobufExtensionRegistry_initialize();
   return [[ComGoogleProtobufExtensionRegistry_ExtensionInfo alloc]
       initWithField:[extension getDescriptor]];
 }

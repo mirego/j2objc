@@ -60,6 +60,10 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+// TODO: b/287612419 - Update methods to use nullability annotations. Methods are
+//                     not correctly annotated and throw an exceptions rather
+//                     than returning nil in many cases.
+
 /**
  * Modifies enum types for Objective C.
  *
@@ -319,9 +323,7 @@ public class EnumRewriter extends UnitTreeVisitor {
             + "    }\n"
             + "  }\n", numConstants, typeName, typeName));
       }
-      impl.append(
-          "  @throw create_JavaLangIllegalArgumentException_initWithNSString_(name);\n"
-          + "  return nil;");
+      impl.append("  @throw create_JavaLangIllegalArgumentException_initWithNSString_(name);");
     }
 
     body.addStatement(new NativeStatement(impl.toString()));
@@ -330,37 +332,78 @@ public class EnumRewriter extends UnitTreeVisitor {
 
   private void addExtraNativeDecls(EnumDeclaration node) {
     String typeName = nameTable.getFullName(node.getTypeElement());
-    String nativeName = NameTable.getNativeEnumName(typeName);
+    String enumName = node.getTypeElement().getSimpleName().toString();
+    String nativeName = nameTable.getNativeEnumName(node.getTypeElement());
     String ordinalName = NameTable.getNativeOrdinalPreprocessorName(typeName);
     int numConstants = node.getEnumConstants().size();
+
+    String ordinalArgType = (numConstants > 0) ? ordinalName : "int32_t";
+    String segmentName = options.addTextSegmentAttribute() ? " J2OBJC_TEXT_SEGMENT" : "";
 
     // The native type is not declared for an empty enum.
     if (numConstants > 0) {
       // Native toNSEnum always uses C type.
       node.addBodyDeclaration(
           NativeDeclaration.newInnerDeclaration(
-              UnicodeUtils.format("- (%s)toNSEnum;\n", nativeName),
+              UnicodeUtils.format("- (%s)toNSEnum%s;\n", nativeName, segmentName),
               UnicodeUtils.format(
                   "- (%s)toNSEnum {\n" + "  return (%s)[self ordinal];\n" + "}\n\n",
                   nativeName, nativeName)));
 
+      node.addBodyDeclaration(
+          NativeDeclaration.newInnerDeclaration(
+              UnicodeUtils.format("@property(readonly) %s enumValue%s;", nativeName, segmentName),
+              UnicodeUtils.format(
+                  "- (%s)enumValue {\n" + "  return (%s)[self ordinal];\n" + "}\n\n",
+                  nativeName, nativeName)));
+
+      node.addBodyDeclaration(
+          NativeDeclaration.newInnerDeclaration(
+              UnicodeUtils.format("@property(readonly) %s nsEnum%s;", nativeName, segmentName),
+              UnicodeUtils.format(
+                  "- (%s)nsEnum {\n" + "  return (%s)[self ordinal];\n" + "}\n\n",
+                  nativeName, nativeName)));
+
+      node.addBodyDeclaration(
+          NativeDeclaration.newInnerDeclaration(
+              UnicodeUtils.format("+ (%s *)fromNSEnum:(%s)value;\n", typeName, nativeName),
+              UnicodeUtils.format(
+                  "+ (%s *)fromNSEnum:(%s)nativeValue {\n"
+                      + "  %s *javaEnum = %s_fromOrdinal(nativeValue);\n"
+                      + "  if (!javaEnum) "
+                      + "@throw create_JavaLangIllegalArgumentException_initWithNSString_("
+                      + "@\"NSEnum %s out of range.\"); \n"
+                      + "  return javaEnum;\n"
+                      + "}\n\n",
+                  typeName, nativeName, typeName, typeName, nativeName)));
+
       // Redeclare ordinal with the appropriate type.
       node.addBodyDeclaration(
           NativeDeclaration.newInnerDeclaration(
-              UnicodeUtils.format("- (%s)ordinal;\n", ordinalName),
+              UnicodeUtils.format(
+                  "- (%s)ordinal NS_SWIFT_UNAVAILABLE(\"Use .nsEnum\")%s;\n",
+                  ordinalName, segmentName),
               UnicodeUtils.format(
                   "- (%s)ordinal {\n" + "  return (%s)[super ordinal];\n" + "}\n\n",
                   ordinalName, ordinalName)));
+
+      String initMethod =
+          String.format("- (nullable instancetype)initWith%s:(%s)value", enumName, nativeName);
+      node.addBodyDeclaration(
+          NativeDeclaration.newInnerDeclaration(
+              UnicodeUtils.format("%s%s;\n", initMethod, segmentName),
+              UnicodeUtils.format(
+                  "%s {\n" + "  return RETAIN_(%s_fromOrdinal((%s)value));\n" + "}\n\n",
+                  initMethod, typeName, ordinalArgType)));
     }
 
     StringBuilder outerHeader = new StringBuilder();
     StringBuilder outerImpl = new StringBuilder();
 
-    String ordinalArgType = (numConstants > 0) ? ordinalName : "jint";
     outerHeader.append(
         UnicodeUtils.format(
-            "FOUNDATION_EXPORT %s *%s_fromOrdinal(%s ordinal);\n",
-            typeName, typeName, ordinalArgType));
+            "FOUNDATION_EXPORT %s *%s%s_fromOrdinal(%s ordinal);\n",
+            typeName, options.nullMarked() ? "_Nullable " : "", typeName, ordinalArgType));
     outerImpl.append(
         UnicodeUtils.format(
             "%s *%s_fromOrdinal(%s ordinal) {\n", typeName, typeName, ordinalArgType));
@@ -371,8 +414,7 @@ public class EnumRewriter extends UnitTreeVisitor {
     } else {
       outerImpl.append(UnicodeUtils.format(
           "  %s_initialize();\n"
-          // Param is unsigned, so don't need to check lower bound.
-          + "  if (ordinal >= %s) {\n"
+          + "  if (ordinal < 0 || ordinal >= %s) {\n"
           + "    return nil;\n"
           + "  }\n"
           + "  return %s_values_[ordinal];\n"

@@ -28,9 +28,10 @@ public class EnumRewriterTest extends GenerationTest {
   public void testGenericEnumConstructor() throws IOException {
     String translation = translateSourceFile(
         "enum Test { A(\"foo\"); private <T> Test(T t) {} }", "Test", "Test.m");
-    assertTranslation(translation,
+    assertInTranslation(
+        translation,
         "void Test_initWithId_withNSString_withInt_("
-          + "Test *self, id t, NSString *__name, jint __ordinal) {");
+            + "Test *self, id t, NSString *__name, int32_t __ordinal) {");
     assertTranslatedLines(translation,
         "((void) (JreEnum(Test, A) = e = "
           + "objc_constructInstance(self, (void *)ptr)));",
@@ -41,7 +42,7 @@ public class EnumRewriterTest extends GenerationTest {
     String translation = translateSourceFile("enum Test { A }", "Test", "Test.m");
     assertTranslatedLines(
         translation, "- (Test_ORDINAL)ordinal {", "  return (Test_ORDINAL)[super ordinal];", "}");
-    assertTranslation(translation, "Test_fromOrdinal(Test_ORDINAL ordinal)");
+    assertInTranslation(translation, "Test_fromOrdinal(Test_ORDINAL ordinal)");
   }
 
   public void testToNsEnumConversion() throws Exception {
@@ -49,6 +50,17 @@ public class EnumRewriterTest extends GenerationTest {
     assertTranslatedLines(translation,
         "- (Test_Enum)toNSEnum {",
         "  return (Test_Enum)[self ordinal];",
+        "}");
+    assertTranslatedLines(
+        translation, "- (Test_Enum)nsEnum {", "  return (Test_Enum)[self ordinal];", "}");
+    assertTranslatedLines(
+        translation,
+        "+ (Test *)fromNSEnum:(Test_Enum)nativeValue {",
+        "  Test *javaEnum = Test_fromOrdinal(nativeValue);",
+        "  if (!javaEnum) @throw"
+            + " create_JavaLangIllegalArgumentException_initWithNSString_(@\"NSEnum Test_Enum out"
+            + " of range.\");",
+        "  return javaEnum;",
         "}");
   }
 
@@ -67,7 +79,7 @@ public class EnumRewriterTest extends GenerationTest {
         "size_t allocSize = 5 * objSize;",
         "uintptr_t ptr = (uintptr_t)calloc(allocSize, 1);",
         "id e;",
-        "for (jint i = 0; i < 5; i++) {",
+        "for (int32_t i = 0; i < 5; i++) {",
         "((void)(Test_values_[i] = e = "
           + "objc_constructInstance(self, (void *)ptr)), ptr += objSize);",
         "Test_initWithNSString_withInt_(e, JreEnumConstantName(Test_class_(), i), i);",
@@ -116,7 +128,7 @@ public class EnumRewriterTest extends GenerationTest {
         "id names[] = {",
         "@\"A\", @\"B\", @\"C\", @\"D\", @\"E\",",
         "};",
-        "for (jint i = 0; i < 5; i++) {",
+        "for (int32_t i = 0; i < 5; i++) {",
         "((void)(Test_values_[i] = e = "
           + "objc_constructInstance(self, (void *)ptr)), ptr += objSize);",
         "Test_initWithNSString_withInt_(e, names[i], i);",

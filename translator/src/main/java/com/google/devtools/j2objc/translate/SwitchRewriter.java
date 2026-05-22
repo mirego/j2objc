@@ -28,6 +28,7 @@ import com.google.devtools.j2objc.ast.NumberLiteral;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.SwitchCase;
+import com.google.devtools.j2objc.ast.SwitchExpression;
 import com.google.devtools.j2objc.ast.SwitchStatement;
 import com.google.devtools.j2objc.ast.TreeUtil;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
@@ -35,8 +36,9 @@ import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.types.ExecutablePair;
 import com.google.devtools.j2objc.types.FunctionElement;
+// kotlin interop >>
 import com.google.devtools.j2objc.util.KotlinUtil;
-import com.google.devtools.j2objc.util.NameTable;
+// kotlin interop <<
 import com.google.devtools.j2objc.util.TypeUtil;
 import java.util.List;
 import javax.lang.model.element.ElementKind;
@@ -44,9 +46,14 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Rewrites switch statements to be more compatible with Objective-C code.
+ *
+ * This stage doesn't include support for Java 21 patterns or guards in
+ * switches. That is handled by the SwitchCaseRewriter, which is run after
+ * this rewriter.
  *
  * @author Keith Stanger
  */
@@ -65,38 +72,52 @@ public class SwitchRewriter extends UnitTreeVisitor {
     List<Statement> stmts = node.getStatements();
     if (!stmts.isEmpty()) {
       Statement lastStmt = stmts.get(stmts.size() - 1);
-      if (lastStmt instanceof SwitchCase) {
-        // Last switch case doesn't have an associated statement, so add an empty one
-        // with the same line number as the switch case to keep line numbers synced.
+      if (lastStmt instanceof SwitchCase switchCase && switchCase.getBody() == null) {
+        // Last switch case doesn't have statements, so add an empty one with the same line number
+        // as the switch case to keep line numbers synced.
         EmptyStatement emptyStmt = new EmptyStatement();
         emptyStmt.setLineNumber(lastStmt.getLineNumber());
         stmts.add(emptyStmt);
       }
     }
   }
+  
+  @Override
+  public void endVisit(SwitchExpression node) {
+    fixStringValue(node);
+    fixEnumValue(node);
+  }
 
   @Override
   public void endVisit(SwitchCase node) {
-    Expression expr = node.getExpression();
-    VariableElement var = expr != null ? TreeUtil.getVariableElement(expr) : null;
-    if (var == null) {
-      return;
-    }
-    TypeMirror type = var.asType();
-    if (TypeUtil.isEnum(type)) {
-      // kotlin interop >>
-      if (KotlinUtil.isKotlinType(var)) {
-        return;
+    List<Expression> exprs = node.getExpressions();
+    for (int i = 0; i < exprs.size(); i++) {
+      Expression expr = exprs.get(i);
+      if (expr == null) {
+        continue;
       }
-      // kotlin interop <<
-      String enumValue =
-          NameTable.getNativeEnumName(nameTable.getFullName(TypeUtil.asTypeElement(type))) + "_"
-          + nameTable.getVariableBaseName(var);
-      node.setExpression(new NativeExpression(enumValue, typeUtil.getInt()));
-    } else if (type.getKind().isPrimitive() && var.getKind() == ElementKind.LOCAL_VARIABLE) {
-      Object value = var.getConstantValue();
-      if (value != null) {
-        node.setExpression(TreeUtil.newLiteral(value, typeUtil));
+      VariableElement var = TreeUtil.getVariableElement(expr);
+      if (var != null) {
+        TypeMirror type = var.asType();
+        if (TypeUtil.isEnum(type)) {
+          // kotlin interop >>
+          if (KotlinUtil.isKotlinType(var)) {
+            continue;
+          }
+          // kotlin interop <<
+          String enumValue = nameTable.getNativeEnumConstantName(TypeUtil.asTypeElement(type), var);
+          exprs.set(i, new NativeExpression(enumValue, typeUtil.getInt()));
+        } else if (type.getKind().isPrimitive() && var.getKind() == ElementKind.LOCAL_VARIABLE) {
+          // Only inline the constant value for local variables but not for compile-time constant
+          // fields.
+          Object value = expr.getConstantValue();
+          if (value != null) {
+            exprs.set(i, TreeUtil.newLiteral(value, typeUtil));
+          }
+        }
+      } else if (expr.getTypeMirror().getKind().isPrimitive() && expr.getConstantValue() != null) {
+        // Inline constant value for constant expressions that are of primitive types.
+        exprs.set(i, TreeUtil.newLiteral(expr.getConstantValue(), typeUtil));
       }
     }
   }
@@ -133,21 +154,22 @@ public class SwitchRewriter extends UnitTreeVisitor {
     }
   }
 
-  private void fixStringValue(SwitchStatement node) {
-    Expression expr = node.getExpression();
+  private @Nullable Expression fixStringValue(Expression expr, List<Statement> statements) {
     TypeMirror type = expr.getTypeMirror();
     if (!typeUtil.isString(type)) {
-      return;
+      return null;
     }
     ArrayType arrayType = typeUtil.getArrayType(type);
     ArrayInitializer arrayInit = new ArrayInitializer(arrayType);
     int idx = 0;
-    for (Statement stmt : node.getStatements()) {
-      if (stmt instanceof SwitchCase) {
-        SwitchCase caseStmt = (SwitchCase) stmt;
+    for (Statement stmt : statements) {
+      if (stmt instanceof SwitchCase caseStmt) {
         if (!caseStmt.isDefault()) {
-          arrayInit.addExpression(TreeUtil.remove(caseStmt.getExpression()));
-          caseStmt.setExpression(NumberLiteral.newIntLiteral(idx++, typeUtil));
+          List<Expression> caseExprs = caseStmt.getExpressions();
+          for (int i = 0; i < caseExprs.size(); i++) {
+            arrayInit.addExpression(caseExprs.get(i).copy());
+            caseExprs.set(i, NumberLiteral.newIntLiteral(idx++, typeUtil));
+          }
         }
       }
     }
@@ -158,7 +180,21 @@ public class SwitchRewriter extends UnitTreeVisitor {
     invocation.addArgument(TreeUtil.remove(expr))
         .addArgument(arrayInit)
         .addArgument(NumberLiteral.newIntLiteral(idx, typeUtil));
-    node.setExpression(invocation);
+    return invocation;
+  }
+
+  private void fixStringValue(SwitchStatement node) {
+    Expression expr = fixStringValue(node.getExpression(), node.getStatements());
+    if (expr != null) {
+      SwitchStatement unused = node.setExpression(expr);
+    }
+  }
+
+  private void fixStringValue(SwitchExpression node) {
+    Expression expr = fixStringValue(node.getExpression(), node.getStatements());
+    if (expr != null) {
+      SwitchExpression unused = node.setExpression(expr);
+    }
   }
 
   private void fixEnumValue(SwitchStatement node) {
@@ -171,5 +207,17 @@ public class SwitchRewriter extends UnitTreeVisitor {
     ExecutablePair ordinalMethod = typeUtil.findMethod(enumType, "ordinal");
     MethodInvocation invocation = new MethodInvocation(ordinalMethod, TreeUtil.remove(expr));
     node.setExpression(invocation);
+  }
+
+  private void fixEnumValue(SwitchExpression node) {
+    Expression expr = node.getExpression();
+    TypeMirror type = expr.getTypeMirror();
+    if (!TypeUtil.isEnum(type)) {
+      return;
+    }
+    DeclaredType enumType = typeUtil.getSuperclass(type);
+    ExecutablePair ordinalMethod = typeUtil.findMethod(enumType, "ordinal");
+    MethodInvocation invocation = new MethodInvocation(ordinalMethod, TreeUtil.remove(expr));
+    var unused = node.setExpression(invocation);
   }
 }

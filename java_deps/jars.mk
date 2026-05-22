@@ -20,8 +20,8 @@ JARJAR_JAR = jarjar-1.5.jar
 
 JUNIT_JAR = j2objc_junit.jar
 
-JUNIT_ROOT_JAR = junit-4.13.1.jar
-JUNIT_SOURCE_JAR = junit-4.13.1-sources.jar
+JUNIT_ROOT_JAR = junit-4.13.2.jar
+JUNIT_SOURCE_JAR = junit-4.13.2-sources.jar
 
 JUNIT_DATAPROVIDER_JAR = junit-dataprovider-1.13.1.jar
 JUNIT_DATAPROVIDER_SOURCE_JAR = junit-dataprovider-1.13.1-sources.jar
@@ -30,10 +30,13 @@ JUNIT_DATAPROVIDER_SOURCE_JAR = junit-dataprovider-1.13.1-sources.jar
 HAMCREST_JAR = hamcrest-core-1.3.jar
 HAMCREST_SOURCE_JAR = hamcrest-core-1.3-sources.jar
 
-PROTOBUF_JAR = protobuf-java-3.25.8.jar
+PROTOBUF_JAR = protobuf-java-4.33.1.jar
+PROTOBUF_SOURCE_JAR = protobuf-java-4.33.1-sources.jar
+PROTOBUF_LITE_JAR = protobuf-javalite-4.33.1.jar
+PROTOBUF_LITE_SOURCE_JAR = protobuf-javalite-4.33.1-sources.jar
 
-ERROR_PRONE_ANNOTATIONS_JAR = error_prone_annotations-2.37.0.jar
-ERROR_PRONE_ANNOTATIONS_SOURCE_JAR = error_prone_annotations-2.37.0-sources.jar
+ERROR_PRONE_ANNOTATIONS_JAR = error_prone_annotations-2.41.0.jar
+ERROR_PRONE_ANNOTATIONS_SOURCE_JAR = error_prone_annotations-2.41.0-sources.jar
 
 CHECKER_QUAL_JAR = checker-qual-3.49.3-eisop1.jar
 CHECKER_QUAL_SOURCE_JAR = checker-qual-3.49.3-eisop1-sources.jar
@@ -62,16 +65,14 @@ KOTLIN_METADATA_JVM_JAR = kotlin-metadata-jvm-2.3.10.jar
 JETBRAIN_ANNOTATION_JAR = annotations-26.0.2.jar
 # kotlin interop <<
 
-MOCKITO_JAR = mockito-core-2.23.4.jar
-MOCKITO_SOURCE_JAR = mockito-core-2.23.4-sources.jar
+MOCKITO_JAR = mockito-core-5.19.0.jar
+MOCKITO_SOURCE_JAR = mockito-core-5.19.0-sources.jar
 
 JSR305_JAR = jsr305-3.0.2.jar
 JSR305_SOURCE_JAR = jsr305-3.0.2-sources.jar
 
 JAVAX_INJECT_JAR = javax.inject-1.jar
 JAVAX_INJECT_SOURCE_JAR = javax.inject-1-sources.jar
-
-JAVAC_JAR = tools.jar
 
 DOCLAVA_JAR = doclava-1.0.6.jar
 JSILVER_JAR = jsilver-1.0.0.jar

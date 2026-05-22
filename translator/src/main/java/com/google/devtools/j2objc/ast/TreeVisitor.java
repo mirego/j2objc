@@ -17,6 +17,7 @@ package com.google.devtools.j2objc.ast;
 /**
  * Base visitor class for the J2ObjC tree.
  */
+@SuppressWarnings("UngroupedOverloads")
 public class TreeVisitor {
 
   public boolean preVisit(TreeNode node) {
@@ -36,6 +37,12 @@ public class TreeVisitor {
   }
 
   public void endVisit(AnnotationTypeMemberDeclaration node) {}
+
+  public boolean visit(Pattern.AnyPattern node) {
+    return true;
+  }
+
+  public void endVisit(Pattern.AnyPattern node) {}
 
   public boolean visit(ArrayAccess node) {
     return true;
@@ -72,6 +79,18 @@ public class TreeVisitor {
   }
 
   public void endVisit(Assignment node) {}
+
+  public boolean visit(Pattern.BindingPattern node) {
+    return true;
+  }
+
+  public void endVisit(Pattern.BindingPattern node) {}
+
+  public boolean visit(Pattern.DeconstructionPattern node) {
+    return true;
+  }
+
+  public void endVisit(Pattern.DeconstructionPattern node) {}
 
   public boolean visit(Block node) {
     return true;
@@ -168,6 +187,12 @@ public class TreeVisitor {
   }
 
   public void endVisit(DoStatement node) {}
+
+  public boolean visit(EmbeddedStatementExpression node) {
+    return true;
+  }
+
+  public void endVisit(EmbeddedStatementExpression node) {}
 
   public boolean visit(EmptyStatement node) {
     return true;
@@ -415,6 +440,12 @@ public class TreeVisitor {
 
   public void endVisit(QualifiedType node) {}
 
+  public boolean visit(RecordDeclaration node) {
+    return true;
+  }
+
+  public void endVisit(RecordDeclaration node) {}
+
   public boolean visit(ReturnStatement node) {
     return true;
   }
@@ -480,6 +511,12 @@ public class TreeVisitor {
   }
 
   public void endVisit(SwitchCase node) {}
+
+  public boolean visit(SwitchExpression node) {
+    return true;
+  }
+
+  public void endVisit(SwitchExpression node) {}
 
   public boolean visit(SwitchStatement node) {
     return true;
@@ -576,4 +613,10 @@ public class TreeVisitor {
   }
 
   public void endVisit(WhileStatement node) {}
+
+  public boolean visit(YieldStatement node) {
+    return true;
+  }
+
+  public void endVisit(YieldStatement node) {}
 }

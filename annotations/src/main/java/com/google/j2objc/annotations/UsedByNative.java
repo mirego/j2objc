@@ -15,15 +15,15 @@
 package com.google.j2objc.annotations;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 
 import java.lang.annotation.Target;
 
 /**
- * Annotation that indicates a method or class that should not be stripped.
- *
- * @author Yuxi Sun
+ * Annotation used for marking types, methods and fields that are called from native code. Useful
+ * for keeping components that would otherwise be removed by tree_shaker.
  */
-@Target({TYPE, METHOD, CONSTRUCTOR})
+@Target({TYPE, METHOD, CONSTRUCTOR, FIELD})
 public @interface UsedByNative {}

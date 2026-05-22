@@ -166,16 +166,19 @@ id JreVolatileStrongAssign(volatile_id *pIvar, id value) {
   return value;
 }
 
-jboolean JreCompareAndSwapVolatileStrongId(volatile_id *pVar, id expected, id newValue) {
+bool JreCompareAndSwapVolatileStrongId(volatile_id *pVar, id expected, id newValue) {
   volatile_lock_t lock = VOLATILE_GETLOCK(pVar);
   VOLATILE_LOCK(lock);
-  jboolean result = *(id *)pVar == expected;
+  [newValue retain];
+  bool result = *(id *)pVar == expected;
   if (result) {
-    *(id *)pVar = [newValue retain];
+    *(id *)pVar = newValue;
+  } else {
+    [newValue release];
   }
   VOLATILE_UNLOCK(lock);
   if (result) {
-    [expected autorelease];
+    [expected release];
   }
   return result;
 }
@@ -223,7 +226,7 @@ id JreStrictFieldStrongAssign(__strong id *pIvar, id value) {
   id oldValue = *(id *)pIvar;
   *(id *)pIvar = value;
   VOLATILE_UNLOCK(lock);
-  [oldValue autorelease];
+  [oldValue release];
   return value;
 }
 
@@ -299,7 +302,8 @@ void JreStrictFieldRetainedWithRelease(id parent, id *pVar) {
 
 jint JreIndexOfStr(NSString *str, NSString **values, jint size) {
   for (int i = 0; i < size; i++) {
-    if ([str isEqualToString:values[i]]) {
+    if ([str isEqualToString:values[i]]
+        || (!str && !values[i])) {  // Check for null case, new in Java 21.
       return i;
     }
   }
@@ -349,11 +353,12 @@ static jint ComputeCapacity(const char *types, va_list va, NSString **objDescrip
         va_arg(va, jlong);
         break;
       case 'Z':
-        capacity += (jboolean)va_arg(va, jint) ? 4 : 5;
+        capacity += (bool)va_arg(va, jint) ? 4 : 5;  // "true" or "false"
         break;
       case '$':
         {
           NSString *str = va_arg(va, NSString *);
+          // In the nil case account for adding "null", see JreStringBuilder_appendNull().
           capacity += str ? CFStringGetLength((CFStringRef)str) : 4;
         }
         break;
@@ -365,7 +370,7 @@ static jint ComputeCapacity(const char *types, va_list va, NSString **objDescrip
             capacity += CFStringGetLength((CFStringRef)description);
           } else {
             *(objDescriptions++) = nil;
-            capacity += 4;
+            capacity += 4;  // Account for adding "null", see JreStringBuilder_appendNull().
           }
         }
         break;
@@ -397,7 +402,7 @@ static void AppendArgs(
         JreStringBuilder_appendLong(sb, va_arg(va, jlong));
         break;
       case 'Z':
-        JreStringBuilder_appendString(sb, (jboolean)va_arg(va, jint) ? @"true" : @"false");
+        JreStringBuilder_appendString(sb, (bool)va_arg(va, jint) ? @"true" : @"false");
         break;
       case '$':
         JreStringBuilder_appendString(sb, va_arg(va, NSString *));
@@ -412,43 +417,50 @@ static void AppendArgs(
 }
 
 NSString *JreStrcat(const char *types, ...) {
-  NSString *objDescriptions[CountObjectArgs(types)];
-  va_list va;
-  va_start(va, types);
-  jint capacity = ComputeCapacity(types, va, objDescriptions);
-  va_end(va);
+  NSString *result = nil;
+  @autoreleasepool {
+    NSString *objDescriptions[CountObjectArgs(types)];
+    va_list va;
+    va_start(va, types);
+    jint capacity = ComputeCapacity(types, va, objDescriptions);
+    va_end(va);
 
-  // Create a string builder and fill it.
-  JreStringBuilder sb;
-  JreStringBuilder_initWithCapacity(&sb, capacity);
-  va_start(va, types);
-  AppendArgs(types, va, objDescriptions, &sb);
-  va_end(va);
-  return JreStringBuilder_toStringAndDealloc(&sb);
+    // Create a string builder and fill it.
+    JreStringBuilder sb;
+    JreStringBuilder_initWithCapacity(&sb, capacity);
+    va_start(va, types);
+    AppendArgs(types, va, objDescriptions, &sb);
+    va_end(va);
+    result = RETAIN_(JreStringBuilder_toStringAndDealloc(&sb));
+  }
+  return AUTORELEASE(result);
 }
 
 id JreStrAppendInner(id lhs, const char *types, va_list va) {
-  va_list va_capacity;
-  va_copy(va_capacity, va);
-  NSString *objDescriptions[CountObjectArgs(types)];
+  NSString *result = nil;
+  @autoreleasepool {
+    va_list va_capacity;
+    va_copy(va_capacity, va);
+    NSString *objDescriptions[CountObjectArgs(types)];
 
-  jint capacity = ComputeCapacity(types, va_capacity, objDescriptions);
-  va_end(va_capacity);
+    jint capacity = ComputeCapacity(types, va_capacity, objDescriptions);
+    va_end(va_capacity);
 
-  NSString *lhsDescription = nil;
-  if (lhs) {
-    lhsDescription = [lhs description];
-    capacity += CFStringGetLength((CFStringRef)lhsDescription);
-  } else {
-    capacity += 4;
+    NSString *lhsDescription = nil;
+    if (lhs) {
+      lhsDescription = [lhs description];
+      capacity += CFStringGetLength((CFStringRef)lhsDescription);
+    } else {
+      capacity += 4;
+    }
+
+    JreStringBuilder sb;
+    JreStringBuilder_initWithCapacity(&sb, capacity);
+    JreStringBuilder_appendString(&sb, lhsDescription);
+    AppendArgs(types, va, objDescriptions, &sb);
+    result = RETAIN_(JreStringBuilder_toStringAndDealloc(&sb));
   }
-
-  JreStringBuilder sb;
-  JreStringBuilder_initWithCapacity(&sb, capacity);
-  JreStringBuilder_appendString(&sb, lhsDescription);
-  AppendArgs(types, va, objDescriptions, &sb);
-
-  return JreStringBuilder_toStringAndDealloc(&sb);
+  return AUTORELEASE(result);
 }
 
 id JreStrAppend(__unsafe_unretained id *lhs, const char *types, ...) {
@@ -529,7 +541,7 @@ NSUInteger JreDefaultFastEnumeration(
     state->extra[1] = (unsigned long) [iter methodForSelector:hasNextSel];
     state->extra[2] = (unsigned long) [iter methodForSelector:nextSel];
   }
-  jboolean (*hasNextImpl)(id, SEL) = (jboolean (*)(id, SEL)) state->extra[1];
+  bool (*hasNextImpl)(id, SEL) = (bool (*)(id, SEL))state->extra[1];
   id (*nextImpl)(id, SEL) = (id (*)(id, SEL)) state->extra[2];
   NSUInteger objCount = 0;
   state->itemsPtr = stackbuf;

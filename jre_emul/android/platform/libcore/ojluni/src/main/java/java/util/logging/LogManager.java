@@ -271,15 +271,15 @@ public class LogManager {
     }
 
     private static Void checkSubclassPermissions() {
-        final SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            // These permission will be checked in the LogManager constructor,
-            // in order to register the Cleaner() thread as a shutdown hook.
-            // Check them here to avoid the penalty of constructing the object
-            // etc...
-            sm.checkPermission(new RuntimePermission("shutdownHooks"));
-            sm.checkPermission(new RuntimePermission("setContextClassLoader"));
-        }
+        // final SecurityManager sm = System.getSecurityManager();
+        // if (sm != null) {
+        //     // These permission will be checked in the LogManager constructor,
+        //     // in order to register the Cleaner() thread as a shutdown hook.
+        //     // Check them here to avoid the penalty of constructing the object
+        //     // etc...
+        //     sm.checkPermission(new RuntimePermission("shutdownHooks"));
+        //     sm.checkPermission(new RuntimePermission("setContextClassLoader"));
+        // }
         return null;
     }
 
@@ -883,7 +883,7 @@ public class LogManager {
                 public Void run() {
              */
                     if (logger != owner.rootLogger) {
-                        boolean useParent = owner.getBooleanProperty(name + ".useParentHandlers", true);
+        boolean useParent = owner.getBooleanProperty(name + ".useParentHandlers", true);
                         if (!useParent) {
                             logger.setUseParentHandlers(false);
                         }
@@ -1935,4 +1935,7 @@ public class LogManager {
             }
         }
     }
+
+  // j2objc: ensure dynamically loaded class support class is linked.
+  private static final Class<?> unused = LoggingProxyImpl.class;
 }

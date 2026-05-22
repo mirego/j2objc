@@ -43,6 +43,7 @@ import com.google.devtools.j2objc.ast.ReturnStatement;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.SuperConstructorInvocation;
+import com.google.devtools.j2objc.ast.SwitchExpression;
 import com.google.devtools.j2objc.ast.SwitchStatement;
 import com.google.devtools.j2objc.ast.SynchronizedStatement;
 import com.google.devtools.j2objc.ast.ThrowStatement;
@@ -196,7 +197,16 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
         VariableElement newVar = GeneratedVariableElement.newLocalVar(
             "unseq$" + count++, access.expression.getTypeMirror(), currentMethod);
         stmtList.add(new VariableDeclarationStatement(newVar, access.expression.copy()));
-        access.expression.replaceWith(new SimpleName(newVar));
+        if (access.expression.getParent() instanceof CommaExpression commaExpression
+            && commaExpression.getExpressions().getLast() != access.expression) {
+          // If it this is not the last expression in a comma expression remove it instead
+          // of replacing it with a variable reference.
+          // TODO(b/457799703): This is probably better done as a general cleanup pass that removes
+          // constructs that don't have any effect like this one.
+          access.expression.remove();
+        } else {
+          access.expression.replaceWith(new SimpleName(newVar));
+        }
       }
     }
   }
@@ -388,7 +398,7 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
 
   private Set<TreeNode> getAncestors(TreeNode node) {
     Set<TreeNode> ancestors = Sets.newHashSet();
-    while (node != currentTopNode) {
+    while (node != null && node != currentTopNode) {
       ancestors.add(node);
       node = node.getParent();
     }
@@ -399,7 +409,7 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
       VariableAccess modification, Set<TreeNode> modificationAncestors, VariableAccess access) {
     TreeNode commonAncestor = currentTopNode;
     TreeNode node = access.expression;
-    while (node != currentTopNode) {
+    while (node != null && node != currentTopNode) {
       if (modificationAncestors.contains(node)) {
         commonAncestor = node;
         break;
@@ -527,6 +537,18 @@ public class UnsequencedExpressionRewriter extends UnitTreeVisitor {
     Statement elseStmt = node.getElseStatement();
     if (elseStmt != null) {
       elseStmt.accept(this);
+    }
+    return false;
+  }
+
+  @Override
+  @SuppressWarnings("UngroupedOverloads")
+  public boolean visit(SwitchExpression node) {
+    Expression expr = node.getExpression();
+    newExpression(expr);
+    expr.accept(this);
+    for (Statement stmt : node.getStatements()) {
+      stmt.accept(this);
     }
     return false;
   }

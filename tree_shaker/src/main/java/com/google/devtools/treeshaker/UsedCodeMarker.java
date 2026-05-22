@@ -58,9 +58,12 @@ import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.util.CodeReferenceMap;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.ProGuardUsageParser;
 import com.google.devtools.j2objc.util.TypeUtil;
+import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,13 +87,16 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   static final String PSEUDO_CONSTRUCTOR_PREFIX = "%%";
   static final String SIGNATURE_PREFIX = "##";
   private static final String USED_BY_NATIVE = "UsedByNative";
+  private static final String USED_BY_REFLECTION = "UsedByReflection";
 
   private final Context context;
+  private final boolean isEntryClass;
   private boolean needsReflection;
 
   UsedCodeMarker(CompilationUnit unit, Context context) {
     super(unit);
     this.context = context;
+    this.isEntryClass = context.exportedClasses.contains(unit.getMainTypeName());
     this.needsReflection = !options.stripReflection();
   }
 
@@ -217,8 +223,8 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   }
 
   @Override
-  public void endVisit(MarkerAnnotation node) {
-    visitAnnotation(node);
+  public boolean visit(MarkerAnnotation node) {
+    return visitAnnotation(node);
   }
 
   @Override
@@ -251,8 +257,8 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   }
 
   @Override
-  public void endVisit(NormalAnnotation node) {
-    visitAnnotation(node);
+  public boolean visit(NormalAnnotation node) {
+    return visitAnnotation(node);
   }
 
   @Override
@@ -261,15 +267,15 @@ final class UsedCodeMarker extends UnitTreeVisitor {
     if (!node.getAnnotations().isEmpty()) {
       // Package annotations are only allowed in package-info.java files.
       startPackage(node.getPackageElement());
-      node.getAnnotations().forEach(this::visitAnnotation);
+      node.getAnnotations().forEach(this::addPseudoConstructorForAnnotation);
       endPackage();
     }
     return false;
   }
 
   @Override
-  public void endVisit(PropertyAnnotation node) {
-    visitAnnotation(node);
+  public boolean visit(PropertyAnnotation node) {
+    return visitAnnotation(node);
   }
 
   @Override
@@ -279,8 +285,8 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   }
 
   @Override
-  public void endVisit(SingleMemberAnnotation node) {
-    visitAnnotation(node);
+  public boolean visit(SingleMemberAnnotation node) {
+    return visitAnnotation(node);
   }
 
   @Override
@@ -393,11 +399,32 @@ final class UsedCodeMarker extends UnitTreeVisitor {
     return getMethodName("valueOf", "(Ljava/lang/String;)" + type);
   }
 
-  private void visitAnnotation(Annotation node) {
-    // A reference to an annotation implicitly constructs an instance of that annotation.
-    if (needsReflection && ElementUtil.isRuntimeAnnotation(node.getAnnotationMirror())) {
+  private boolean isUsedAnnotation(Annotation node) {
+    // Returns true if annotation should be kept.
+    // This is only true when the annotation has RUNTIME retention
+    // and the --strip-reflection flag is specified.
+    return needsReflection && ElementUtil.isRuntimeAnnotation(node.getAnnotationMirror());
+  }
+
+  private void addPseudoConstructorForAnnotation(Annotation node) {
+    addPseudoConstructorForAnnotation(node, isUsedAnnotation(node));
+  }
+
+  private void addPseudoConstructorForAnnotation(Annotation node, boolean isUsedAnnotation) {
+    if (isUsedAnnotation) {
       addPseudoConstructorInvocation(node.getTypeMirror());
     }
+  }
+
+  /**
+   * Returns true if the annotation is used and the visitor should visit the expressions within
+   * annotation, otherwise ignores the contained nodes and not mark them as used.
+   */
+  private boolean visitAnnotation(Annotation node) {
+    // A reference to an annotation implicitly constructs an instance of that annotation.
+    boolean isUsedAnnotation = isUsedAnnotation(node);
+    addPseudoConstructorForAnnotation(node, isUsedAnnotation);
+    return isUsedAnnotation;
   }
 
   private Integer getTypeId(String typeName) {
@@ -456,7 +483,9 @@ final class UsedCodeMarker extends UnitTreeVisitor {
         context.exportedClasses.contains(typeName)
             || (ElementUtil.isRuntimeAnnotation(type) && needsReflection)
             || ElementUtil.hasNamedAnnotation(type, USED_BY_NATIVE)
-            || exportedClassInnerType;
+            || ElementUtil.hasNamedAnnotation(type, USED_BY_REFLECTION)
+            || exportedClassInnerType
+            || isEntryClass;
 
     startTypeScope(typeName, superName, interfaces, isExported);
   }
@@ -466,13 +495,19 @@ final class UsedCodeMarker extends UnitTreeVisitor {
   }
 
   private static Annotations getAnnotations(AnnotatedConstruct annotatedConstruct) {
-    boolean usedByNative = ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_NATIVE);
-    return Annotations.newBuilder().setUsedByNative(usedByNative).build();
+    // From tree_shaker's perspective, the two annotations are synonymous.
+    boolean usedByNativeOrReflection =
+        ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_NATIVE)
+            || ElementUtil.hasNamedAnnotation(annotatedConstruct, USED_BY_REFLECTION);
+    return Annotations.newBuilder().setUsedByNativeOrReflection(usedByNativeOrReflection).build();
   }
 
   private void startTypeScope(
       String typeName, String superName, List<String> interfaces, boolean isExported) {
     Integer id = getTypeId(typeName);
+    if (!context.currentTypeInfoScope.isEmpty()) {
+      context.currentTypeInfoScope.peek().addInnerTypes(id);
+    }
     Integer eid = getTypeId(superName);
     ImmutableList<Integer> iids =
         interfaces.stream().map(this::getTypeId).collect(toImmutableList());
@@ -605,6 +640,104 @@ final class UsedCodeMarker extends UnitTreeVisitor {
     context.referencedTypesScope.pop();
   }
 
+  private static ImmutableSet<String> getExportedClasses(CodeReferenceMap rootSet) {
+    return rootSet == null ? ImmutableSet.of() : rootSet.getReferencedClasses();
+  }
+
+  private static ImmutableSet<String> getExportedMethods(CodeReferenceMap rootSet) {
+    Set<String> exportedMethods = new HashSet<>();
+    if (rootSet != null) {
+      rootSet
+          .getReferencedMethods()
+          .cellSet()
+          .forEach(
+              cell ->
+                  cell.getValue()
+                      .forEach(
+                          signature ->
+                              exportedMethods.add(
+                                  getQualifiedMethodName(
+                                      cell.getRowKey(), cell.getColumnKey(), signature))));
+    }
+    return ImmutableSet.copyOf(exportedMethods);
+  }
+
+  private static List<TypeInfo> markClasses(
+      List<TypeInfo> types, List<String> typeMap, Set<String> markedClasses) {
+    if (markedClasses.isEmpty()) {
+      return types;
+    }
+    List<TypeInfo> markedTypes = new ArrayList<>();
+    Set<String> nextMarkedClasses = new HashSet<>();
+    for (TypeInfo type : types) {
+      TypeInfo.Builder typeBuilder = type.toBuilder();
+      if (markedClasses.contains(typeMap.get(type.getTypeId()))) {
+        // Set type as exported.
+        typeBuilder.setExported(true).clearMember();
+        for (MemberInfo member : type.getMemberList()) {
+          // Set each method of the type as exported.
+          typeBuilder.addMember(member.toBuilder().setExported(true).build());
+        }
+        // Add inner types that need to be exported to a list.
+        nextMarkedClasses.addAll(
+            type.getInnerTypesList().stream().map(typeMap::get).collect(toImmutableList()));
+      }
+      // Add type to list of marked types
+      markedTypes.add(typeBuilder.build());
+    }
+    // Recursively call with the list of exported classes as the inner classes that need to be
+    // exported.
+    // This is because we do not know if the inner class has inner classes (alternative, while
+    // loop).
+    return markClasses(markedTypes, typeMap, nextMarkedClasses);
+  }
+
+  private static TypeInfo markMethodsOfType(
+      TypeInfo type, List<String> typeMap, Set<String> markedMethods) {
+    TypeInfo.Builder typeBuilder = type.toBuilder().clearMember();
+    for (MemberInfo member : type.getMemberList()) {
+      MemberInfo.Builder memberBuilder = member.toBuilder();
+      if (markedMethods.contains(
+          getQualifiedMethodName(typeMap.get(type.getTypeId()), member.getName()))) {
+        memberBuilder.setExported(true);
+      }
+      typeBuilder.addMember(memberBuilder.build());
+    }
+    return typeBuilder.build();
+  }
+
+  private static ImmutableList<TypeInfo> markMethods(
+      List<TypeInfo> types, List<String> typeMap, Set<String> markedMethods) {
+    List<TypeInfo> typesWithMarkedMembers = new ArrayList<>();
+    for (TypeInfo type : types) {
+      typesWithMarkedMembers.add(markMethodsOfType(type, typeMap, markedMethods));
+    }
+    return ImmutableList.copyOf(typesWithMarkedMembers);
+  }
+
+  /*
+   * Uses exported classes given to 'mark' summary information as 'live' for TypeGraphAnalyzer.
+   */
+  private static LibraryInfo markEntryClasses(
+      LibraryInfo summary,
+      ImmutableSet<String> exportedClasses,
+      ImmutableSet<String> exportedMethods) {
+    return summary.toBuilder()
+        .clearType()
+        .addAllType(
+            markClasses(
+                markMethods(summary.getTypeList(), summary.getTypeMapList(), exportedMethods),
+                summary.getTypeMapList(),
+                exportedClasses))
+        .build();
+  }
+
+  static LibraryInfo mark(LibraryInfo summary, File roots) {
+    CodeReferenceMap rootSet = ProGuardUsageParser.parseDeadCodeFile(roots);
+    return markEntryClasses(
+        summary, getExportedClasses(rootSet), UsedCodeMarker.getExportedMethods(rootSet));
+  }
+
   static final class Context {
     // Map of type names to unique integer.
     private int typeCount;
@@ -632,20 +765,13 @@ final class UsedCodeMarker extends UnitTreeVisitor {
     private final Deque<Set<Integer>> clinitReferencedTypesScope = new ArrayDeque<>();
 
     Context(CodeReferenceMap rootSet) {
+      exportedMethods = getExportedMethods(rootSet);
+      exportedClasses = getExportedClasses(rootSet);
+    }
+
+    Context() {
       exportedMethods = new HashSet<>();
-      rootSet
-          .getReferencedMethods()
-          .cellSet()
-          .forEach(
-              cell -> {
-                String type = cell.getRowKey();
-                String name = cell.getColumnKey();
-                cell.getValue()
-                    .forEach(
-                        signature ->
-                            exportedMethods.add(getQualifiedMethodName(type, name, signature)));
-              });
-      exportedClasses = rootSet.getReferencedClasses();
+      exportedClasses = ImmutableSet.copyOf(new HashSet<>());
     }
 
     LibraryInfo getLibraryInfo() {

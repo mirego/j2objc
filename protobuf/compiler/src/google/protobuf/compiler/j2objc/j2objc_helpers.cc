@@ -34,10 +34,12 @@
 
 #include <google/protobuf/compiler/j2objc/j2objc_helpers.h>
 
+#include <cctype>
+#include <cstdint>
 #include <fstream>
 #include <map>
 #include <set>
-#include <sstream>
+#include <string>
 
 namespace google {
 namespace protobuf {
@@ -46,18 +48,14 @@ namespace j2objc {
 
 namespace {
 
-const char* kDefaultPackage = "";
-
-// A suffix that will be appended to the file's outer class name if the name
-// conflicts with some other types defined in the file.
-const char *kOuterClassNameSuffix = "OuterClass";
-
 // The field number of the "j2objc_package_prefix" file option defined in
 // j2objc-descriptor.proto.
 const int kPackagePrefixFieldNumber = 102687446;
+const int kGeneratePropertiesFieldNumber = 102778330;
 
 // NOLINTBEGIN(runtime/string) - Existing code design requires globals.
 static std::string globalPrefix;
+static std::string globalPostfix;
 static std::string globalFileSubExtension(".j2objc.pb");
 static std::map<std::string, std::string> prefixes;
 static std::map<std::string, std::string> wildcardPrefixes;
@@ -65,42 +63,102 @@ static std::map<std::string, std::string> wildcardPrefixes;
 
 static bool generateFileDirMapping = false;
 
-const char* const kKeywordList[] = {
-  "TYPE_BOOL",
-  "TRUE",
-  "FALSE",
-  "YES",
-  "NO",
-  "NULL",
-  "FILE"
+// When enabled, this flag will strip out pieces of gencode that's
+// "non-functional" and likely to change in an edition bump.
+static bool stripNonfunctionalCodegen = false;
+
+// A set of names where we don't generate a Swift-friendly property. These are
+// mostly reserved words, but also including some cases where properties
+// collide with pre-existing code (which should be cleaned up on-demand as
+// needed)
+const std::set<absl::string_view> kKeywords = {
+    "DEBUG",
+    "FALSE",
+    "FILE",
+    "NO",
+    "NO_DATA",
+    "NULL",
+    "OVERFLOW",
+    "TRUE",
+    "TYPE_BOOL",
+    "YES",
+    "accessibilityLabel",
+    "and",
+    "auto",
+    "break",
+    "case",
+    "class",
+    "concept",
+    "const",
+    "continue",
+    "copy",
+    "default",
+    "delete",
+    "description",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "explicit",
+    "false",
+    "float",
+    "for",
+    "hash",
+    "id",
+    "if",
+    "inline",
+    "int",
+    "long",
+    "mutable",
+    "namespace",
+    "new",
+    "not",
+    "operator",
+    "or",
+    "private",
+    "protected",
+    "public",
+    "release",
+    "return",
+    "self",
+    "shared",
+    "signed",
+    "specialCalendars",
+    "static",
+    "struct",
+    "switch",
+    "template",
+    "text",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "union",
+    "unsigned",
+    "version",
+    "virtual",
+    "void",
+    "volatile",
+    "while",
 };
 
-std::set<std::string> MakeKeywordsMap() {
-  std::set<std::string> result;
-  for (int i = 0; i < GOOGLE_ARRAYSIZE(kKeywordList); i++) {
-    result.insert(kKeywordList[i]);
-  }
-  return result;
-}
 
-std::set<std::string> kKeywords = MakeKeywordsMap();
-
-const std::string &FieldName(const FieldDescriptor *field) {
+absl::string_view FieldName(const FieldDescriptor *field) {
   // Groups are hacky:  The name of the field is just the lower-cased name
   // of the group type.  In Java, though, we would like to retain the original
   // capitalization of the type name.
-  if (field->type() == FieldDescriptor::TYPE_GROUP) {
+  if (internal::cpp::IsGroupLike(*field)) {
     return field->message_type()->name();
   } else {
     return field->name();
   }
 }
 
-std::string StripProto(const std::string &filename) {
-  if (HasSuffixString(filename, ".protodevel")) {
-    return StripSuffixString(filename, ".protodevel");
+std::string StripProto(absl::string_view filename) {
+  if (absl::EndsWith(filename, ".protodevel")) {
+    return std::string(absl::StripSuffix(filename, ".protodevel"));
   } else {
-    return StripSuffixString(filename, ".proto");
+    return std::string(absl::StripSuffix(filename, ".proto"));
   }
 }
 
@@ -122,7 +180,8 @@ std::string CapitalizeJavaPackage(const std::string input) {
   return result;
 }
 
-const UnknownField *FindUnknownField(const FileDescriptor *file, int field_num) {
+const UnknownField *FindUnknownField(const FileDescriptor *file,
+                                     int field_num) {
   const Reflection *reflection = file->options().GetReflection();
   const UnknownFieldSet& unknown_fields =
       reflection->GetUnknownFields(file->options());
@@ -143,11 +202,11 @@ std::string GetPackagePrefix(const FileDescriptor *file) {
   const UnknownField *package_prefix_field =
       FindUnknownField(file, kPackagePrefixFieldNumber);
   if (package_prefix_field) {
-    return globalPrefix + package_prefix_field->length_delimited();
+    return absl::StrCat(globalPrefix, package_prefix_field->length_delimited());
   }
 
   // Look for a matching prefix from the prefixes file.
-  std::string java_package = FileJavaPackage(file);
+  std::string java_package = java::FileJavaPackage(file);
   std::map<std::string, std::string>::iterator it = prefixes.find(java_package);
   if (it != prefixes.end()) {
     return it->second;
@@ -172,25 +231,13 @@ std::string GetPackagePrefix(const FileDescriptor *file) {
   return globalPrefix + CapitalizeJavaPackage(java_package);
 }
 
-std::string GetJavaClassPrefix(const FileDescriptor *file,
-                               const Descriptor *containing_type) {
-  if (containing_type != nullptr) {
-    return JavaClassName(containing_type);
-  } else {
-    if (file->options().java_multiple_files()) {
-      return FileJavaPackage(file);
-    } else {
-      return JavaClassName(file);
-    }
-  }
-}
-
-std::string GetClassPrefix(const FileDescriptor *file,
-                           const Descriptor *containing_type) {
+std::string GetClassPrefix(const FileDescriptor* file,
+                           const Descriptor* containing_type,
+                           bool is_own_file) {
   if (containing_type != nullptr) {
     return ClassName(containing_type) + "_";
   } else {
-    if (file->options().java_multiple_files()) {
+    if (is_own_file) {
       return GetPackagePrefix(file);
     } else {
       return ClassName(file) + "_";
@@ -198,17 +245,17 @@ std::string GetClassPrefix(const FileDescriptor *file,
   }
 }
 
-} // namespace
+}  // namespace
 
-std::string SafeName(const std::string &name) {
-  std::string result = name;
+std::string SafeName(absl::string_view name) {
+  std::string result(name);
   if (kKeywords.count(result) > 0) {
     result.append("_");
   }
   return result;
 }
 
-std::string UnderscoresToCamelCase(const std::string &input,
+std::string UnderscoresToCamelCase(absl::string_view input,
                                    bool cap_next_letter) {
   std::string result;
   // Note:  I distrust ctype.h due to locales.
@@ -248,19 +295,6 @@ std::string UnderscoresToCapitalizedCamelCase(const FieldDescriptor *field) {
   return UnderscoresToCamelCase(FieldName(field), true);
 }
 
-std::string FileClassName(const FileDescriptor *file) {
-  if (file->options().has_java_outer_classname()) {
-    return file->options().java_outer_classname();
-  } else {
-    std::string class_name =
-        UnderscoresToCamelCase(StripProto(FileBaseName(file)), true);
-    if (HasConflictingClassName(file, class_name)) {
-      class_name += kOuterClassNameSuffix;
-    }
-    return class_name;
-  }
-}
-
 bool HasConflictingClassName(const FileDescriptor *file,
                              const std::string &classname) {
   for (int i = 0; i < file->enum_type_count(); i++) {
@@ -283,45 +317,33 @@ bool HasConflictingClassName(const FileDescriptor *file,
 
 std::string FileParentDir(const FileDescriptor *file) {
   std::string::size_type last_slash = file->name().find_last_of('/');
-  return file->name().substr(0, last_slash + 1);
+  return std::string(file->name().substr(0, last_slash + 1));
 }
 
 std::string FileBaseName(const FileDescriptor *file) {
   std::string::size_type last_slash = file->name().find_last_of('/');
-  return last_slash == std::string::npos ? file->name()
-                                         : file->name().substr(last_slash + 1);
-}
-
-std::string FileJavaPackage(const FileDescriptor *file) {
-  std::string result;
-
-  if (file->options().has_java_package()) {
-    result = file->options().java_package();
-  } else {
-    result = kDefaultPackage;
-    if (!file->package().empty()) {
-      if (!result.empty()) result += '.';
-      result += file->package();
-    }
-  }
-
-  return result;
+  return std::string(last_slash == std::string::npos ? file->name()
+                                         : file->name().substr(last_slash + 1));
 }
 
 std::string JavaPackageToDir(std::string package_name) {
-  std::string package_dir = StringReplace(package_name, ".", "/", true);
+  std::string package_dir = absl::StrReplaceAll(package_name, {{".", "/"}});
   if (!package_dir.empty()) package_dir += "/";
   return package_dir;
 }
 
 std::string ClassName(const Descriptor *descriptor) {
-  return GetClassPrefix(descriptor->file(), descriptor->containing_type())
-      + descriptor->name();
+  return absl::StrCat(
+      GetClassPrefix(descriptor->file(), descriptor->containing_type(),
+                     !java::NestedInFileClass(*descriptor)),
+      descriptor->name(), globalPostfix);
 }
 
 std::string ClassName(const EnumDescriptor *descriptor) {
-  return GetClassPrefix(descriptor->file(), descriptor->containing_type())
-      + descriptor->name();
+  return absl::StrCat(
+      GetClassPrefix(descriptor->file(), descriptor->containing_type(),
+                     !java::NestedInFileClass(*descriptor)),
+      descriptor->name(), globalPostfix);
 }
 
 std::string COrdinalEnumName(const EnumDescriptor *descriptor) {
@@ -341,49 +363,51 @@ std::string CValuePreprocessorName(const EnumDescriptor *descriptor) {
 }
 
 std::string ClassName(const FileDescriptor *descriptor) {
-  return GetPackagePrefix(descriptor) + FileClassName(descriptor);
+  return GetPackagePrefix(descriptor) + java::FileClassName(descriptor) +
+         globalPostfix;
 }
 
 std::string EnumOrdinalName(const EnumValueDescriptor *descriptor) {
-  return COrdinalEnumName(descriptor->type()) + "_" + descriptor->name();
+  return absl::StrCat(COrdinalEnumName(descriptor->type()), "_",
+                      descriptor->name());
 }
 
 std::string EnumValueName(const EnumValueDescriptor *descriptor) {
-  return CValueEnumName(descriptor->type()) + "_" + descriptor->name();
+  return absl::StrCat(CValueEnumName(descriptor->type()), "_",
+                      descriptor->name());
 }
 
 std::string FieldConstantName(const FieldDescriptor *field) {
-  std::string name = field->name() + "_FIELD_NUMBER";
+  std::string name = absl::StrCat(field->name(), "_FIELD_NUMBER");
   UpperString(&name);
   return name;
 }
 
 std::string JavaClassName(const Descriptor *descriptor) {
-  return GetJavaClassPrefix(descriptor->file(), descriptor->containing_type())
-      + "." + descriptor->name();
+  return java::QualifiedClassName(descriptor);
 }
 
 std::string JavaClassName(const EnumDescriptor *descriptor) {
-  return GetJavaClassPrefix(descriptor->file(), descriptor->containing_type())
-      + "." + descriptor->name();
+  return java::QualifiedClassName(descriptor);
 }
 
 std::string JavaClassName(const FileDescriptor *descriptor) {
-  return FileJavaPackage(descriptor) + "." + FileClassName(descriptor);
+  return java::FileJavaPackage(descriptor) + "." +
+         java::FileClassName(descriptor);
 }
 
 std::string GetHeader(const FileDescriptor *descriptor) {
   if (IsGenerateFileDirMapping()) {
     return StaticOutputFileName(descriptor, ".h");
   } else {
-    return JavaPackageToDir(FileJavaPackage(descriptor))
-        + FileClassName(descriptor) + ".h";
+    return JavaPackageToDir(java::FileJavaPackage(descriptor)) +
+           java::FileClassName(descriptor) + ".h";
   }
 }
 
 std::string GetHeader(const Descriptor *descriptor) {
   const FileDescriptor *file = descriptor->file();
-  if (file->options().java_multiple_files()) {
+  if (!java::NestedInFileClass(*descriptor)) {
     const Descriptor *containing_type = descriptor->containing_type();
     if (containing_type != nullptr) {
       return GetHeader(containing_type);
@@ -391,8 +415,8 @@ std::string GetHeader(const Descriptor *descriptor) {
       if (IsGenerateFileDirMapping()) {
         return StaticOutputFileName(file, ".h");
       } else {
-        return JavaPackageToDir(FileJavaPackage(file))
-            + descriptor->name() + ".h";
+        return absl::StrCat(JavaPackageToDir(java::FileJavaPackage(file)),
+                            descriptor->name(), ".h");
       }
     }
   } else {
@@ -402,7 +426,7 @@ std::string GetHeader(const Descriptor *descriptor) {
 
 std::string GetHeader(const EnumDescriptor *descriptor) {
   const FileDescriptor *file = descriptor->file();
-  if (file->options().java_multiple_files()) {
+  if (!java::NestedInFileClass(*descriptor)) {
     const Descriptor *containing_type = descriptor->containing_type();
     if (containing_type != nullptr) {
       return GetHeader(containing_type);
@@ -410,8 +434,8 @@ std::string GetHeader(const EnumDescriptor *descriptor) {
       if (IsGenerateFileDirMapping()) {
         return StaticOutputFileName(file, ".h");
       } else {
-        return JavaPackageToDir(FileJavaPackage(file))
-            + descriptor->name() + ".h";
+        return absl::StrCat(JavaPackageToDir(java::FileJavaPackage(file)),
+                            descriptor->name(), ".h");
       }
     }
   } else {
@@ -453,7 +477,7 @@ std::string GetFieldFlags(const FieldDescriptor *field) {
   return JoinFlags(flags);
 }
 
-static std::string DefaultValueInt(int32 i) {
+static std::string DefaultValueInt(int32_t i) {
   // gcc and llvm reject the decimal form of kint32min and kint64min.
   if (i == INT_MIN) {
     return "-0x80000000";
@@ -461,7 +485,7 @@ static std::string DefaultValueInt(int32 i) {
   return SimpleItoa(i);
 }
 
-static std::string DefaultValueLong(int64 l) {
+static std::string DefaultValueLong(int64_t l) {
   // gcc and llvm reject the decimal form of kint32min and kint64min.
   if (l == LLONG_MIN) {
     return "-0x8000000000000000LL";
@@ -490,7 +514,7 @@ static std::string HandleExtremeFloatingPoint(std::string val,
 
 // Escape C++ trigraphs by escaping question marks to \?
 static std::string EscapeTrigraphs(const std::string &to_escape) {
-  return StringReplace(to_escape, "?", "\\?", true);
+  return absl::StrReplaceAll(to_escape, {{"?", "\\?"}});
 }
 
 JavaType GetJavaType(const FieldDescriptor* field) {
@@ -563,7 +587,7 @@ std::string DefaultValue(const FieldDescriptor *field) {
     case FieldDescriptor::CPPTYPE_BOOL:
       return field->default_value_bool() ? "YES" : "NO";
     case FieldDescriptor::CPPTYPE_STRING: {
-      const std::string &default_string = field->default_value_string();
+      const absl::string_view default_string = field->default_value_string();
       if (field->type() == FieldDescriptor::TYPE_BYTES) {
         const bool has_default_value = field->has_default_value();
         if (!has_default_value || default_string.length() == 0) {
@@ -583,9 +607,9 @@ std::string DefaultValue(const FieldDescriptor *field) {
         uint32_t length = ghtonl(default_string.length());
         std::string bytes((const char *)&length, sizeof(length));
         bytes.append(default_string);
-        return "\"" + CEscape(bytes) + "\"";
+        return "\"" + absl::CEscape(bytes) + "\"";
       } else {
-        return "@\"" + EscapeTrigraphs(CEscape(default_string)) + "\"";
+        return "@\"" + EscapeTrigraphs(absl::CEscape(default_string)) + "\"";
       }
     }
     case FieldDescriptor::CPPTYPE_ENUM:
@@ -642,6 +666,8 @@ std::string GetDefaultValueTypeName(const FieldDescriptor *descriptor) {
 }
 
 std::string GetFieldOptionsData(const FieldDescriptor *descriptor) {
+  if (stripNonfunctionalCodegen) return "NULL";
+
   std::string field_options = descriptor->options().SerializeAsString();
   // Must convert to a standard byte order for packing length into
   // a cstring.
@@ -649,9 +675,38 @@ std::string GetFieldOptionsData(const FieldDescriptor *descriptor) {
   if (length > 0) {
     std::string bytes((const char *)&length, sizeof(length));
     bytes.append(field_options);
-    return "\"" + CEscape(bytes) + "\"";
+    return "\"" + absl::CEscape(bytes) + "\"";
   }
   return "NULL";
+}
+
+std::string PropertyName(const FieldDescriptor *descriptor) {
+  // Use this when -std=c++20 is the minimum version:
+  // !kKeywords.contains(UnderscoresToCamelCase(descriptor));
+  return absl::StrCat(
+      UnderscoresToCamelCase(descriptor),
+      kKeywords.find(UnderscoresToCamelCase(descriptor)) == kKeywords.end()
+          ? ""
+          : "_");
+}
+
+std::string PropertyName(const EnumValueDescriptor *descriptor) {
+  std::string lowercase_name = std::string(descriptor->name());
+  absl::AsciiStrToLower(&lowercase_name);
+  std::string camel_name = UnderscoresToCamelCase(lowercase_name, true);
+  std::string type_name = std::string(descriptor->type()->name());
+  if (absl::StartsWith(camel_name, type_name) &&
+      camel_name.size() > type_name.size()) {
+    camel_name = camel_name.substr(type_name.size());
+  }
+  if (std::isdigit(camel_name[0])) {
+    camel_name = absl::StrCat("_", camel_name);
+  } else {
+    camel_name[0] = absl::ascii_tolower(camel_name[0]);
+  }
+  return absl::StrCat(
+      camel_name,
+      kKeywords.find(camel_name) == kKeywords.end() ? "" : "_");
 }
 
 void ParsePrefixLine(std::string line) {
@@ -673,9 +728,15 @@ void SetGlobalPrefix(std::string prefix) {
   globalPrefix = std::move(prefix);
 }
 
+void SetGlobalPostfix(std::string postfix) {
+  globalPostfix = std::move(postfix);
+}
+
 void SetFileSubExtension(std::string fileSubExtension) {
   globalFileSubExtension = std::move(fileSubExtension);
 }
+
+void SetStripNonfunctionalCodegen() { stripNonfunctionalCodegen = true; }
 
 void ParsePrefixFile(std::string prefix_file) {
   std::ifstream in(prefix_file.c_str());
@@ -710,6 +771,15 @@ void GenerateFileDirMapping() {
 
 bool IsGenerateFileDirMapping() {
   return generateFileDirMapping;
+}
+
+bool IsGenerateProperties(const FileDescriptor *file) {
+
+  // Check for the "j2objc_package_prefix" option using unknown fields so we
+  // don't have to pre-build j2objc-descriptor.pb.[h|cc].
+  const UnknownField *generate_properties_field =
+      FindUnknownField(file, kGeneratePropertiesFieldNumber);
+  return generate_properties_field && generate_properties_field->varint();
 }
 
 }  // namespace j2objc

@@ -49,8 +49,16 @@ std::string CapitalizedName(const OneofDescriptor* descriptor) {
   return UnderscoresToCamelCase(descriptor->name(), true);
 }
 
+std::string CamelCaseName(const OneofDescriptor* descriptor) {
+  return UnderscoresToCamelCase(descriptor->name(), false);
+}
+
 std::string NotSetName(const OneofDescriptor* descriptor) {
   return ToUpper(CapitalizedName(descriptor)) + "_NOT_SET";
+}
+
+std::string NotSetInstanceName(const OneofDescriptor* descriptor) {
+  return LowerString(CapitalizedName(descriptor)) + "NotSet";
 }
 
 std::string CaseClassName(const OneofDescriptor* descriptor) {
@@ -160,6 +168,22 @@ void OneofGenerator::GenerateHeader(io::Printer* printer) {
       "+ ($classname$ *)valueOfWithInt:(jint)value;\n"
       "+ ($classname$ *)forNumberWithInt:(jint)value;\n"
       "- (jint)getNumber;\n"
+      "\n",
+      "classname", CaseClassName(descriptor_));
+
+  if (IsGenerateProperties(descriptor_->file())) {
+    for (int i = 0; i < descriptor_->field_count(); i++) {
+      printer->Print(
+          "@property(class, readonly, retain) $classname$ *$name$;\n",
+          "classname", CaseClassName(descriptor_), "name",
+          SafeName(descriptor_->field(i)->camelcase_name()));
+    }
+    printer->Print("@property(class, readonly, retain) $classname$ *$name$;\n",
+                   "classname", CaseClassName(descriptor_), "name",
+                   NotSetInstanceName(descriptor_));
+  }
+
+  printer->Print(
       "\n"
       "@end\n"
       "\n"
@@ -187,8 +211,13 @@ void OneofGenerator::GenerateHeader(io::Printer* printer) {
         "classname", CaseClassName(descriptor_),
         "name", CaseValueName(descriptor_->field(i)));
   }
+
+  if (IsGenerateProperties(descriptor_->file())) {
+    printer->Print("@compatibility_alias KNP$classname$ $classname$;\n",
+                   "classname", CaseClassName(descriptor_));
+  }
+
   printer->Print(
-      "inline $classname$ *$classname$_get_$name$(void);\n"
       "J2OBJC_ENUM_CONSTANT($classname$, $name$)\n",
       "classname", CaseClassName(descriptor_), "name", NotSetName(descriptor_));
 }
@@ -269,6 +298,30 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
       "- (jint)getNumber {\n"
       "  return value_;\n"
       "}\n"
+      "\n",
+      "classname", CaseClassName(descriptor_), "count",
+      SimpleItoa(descriptor_->field_count() + 1));
+
+  if (IsGenerateProperties(descriptor_->file())) {
+    for (int i = 0; i < descriptor_->field_count(); i++) {
+      printer->Print(
+          "+ ($classname$ *) $camel_case_name$ {\n"
+          "  return $classname$_values_[$classname$_Enum_$upper_name$];\n"
+          "}\n",
+          "classname", CaseClassName(descriptor_), "upper_name",
+          CaseValueName(descriptor_->field(i)), "camel_case_name",
+          SafeName(descriptor_->field(i)->camelcase_name()));
+    }
+    printer->Print(
+        "+ ($classname$ *) $camel_case_name$ {\n"
+        "  return $classname$_values_[$classname$_Enum_$upper_name$];\n"
+        "}\n",
+        "classname", CaseClassName(descriptor_), "upper_name",
+        NotSetName(descriptor_), "camel_case_name",
+        NotSetInstanceName(descriptor_));
+  }
+
+  printer->Print(
       "\n"
       "@end\n"
       "\n"
@@ -281,15 +334,9 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
       "}\n"
       "\n"
       "$classname$ *$classname$_valueOfWithNSString_(NSString *name) {\n"
-      "  $classname$_initialize();"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if ([name isEqual:[e name]]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  @throw create_JavaLangIllegalArgumentException_initWithNSString_("
-      "name);\n"
+      "  $classname$_initialize();\n"
+      "  return CGPValueOfEnumOrOneOfWithNSString(name, $classname$_values_,"
+      " $count$);\n"
       "}\n"
       "\n"
       "$classname$ *$classname$_valueOfWithInt_(jint value) {\n"
@@ -297,14 +344,9 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
       "}\n"
       "\n"
       "$classname$ *$classname$_forNumberWithInt_(jint value) {\n"
-      "  $classname$_initialize();"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if (value == [e getNumber]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  return nil;\n"
+      "  $classname$_initialize();\n"
+      "  return CGPValueOfEnumOrOneOfWithInt(value, $classname$_values_,\n"
+      " $count$);\n"
       "}\n"
       "\n"
       "$classname$ *$classname$_fromOrdinal(NSUInteger ordinal) {\n"
@@ -332,6 +374,15 @@ void OneofGenerator::GenerateMessageOrBuilder(io::Printer* printer) {
       "- ($classname$ *)get$capitalized_name$Case;\n",
       "classname", CaseClassName(descriptor_),
       "capitalized_name", CapitalizedName(descriptor_));
+
+  if (IsGenerateProperties(descriptor_->file())) {
+    printer->Print(
+        "@property (readonly, getter=_get$capitalized_name$Case) "
+        "$classname$ *$camelcase_name$Case;\n",
+        "classname", CaseClassName(descriptor_), "capitalized_name",
+        CapitalizedName(descriptor_), "camelcase_name",
+        CamelCaseName(descriptor_));
+  }
 }
 
 }  // namespace j2objc

@@ -21,6 +21,7 @@ import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.FunctionDeclaration;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.util.ElementUtil;
+import com.google.devtools.j2objc.util.ErrorUtil;
 import com.google.devtools.j2objc.util.UnicodeUtils;
 import java.lang.reflect.Modifier;
 import javax.lang.model.element.Element;
@@ -48,6 +49,9 @@ public class TypePrivateDeclarationGenerator extends TypeDeclarationGenerator {
 
   private void generate() {
     if (typeNode.hasPrivateDeclaration()) {
+      if (nameTable.elementHasSwiftNameAnnotation(this.typeElement)) {
+        ErrorUtil.error(typeNode, "Swift name annotation on private type");
+      }
       generateInitialDeclaration();
     } else {
       generateDeclarationExtension();
@@ -55,7 +59,9 @@ public class TypePrivateDeclarationGenerator extends TypeDeclarationGenerator {
   }
 
   private void generateDeclarationExtension() {
-    printClassExtension();
+    if (shouldPrintClassExtension()) {
+      printClassExtension();
+    }
     printCompanionClassDeclaration();
     printFieldSetters();
     printStaticFieldDeclarations();
@@ -63,24 +69,23 @@ public class TypePrivateDeclarationGenerator extends TypeDeclarationGenerator {
   }
 
   private void printClassExtension() {
+    newline();
+    printf("@interface %s", typeName);
+    printInterfaceGenerics();
+    printf(" ()");
+    printInstanceVariables();
+    Iterable<BodyDeclaration> privateDecls = getInnerDeclarations();
+    printDeclarations(privateDecls);
+    println("\n@end");
+  }
+
+  private boolean shouldPrintClassExtension() {
     if (isInterfaceType()) {
-      return;
+      return false;
     }
     boolean hasPrivateFields = !Iterables.isEmpty(getInstanceFields());
     Iterable<BodyDeclaration> privateDecls = getInnerDeclarations();
-    if (!Iterables.isEmpty(privateDecls) || hasPrivateFields) {
-      newline();
-      if (options.defaultNonnull()) {
-        println("NS_ASSUME_NONNULL_BEGIN");
-      }
-      printf("@interface %s ()", typeName);
-      printInstanceVariables();
-      printDeclarations(privateDecls);
-      println("\n@end");
-      if (options.defaultNonnull()) {
-        println("NS_ASSUME_NONNULL_END");
-      }
-    }
+    return !Iterables.isEmpty(privateDecls) || hasPrivateFields;
   }
 
   @Override
@@ -126,11 +131,17 @@ public class TypePrivateDeclarationGenerator extends TypeDeclarationGenerator {
     if (!Modifier.isNative(function.getModifiers())) {
       print("__attribute__((unused)) static ");
     }
-    print(getFunctionSignature(function, true));
+    print(getFunctionSignature(function, true, true));
     if (function.returnsRetained()) {
       print(" NS_RETURNS_RETAINED");
     }
     println(";");
+  }
+
+  @Override
+  protected void printNonnullAuditedRegion(AuditedRegion state) {
+    // Private declarations do not include nullability for the same reasons
+    // implementation files do not.
   }
 
   @Override

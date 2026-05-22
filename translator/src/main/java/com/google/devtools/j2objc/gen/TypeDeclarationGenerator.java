@@ -14,8 +14,6 @@
 
 package com.google.devtools.j2objc.gen;
 
-import static java.util.stream.Collectors.joining;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -44,7 +42,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -57,6 +54,22 @@ import javax.lang.model.type.TypeMirror;
  * @author Tom Ball, Keith Stanger
  */
 public class TypeDeclarationGenerator extends TypeGenerator {
+
+  /** Represents Objective-C's audited nullability regions. */
+  protected enum AuditedRegion {
+    BEGIN("NS_ASSUME_NONNULL_BEGIN"),
+    END("NS_ASSUME_NONNULL_END");
+
+    private final String macro;
+
+    private AuditedRegion(String macro) {
+      this.macro = macro;
+    }
+
+    public String getMacro() {
+      return macro;
+    }
+  }
 
   private static final String DEPRECATED_ATTRIBUTE = "__attribute__((deprecated))";
 
@@ -92,7 +105,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
 
   @Override
   protected boolean shouldPrintDeclaration(BodyDeclaration decl) {
-    if (decl instanceof MethodDeclaration && !((MethodDeclaration) decl).hasDeclaration()) {
+    if (decl instanceof MethodDeclaration methodDeclaration
+        && !methodDeclaration.hasDeclaration()) {
       return false;
     }
     return decl.hasPrivateDeclaration() == printPrivateDeclarations();
@@ -114,14 +128,23 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printNativeEnum();
 
     printTypeDocumentation();
-    if (options.defaultNonnull()) {
-      println("NS_ASSUME_NONNULL_BEGIN");
+    printNonnullAuditedRegion(AuditedRegion.BEGIN);
+
+    if (needsKotlinCompanionClass()) {
+      // Companion methods might refer to the class type and the companion property will
+      // refer to the companion type, so we need one forward declaration in any case.
+      printf("\n@class %s;\n", typeName);
+
+      printf("\n@protocol %sCompanion\n", typeName);
+      for (BodyDeclaration declaration : getInnerDeclarations()) {
+        if (declaration.getKind().equals(TreeNode.Kind.METHOD_DECLARATION)) {
+          printMethodDeclaration((MethodDeclaration) declaration, false, true);
+        }
+      }
+      println("\n@end\n");
     }
-    if (typeElement.getKind().isInterface()) {
-      printf("@protocol %s", typeName);
-    } else {
-      printInterfaceType();
-    }
+
+    printInterfaceType();
     printImplementedProtocols();
     if (!typeElement.getKind().isInterface()) {
       printInstanceVariables();
@@ -131,15 +154,19 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     if (!typeElement.getKind().isInterface()) {
       printProperties();
       printStaticAccessors();
+      if (needsKotlinCompanionClass()) {
+        printf("\n#pragma clang diagnostic push\n");
+        printf("#pragma clang diagnostic ignored \"-Wincompatible-property-type\"\n");
+        printf("@property (readonly, class) id<%sCompanion> companion;\n", typeName);
+        printf("#pragma clang diagnostic pop\n");
+      }
     }
     printInnerDeclarations();
     println("\n@end");
-    if (options.defaultNonnull()) {
-      println("NS_ASSUME_NONNULL_END");
-    }
 
     if (ElementUtil.isPackageInfo(typeElement)) {
       printOuterDeclarations();
+      printNonnullAuditedRegion(AuditedRegion.END);
       return;
     }
     printCompanionClassDeclaration();
@@ -152,53 +179,80 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printBoxedOperators();
 
     printUnprefixedAlias();
+
+    newline();
+    printNonnullAuditedRegion(AuditedRegion.END);
   }
 
   private void printNativeEnum() {
-    if (!(typeNode instanceof EnumDeclaration)) {
+    if (!(typeNode instanceof EnumDeclaration enumDeclaration)) {
       return;
     }
 
-    List<EnumConstantDeclaration> constants = ((EnumDeclaration) typeNode).getEnumConstants();
-    String nativeName = NameTable.getNativeEnumName(typeName);
+    List<EnumConstantDeclaration> constants = enumDeclaration.getEnumConstants();
+    String nativeName = nameTable.getNativeEnumName(typeElement);
     String ordinalName = NameTable.getNativeOrdinalPreprocessorName(typeName);
 
     // C doesn't allow empty enum declarations.  Java does, so we skip the
     // C enum declaration and generate the type declaration.
     if (!constants.isEmpty()) {
       newline();
-      printf("typedef NS_ENUM(jint, %s) {\n", nativeName);
+      printf("typedef NS_ENUM(int32_t, %s) {\n", nativeName);
 
       // Print C enum typedef.
       indent();
       int ordinal = 0;
       for (EnumConstantDeclaration constant : constants) {
         printIndent();
-        printf("%s_%s = %d,\n",
-            nativeName, nameTable.getVariableBaseName(constant.getVariableElement()), ordinal++);
+        String nativeConstantName = nameTable.getNativeEnumConstantName(typeElement, constant);
+        if (options.swiftEnums() && !printPrivateDeclarations()) {
+          printf(
+              "%s NS_SWIFT_NAME(%s) = %d,\n",
+              nativeConstantName, nameTable.getNativeEnumSwiftConstantName(constant), ordinal++);
+        } else {
+          printf("%s = %d,\n", nativeConstantName, ordinal++);
+        }
       }
       unindent();
-      print("};\n");
-      // Use different types for transpiled Java ordinals (which expects ordinals to be jint) and
+      print("}");
+
+      if (!printPrivateDeclarations()) {
+        String swiftName = nameTable.getSwiftClassNameFromAnnotation(typeElement, true);
+        if (swiftName != null) {
+          printf(" NS_SWIFT_NAME(%s)", swiftName);
+        }
+      }
+      print(";\n");
+
+      // For compatibility with JreEnum(), J2OBJC_ENUM_CONSTANT() and similar macros, for each
+      // native renamed enum constant provide an alias if needed.
+      for (EnumConstantDeclaration constant : constants) {
+        String nativeConstantName = nameTable.getNativeEnumConstantName(typeElement, constant);
+        String caseName = nameTable.getVariableBaseName(constant.getVariableElement());
+        String compatibilityConstantName = UnicodeUtils.format("%s_Enum_%s", typeName, caseName);
+        if (!nativeConstantName.equals(compatibilityConstantName)) {
+          printf("#define %s %s\n", compatibilityConstantName, nativeConstantName);
+        }
+      }
+      print("\n");
+
+      // Use different types for transpiled Java ordinals (which expects ordinals to be int32_t) and
       // native code using the enum (where stricter ordinal types help clang warnings).
       printf(
           "#if J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
-              + "#define %s jint\n"
+              + "#define %s int32_t\n"
               + "#else\n"
               + "#define %s %s\n"
               + "#endif\n\n",
           ordinalName, ordinalName, nativeName);
     } else {
-      printf("#define %s jint\n", ordinalName);
+      printf("#define %s int32_t\n", ordinalName);
     }
   }
 
   private void printTypeDocumentation() {
     newline();
     JavadocGenerator.printDocComment(getBuilder(), typeNode.getJavadoc());
-    if (needsDeprecatedAttribute(typeNode.getAnnotations())) {
-      println(DEPRECATED_ATTRIBUTE);
-    }
   }
 
   private String getSuperTypeName() {
@@ -226,20 +280,30 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     return names;
   }
 
-  private void printInterfaceType() {
-    printf("@interface %s", typeName);
-    if (needsGenerateObjectiveCGenerics() && !typeElement.getTypeParameters().isEmpty()) {
-      printf(
-          "<%s>",
-          typeElement.getTypeParameters().stream()
-              .map(Element::getSimpleName)
-              .collect(joining(", ")));
+  protected void printInterfaceGenerics() {
+    if (generateObjectiveCGenerics(typeElement.asType())) {
+      List<String> genericNames = nameTable.getClassObjCGenericTypeNames(typeElement.asType());
+      if (!genericNames.isEmpty()) {
+        printf("<%s>", String.join(", ", genericNames));
+      }
     }
-    printf(" : %s", getSuperTypeName());
   }
 
-  private boolean needsGenerateObjectiveCGenerics() {
-    return options.asObjCGenericDecl() || hasGenerateObjectiveCGenerics(typeElement.asType());
+  private void printInterfaceType() {
+    if (!typeNode.hasPrivateDeclaration()) {
+      // Swift Names only need to be on public types because private declarations are private
+      printSwiftName();
+    }
+    if (needsDeprecatedAttribute(typeNode.getAnnotations())) {
+      println(DEPRECATED_ATTRIBUTE);
+    }
+    if (typeElement.getKind().isInterface()) {
+      printf("@protocol %s", typeName);
+    } else {
+      printf("@interface %s", typeName);
+      printInterfaceGenerics();
+      printf(" : %s", getSuperTypeName());
+    }
   }
 
   private void printImplementedProtocols() {
@@ -258,53 +322,69 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     }
   }
 
+  private void printSwiftName() {
+    if (printPrivateDeclarations()) {
+      return;
+    }
+
+    String swiftName = nameTable.getSwiftClassNameFromAnnotation(typeElement, true);
+
+    if (swiftName != null) {
+      if (typeNode instanceof EnumDeclaration) {
+        swiftName = swiftName + "Class";
+      }
+      printf(" NS_SWIFT_NAME(%s)\n", swiftName);
+    }
+  }
+
   protected void printStaticInterfaceMethods() {
     for (BodyDeclaration declaration : getInnerDeclarations()) {
       if (declaration.getKind().equals(TreeNode.Kind.METHOD_DECLARATION)) {
-        printMethodDeclaration((MethodDeclaration) declaration, true);
+        printMethodDeclaration((MethodDeclaration) declaration, true, false);
       }
     }
   }
 
-  /**
-   * Prints the list of static variable and/or enum constant accessor methods.
-   */
+  /** Prints the list of static variable and/or enum constant accessor methods. */
   protected void printStaticAccessors() {
     if (options.staticAccessorMethods() && !options.classProperties()) {
       for (VariableDeclarationFragment fragment : getStaticFields()) {
         VariableElement var = fragment.getVariableElement();
         TypeMirror type = var.asType();
         String accessorName = nameTable.getStaticAccessorName(var);
-        String objcType = nameTable.getObjCTypeDeclaration(type);
+        String objcType = paddedType(nameTable.getObjCTypeDeclaration(type), var).trim();
         TypeElement declaringClass = ElementUtil.getDeclaringClass(var);
         String baseName = nameTable.getVariableBaseName(var);
         ExecutableElement getter =
-            ElementUtil.findGetterMethod(baseName, type, declaringClass, /* isStatic = */ true);
+            ElementUtil.findGetterMethod(baseName, type, declaringClass, /* isStatic= */ true);
         if (getter == null) {
           printf("\n+ (%s)%s;\n", objcType, accessorName);
         }
         ExecutableElement setter =
-            ElementUtil.findSetterMethod(baseName, type, declaringClass, /* isStatic = */ true);
+            ElementUtil.findSetterMethod(baseName, type, declaringClass, /* isStatic= */ true);
         if (setter == null && !ElementUtil.isFinal(var)) {
           printf("\n+ (void)set%s:(%s)value;\n", NameTable.capitalize(accessorName), objcType);
         }
       }
-      if (typeNode instanceof EnumDeclaration) {
-        for (EnumConstantDeclaration constant : ((EnumDeclaration) typeNode).getEnumConstants()) {
+      if (typeNode instanceof EnumDeclaration enumDeclaration) {
+        for (EnumConstantDeclaration constant : enumDeclaration.getEnumConstants()) {
           String accessorName = nameTable.getStaticAccessorName(constant.getVariableElement());
-          if (options.nullability()) {
-            printf("\n+ (%s * __nonnull)%s;\n", typeName, accessorName);
-          } else {
-            printf("\n+ (%s *)%s;\n", typeName, accessorName);
+          String nullabilitySpecifier = "";
+          TypeElement element = typeNode.getTypeElement();
+          if (shouldAddNullableAnnotation(element)) {
+            nullabilitySpecifier = " _Nullable";
+          } else if (options.nullability() && !nullMarked) {
+            // Only add a nonnull annotation if null marked is not enabled as it is implied
+            // when annotated regions are in use. This code block preserves legacy behavior.
+            nullabilitySpecifier = " _Nonnull";
           }
+          printf("\n+ (%s *%s)%s;\n", typeName, nullabilitySpecifier, accessorName);
         }
       }
     }
   }
 
-  /**
-   * Prints the list of instance variables in a type.
-   */
+  /** Prints the list of instance variables in a type. */
   protected void printInstanceVariables() {
     Iterable<VariableDeclarationFragment> fields = getInstanceFields();
     if (Iterables.isEmpty(fields)) {
@@ -347,6 +427,9 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       }
       if (needsAsterisk) {
         print('*');
+        if (shouldAddNullableAnnotation(varElement)) {
+          print("_Nullable ");
+        }
       }
       print(nameTable.getVariableShortName(varElement));
     }
@@ -362,21 +445,25 @@ public class TypeDeclarationGenerator extends TypeGenerator {
           .ifPresent(this::println);
     }
 
-    if (options.classProperties() && typeNode instanceof EnumDeclaration) {
-      for (EnumConstantDeclaration constant : ((EnumDeclaration) typeNode).getEnumConstants()) {
+    if (options.classProperties() && typeNode instanceof EnumDeclaration enumDeclaration) {
+      for (EnumConstantDeclaration constant : enumDeclaration.getEnumConstants()) {
         String accessorName = nameTable.getStaticAccessorName(constant.getVariableElement());
         print("\n@property (readonly, class");
         if (options.nullability()) {
           print(", nonnull");
         }
-        // TODO(antoniocortes): use nameTable.getSwiftName() when it is implemented.
-        printf(") %s *%s NS_SWIFT_NAME(%s);", typeName, accessorName, accessorName);
+        String swiftName = accessorName;
+        if (options.swiftEnums()) {
+          swiftName = NameTable.camelCaseName(accessorName, false);
+        }
+        printf(") %s *%s NS_SWIFT_NAME(%s);", typeName, accessorName, swiftName);
       }
     }
   }
 
   protected void printCompanionClassDeclaration() {
-    if (!typeElement.getKind().isInterface() || !needsCompanionClass()
+    if (!typeElement.getKind().isInterface()
+        || !needsCompanionClass()
         || printPrivateDeclarations() == needsPublicCompanionClass()) {
       return;
     }
@@ -401,11 +488,18 @@ public class TypeDeclarationGenerator extends TypeGenerator {
   }
 
   private void printEnumConstants() {
-    if (typeNode instanceof EnumDeclaration) {
+    if (typeNode instanceof EnumDeclaration enumDeclaration) {
       newline();
       println("/*! INTERNAL ONLY - Use enum accessors declared below. */");
-      printf("FOUNDATION_EXPORT %s *%s_values_[];\n", typeName, typeName);
-      for (EnumConstantDeclaration constant : ((EnumDeclaration) typeNode).getEnumConstants()) {
+
+      // If the generated source is annotated with nonnull nullability regions,
+      // ensure this type is explicitly marked as nonnull. Failing to do so leads
+      // to the following error: `inferring '_Nonnull' for pointer type within array
+      // is deprecated [-Werror,-Wnullability-inferred-on-nested-type]`.
+      String arrayTypeNamePrefix = nullMarked ? "_Nonnull " : "";
+      String arrayTypeName = arrayTypeNamePrefix + typeName;
+      printf("FOUNDATION_EXPORT %s *%s_values_[];\n", typeName, arrayTypeName);
+      for (EnumConstantDeclaration constant : enumDeclaration.getEnumConstants()) {
         String varName = nameTable.getVariableBaseName(constant.getVariableElement());
         newline();
         JavadocGenerator.printDocComment(getBuilder(), constant.getJavadoc());
@@ -417,17 +511,18 @@ public class TypeDeclarationGenerator extends TypeGenerator {
 
   private static final Predicate<VariableDeclarationFragment> NEEDS_SETTER =
       new Predicate<VariableDeclarationFragment>() {
-    @Override
-    public boolean apply(VariableDeclarationFragment fragment) {
-      VariableElement var = fragment.getVariableElement();
-      if (ElementUtil.isRetainedWithField(var)) {
-        assert !ElementUtil.isPublic(var) : "@RetainedWith fields cannot be public.";
-        return false;
-      }
-      return !var.asType().getKind().isPrimitive() && !ElementUtil.isSynthetic(var)
-          && !ElementUtil.isWeakReference(var);
-    }
-  };
+        @Override
+        public boolean apply(VariableDeclarationFragment fragment) {
+          VariableElement var = fragment.getVariableElement();
+          if (ElementUtil.isRetainedWithField(var)) {
+            assert !ElementUtil.isPublic(var) : "@RetainedWith fields cannot be public.";
+            return false;
+          }
+          return !var.asType().getKind().isPrimitive()
+              && !ElementUtil.isSynthetic(var)
+              && !ElementUtil.isWeakReference(var);
+        }
+      };
 
   protected void printFieldSetters() {
     Iterable<VariableDeclarationFragment> fields =
@@ -442,10 +537,13 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       if (typeStr.contains(",")) {
         typeStr = "J2OBJC_ARG(" + typeStr + ')';
       }
+      String objcTypePadded = paddedType(typeStr, var).trim();
       String fieldName = nameTable.getVariableShortName(var);
       String isVolatile = ElementUtil.isVolatile(var) ? "_VOLATILE" : "";
-      println(UnicodeUtils.format("J2OBJC%s_FIELD_SETTER(%s, %s, %s)",
-          isVolatile, typeName, fieldName, typeStr));
+      println(
+          UnicodeUtils.format(
+              "J2OBJC%s_FIELD_SETTER(%s, %s, %s)",
+              isVolatile, typeName, fieldName, objcTypePadded));
     }
   }
 
@@ -470,16 +568,18 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     VariableElement var = fragment.getVariableElement();
     boolean isVolatile = ElementUtil.isVolatile(var);
     String objcType = nameTable.getObjCTypeDeclaration(var.asType());
-    String objcTypePadded = objcType + (objcType.endsWith("*") ? "" : " ");
-    String declType = getDeclarationType(var);
-    declType += (declType.endsWith("*") ? "" : " ");
+    String objcTypePadded = paddedType(objcType, var);
+    String declType = paddedType(getDeclarationType(var), var);
     String name = nameTable.getVariableShortName(var);
     boolean isFinal = ElementUtil.isFinal(var);
     boolean isPrimitive = var.asType().getKind().isPrimitive();
     boolean isConstant = ElementUtil.isPrimitiveConstant(var);
-    String qualifiers = isConstant ? "_CONSTANT"
-        : (isPrimitive ? "_PRIMITIVE" : "_OBJ") + (isVolatile ? "_VOLATILE" : "")
-        + (isFinal ? "_FINAL" : "");
+    String qualifiers =
+        isConstant
+            ? "_CONSTANT"
+            : (isPrimitive ? "_PRIMITIVE" : "_OBJ")
+                + (isVolatile ? "_VOLATILE" : "")
+                + (isFinal ? "_FINAL" : "");
     newline();
     FieldDeclaration decl = (FieldDeclaration) fragment.getParent();
     JavadocGenerator.printDocComment(getBuilder(), decl.getJavadoc());
@@ -498,7 +598,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       printStaticFieldDeclaration(
           fragment, UnicodeUtils.format("%s%s_%s", declType, typeName, name));
     }
-    printf("J2OBJC_STATIC_FIELD%s(%s, %s, %s)\n", qualifiers, typeName, name, objcType);
+    printf(
+        "J2OBJC_STATIC_FIELD%s(%s, %s, %s)\n", qualifiers, typeName, name, objcTypePadded.trim());
   }
 
   // Overridden in TypePrivateDeclarationGenerator
@@ -506,14 +607,13 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     VariableElement var = fragment.getVariableElement();
     Object value = var.getConstantValue();
     assert value != null;
-    String declType = getDeclarationType(var);
-    declType += (declType.endsWith("*") ? "" : " ");
+    String declType = paddedType(getDeclarationType(var), var);
     String name = nameTable.getVariableShortName(var);
     if (ElementUtil.isPrimitiveConstant(var)) {
       printf("#define %s_%s %s\n", typeName, name, LiteralGenerator.generate(value));
     } else {
-      println("FOUNDATION_EXPORT "
-          + UnicodeUtils.format("%s%s_%s", declType, typeName, name) + ";");
+      println(
+          "FOUNDATION_EXPORT " + UnicodeUtils.format("%s%s_%s", declType, typeName, name) + ";");
     }
   }
 
@@ -543,27 +643,33 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printf("BOXED_INC_AND_DEC(%s, %s, %s)\n", capName, valueMethod, typeName);
 
     if ("DFIJ".indexOf(binaryName) >= 0) {
-      printf("BOXED_COMPOUND_ASSIGN_ARITHMETIC(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_COMPOUND_ASSIGN_ARITHMETIC(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
     if ("IJ".indexOf(binaryName) >= 0) {
-      printf("BOXED_COMPOUND_ASSIGN_MOD(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_COMPOUND_ASSIGN_MOD(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
     if ("DF".indexOf(binaryName) >= 0) {
-      printf("BOXED_COMPOUND_ASSIGN_FPMOD(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_COMPOUND_ASSIGN_FPMOD(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
     if ("IJ".indexOf(binaryName) >= 0) {
-      printf("BOXED_COMPOUND_ASSIGN_BITWISE(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_COMPOUND_ASSIGN_BITWISE(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
     if ("I".indexOf(binaryName) >= 0) {
-      printf("BOXED_SHIFT_ASSIGN_32(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_SHIFT_ASSIGN_32(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
     if ("J".indexOf(binaryName) >= 0) {
-      printf("BOXED_SHIFT_ASSIGN_64(%s, %s, %s, %s)\n",
+      printf(
+          "BOXED_SHIFT_ASSIGN_64(%s, %s, %s, %s)\n",
           capName, valueMethod, primitiveTypeName, typeName);
     }
   }
@@ -583,15 +689,68 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     }
   }
 
+  private boolean canPrintPseudoProperty(MethodDeclaration m) {
+    if (!m.isPseudoProperty()) {
+      return false;
+    }
+
+    ExecutableElement methodElement = m.getExecutableElement();
+    String methodName = nameTable.getMethodSelector(methodElement);
+    String propertyName = NameTable.lowercaseFirst(methodName.replaceFirst("get", ""));
+
+    TypeElement declaringClass = ElementUtil.getDeclaringClass(methodElement);
+    if (NameTable.isReservedName(propertyName)) {
+      return false;
+    }
+    // Check if there is a existing property with the same name
+    if (ElementUtil.findField(declaringClass, propertyName) != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private void printPseudoProperty(MethodDeclaration m) {
+    ExecutableElement methodElement = m.getExecutableElement();
+    String methodName = nameTable.getMethodSelector(methodElement);
+    String propertyName = NameTable.lowercaseFirst(methodName.replaceFirst("get", ""));
+
+    TypeElement declaringClass = ElementUtil.getDeclaringClass(methodElement);
+    if (NameTable.isReservedName(propertyName)) {
+      return;
+    }
+    // Check if there is a existing property with the same name
+    if (ElementUtil.findField(declaringClass, propertyName) != null) {
+      return;
+    }
+
+    TypeMirror returnType = m.getReturnTypeMirror();
+    ExecutableElement setter =
+        ElementUtil.findSetterMethod(propertyName, returnType, declaringClass, false);
+
+    newline();
+    printf(
+        "@property (%snonatomic, %s, %s%s) %s %s;",
+        ElementUtil.isStatic(methodElement) ? "class, " : "",
+        "getter=" + methodName,
+        setter != null ? "setter=" + nameTable.getMethodSelector(setter) : "readonly",
+        shouldAddNullableAnnotation(methodElement) ? ", nullable" : "",
+        getReturnType(m, true), // Generics allowed in headers.
+        propertyName);
+    newline();
+  }
+
   /**
    * Emit method declaration.
    *
    * @param m The method.
    * @param isCompanionClass If true, emit only if m is a static interface method.
    */
-  private void printMethodDeclaration(MethodDeclaration m, boolean isCompanionClass) {
+  private void printMethodDeclaration(
+      MethodDeclaration m, boolean isCompanionClass, boolean isKotlinCompanion) {
     ExecutableElement methodElement = m.getExecutableElement();
     TypeElement typeElement = ElementUtil.getDeclaringClass(methodElement);
+    boolean allowGenerics = !typeUtil.isProtoClass(typeElement.asType());
 
     if (typeElement.getKind().isInterface()) {
       // isCompanion and isStatic must be both false (i.e. this prints a non-static method decl
@@ -600,12 +759,22 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       if (isCompanionClass != ElementUtil.isStatic(methodElement)) {
         return;
       }
+    } else if (isKotlinCompanion) {
+      if (!ElementUtil.isStatic(methodElement)) {
+        return;
+      }
     }
 
     newline();
     JavadocGenerator.printDocComment(getBuilder(), m.getJavadoc());
 
-    String methodSignature = getMethodSignature(m, needsGenerateObjectiveCGenerics());
+    if (canPrintPseudoProperty(m)) {
+      printPseudoProperty(m);
+      return;
+    }
+
+    // Method declarations allow generics.
+    String methodSignature = getMethodSignature(m, allowGenerics, isKotlinCompanion);
 
     // In order to properly map the method name from the entire signature, we must isolate it from
     // associated type and parameter declarations.  The method name is guaranteed to be between the
@@ -634,18 +803,27 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       print(" OBJC_METHOD_FAMILY_NONE");
     }
 
+    if (!printPrivateDeclarations()) {
+      String swiftName = nameTable.getSwiftMethodNameFromAnnotation(m);
+      if (swiftName != null) {
+        print(" NS_SWIFT_NAME(" + swiftName + ")");
+      }
+    }
     if (needsDeprecatedAttribute(m.getAnnotations())) {
       print(" " + DEPRECATED_ATTRIBUTE);
     }
     if (m.isUnavailable()) {
       print(" NS_UNAVAILABLE");
     }
+    if (options.addTextSegmentAttribute()) {
+      print(" J2OBJC_TEXT_SEGMENT");
+    }
     println(";");
   }
 
   @Override
   protected void printMethodDeclaration(MethodDeclaration m) {
-    printMethodDeclaration(m, false);
+    printMethodDeclaration(m, false, false);
   }
 
   private boolean needsDeprecatedAttribute(List<Annotation> annotations) {
@@ -676,11 +854,20 @@ public class TypeDeclarationGenerator extends TypeGenerator {
 
   @Override
   protected void printFunctionDeclaration(FunctionDeclaration function) {
-    print("\nFOUNDATION_EXPORT " + getFunctionSignature(function, true));
+    print("\nFOUNDATION_EXPORT " + getFunctionSignature(function, true, false));
     if (function.returnsRetained()) {
       print(" NS_RETURNS_RETAINED");
     }
+    if (options.addTextSegmentAttribute()) {
+      print(" J2OBJC_TEXT_SEGMENT");
+    }
     println(";");
+  }
+
+  protected void printNonnullAuditedRegion(AuditedRegion state) {
+    if (nullMarked) {
+      println(state.getMacro());
+    }
   }
 
   /**
@@ -701,7 +888,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     }
 
     private static DeclarationCategory categorize(BodyDeclaration decl) {
-      if (decl instanceof MethodDeclaration && ((MethodDeclaration) decl).isUnavailable()) {
+      if (decl instanceof MethodDeclaration methodDeclaration
+          && methodDeclaration.isUnavailable()) {
         return UNAVAILABLE;
       }
       int mods = decl.getModifiers();
@@ -716,9 +904,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     }
   }
 
-  /**
-   * Print method declarations with #pragma mark lines documenting their scope.
-   */
+  /** Print method declarations with #pragma mark lines documenting their scope. */
   @Override
   protected void printInnerDeclarations() {
     // Everything is public in interfaces.
@@ -742,8 +928,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       List<MethodDeclaration> methods = Lists.newArrayList();
       for (Iterator<BodyDeclaration> iter = declarations.iterator(); iter.hasNext(); ) {
         BodyDeclaration decl = iter.next();
-        if (decl instanceof MethodDeclaration) {
-          methods.add((MethodDeclaration) decl);
+        if (decl instanceof MethodDeclaration methodDeclaration) {
+          methods.add(methodDeclaration);
           iter.remove();
         }
       }
@@ -756,55 +942,38 @@ public class TypeDeclarationGenerator extends TypeGenerator {
   }
 
   /**
-   * Returns an Objective-C nullability attribute string if there is a matching JSR305 annotation,
-   * or an empty string.
-   */
-  @Override
-  protected String nullability(Element element) {
-    if (options.nullability()) {
-      if (ElementUtil.hasNullableAnnotation(element)) {
-        return " __nullable";
-      }
-      if (ElementUtil.isNonnull(element, parametersNonnullByDefault)) {
-        return " __nonnull";
-      }
-    }
-    return "";
-  }
-
-  /**
    * Method comparator, suitable for documentation and code-completion lists.
    *
-   * Sort ordering: constructors first, then alphabetical by name. If they have the
-   * same name, then compare the first parameter's simple type name, then the second, etc.
+   * <p>Sort ordering: constructors first, then alphabetical by name. If they have the same name,
+   * then compare the first parameter's simple type name, then the second, etc.
    */
   @VisibleForTesting
   static final Comparator<MethodDeclaration> METHOD_DECL_ORDER =
       new Comparator<MethodDeclaration>() {
-    @Override
-    public int compare(MethodDeclaration m1, MethodDeclaration m2) {
-      if (m1.isConstructor() && !m2.isConstructor()) {
-        return -1;
-      }
-      if (!m1.isConstructor() && m2.isConstructor()) {
-        return 1;
-      }
-      String m1Name = ElementUtil.getName(m1.getExecutableElement());
-      String m2Name = ElementUtil.getName(m2.getExecutableElement());
-      if (!m1Name.equals(m2Name)) {
-        return m1Name.compareToIgnoreCase(m2Name);
-      }
-      int nParams = m1.getParameters().size();
-      int nOtherParams = m2.getParameters().size();
-      int max = Math.min(nParams, nOtherParams);
-      for (int i = 0; i < max; i++) {
-        String paramType = TypeUtil.getName(m1.getParameter(i).getType().getTypeMirror());
-        String otherParamType = TypeUtil.getName(m2.getParameter(i).getType().getTypeMirror());
-        if (!paramType.equals(otherParamType)) {
-          return paramType.compareToIgnoreCase(otherParamType);
+        @Override
+        public int compare(MethodDeclaration m1, MethodDeclaration m2) {
+          if (m1.isConstructor() && !m2.isConstructor()) {
+            return -1;
+          }
+          if (!m1.isConstructor() && m2.isConstructor()) {
+            return 1;
+          }
+          String m1Name = ElementUtil.getName(m1.getExecutableElement());
+          String m2Name = ElementUtil.getName(m2.getExecutableElement());
+          if (!m1Name.equals(m2Name)) {
+            return m1Name.compareToIgnoreCase(m2Name);
+          }
+          int nParams = m1.getParameters().size();
+          int nOtherParams = m2.getParameters().size();
+          int max = Math.min(nParams, nOtherParams);
+          for (int i = 0; i < max; i++) {
+            String paramType = TypeUtil.getName(m1.getParameter(i).getType().getTypeMirror());
+            String otherParamType = TypeUtil.getName(m2.getParameter(i).getType().getTypeMirror());
+            if (!paramType.equals(otherParamType)) {
+              return paramType.compareToIgnoreCase(otherParamType);
+            }
+          }
+          return nParams - nOtherParams;
         }
-      }
-      return nParams - nOtherParams;
-    }
-  };
+      };
 }

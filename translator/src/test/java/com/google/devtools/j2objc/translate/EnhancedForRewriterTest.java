@@ -36,10 +36,10 @@ public class EnhancedForRewriterTest extends GenerationTest {
         + "for (char c : charArray) {} "
         + "for (@LoopTranslation(LoopStyle.FAST_ENUMERATION) char c : charList) {} } }";
     String translation = translateSourceFile(source, "A", "A.m");
-    assertTranslation(translation,
-        "jchar c = [((JavaLangCharacter *) nil_chk(*b__++)) charValue];");
-    assertTranslation(translation,
-        "jchar c = [((JavaLangCharacter *) nil_chk(boxed__)) charValue];");
+    assertInTranslation(
+        translation, "unichar c = [((JavaLangCharacter *) nil_chk(*b__++)) charValue];");
+    assertInTranslation(
+        translation, "unichar c = [((JavaLangCharacter *) nil_chk(boxed__)) charValue];");
   }
 
   public void testEnhancedForLoopAnnotation() throws IOException {

@@ -25,27 +25,13 @@
 
 package java.net;
 
-import android.system.ErrnoException;
+import static libcore.io.OsConstants.*;
 
-import java.io.FileDescriptor;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-
-import libcore.io.IoUtils;
-import libcore.io.Libcore;
-/* J2ObjC removed.
-import android.system.StructIfaddrs;
-import sun.security.action.*;
-import java.security.AccessController;
- */
-
-import static libcore.io.OsConstants.*;
 
 // Android-note: NetworkInterface has been rewritten to avoid native code.
 // Fix upstream bug not returning link-down interfaces. http://b/26238832
@@ -153,19 +139,19 @@ public final class NetworkInterface {
                 local_addrs = new InetAddress[addrs.length];
                 boolean trusted = true;
 
-                SecurityManager sec = System.getSecurityManager();
-                if (sec != null) {
-                    try {
-                        sec.checkPermission(new NetPermission("getNetworkInformation"));
-                    } catch (SecurityException e) {
-                        trusted = false;
-                    }
-                }
+                // SecurityManager sec = System.getSecurityManager();
+                // if (sec != null) {
+                //     try {
+                //         sec.checkPermission(new NetPermission("getNetworkInformation"));
+                //     } catch (SecurityException e) {
+                //         trusted = false;
+                //     }
+                // }
                 for (int j=0; j<addrs.length; j++) {
                     try {
-                        if (sec != null && !trusted) {
-                            sec.checkConnect(addrs[j].getHostAddress(), -1);
-                        }
+                        // if (sec != null && !trusted) {
+                        //     sec.checkConnect(addrs[j].getHostAddress(), -1);
+                        // }
                         local_addrs[count++] = addrs[j];
                     } catch (SecurityException e) { }
                 }
@@ -206,12 +192,12 @@ public final class NetworkInterface {
         // BEGIN Android-changed: Cherry-picked upstream OpenJDK9 change rev 59a110a38cea
         // http://b/30628919
         if (bindings != null) {
-            SecurityManager sec = System.getSecurityManager();
+            // SecurityManager sec = System.getSecurityManager();
             for (int j=0; j<bindings.length; j++) {
                 try {
-                    if (sec != null) {
-                        sec.checkConnect(bindings[j].getAddress().getHostAddress(), -1);
-                    }
+                    // if (sec != null) {
+                    //     sec.checkConnect(bindings[j].getAddress().getHostAddress(), -1);
+                    // }
                     lst.add(bindings[j]);
                 } catch (SecurityException e) { }
             }

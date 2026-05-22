@@ -43,7 +43,7 @@ typedef union {
   jlong valueLong;
   jfloat valueFloat;
   jdouble valueDouble;
-  jboolean valueBool;
+  bool valueBool;
   __unsafe_unretained id valueId;
   const void *valuePtr;
 } CGPValue;
@@ -122,12 +122,10 @@ typedef struct CGPOneofData {
   // Either nil, a Descriptor or a EnumDescriptor depending on the field type.
   id valueType_;
   ComGoogleProtobufDescriptorProtos_FieldOptions *fieldOptions_;
-  CGPDescriptor *containingType_;
   CGPOneofDescriptor *containingOneof_;
 }
 
-- (instancetype)initWithData:(CGPFieldData *)data
-              containingType:(CGPDescriptor *)containingType;
+- (instancetype)initWithData:(CGPFieldData *)data;
 
 @end
 
@@ -135,9 +133,12 @@ typedef struct CGPOneofData {
  @public
   ptrdiff_t valueOffset_;
   IOSObjectArray *values_;
+  bool is_closed_;
 }
 
-- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset retainedValues:(IOSObjectArray *)values;
+- (instancetype)initWithValueOffset:(ptrdiff_t)valueOffset
+                     retainedValues:(IOSObjectArray *)values
+                          is_closed:(bool)is_closed;
 
 @end
 
@@ -150,11 +151,11 @@ typedef struct CGPOneofData {
 
 @interface ComGoogleProtobufDescriptors_OneofDescriptor () {
  @package
-  CGPOneofData *data_;
+  const CGPOneofData *data_;
   CGPDescriptor *containingType_;
 }
 
-- (instancetype)initWithData:(CGPOneofData *)data
+- (instancetype)initWithData:(const CGPOneofData *)data
               containingType:(CGPDescriptor *)containingType;
 
 @end
@@ -168,100 +169,102 @@ typedef struct CGPOneofData {
 #define CGPToReflectionTypeDouble(value, field) [CommonDouble valueOfWithDouble:value]
 #define CGPToReflectionTypeBool(value, field) [CommonBoolean valueOfWithBoolean:value]
 #define CGPToReflectionTypeEnum(value, field) \
-    ((CGPEnumDescriptor *)field->valueType_)->values_->buffer_[[(JavaLangEnum *)value ordinal]]
+  ((CGPEnumDescriptor *)field->valueType_)->values_->buffer_[[(JavaLangEnum *)value ordinal]]
 #define CGPToReflectionTypeRetainable(value, field) RETAIN_AND_AUTORELEASE(value)
 
 CF_EXTERN_C_BEGIN
 
-CGPDescriptor *CGPInitDescriptor(
-    Class messageClass, Class builderClass, CGPMessageFlags flags,
-    size_t storageSize);
+NS_RETURNS_RETAINED CGPDescriptor *CGPInitDescriptor(Class messageClass, Class builderClass,
+                                                     CGPMessageFlags flags, size_t storageSize);
 
 void CGPInitFields(
     CGPDescriptor *descriptor, jint fieldCount, CGPFieldData *fieldData,
-    jint oneofCount, CGPOneofData *oneofData);
+    jint oneofCount, const CGPOneofData *oneofData);
 
-CGP_ALWAYS_INLINE inline BOOL CGPIsExtendable(const CGPDescriptor *descriptor) {
+CGP_ALWAYS_INLINE BOOL CGPIsExtendable(const CGPDescriptor *descriptor) {
   return descriptor->flags_ & CGPMessageFlagExtendable;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPIsMessageSetWireFormat(const CGPDescriptor *descriptor) {
+CGP_ALWAYS_INLINE BOOL CGPIsMessageSetWireFormat(const CGPDescriptor *descriptor) {
   return descriptor->flags_ & CGPMessageFlagMessageSetWireFormat;
 }
 
 IOSObjectArray *CGPGetSerializationOrderFields(CGPDescriptor *descriptor);
 
-CGPEnumDescriptor *CGPInitializeEnumType(
+NS_RETURNS_RETAINED CGPEnumDescriptor *CGPInitializeEnumType(
     Class enumClass, jint valuesCount,
     __strong JavaLangEnum<ComGoogleProtobufProtocolMessageEnum> *values[],
-    __strong NSString **names, jint *intValues);
+    __strong NSString **names, jint *intValues, bool is_closed);
 
-void CGPInitializeOneofCaseEnum(
-    Class enumClass, jint valuesCount,
-    __strong JavaLangEnum<ComGoogleProtobufInternal_EnumLite> *values[],
-    __strong NSString **names, jint *intValues);
+void CGPInitializeOneofCaseEnum(Class enumClass, jint valuesCount,
+                                __strong JavaLangEnum<ComGoogleProtobufInternal_EnumLite> *values[],
+                                __strong NSString **names, jint *intValues);
 
-CGP_ALWAYS_INLINE inline jint CGPFieldGetNumber(const CGPFieldDescriptor *field) {
+id CGPValueOfEnumOrOneOfWithNSString(NSString *name, __strong id values[], jint count);
+
+id CGPValueOfEnumOrOneOfWithInt(jint value, __strong id values[], jint count);
+
+CGP_ALWAYS_INLINE jint CGPFieldGetNumber(const CGPFieldDescriptor *field) {
   return field->data_->number;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPFieldIsRequired(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE BOOL CGPFieldIsRequired(const CGPFieldDescriptor *field) {
   return field->data_->flags & CGPFieldFlagRequired;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPFieldIsRepeated(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE BOOL CGPFieldIsRepeated(const CGPFieldDescriptor *field) {
   return field->data_->flags & CGPFieldFlagRepeated;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPFieldIsMap(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE BOOL CGPFieldIsMap(const CGPFieldDescriptor *field) {
   return field->data_->flags & CGPFieldFlagMap;
 }
 
-CGP_ALWAYS_INLINE inline CGPFieldDescriptor *CGPFieldMapKey(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE CGPFieldDescriptor *CGPFieldMapKey(const CGPFieldDescriptor *field) {
   return ((CGPDescriptor *)field->valueType_)->fields_->buffer_[0];
 }
 
-CGP_ALWAYS_INLINE inline CGPFieldDescriptor *CGPFieldMapValue(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE CGPFieldDescriptor *CGPFieldMapValue(const CGPFieldDescriptor *field) {
   return ((CGPDescriptor *)field->valueType_)->fields_->buffer_[1];
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPFieldIsPacked(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE BOOL CGPFieldIsPacked(const CGPFieldDescriptor *field) {
   return field->data_->flags & CGPFieldFlagPacked;
 }
 
-CGP_ALWAYS_INLINE inline CGPFieldType CGPFieldGetType(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE CGPFieldType CGPFieldGetType(const CGPFieldDescriptor *field) {
   return field->data_->type;
 }
 
-CGP_ALWAYS_INLINE inline CGPFieldJavaType CGPFieldGetJavaType(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE CGPFieldJavaType CGPFieldGetJavaType(const CGPFieldDescriptor *field) {
   return field->javaType_;
 }
 
-CGP_ALWAYS_INLINE inline uint32_t CGPFieldGetHasBitIndex(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE uint32_t CGPFieldGetHasBitIndex(const CGPFieldDescriptor *field) {
   return field->data_->hasBitIndex;
 }
 
-CGP_ALWAYS_INLINE inline uint32_t CGPFieldGetOffset(const CGPFieldDescriptor *field, Class cls) {
+CGP_ALWAYS_INLINE uint32_t CGPFieldGetOffset(const CGPFieldDescriptor *field, Class cls) {
   return (uint32_t)class_getInstanceSize(cls) + field->data_->offset;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPTypeIsGroup(CGPFieldType type) {
+CGP_ALWAYS_INLINE BOOL CGPTypeIsGroup(CGPFieldType type) {
   return type == ComGoogleProtobufDescriptors_FieldDescriptor_Type_Enum_GROUP;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPJavaTypeIsMessage(CGPFieldJavaType type) {
+CGP_ALWAYS_INLINE BOOL CGPJavaTypeIsMessage(CGPFieldJavaType type) {
   return type == ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_MESSAGE;
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPFieldTypeIsMessage(const CGPFieldDescriptor *field) {
+CGP_ALWAYS_INLINE BOOL CGPFieldTypeIsMessage(const CGPFieldDescriptor *field) {
   return CGPJavaTypeIsMessage(CGPFieldGetJavaType(field));
 }
 
-CGP_ALWAYS_INLINE inline BOOL CGPJavaTypeIsEnum(CGPFieldJavaType type) {
+CGP_ALWAYS_INLINE BOOL CGPJavaTypeIsEnum(CGPFieldJavaType type) {
   return type == ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_Enum_ENUM;
 }
 
-CGP_ALWAYS_INLINE inline jint CGPEnumGetIntValue(CGPEnumDescriptor *descriptor, id enumObj) {
+CGP_ALWAYS_INLINE jint CGPEnumGetIntValue(CGPEnumDescriptor *descriptor, id enumObj) {
   return *(jint *)((char *)(ARCBRIDGE void *)enumObj + descriptor->valueOffset_);
 }
 
@@ -269,7 +272,7 @@ id CGPFieldGetDefaultValue(CGPFieldDescriptor *field);
 
 Class<ComGoogleProtobufInternal_EnumLite> CGPOneofGetCaseClass(CGPOneofDescriptor *oneof);
 
-CGP_ALWAYS_INLINE inline uint32_t CGPOneofGetOffset(const CGPOneofDescriptor *oneof, Class cls) {
+CGP_ALWAYS_INLINE uint32_t CGPOneofGetOffset(const CGPOneofDescriptor *oneof, Class cls) {
   return (uint32_t)class_getInstanceSize(cls) + oneof->data_->offset;
 }
 
@@ -291,9 +294,8 @@ CF_EXTERN_C_END
 
 @end
 
-J2OBJC_FIELD_SETTER(ComGoogleProtobufDescriptors_FieldDescriptor_Type, javaType_, ComGoogleProtobufDescriptors_FieldDescriptor_JavaType *)
-
-__attribute__((unused)) static void ComGoogleProtobufDescriptors_FieldDescriptor_Type_initWithComGoogleProtobufDescriptors_FieldDescriptor_JavaType_withNSString_withInt_(ComGoogleProtobufDescriptors_FieldDescriptor_Type *self, ComGoogleProtobufDescriptors_FieldDescriptor_JavaType *javaType, NSString *__name, jint __ordinal);
+J2OBJC_FIELD_SETTER(ComGoogleProtobufDescriptors_FieldDescriptor_Type, javaType_,
+                    ComGoogleProtobufDescriptors_FieldDescriptor_JavaType *)
 
 @interface ComGoogleProtobufDescriptors_FieldDescriptor_JavaType () {
  @public
@@ -304,6 +306,4 @@ __attribute__((unused)) static void ComGoogleProtobufDescriptors_FieldDescriptor
 
 J2OBJC_FIELD_SETTER(ComGoogleProtobufDescriptors_FieldDescriptor_JavaType, defaultDefault_, id)
 
-__attribute__((unused)) static void ComGoogleProtobufDescriptors_FieldDescriptor_JavaType_initWithId_withNSString_withInt_(ComGoogleProtobufDescriptors_FieldDescriptor_JavaType *self, id defaultDefault, NSString *__name, jint __ordinal);
-
-#endif // __ComGoogleProtobufDescriptors_PackagePrivate_H__
+#endif  // __ComGoogleProtobufDescriptors_PackagePrivate_H__

@@ -30,6 +30,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.ProtocolMessageEnum;
+import com.google.protobuf.ProtocolStringList;
+import com.google.protobuf.TextFormat;
 import foo.bar.baz.PrefixDummy2;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -50,7 +52,7 @@ import protos.MsgWithDefaultsOrBuilder;
 import protos.MsgWithNestedExtensions;
 import protos.MsgWithRequiredFields;
 import protos.MsgWithSpecialFieldNames;
-import protos.SingleFile;
+import protos.SingleFileProto;
 import protos.Typical;
 import protos.TypicalData;
 import protos.TypicalDataMessage;
@@ -625,16 +627,14 @@ public class CompatibilityTest extends ProtobufTest {
   }
 
   public void testMessageOrBuilderInterfaceSingleFile() throws Exception {
-    SingleFile.Data1.InternalOrBuilder internalBuilder = SingleFile.Data1.Internal.newBuilder()
-        .setIntValue(24);
+    SingleFileProto.Data1.InternalOrBuilder internalBuilder =
+        SingleFileProto.Data1.Internal.newBuilder().setIntValue(24);
     assertEquals(24, internalBuilder.getIntValue());
-    SingleFile.Data1OrBuilder builder = SingleFile.Data1.newBuilder().setIntValue(42);
+    SingleFileProto.Data1OrBuilder builder = SingleFileProto.Data1.newBuilder().setIntValue(42);
     assertTrue(builder.hasIntValue());
     assertEquals(42, builder.getIntValue());
-    SingleFile.Data1OrBuilder data = SingleFile.Data1.newBuilder()
-        .setIntValue(42)
-        .addRepeatedString("foo")
-        .build();
+    SingleFileProto.Data1OrBuilder data =
+        SingleFileProto.Data1.newBuilder().setIntValue(42).addRepeatedString("foo").build();
     assertTrue(data.hasIntValue());
     assertEquals(42, data.getIntValue());
     List<String> strList = data.getRepeatedStringList();
@@ -650,18 +650,18 @@ public class CompatibilityTest extends ProtobufTest {
     }
 
     TypicalData.Builder dataBuilder = TypicalData.newBuilder();
-    dataBuilder.setField(fields[1], new Integer(42));
+    dataBuilder.setField(fields[1], Integer.valueOf(42));
     dataBuilder.setField(fields[2], ByteString.copyFromUtf8("foo"));
     dataBuilder.setField(fields[3], TypicalData.EnumType.VALUE9.getValueDescriptor());
     dataBuilder.setField(fields[11], TypicalDataMessage.newBuilder().build());
     dataBuilder.setField(fields[12], Boolean.TRUE);
-    dataBuilder.setField(fields[13], new Float(43.8));
-    dataBuilder.setField(fields[14], new Double(44.5));
+    dataBuilder.setField(fields[13], Float.valueOf((float) 43.8));
+    dataBuilder.setField(fields[14], Double.valueOf(44.5));
     dataBuilder.setField(fields[15], "bar");
-    dataBuilder.setField(fields[16], new Integer(24));
-    dataBuilder.setField(fields[17], new Long(4422));
-    dataBuilder.setField(fields[18], new Long(2244));
-    dataBuilder.addRepeatedField(fields[4], new Integer(72));
+    dataBuilder.setField(fields[16], Integer.valueOf(24));
+    dataBuilder.setField(fields[17], Long.valueOf(4422));
+    dataBuilder.setField(fields[18], Long.valueOf(2244));
+    dataBuilder.addRepeatedField(fields[4], Integer.valueOf(72));
     dataBuilder.addRepeatedField(fields[8], "aaa");
     dataBuilder.addRepeatedField(fields[8], "bbb");
     dataBuilder.setRepeatedField(fields[8], 1, "ccc");
@@ -679,8 +679,8 @@ public class CompatibilityTest extends ProtobufTest {
     assertEquals("foo", new String(data.getMyBytes().toByteArray()));
     assertEquals(TypicalData.EnumType.VALUE9, data.getMyEnumType());
     assertTrue(data.getMyBool());
-    assertEquals(new Float(43.8), data.getMyFloat());
-    assertEquals(new Double(44.5), data.getMyDouble());
+    assertEquals(Float.valueOf((float) 43.8), data.getMyFloat());
+    assertEquals(Double.valueOf(44.5), data.getMyDouble());
     assertEquals("bar", data.getMyString());
     assertEquals(24, data.getMyUint());
     assertEquals(4422, data.getMyLong());
@@ -802,100 +802,115 @@ public class CompatibilityTest extends ProtobufTest {
     }
   }
 
+  // TODO: b/346997541 - Consider moving this test so that it no longer is
+  //                     invoked in a J2ObjC context. Proto builder nullability
+  //                     improvements associated with b/330337638 result in
+  //                     compiler errors if nil values are passed as arguments
+  //                     to proto builder methods in generated Objective-C.
   public void testAddingNullValues() throws Exception {
+    @SuppressWarnings("ModifiedButNotUsed")
     TypicalData.Builder dataBuilder = TypicalData.newBuilder();
+
+    // `nullObject` is used in the below tests along with type casting to ensure
+    // generated Objective-C will successfully compile. Passing in `null`
+    // directly results in the following error: `null passed to a callee that
+    // requires a non-null argument [-Werror,-Wnonnull]`. This error is expected
+    // since proto builders require `nonnull` method arguments. This test is
+    // used in Java and J2ObjC libraries: `test_j2objc_lib` and `test_java_lib`,
+    // these changes ensure it can still run in both contexts.
+    Object nullObject = null;
     try {
-      dataBuilder.setMyMessage((TypicalDataMessage) null);
+      dataBuilder.setMyMessage((TypicalDataMessage) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setMyMessage((TypicalDataMessage.Builder) null);
+      dataBuilder.setMyMessage((TypicalDataMessage.Builder) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setMyString(null);
+      dataBuilder.setMyString((String) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setMyBytes(null);
+      dataBuilder.setMyBytes((ByteString) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setMyEnumType(null);
+      dataBuilder.setMyEnumType((TypicalData.EnumType) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addRepeatedMessage((TypicalDataMessage) null);
+      dataBuilder.addRepeatedMessage((TypicalDataMessage) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addRepeatedMessage((TypicalDataMessage.Builder) null);
+      dataBuilder.addRepeatedMessage((TypicalDataMessage.Builder) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setRepeatedMessage(0, (TypicalDataMessage) null);
+      dataBuilder.setRepeatedMessage(0, (TypicalDataMessage) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addRepeatedString(null);
+      dataBuilder.addRepeatedString((String) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setRepeatedString(0, null);
+      dataBuilder.setRepeatedString(0, (String) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addRepeatedBytes(null);
+      dataBuilder.addRepeatedBytes((ByteString) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setRepeatedBytes(0, null);
+      dataBuilder.setRepeatedBytes(0, (ByteString) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addRepeatedEnum(null);
+      dataBuilder.addRepeatedEnum((TypicalData.EnumType) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setRepeatedEnum(0, null);
+      dataBuilder.setRepeatedEnum(0, (TypicalData.EnumType) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.setExtension(Typical.myExtension, null);
+      dataBuilder.setExtension(Typical.myExtension, (TypicalDataMessage) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
     }
     try {
-      dataBuilder.addExtension(Typical.myRepeatedExtension, null);
+      dataBuilder.addExtension(Typical.myRepeatedExtension, (TypicalDataMessage) nullObject);
       fail("Expected NullPointerException");
     } catch (NullPointerException e) {
       // Expected.
@@ -942,7 +957,7 @@ public class CompatibilityTest extends ProtobufTest {
     // Using the Message type to ensure translation of toString compiles on the
     // interface type.
     Message data = TypicalData.newBuilder().setMyInt(31).build();
-    String result = data.toString();
+    String result = TextFormat.printer().printToString(data);
     assertTrue("Unexpected toString result: " + result,
                // Java and ObjC results are not identical.
                result.contains("my_int: 31") || result.contains("myInt: 31"));
@@ -1396,5 +1411,15 @@ public class CompatibilityTest extends ProtobufTest {
   public void testDescriptorGetFullName() throws Exception {
     Descriptor descriptor = TypicalData.Builder.getDescriptor();
     assertTrue(descriptor.getFullName().endsWith("protos.TypicalData"));
+  }
+
+  public void testProtocolStringListType() throws Exception {
+    TypicalData data = TypicalData.newBuilder().addRepeatedString("foobar").build();
+    ProtocolStringList list = data.getRepeatedStringList();
+    assertEquals(1, list.size());
+    assertTrue(list instanceof ProtocolStringList);
+    assertEquals("foobar", list.get(0));
+    List<ByteString> bsList = list.asByteStringList();
+    assertEquals("foobar", new String(bsList.get(0).toByteArray()));
   }
 }

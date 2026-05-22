@@ -16,6 +16,7 @@ message TypeInfo {
   repeated int32 implements_type = 3;
   repeated MemberInfo member = 4;
   bool exported = 5;
+  repeated int32 inner_types = 6;
 }
 
 message MemberInfo {
@@ -36,5 +37,5 @@ message MethodInvocation {
 }
 
 message Annotations {
-  bool used_by_native = 1;
+  bool used_by_native_or_reflection = 1;
 }

@@ -22,6 +22,7 @@ import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.EnumDeclaration;
 import com.google.devtools.j2objc.ast.FieldDeclaration;
 import com.google.devtools.j2objc.ast.MethodDeclaration;
+import com.google.devtools.j2objc.ast.RecordDeclaration;
 import com.google.devtools.j2objc.ast.TreeNode.Kind;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
@@ -73,6 +74,12 @@ public class DeadCodeEliminator extends UnitTreeVisitor {
   }
 
   @Override
+  public void endVisit(RecordDeclaration node) {
+    TypeElement type = node.getTypeElement();
+    eliminateDeadCode(type, node);
+  }
+
+  @Override
   public void endVisit(AnnotationTypeDeclaration node) {
     TypeElement type = node.getTypeElement();
     if (!ElementUtil.isGeneratedAnnotation(type)) {
@@ -114,6 +121,15 @@ public class DeadCodeEliminator extends UnitTreeVisitor {
         EnumDeclaration enumDeclaration = (EnumDeclaration) decl;
         if (!deadCodeMap.containsClass(
             elementUtil.getBinaryName(enumDeclaration.getTypeElement()))) {
+          continue;
+        }
+      }
+
+      // Or live annotations.
+      if (decl instanceof AnnotationTypeDeclaration) {
+        AnnotationTypeDeclaration annotationDeclaration = (AnnotationTypeDeclaration) decl;
+        if (!deadCodeMap.containsClass(
+            elementUtil.getBinaryName(annotationDeclaration.getTypeElement()))) {
           continue;
         }
       }

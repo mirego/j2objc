@@ -58,8 +58,7 @@ endif
 
 FRAMEWORK_BUILD_DIR = $(BUILD_DIR)/$(FRAMEWORK_NAME).xcframework
 FRAMEWORK_DIR = $(DIST_FRAMEWORK_DIR)/$(FRAMEWORK_NAME).xcframework
-FRAMEWORK_HEADER = $(BUILD_DIR)/$(FRAMEWORK_NAME).h
-MODULE_MAP = $(BUILD_DIR)/module.modulemap
+FRAMEWORK_HEADER = $(BUILD_DIR)/$(FRAMEWORK_NAME)/$(FRAMEWORK_NAME).h
 
 FRAMEWORK_RESOURCES_DIR = $(FRAMEWORK_BUILD_DIR)/Versions/A/Resources
 RESOURCE_FILES = $(FRAMEWORK_RESOURCE_FILES:%=$(FRAMEWORK_RESOURCES_DIR)/%)
@@ -95,6 +94,7 @@ framework:: lib $(FRAMEWORK_BUILD_DIR) resources
 	@:
 
 # Create an xcframework from all appletv, iphone, maccatalyst, macosx, simulator and watchos libs.
+# kotlin interop >>
 $(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
 	@echo building $(FRAMEWORK_NAME) framework
 	@mkdir -p $(FRAMEWORK_BUILD_DIR)
@@ -106,6 +106,7 @@ $(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK
 	@install -m 0644 $(FRAMEWORK_HEADER) $(BUILD_DIR)/Framework/Headers
 	@install -m 0644 $(MODULE_MAP) $(BUILD_DIR)/Framework/Modules
 	@find $(FRAMEWORK_BUILD_DIR) -type d -depth 1 -exec cp -pR $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules {} \;
+# kotlin interop <<
 	@touch $@
 	@rsync -acI --no-times --delete $(FRAMEWORK_BUILD_DIR) $(DIST_FRAMEWORK_DIR)
 
@@ -113,6 +114,7 @@ $(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK
 # This header is then test-compiled with all allowed warnings to verify it can be included
 # by other projects.
 $(FRAMEWORK_HEADER):
+	@mkdir -p $$(dirname $@)
 	@echo "//\n// $(FRAMEWORK_NAME).h\n//\n" > $@
 	@for f in $(FRAMEWORK_PUBLIC_HEADERS:$(STATIC_HEADERS_DIR)/%=%); do\
 			echo '#include <'$${f}'>'; done >> $@
@@ -129,20 +131,14 @@ test_warnings: $(FRAMEWORK_HEADER)
 		-fno-objc-arc $@
 	@rm $(FRAMEWORK_HEADER:%.h=%.o)
 
-$(MODULE_MAP):
-	@echo "module" $(FRAMEWORK_NAME) "{" > $(MODULE_MAP)
-	@echo "  umbrella header" '"'$(FRAMEWORK_NAME).h'"' >> $(MODULE_MAP)
-	@echo >> $(MODULE_MAP)
-	@echo "  export *" >> $(MODULE_MAP)
-	@echo "  module * { export * }" >> $(MODULE_MAP)
-	@echo "}" >> $(MODULE_MAP)
-
 resources: $(RESOURCE_FILES)
 	@:
 
 $(FRAMEWORK_RESOURCES_DIR):
+	# kotlin interop >>
 	@mkdir -p $(FRAMEWORK_RESOURCES_DIR)
 	@/bin/ln -sfh Versions/Current/Resources $(FRAMEWORK_BUILD_DIR)/Resources
+	# kotlin interop <<
 
 $(FRAMEWORK_RESOURCES_DIR)/%: % | $(FRAMEWORK_RESOURCES_DIR)
 	@mkdir -p $$(dirname $@)

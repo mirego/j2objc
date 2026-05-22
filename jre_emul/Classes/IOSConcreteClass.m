@@ -89,7 +89,7 @@
   return nil;
 }
 
-- (jboolean)isInstance:(id)object {
+- (bool)isInstance:(id)object {
   return [object isKindOfClass:class_];
 }
 
@@ -113,11 +113,11 @@
   [str appendString:@";"];
 }
 
-- (jboolean)isAssignableFrom:(IOSClass *)cls {
+- (bool)isAssignableFrom:(IOSClass *)cls {
   return class_ == [NSObject class] ? ![cls isPrimitive] : [cls.objcClass isSubclassOfClass:class_];
 }
 
-- (jboolean)isEnum {
+- (bool)isEnum {
   const J2ObjcClassInfo *metadata = [self getMetadata];
   if (metadata) {
     return (metadata->modifiers & JavaLangReflectModifier_ENUM) > 0 &&
@@ -127,7 +127,7 @@
   }
 }
 
-- (jboolean)isAnonymousClass {
+- (bool)isAnonymousClass {
   const J2ObjcClassInfo *metadata = [self getMetadata];
   if (metadata) {
     return (metadata->modifiers & 0x8000) > 0;

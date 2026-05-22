@@ -538,20 +538,22 @@ JNIEXPORT void JNICALL
 Java_sun_nio_fs_UnixNativeDispatcher_fstatat0(JNIEnv* env, jclass this, jint dfd,
     jlong pathAddress, jint flag, jobject attrs)
 {
-    int err;
-    struct stat buf;
-    const char* path = (const char*)jlong_to_ptr(pathAddress);
+    // J2ObjC: disable fstatat due to iOS privacy manifest scanning.
+    throwUnixException(env, EACCES);
+    // int err;
+    // struct stat buf;
+    // const char* path = (const char*)jlong_to_ptr(pathAddress);
 
-    if (my_fstatat64_func == NULL) {
-        JNU_ThrowInternalError(env, "should not reach here");
-        return;
-    }
-    RESTARTABLE((*my_fstatat64_func)((int)dfd, path, &buf, (int)flag), err);
-    if (err == -1) {
-        throwUnixException(env, errno);
-    } else {
-        prepAttributes(env, &buf, attrs);
-    }
+    // if (my_fstatat64_func == NULL) {
+    //     JNU_ThrowInternalError(env, "should not reach here");
+    //     return;
+    // }
+    // RESTARTABLE((*my_fstatat64_func)((int)dfd, path, &buf, (int)flag), err);
+    // if (err == -1) {
+    //     throwUnixException(env, errno);
+    // } else {
+    //     prepAttributes(env, &buf, attrs);
+    // }
 }
 
 JNIEXPORT void JNICALL

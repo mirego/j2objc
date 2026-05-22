@@ -18,7 +18,7 @@
 id bool BOOL SEL IMP unichar
 
 # constants
-nil Nil YES NO TRUE FALSE
+nil Nil YES NO TRUE FALSE true false
 
 # J2ObjC types (J2ObjC_types.h)
 jbyte jchar jshort jint jlong jfloat jdouble jboolean volatile_jbyte
@@ -33,9 +33,9 @@ sizeof struct typedef union unsigned volatile
 typeof
 
 # C++ keywords
-and and_eq asm bitand bitor compl const_cast delete dynamic_cast
+and and_eq asm bitand bitor compl concept const_cast delete dynamic_cast
 explicit export friend mutable namespace not not_eq operator or
-or_eq reinterpret_cast static_cast template typeid typename using
+or_eq reinterpret_cast requires static_cast template typeid typename using
 virtual wchar_t xor xor_eq
 
 # variables
@@ -193,7 +193,7 @@ PRAGMA_ENUM_OPTIONS PRAGMA_IMPORT PRAGMA_IMPORT_SUPPORTED PRAGMA_ONCE
 PRAGMA_STRUCT_ALIGN PRAGMA_STRUCT_PACK PRAGMA_STRUCT_PACKPUSH
 TARGET_API_MAC_CARBON TARGET_API_MAC_OS8 TARGET_API_MAC_OSX TARGET_CARBON
 TYPE_BOOL TYPE_EXTENDED TYPE_LONGDOUBLE_IS_DOUBLE TYPE_LONGLONG
-UNIVERSAL_INTERFACES_VERSION
+UNIVERSAL_INTERFACES_VERSION pascal
 
 # Core Foundation definitions
 BIG_ENDIAN BYTE_ORDER LITTLE_ENDIAN PDP_ENDIAN SEVERITY_ERROR

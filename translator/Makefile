@@ -40,7 +40,8 @@ DIST_DEPS = $(JSR305_JAR) j2objc_annotations.jar
 DIST_DEPS += j2objc-kompat-jvm-3.0.jar
 # kotlin interop <<
 INTERNAL_DEPS = $(GUAVA_JAR) $(JSR305_JAR) $(PROCYON_JARS) $(SCENELIB_JAR) \
-    $(PLUME_UTIL_JAR) $(FLOGGER_JARS) $(JSPECIFY_JAR)
+    $(PLUME_UTIL_JAR) $(FLOGGER_JARS) $(JSPECIFY_JAR) \
+    $(ERROR_PRONE_ANNOTATIONS_JAR)
 ifdef JAVA_8
 INTERNAL_DEPS += $(JAVAC_JAR)
 endif
@@ -50,8 +51,8 @@ INTERNAL_DEPS += $(KOTLIN_STDLIB_JAR) $(KOTLIN_METADATA_JVM_JAR) $(JETBRAIN_ANNO
 JAR_DEPS_DIST = $(DIST_DEPS:%=$(DIST_JAR_DIR)/%) $(INTERNAL_DEPS:%=$(JAVA_DEPS_JAR_DIR)/%)
 JAR_DEPS_PATH = $(subst $(eval) ,:,$(strip $(JAR_DEPS_DIST)))
 JUNIT_JAR_DIST = $(DIST_JAR_DIR)/$(JUNIT_JAR)
-TRUTH_JAR_PATH = $(DIST_JAR_DIR)/$(TRUTH_JAR)
-GUAVA_JAR_PATH = $(DIST_JAR_DIR)/$(GUAVA_JAR)
+TRUTH_JAR_PATH = $(JAVA_DEPS_JAR_DIR)/$(TRUTH_JAR)
+GUAVA_JAR_PATH = $(JAVA_DEPS_JAR_DIR)/$(GUAVA_JAR)
 
 CLASSPATH = $(CLASS_DIR):$(JAR_DEPS_PATH)
 TEST_CLASSPATH = \
@@ -199,6 +200,7 @@ JAVA_SOURCES = \
 	gen/LiteralGenerator.java \
 	gen/ObjectiveCHeaderGenerator.java \
 	gen/ObjectiveCImplementationGenerator.java \
+	gen/ObjectiveCMultiHeaderGenerator.java \
 	gen/ObjectiveCSegmentedHeaderGenerator.java \
 	gen/ObjectiveCSourceFileGenerator.java \
 	gen/PropertyGenerator.java \
@@ -255,6 +257,7 @@ JAVA_SOURCES = \
 	translate/SerializationStripper.java \
 	translate/StaticVarRewriter.java \
 	translate/SuperMethodInvocationRewriter.java \
+	translate/SwitchConstructRewriter.java \
 	translate/SwitchRewriter.java \
 	translate/UnsequencedExpressionRewriter.java \
 	translate/VarargsRewriter.java \
@@ -421,6 +424,7 @@ clean_dist: clean
 	@rm -rf $(J2OBJC_JAR_DIST) $(J2OBJC_SH_DIST) $(J2OBJCC_SH_DIST)
 
 COMMON_TEST_FLAGS = \
+  $(J2OBJC_JAVA_FLAGS) \
   -classpath $(TEST_CLASSPATH):$(TEST_BOOT_CLASSPATH) \
   -Xss4m -XX:+UseParallelGC \
   -ea junit.textui.TestRunner

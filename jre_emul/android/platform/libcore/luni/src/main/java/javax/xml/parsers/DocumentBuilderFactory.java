@@ -362,13 +362,7 @@ public abstract class DocumentBuilderFactory {
      * @since 1.5
      */
     public Schema getSchema() {
-        throw new UnsupportedOperationException(
-            "This parser does not support specification \""
-            + this.getClass().getPackage().getSpecificationTitle()
-            + "\" version \""
-            + this.getClass().getPackage().getSpecificationVersion()
-            + "\""
-            );
+        throw new UnsupportedOperationException("This parser does not support specification \"");
 
     }
 
@@ -428,13 +422,7 @@ public abstract class DocumentBuilderFactory {
      * @since 1.5
      */
     public void setSchema(Schema schema) {
-        throw new UnsupportedOperationException(
-            "This parser does not support specification \""
-            + this.getClass().getPackage().getSpecificationTitle()
-            + "\" version \""
-            + this.getClass().getPackage().getSpecificationVersion()
-            + "\""
-            );
+        throw new UnsupportedOperationException("This parser does not support specification \"");
     }
 
     /**
@@ -458,12 +446,7 @@ public abstract class DocumentBuilderFactory {
      */
     public void setXIncludeAware(final boolean state) {
         throw new UnsupportedOperationException(
-            "This parser does not support specification \""
-            + this.getClass().getPackage().getSpecificationTitle()
-            + "\" version \""
-            + this.getClass().getPackage().getSpecificationVersion()
-            + "\""
-            );
+            "This parser does not support specification \"");
     }
 
     /**
@@ -480,11 +463,6 @@ public abstract class DocumentBuilderFactory {
      */
     public boolean isXIncludeAware() {
         throw new UnsupportedOperationException(
-            "This parser does not support specification \""
-            + this.getClass().getPackage().getSpecificationTitle()
-            + "\" version \""
-            + this.getClass().getPackage().getSpecificationVersion()
-            + "\""
-            );
+            "This parser does not support specification \"");
     }
 }

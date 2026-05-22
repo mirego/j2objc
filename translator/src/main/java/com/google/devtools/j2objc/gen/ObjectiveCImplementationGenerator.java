@@ -27,6 +27,7 @@ import java.util.Set;
  *
  * @author Tom Ball
  */
+@SuppressWarnings("UngroupedOverloads")
 public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGenerator {
 
   private final Options options;
@@ -123,21 +124,29 @@ public class ObjectiveCImplementationGenerator extends ObjectiveCSourceFileGener
   private void printImports() {
     Set<String> includeFiles = Sets.newTreeSet();
     includeFiles.add("J2ObjC_source.h");
-    includeFiles.add(getGenerationUnit().getOutputPath() + ".h");
+    String outputPath = getGenerationUnit().getOutputPath();
+    if (options.generateSeparateHeaders()) {
+      for (GeneratedType generatedType : getOrderedTypes()) {
+        includeFiles.add(getHeaderPath(generatedType, outputPath) + ".h");
+      }
+    } else {
+      includeFiles.add(outputPath + ".h");
+    }
     for (GeneratedType generatedType : getOrderedTypes()) {
       for (Import imp : generatedType.getImplementationIncludes()) {
-        if (!isLocalType(imp.getTypeName())) {
+        if (!isLocalType(imp.getTypeName()) && !imp.getImportFileName().isEmpty()) {
           includeFiles.add(imp.getImportFileName());
         }
       }
     }
 
+    newline();
+    String directive = options.generateSeparateHeaders() ? "#import" : "#include";
     for (String header : includeFiles) {
-      if (!header.endsWith("common.h")) {
-        printf("#include \"%s\"\n", header);
-      } else {
-        printf("#import \"%s\"\n", header);
-      }
+      // kotlin interop >>
+      String headerDirective = header.endsWith("common.h") ? "#import" : directive;
+      printf("%s \"%s\"\n", headerDirective, header);
+      // kotlin interop <<
     }
 
     for (String code : getGenerationUnit().getNativeImplementationBlocks()) {

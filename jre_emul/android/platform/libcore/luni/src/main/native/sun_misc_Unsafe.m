@@ -53,20 +53,10 @@ static void unalignedPointer(void *ptr) {
   CHECK_ADDR(TYPE, ptr) \
   __c11_atomic_store((volatile_##TYPE *)ptr, newValue, __ATOMIC_##MEM_ORDER);
 
-#define GET_OBJECT_IMPL() \
-  uintptr_t ptr = PTR(obj, offset); \
-  CHECK_ADDR(id, ptr) \
-  return *((id *)ptr);
-
 #define GET_OBJECT_VOLATILE_IMPL() \
   uintptr_t ptr = PTR(obj, offset); \
   CHECK_ADDR(id, ptr) \
   return JreLoadVolatileId((volatile_id *)ptr);
-
-#define PUT_OBJECT_IMPL() \
-  uintptr_t ptr = PTR(obj, offset); \
-  CHECK_ADDR(id, ptr) \
-  JreStrongAssign((id *)ptr, newValue);
 
 #define PUT_OBJECT_VOLATILE_IMPL() \
   uintptr_t ptr = PTR(obj, offset); \
@@ -117,39 +107,36 @@ jlong Java_sun_misc_Unsafe_allocateMemory(JNIEnv *env, jobject self, jlong bytes
  * Method:    compareAndSwapInt
  * Signature: (Ljava/lang/Object;JII)Z
  */
-jboolean Java_sun_misc_Unsafe_compareAndSwapInt(
-    JNIEnv *env, jobject self, jobject obj, jlong offset, jint expectedValue, jint newValue) {
+bool Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv *env, jobject self, jobject obj, jlong offset,
+                                            jint expectedValue, jint newValue) {
   uintptr_t ptr = PTR(obj, offset);
   CHECK_ADDR(jint, ptr)
   return __c11_atomic_compare_exchange_strong(
       (volatile_jint *)ptr, &expectedValue, newValue, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
 
-
 /*
  * Method:    compareAndSwapLong
  * Signature: (Ljava/lang/Object;JJJ)Z
  */
-jboolean Java_sun_misc_Unsafe_compareAndSwapLong(
-    JNIEnv *env, jobject self, jobject obj, jlong offset, jlong expectedValue, jlong newValue) {
+bool Java_sun_misc_Unsafe_compareAndSwapLong(JNIEnv *env, jobject self, jobject obj, jlong offset,
+                                             jlong expectedValue, jlong newValue) {
   uintptr_t ptr = PTR(obj, offset);
   CHECK_ADDR(jlong, ptr)
   return __c11_atomic_compare_exchange_strong(
       (volatile_jlong *)ptr, &expectedValue, newValue, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
 
-
 /*
  * Method:    compareAndSwapObject
  * Signature: (Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z
  */
-jboolean Java_sun_misc_Unsafe_compareAndSwapObject(
-    JNIEnv *env, jobject self, jobject obj, jlong offset, jobject expectedValue, jobject newValue) {
+bool Java_sun_misc_Unsafe_compareAndSwapObject(JNIEnv *env, jobject self, jobject obj, jlong offset,
+                                               jobject expectedValue, jobject newValue) {
   uintptr_t ptr = PTR(obj, offset);
   CHECK_ADDR(id, ptr)
   return JreCompareAndSwapVolatileStrongId((volatile_id *)ptr, expectedValue, newValue);
 }
-
 
 /*
  * Method:    freeMemory
@@ -264,56 +251,48 @@ void Java_sun_misc_Unsafe_fullFence(JNIEnv *env, jobject self) {
  * Method:    getBoolean
  * Signature: (Ljava/lang/Object;J)Z
  */
-jboolean Java_sun_misc_Unsafe_getBoolean
-(JNIEnv *env, jobject self, jobject obj, jlong offset) {
-  GET_IMPL_OFFSET(jboolean, RELAXED)
+bool Java_sun_misc_Unsafe_getBoolean(JNIEnv *env, jobject self, jobject obj, jlong offset) {
+  GET_IMPL_OFFSET(bool, RELAXED)
 }
 
 /*
  * Method:    getBooleanVolatile
  * Signature: (Ljava/lang/Object;J)Z
  */
-jboolean Java_sun_misc_Unsafe_getBooleanVolatile(
-    JNIEnv *env, jobject self, jobject obj, jlong offset) {
-  GET_IMPL_OFFSET(jboolean, SEQ_CST)
+bool Java_sun_misc_Unsafe_getBooleanVolatile(JNIEnv *env, jobject self, jobject obj, jlong offset) {
+  GET_IMPL_OFFSET(bool, SEQ_CST)
 }
-
 
 /*
  * Method:    putBoolean
  * Signature: (Ljava/lang/Object;JZ)V
  */
-void Java_sun_misc_Unsafe_putBoolean(
-    JNIEnv *env, jobject self, jobject obj, jlong offset, jboolean newValue) {
-  PUT_IMPL_OFFSET(jboolean, RELAXED)
+void Java_sun_misc_Unsafe_putBoolean(JNIEnv *env, jobject self, jobject obj, jlong offset,
+                                     bool newValue) {
+  PUT_IMPL_OFFSET(bool, RELAXED)
 }
 
 /*
  * Method:    putBooleanVolatile
  * Signature: (Ljava/lang/Object;JZ)V
  */
-void Java_sun_misc_Unsafe_putBooleanVolatile(
-    JNIEnv *env, jobject self, jobject obj, jlong offset, jboolean newValue) {
-  PUT_IMPL_OFFSET(jboolean, SEQ_CST)
-}
-
+void Java_sun_misc_Unsafe_putBooleanVolatile(JNIEnv *env, jobject self, jobject obj, jlong offset,
+                                             bool newValue){PUT_IMPL_OFFSET(bool, SEQ_CST)}
 
 /*
  * Method:    getByte
  * Signature: (J)B
  */
-jbyte Java_sun_misc_Unsafe_getByte__J(JNIEnv *env, jobject self, jlong address) {
-  GET_IMPL(jbyte, RELAXED)
-}
+jbyte Java_sun_misc_Unsafe_getByte__J(JNIEnv *env, jobject self,
+                                      jlong address){GET_IMPL(jbyte, RELAXED)}
 
 /*
  * Method:    getByte
  * Signature: (Ljava/lang/Object;J)B
  */
-jbyte Java_sun_misc_Unsafe_getByte__Ljava_lang_Object_2J(
-    JNIEnv *env, jobject self, jobject obj, jlong offset) {
-  GET_IMPL_OFFSET(jbyte, RELAXED)
-}
+jbyte Java_sun_misc_Unsafe_getByte__Ljava_lang_Object_2J(JNIEnv *env, jobject self, jobject obj,
+                                                         jlong offset){
+    GET_IMPL_OFFSET(jbyte, RELAXED)}
 
 /*
  * Method:    getByteVolatile
@@ -635,7 +614,7 @@ void Java_sun_misc_Unsafe_putLongVolatile(
  * Signature: (Ljava/lang/Object;J)Ljava/lang/Object;
  */
 jobject Java_sun_misc_Unsafe_getObject(JNIEnv *env, jobject self, jobject obj, jlong offset) {
-  GET_OBJECT_IMPL()
+  GET_OBJECT_VOLATILE_IMPL()
 }
 
 /*
@@ -653,7 +632,7 @@ jobject Java_sun_misc_Unsafe_getObjectVolatile(
  */
 void Java_sun_misc_Unsafe_putObject(
     JNIEnv *env, jobject self, jobject obj, jlong offset, jobject newValue) {
-  PUT_OBJECT_IMPL()
+  PUT_OBJECT_VOLATILE_IMPL()
 }
 
 /*
