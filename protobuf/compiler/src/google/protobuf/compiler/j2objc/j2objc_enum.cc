@@ -35,6 +35,7 @@
 #include <google/protobuf/compiler/j2objc/j2objc_enum.h>
 #include <google/protobuf/compiler/j2objc/j2objc_helpers.h>
 
+#include <set>
 #include <string>
 
 #include "google/protobuf/compiler/j2objc/common.h"
@@ -83,18 +84,34 @@ void EnumGenerator::GenerateHeader(io::Printer* printer) {
   printer->Indent();
 
   for (int i = 0; i < canonical_values_.size(); i++) {
-      printer->Print("$ordinalname$ = $ordinal$,\n", "ordinalname",
-                     EnumOrdinalName(canonical_values_[i]), "ordinal",
-                     SimpleItoa(i));
+    printer->Print("$ordinalname$ NS_SWIFT_NAME($swiftname$) = $ordinal$,\n",
+                   "ordinalname", EnumOrdinalName(canonical_values_[i]),
+                   "swiftname", PropertyName(canonical_values_[i]), "ordinal",
+                   SimpleItoa(i));
   }
   if (!descriptor_->is_closed()) {
-      printer->Print("$ordinalname$_UNRECOGNIZED = $count$,\n", "ordinalname",
-                     COrdinalEnumName(descriptor_), "count",
-                     SimpleItoa(canonical_values_.size()));
+    printer->Print(
+        "$ordinalname$_UNRECOGNIZED NS_SWIFT_NAME(unrecognized) = $count$,\n",
+        "ordinalname", COrdinalEnumName(descriptor_), "count",
+        SimpleItoa(canonical_values_.size()));
   }
 
   printer->Outdent();
   printer->Print("};\n\n");
+
+  if (IsGenerateProperties(descriptor_->file())) {
+    printer->Print("typedef $ordinalenumname$ KNP$ordinalenumname$;\n",
+                   "ordinalenumname", COrdinalEnumName(descriptor_));
+    for (int i = 0; i < canonical_values_.size(); i++) {
+      printer->Print("#define KNP$ordinalname$ $ordinalname$\n", "ordinalname",
+                     EnumOrdinalName(canonical_values_[i]));
+    }
+    if (!descriptor_->is_closed()) {
+      printer->Print(
+          "#define KNP$ordinalname$_UNRECOGNIZED $ordinalname$_UNRECOGNIZED\n",
+          "ordinalname", COrdinalEnumName(descriptor_));
+    }
+  }
 
   printer->Print(
       "\n// Java enum ordinal preprocessor name that allows for stricter enum "
@@ -180,6 +197,9 @@ void EnumGenerator::GenerateHeader(io::Printer* printer) {
     printer->Print("- ($valuepreprocessorname$)number;\n",
                    "valuepreprocessorname",
                    CValuePreprocessorName(descriptor_));
+    printer->Print("@property(readonly) $ordinalpreprocessorname$ nsEnum;\n",
+                   "ordinalpreprocessorname",
+                   COrdinalPreprocessorName(descriptor_));
   }
 
   // We add an explicit Swift name to prevent weird implicit conversions
@@ -354,6 +374,12 @@ void EnumGenerator::GenerateSource(io::Printer* printer) {
         "}\n",
         "classname", ClassName(descriptor_), "valuepreprocessorname",
         CValuePreprocessorName(descriptor_));
+    printer->Print(
+        "- ($ordinalpreprocessorname$)nsEnum {\n"
+        "  return [self ordinal];\n"
+        "}\n",
+        "classname", ClassName(descriptor_), "ordinalpreprocessorname",
+        COrdinalPreprocessorName(descriptor_));
   }
 
   printer->Print(
@@ -408,20 +434,14 @@ void EnumGenerator::GenerateSource(io::Printer* printer) {
       "\n"
       "$classname$ *$classname$_valueOfWithNSString_(NSString *name) {\n"
       "  $classname$_initialize();\n"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if ([name isEqual:[e name]]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  @throw create_JavaLangIllegalArgumentException_initWithNSString_("
-      "name);\n",
+      "  return CGPValueOfEnumOrOneOfWithNSString(name, $classname$_values_,"
+      " $count$);\n"
+      "}\n"
+      "\n",
       "classname", ClassName(descriptor_), "count",
       SimpleItoa(enum_count));  // Include UNRECOGNIZED constant.
 
   printer->Print(
-      "}\n"
-      "\n"
       "$classname$ *$classname$_valueOfWithInt_($valuepreprocessorname$ value) "
       "{\n"
       "  return $classname$_forNumberWithInt_(value);\n"
@@ -430,13 +450,8 @@ void EnumGenerator::GenerateSource(io::Printer* printer) {
       "$classname$ *$classname$_forNumberWithInt_($valuepreprocessorname$ "
       "value) {\n"
       "  $classname$_initialize();\n"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if (value == [e getNumber]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  return nil;\n"
+      "  return CGPValueOfEnumOrOneOfWithInt(value, $classname$_values_,\n"
+      " $count$);\n"
       "}\n"
       "\n",
       "classname", ClassName(descriptor_), "count", SimpleItoa(canonical_count),

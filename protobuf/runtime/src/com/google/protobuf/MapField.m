@@ -101,7 +101,7 @@ static CGPMapFieldData *NewData() {
 // The passed in key and value must already have an incremented retain count if they have a
 // retainable type.
 static CGPMapFieldEntry *NewEntryConsuming(CGPValue key, CGPValue value, uint32_t hash) {
-  CGPMapFieldEntry *entry = malloc(sizeof(CGPMapFieldEntry));
+  CGPMapFieldEntry *entry = calloc(sizeof(CGPMapFieldEntry), 1);
   entry->key = key;
   entry->value = value;
   entry->hash = hash;
@@ -682,7 +682,7 @@ NSDictionary *CGPMapFieldAsDict(CGPMapField *field, CGPFieldJavaType keyType,
   id<JavaUtilMap> map = CGPMapFieldAsJavaMap(field, keyType, valueType);
   // Alternatively, we could use a NSDict subclass here, similar to the "Java" map impl,
   // avoiding the copy -- or copy the underlying data from the underlying data structures directly.
-  NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary *result = [[[NSMutableDictionary alloc] init] autorelease];
   for (id entry in map.entrySet) {
     result[[entry getKey]] = [entry getValue];
   }

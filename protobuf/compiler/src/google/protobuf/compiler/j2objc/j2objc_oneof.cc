@@ -176,7 +176,7 @@ void OneofGenerator::GenerateHeader(io::Printer* printer) {
       printer->Print(
           "@property(class, readonly, retain) $classname$ *$name$;\n",
           "classname", CaseClassName(descriptor_), "name",
-          descriptor_->field(i)->camelcase_name());
+          SafeName(descriptor_->field(i)->camelcase_name()));
     }
     printer->Print("@property(class, readonly, retain) $classname$ *$name$;\n",
                    "classname", CaseClassName(descriptor_), "name",
@@ -310,7 +310,7 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
           "}\n",
           "classname", CaseClassName(descriptor_), "upper_name",
           CaseValueName(descriptor_->field(i)), "camel_case_name",
-          descriptor_->field(i)->camelcase_name());
+          SafeName(descriptor_->field(i)->camelcase_name()));
     }
     printer->Print(
         "+ ($classname$ *) $camel_case_name$ {\n"
@@ -334,15 +334,9 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
       "}\n"
       "\n"
       "$classname$ *$classname$_valueOfWithNSString_(NSString *name) {\n"
-      "  $classname$_initialize();"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if ([name isEqual:[e name]]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  @throw create_JavaLangIllegalArgumentException_initWithNSString_("
-      "name);\n"
+      "  $classname$_initialize();\n"
+      "  return CGPValueOfEnumOrOneOfWithNSString(name, $classname$_values_,"
+      " $count$);\n"
       "}\n"
       "\n"
       "$classname$ *$classname$_valueOfWithInt_(jint value) {\n"
@@ -350,14 +344,9 @@ void OneofGenerator::GenerateSource(io::Printer* printer) {
       "}\n"
       "\n"
       "$classname$ *$classname$_forNumberWithInt_(jint value) {\n"
-      "  $classname$_initialize();"
-      "  for (jint i = 0; i < $count$; i++) {\n"
-      "    $classname$ *e = $classname$_values_[i];\n"
-      "    if (value == [e getNumber]) {\n"
-      "      return e;\n"
-      "    }\n"
-      "  }\n"
-      "  return nil;\n"
+      "  $classname$_initialize();\n"
+      "  return CGPValueOfEnumOrOneOfWithInt(value, $classname$_values_,\n"
+      " $count$);\n"
       "}\n"
       "\n"
       "$classname$ *$classname$_fromOrdinal(NSUInteger ordinal) {\n"

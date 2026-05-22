@@ -107,6 +107,8 @@ public class TypeImplementationGenerator extends TypeGenerator {
     syncFilename(getSourceFilePath());
 
     printInitFlagDefinition();
+    printEnumExterns();
+    printStaticFieldExterns();
     printStaticVars();
     printEnumValuesArray();
 
@@ -115,6 +117,10 @@ public class TypeImplementationGenerator extends TypeGenerator {
       syncLineNumbers(typeNode.getName()); // avoid doc-comment
       printf("@implementation %s\n", typeName);
       printProperties();
+      if (!typeElement.getKind().isInterface() && needsKotlinCompanionClass()) {
+        printf("\n+ (id<%sCompanion>)companion {", typeName);
+        printf("\n  return (id<%sCompanion>)self;\n}\n", typeName);
+      }
       printStaticAccessors();
       printInnerDeclarations();
       printInitializeMethod();
@@ -261,6 +267,50 @@ public class TypeImplementationGenerator extends TypeGenerator {
     }
   }
 
+  /**
+   * Prints extern declarations for enum constant accessors.
+   *
+   * <p>Enum accessors are declared as {@code inline} in the header. If the compiler decides not to
+   * inline a call, it will expect an external definition. These extern declarations ensure that the
+   * compiler emits a non-inline version of the function in the implementation file.
+   */
+  private void printEnumExterns() {
+    if (typeNode instanceof EnumDeclaration enumDeclaration) {
+      newline();
+      for (EnumConstantDeclaration constant : enumDeclaration.getEnumConstants()) {
+        String varName = nameTable.getVariableBaseName(constant.getVariableElement());
+        printf("extern %s *%s_get_%s(void);\n", typeName, typeName, varName);
+      }
+    }
+  }
+
+  /**
+   * Prints extern declarations for static field accessors.
+   *
+   * <p>Static field accessors are declared as {@code inline} in the header. If the compiler decides
+   * not to inline a call, it will expect an external definition. These extern declarations ensure
+   * that the compiler emits a non-inline version of the function in the implementation file.
+   */
+  private void printStaticFieldExterns() {
+    if (typeNode.isDeadClass()) {
+      return;
+    }
+    for (VariableDeclarationFragment fragment : getStaticFields()) {
+      VariableElement var = fragment.getVariableElement();
+      String objcTypePadded = paddedType(nameTable.getObjCTypeDeclaration(var.asType()), var);
+      String name = nameTable.getVariableShortName(var);
+      newline();
+      printf("extern %s%s_get_%s(void);\n", objcTypePadded, typeName, name);
+      if (!ElementUtil.isFinal(var)) {
+        printf("extern %s%s_set_%s(%svalue);\n", objcTypePadded, typeName, name, objcTypePadded);
+        if (var.asType().getKind().isPrimitive() && !ElementUtil.isVolatile(var)) {
+          String objcType = nameTable.getObjCTypeDeclaration(var.asType());
+          printf("extern %s *%s_getRef_%s(void);\n", objcType, typeName, name);
+        }
+      }
+    }
+  }
+
   private void printTypeLiteralImplementation() {
     if (needsTypeLiteral()) {
       newline();
@@ -321,7 +371,9 @@ public class TypeImplementationGenerator extends TypeGenerator {
     syncLineNumbers(m);  // avoid doc-comment
     // Implementations should not contain generics as this allows us to avoid type errors
     // when translating to ObjC's more limited system of generics.
-    print(getMethodSignature(m, false) + " ");
+    print(
+        getMethodSignature(m, /* generatorAllowsGenerics= */ false, /* staticToInstance= */ false)
+            + " ");
     print(reindent(generateStatement(m.getBody())) + "\n");
     if (isDesignatedInitializer) {
       println("J2OBJC_IGNORE_DESIGNATED_END");

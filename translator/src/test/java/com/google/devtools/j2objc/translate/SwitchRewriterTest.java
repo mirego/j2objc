@@ -214,22 +214,24 @@ public class SwitchRewriterTest extends GenerationTest {
             """,
             "Test",
             "Test.m");
-    assertTranslatedLines(translation,
-        "switch (JreIndexOfStr(s, (id[]){ @\"foo\", "
-            + "@\"bar\", Test_constant, Foo_TEST, Bar_TEST }, 5)) {",
-        "  case 0:",
-        "  return 42;",
-        "  case 1:",
-        "  return 666;",
-        "  case 2:",
-        "  return -1;",
-        "  case 3:",
-        "  return -2;",
-        "  case 4:",
-        "  return -3;",
-        "  default:",
-        "  return -1;",
-        "}");
+    assertTranslatedLines(
+        translation,
+        """
+        switch (JreIndexOfStr(s, (id[]){ @"foo", @"bar", Test_constant, Foo_TEST, Bar_TEST }, 5)) {
+          case 0:
+          return 42;
+          case 1:
+          return 666;
+          case 2:
+          return -1;
+          case 3:
+          return -2;
+          case 4:
+          return -3;
+          default:
+          return -1;
+        }
+        """);
   }
 
   /**
@@ -279,15 +281,18 @@ public class SwitchRewriterTest extends GenerationTest {
             """,
             "Test",
             "Test.m");
-    assertTranslatedLines(translation,
-        "switch (i) {",
-        "  case 1:",
-        "  return 'a';",
-        "  case 2:",
-        "  return 'b';",
-        "  default:",
-        "  return 'z';",
-        "}");
+    assertTranslatedLines(
+        translation,
+        """
+        switch (i) {
+          case 1:
+          return 'a';
+          case 2:
+          return 'b';
+          default:
+          return 'z';
+        }
+        """);
   }
 
   public void testEmptySwitchStatement() throws IOException {
@@ -542,7 +547,6 @@ public class SwitchRewriterTest extends GenerationTest {
         """);
   }
 
-  @SuppressWarnings("StringConcatToTextBlock")
   public void testEnumConstAsSwitchExpression() throws IOException {
     // Snippet from Guava's com.google.common.math.ToDoubleRounder.
     String translation =
@@ -567,15 +571,16 @@ public class SwitchRewriterTest extends GenerationTest {
             "Test.m");
     assertTranslatedLines(
         translation,
-        "switch ([mode ordinal]) {",
-        "  case JavaMathRoundingMode_Enum_DOWN:",
-        "    return JavaLangDouble_MAX_VALUE;",
-        "  default:",
-        "    return [x doubleValue];",
-        "}");
+        """
+        switch ([mode ordinal]) {
+          case JavaMathRoundingMode_Enum_DOWN:
+            return JavaLangDouble_MAX_VALUE;
+          default:
+            return [x doubleValue];
+        }
+        """);
   }
 
-  @SuppressWarnings("StringConcatToTextBlock")
   public void testSwitchExpressionReturnForAllEnumPaths() throws IOException {
     // Snippet from Guava's com.google.common.base.Stopwatch.
     // Verifies that a switch using an enum can have all paths handled without a default case.
@@ -711,6 +716,41 @@ public class SwitchRewriterTest extends GenerationTest {
           }
         }
 
+        """);
+  }
+
+  public void testSwitchExpressionCaseConstantExpression() throws IOException {
+    String translation =
+        translateSourceFile(
+            """
+            class Test {
+              static final int PLACES = 1 << 1;
+              public Object get(int index) {
+                return switch (index) {
+                  case 2 + 1 -> null;
+                  case 10 >> PLACES -> null;
+                  default -> null;
+                };
+              }
+            }
+            """,
+            "Test",
+            "Test.m");
+    assertTranslatedLines(
+        translation,
+        """
+        - (id)getWithInt:(int32_t)index {
+          return ^ id (){
+            switch (index) {
+              case 3:
+              return nil;
+              case 2:
+              return nil;
+              default:
+              return nil;
+            }
+          }();
+        }
         """);
   }
 }
