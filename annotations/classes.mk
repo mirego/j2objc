@@ -24,8 +24,3 @@ ANNOTATION_SOURCE_JAVA = \
     com/google/j2objc/annotations/UsedByNative.java \
     com/google/j2objc/annotations/Weak.java \
     com/google/j2objc/annotations/WeakOuter.java \
-
-# kotlin interop >>
-ANNOTATION_SOURCE_JAVA += \
-    com/google/j2objc/annotations/J2ObjCShellMethod.java \
-# kotlin interop <<

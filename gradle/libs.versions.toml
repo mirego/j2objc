@@ -1,0 +1,371 @@
+#
+# See https://www.notion.so/Dependencies-Updates-5407c33440da48c8a467be8abee91059
+#
+# When updating the `Kotlin` version, update the following too:
+# - kotlin-interop/j2objc/java_deps/pom.xml
+# - kotlin-interop/j2objc/java_deps/jars.mk
+
+[versions]
+# To keep up to date
+aboutlibraries = "14.2.0" # https://github.com/mikepenz/AboutLibraries/releases
+adarshr-test-logger = "4.0.0" # https://github.com/radarsh/gradle-test-logger-plugin/releases
+android-junit = "2.0.1" # https://github.com/mannodermaus/android-junit-framework/releases
+androidx-annotation = "1.10.0" # https://developer.android.com/jetpack/androidx/releases/annotation
+androidx-appcompat = "1.7.1" # https://developer.android.com/jetpack/androidx/releases/appcompat
+androidx-cardview = "1.0.0" # https://developer.android.com/jetpack/androidx/releases/cardview
+androidx-concurrent = "1.3.0" # https://developer.android.com/jetpack/androidx/releases/concurrent
+androidx-constraintlayout = "2.2.1" # https://developer.android.com/jetpack/androidx/releases/constraintlayout
+androidx-core = "1.18.0" # https://developer.android.com/jetpack/androidx/releases/core
+androidx-emoji2 = "1.6.0" # https://developer.android.com/jetpack/androidx/releases/emoji2
+androidx-exifinterface = "1.4.2" # https://developer.android.com/jetpack/androidx/releases/exifinterface
+androidx-fragment = "1.8.9" # https://developer.android.com/jetpack/androidx/releases/fragment
+androidx-leanback = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/leanback
+androidx-legacy = "1.0.0" # https://developer.android.com/jetpack/androidx/releases/legacy
+androidx-lifecycle = "2.10.0" # https://developer.android.com/jetpack/androidx/releases/lifecycle
+androidx-mediarouter = "1.8.1" # https://developer.android.com/jetpack/androidx/releases/mediarouter
+androidx-preference = "1.2.1" # https://developer.android.com/jetpack/androidx/releases/preference
+androidx-recyclerview = "1.4.0" # https://developer.android.com/jetpack/androidx/releases/recyclerview
+androidx-tvprovider = "1.1.0" # https://developer.android.com/jetpack/androidx/releases/tvprovider
+androidx-vectordrawable = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/vectordrawable
+androidx-work = "2.11.2" # https://developer.android.com/jetpack/androidx/releases/work
+auth0 = "3.16.0" # https://github.com/auth0/Auth0.Android/releases
+branch-io = "5.21.1" # https://github.com/BranchMetrics/android-branch-deep-linking-attribution/releases
+cast-framework = "22.3.1" # https://developers.google.com/cast/docs/release-notes
+coil = "3.5.0-beta01" # https://github.com/coil-kt/coil/releases
+commons-collections4 = "4.5.0" # https://commons.apache.org/proper/commons-collections/changes.html
+commons-io = "2.22.0" # https://commons.apache.org/proper/commons-io/changes.html
+commons-lang3 = "3.20.0" # https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/versions
+commons-text = "1.15.0" # https://mvnrepository.com/artifact/org.apache.commons/commons-text/versions
+compile-testing = "0.23.0" # https://github.com/google/compile-testing/releases
+compose-activity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity
+compose-lifecycle = "2.11.0-beta01" # https://github.com/JetBrains/compose-multiplatform/releases
+compose-material3 = "1.11.0-alpha07" # https://github.com/JetBrains/compose-multiplatform/releases
+compose-multiplatform = "1.11.0" # https://github.com/JetBrains/compose-multiplatform/releases
+crashkios = "0.9.0" # https://github.com/touchlab/CrashKiOS/releases
+dagger = "2.59.2" # https://github.com/google/dagger/releases
+desugar-jdk-libs = "2.1.5" # https://mvnrepository.com/artifact/com.android.tools/desugar_jdk_libs
+detekt = "2.0.0-alpha.3" # https://github.com/detekt/detekt/releases
+evo-inflector = "2.0" # https://github.com/atteo/evo-inflector#changes
+firebase = "34.13.0" # https://firebase.google.com/support/release-notes/android#latest_sdk_versions
+firebase-crashlytics = "3.0.7" # https://mvnrepository.com/artifact/com.google.firebase/firebase-crashlytics-gradle
+gmazzo-buildconfig = "6.0.9" # https://github.com/gmazzo/gradle-buildconfig-plugin/releases
+google-gms-services = "4.4.4" # https://developers.google.com/android/guides/google-services-plugin
+#noinspection UnusedVersionCatalogEntry
+gradle-versions = "0.54.0" # https://github.com/ben-manes/gradle-versions-plugin/releases
+groovy = "5.0.6" # https://github.com/apache/groovy/tags
+gson = "2.14.0" # https://github.com/google/gson/releases
+hamcrest = "3.0" # https://github.com/hamcrest/JavaHamcrest/releases
+inflationx-calligraphy = "3.1.1" # https://github.com/InflationX/Calligraphy/tags
+jetbrains-annotations = "26.1.0" # https://github.com/JetBrains/java-annotations/releases
+json = "20251224" # https://github.com/stleary/JSON-java/releases
+junit = "6.0.3" # https://docs.junit.org/6.0.3/release-notes.html
+junit-params = "1.1.1" # https://github.com/Pragmatists/JUnitParams/releases
+kotest = "6.1.11" # https://github.com/kotest/kotest/releases
+kotlinpoet = "2.3.0" # https://github.com/square/kotlinpoet/releases
+kotlinx-atomicfu = "0.32.1" # https://github.com/Kotlin/kotlinx-atomicfu/releases
+kotlinx-coroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinx-datetime = "0.8.0" # https://github.com/Kotlin/kotlinx-datetime/releases
+ksp = "2.3.8" # https://github.com/google/ksp/releases
+ktor = "3.4.3" # https://github.com/ktorio/ktor/releases
+markdown-renderer = "0.40.2" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
+markwon = "4.6.2" # https://github.com/noties/Markwon/releases
+material = "1.14.0" # https://github.com/material-components/material-components-android/releases
+material-progressbar = "1.6.1" # https://github.com/zhanghai/MaterialProgressBar/releases
+mockito = "5.23.0" # https://github.com/mockito/mockito/releases
+mockk = "1.14.9" # https://github.com/mockk/mockk/releases
+mokkery = "3.3.0" # https://github.com/lupuuss/Mokkery/releases
+newrelic-agent = "7.7.4" # https://docs.newrelic.com/docs/release-notes/mobile-release-notes/android-release-notes/
+okhttp = "5.3.2" # https://github.com/square/okhttp/tags
+play-services-analytics = "18.1.1" # https://mvnrepository.com/artifact/com.google.android.gms/play-services-analytics
+play-services-location = "21.3.0" # https://mvnrepository.com/artifact/com.google.android.gms/play-services-location
+process-phoenix = "3.0.0" # https://github.com/JakeWharton/ProcessPhoenix/releases
+reflections = "0.10.2" # https://github.com/ronmamo/reflections/releases
+semver4j = "6.0.0" # https://github.com/semver4j/semver4j/releases
+skie = "0.10.11" # https://github.com/touchlab/SKIE/releases
+slf4j = "2.0.18" # https://mvnrepository.com/artifact/org.slf4j/slf4j-nop
+spock-groovy5 = "2.4-groovy-5.0" # https://github.com/spockframework/spock/releases
+zip4j = "2.11.6" # https://github.com/srikanth-lingala/zip4j/releases
+zxing = "3.5.4" # https://github.com/zxing/zxing/releases
+
+# To keep up to date - limited by constraints (move them in and out of this section)
+#noinspection UnusedVersionCatalogEntry
+agp = "9.1.1" # https://mvnrepository.com/artifact/com.android.application/com.android.application.gradle.plugin
+#noinspection NewerVersionAvailable - 2.1.1 is broken
+inflationx-viewpump = "2.0.3" # https://github.com/InflationX/ViewPump/releases
+#noinspection NewerVersionAvailable,GradleDependency -- Stuck at 2.3.10 because of SKIE
+kotlin = "2.3.10" # https://github.com/JetBrains/kotlin/releases -- also update: kotlin-interop/j2objc/java_deps/pom.xml, kotlin-interop/j2objc/java_deps/jars.mk
+#noinspection NewerVersionAvailable - Stuck at 1.10.0 because of Kotlin
+kotlinx-serialization = "1.10.0" # https://github.com/Kotlin/kotlinx.serialization/releases
+#noinspection NewerVersionAvailable - Version must be aligned across all their project (do not update without being asked by Bell)
+netradar = "2.7.0-b.3.6-with-id-no-bg" # https://maven.netradar.com/com/netradar/app-analyzer-lib/
+#noinspection NewerVersionAvailable - Version must be the same as the one identified in the OneTrust dashboard
+onetrust = "202510.2.4.0" # https://mvnrepository.com/artifact/com.onetrust.cmp/native-sdk
+
+# To keep up to date - forks
+#noinspection GradleDependency
+exoplayer = "1.8.0.0017" # https://github.com/mirego/androidx-media
+
+###############################################
+# YOU CAN IGNORE EVERYTHING BEYOND THIS POINT #
+###############################################
+
+# Do not update
+#noinspection NewerVersionAvailable
+checker-framework = "3.49.3" # https://github.com/eisop/checker-framework/releases
+closure-compiler = "v20240317" # https://github.com/google/closure-compiler/tags
+flogger = "0.9" # https://github.com/google/flogger/releases
+google-truth = "1.4.5" # https://github.com/google/truth/releases
+#noinspection NewerVersionAvailable
+guava = "33.6.0-jre" # https://github.com/google/guava/releases -- also update: kotlin-interop/j2js/generator/pom.xml, kotlin-interop/j2objc/java_deps/pom.xml, kotlin-interop/j2objc/java_deps/jars.mk
+hamcrest-legacy = "1.3" # https://mvnrepository.com/artifact/org.hamcrest/hamcrest-all
+jspecify = "1.0.0" # https://github.com/jspecify/jspecify/releases
+junit-dataprovider = "1.13.1" # https://mvnrepository.com/artifact/com.tngtech.java/junit-dataprovider
+#noinspection NewerVersionAvailable
+mozilla-rhino = "1.7.14.1" # https://mvnrepository.com/artifact/org.mozilla/rhino
+nashorn = "15.7" # https://github.com/openjdk/nashorn/tags
+#noinspection NewerVersionAvailable
+plumelib = "1.12.3" # https://github.com/plume-lib/plume-util/releases
+procyon = "0.6.0" # https://github.com/mstrobel/procyon/releases
+#noinspection NewerVersionAvailable
+protobuf = "3.25.8" # https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/versions
+#noinspection NewerVersionAvailable
+selenium = "4.39.0" # https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
+#noinspection NewerVersionAvailable
+spock-groovy4 = "2.4-groovy-4.0" # https://github.com/spockframework/spock/releases
+#noinspection NewerVersionAvailable
+webdrivermanager = "6.3.3" # https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager
+
+# Unmaintained
+findbugs-jsr305 = "3.0.2" # https://github.com/findbugsproject/findbugs/releases
+flexbox = "3.0.0" # https://github.com/google/flexbox-layout/releases
+javapoet = "1.13.0" # https://github.com/square/javapoet/tags
+otto = "1.3.8" # https://github.com/square/otto/tags
+
+# Kotlin interop internal libraries and plugins
+kotlin-interop = "0.0.1"
+
+[libraries]
+# AndroidX 
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "androidx-cardview" }
+androidx-concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "androidx-concurrent" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
+androidx-emoji2 = { module = "androidx.emoji2:emoji2", version.ref = "androidx-emoji2" }
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exifinterface" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidx-fragment" }
+androidx-leanback = { module = "androidx.leanback:leanback", version.ref = "androidx-leanback" }
+androidx-leanback-preference = { module = "androidx.leanback:leanback-preference", version.ref = "androidx-leanback" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "androidx-legacy" }
+androidx-lifecycle-common = { module = "androidx.lifecycle:lifecycle-common", version.ref = "androidx-lifecycle" }
+androidx-mediarouter = { module = "androidx.mediarouter:mediarouter", version.ref = "androidx-mediarouter" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "androidx-preference" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
+androidx-tvprovider = { module = "androidx.tvprovider:tvprovider", version.ref = "androidx-tvprovider" }
+androidx-vectordrawable-animated = { module = "androidx.vectordrawable:vectordrawable-animated", version.ref = "androidx-vectordrawable" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
+
+# Compose Multiplatform
+compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
+compose-lifecycle-runtime = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
+compose-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "compose-lifecycle" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-material3" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
+
+# Coil 
+coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose" }
+coil-core = { module = "io.coil-kt.coil3:coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3" }
+
+# Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+firebase-storage = { module = "com.google.firebase:firebase-storage" }
+
+# Google
+gms-cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "cast-framework" }
+gms-play-services-analytics = { module = "com.google.android.gms:play-services-analytics", version.ref = "play-services-analytics" }
+gms-play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
+google-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
+google-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+google-material = { module = "com.google.android.material:material", version.ref = "material" }
+
+# Kotlin / KotlinX
+kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+
+# Ktor 
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-utils = { module = "io.ktor:ktor-utils", version.ref = "ktor" }
+
+# Testing 
+google-compile-testing = { module = "com.google.testing.compile:compile-testing", version.ref = "compile-testing" }
+groovy-bom = { module = "org.apache.groovy:groovy-bom", version.ref = "groovy" }
+groovy-core = { module = "org.apache.groovy:groovy" }
+groovy-json = { module = "org.apache.groovy:groovy-json" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+hamcrest-all = { module = "org.hamcrest:hamcrest-all", version.ref = "hamcrest-legacy" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-dataprovider = { module = "com.tngtech.java:junit-dataprovider", version.ref = "junit-dataprovider" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-params = { module = "pl.pragmatists:JUnitParams", version.ref = "junit-params" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-assertions-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+#noinspection SimilarGradleDependency
+spock-bom-groovy4 = { module = "org.spockframework:spock-bom", version.ref = "spock-groovy4" }
+#noinspection SimilarGradleDependency
+spock-bom-groovy5 = { module = "org.spockframework:spock-bom", version.ref = "spock-groovy5" }
+spock-core = { module = "org.spockframework:spock-core" }
+
+# Detekt 
+detekt-rules-ktlint-wrapper = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
+
+# OkHttp 
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
+
+# SKIE / CrashKiOS 
+crashkios-crashlytics = { module = "co.touchlab.crashkios:crashlytics", version.ref = "crashkios" }
+
+# About Libraries 
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
+multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
+
+# NewRelic 
+newrelic-android-agent = { module = "com.newrelic.agent.android:android-agent", version.ref = "newrelic-agent" }
+
+# Netradar 
+netradar-app-analyzer = { module = "com.netradar:app-analyzer-lib", version.ref = "netradar" }
+
+# Dagger 
+dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+
+# Misc Android 
+auth0-android = { module = "com.auth0.android:auth0", version.ref = "auth0" }
+branch-io-library = { module = "io.branch.sdk.android:library", version.ref = "branch-io" }
+calligraphy3 = { module = "io.github.inflationx:calligraphy3", version.ref = "inflationx-calligraphy" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
+markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
+material-progressbar = { module = "me.zhanghai.android.materialprogressbar:library", version.ref = "material-progressbar" }
+media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "exoplayer" }
+media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayer" }
+media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "exoplayer" }
+media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
+onetrust-native-sdk = { module = "com.onetrust.cmp:native-sdk", version.ref = "onetrust" }
+otto = { module = "com.squareup:otto", version.ref = "otto" }
+process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-phoenix" }
+viewpump = { module = "io.github.inflationx:viewpump", version.ref = "inflationx-viewpump" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+
+# Misc JVM / Interop 
+checkerframework-checker = { module = "org.checkerframework:checker", version.ref = "checker-framework" }
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "commons-collections4" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+evo-inflector = { module = "org.atteo:evo-inflector", version.ref = "evo-inflector" }
+findbugs-jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "findbugs-jsr305" }
+google-closure-compiler = { module = "com.google.javascript:closure-compiler", version.ref = "closure-compiler" }
+google-flogger = { module = "com.google.flogger:flogger", version.ref = "flogger" }
+google-flogger-extensions = { module = "com.google.flogger:google-extensions", version.ref = "flogger" }
+google-flogger-system-backend = { module = "com.google.flogger:flogger-system-backend", version.ref = "flogger" }
+google-protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+google-truth = { module = "com.google.truth:truth", version.ref = "google-truth" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+javapoet = { module = "com.squareup:javapoet", version.ref = "javapoet" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+json = { module = "org.json:json", version.ref = "json" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+mozilla-rhino = { module = "org.mozilla:rhino", version.ref = "mozilla-rhino" }
+nashorn-core = { module = "org.openjdk.nashorn:nashorn-core", version.ref = "nashorn" }
+plumelib-util = { module = "org.plumelib:plume-util", version.ref = "plumelib" }
+procyon-compiler-tools = { module = "org.bitbucket.mstrobel:procyon-compilertools", version.ref = "procyon" }
+procyon-core = { module = "org.bitbucket.mstrobel:procyon-core", version.ref = "procyon" }
+selenium-java = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
+semver4j = { module = "org.semver4j:semver4j", version.ref = "semver4j" }
+webdrivermanager = { module = "io.github.bonigarcia:webdrivermanager", version.ref = "webdrivermanager" }
+zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
+
+# Kotlin Interop
+j2js-annotations = { module = "com.mirego.j2js:j2js-annotations", version.ref = "kotlin-interop" }
+j2js-generator = { module = "com.mirego.j2js:generator", version.ref = "kotlin-interop" }
+j2js-kotlin-test-case = { module = "com.mirego.j2js:kotlin-test-case", version.ref = "kotlin-interop" }
+j2js-runtime = { module = "com.mirego.j2js:j2js-runtime", version.ref = "kotlin-interop" }
+j2js-shared = { module = "com.mirego.j2js:shared", version.ref = "kotlin-interop" }
+
+[bundles]
+kotest = ["kotest-assertions-core", "kotest-assertions-json", "kotest-property", "kotlinx-coroutines-test"]
+
+[plugins]
+# Compose
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+
+# KotlinX 
+kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlinx-atomicfu" }
+
+# KSP 
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+# Detekt 
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+
+# Test 
+kotest = { id = "io.kotest", version.ref = "kotest" }
+mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
+
+# SKIE / CrashKiOS 
+crashkios-crashlyticslink = { id = "co.touchlab.crashkios.crashlyticslink", version.ref = "crashkios" }
+skie = { id = "co.touchlab.skie", version.ref = "skie" }
+
+# About Libraries 
+aboutlibraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
+
+# JUnit for Android 
+android-junit = { id = "de.mannodermaus.android-junit", version.ref = "android-junit" }
+
+# Firebase / GMS 
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }
+google-gms-services = { id = "com.google.gms.google-services", version.ref = "google-gms-services" }
+
+# NewRelic 
+newrelic-android = { id = "com.newrelic.agent.android", version.ref = "newrelic-agent" }
+
+# Other
+adarshr-test-logger = { id = "com.adarshr.test-logger", version.ref = "adarshr-test-logger" }
+gmazzo-buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "gmazzo-buildconfig" }

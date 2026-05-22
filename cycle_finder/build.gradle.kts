@@ -1,48 +1,39 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
-
-val checkerFrameworkVersion: String by extra
+group = "com.google.j2objc"
+version = "3.0"
 
 plugins {
     idea
     java
     `java-library`
-    `maven-publish`
 }
 
 repositories {
     mavenCentral()
+    google()
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(11)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
 dependencies {
-    implementation("com.google.j2objc:j2objc-annotations:3.1")
-    implementation("com.google.j2objc:translator:3.0")
+    implementation(project(":j2objc-annotations"))
+    implementation(project(":j2objc-translator")
 
-    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation(libs.guava)
 
     // Sync with eisop version used in Makefile
-    implementation("org.checkerframework:checker:$checkerFrameworkVersion")
+    implementation(libs.checkerframework.checker)
 
-    //noinspection NewerVersionAvailable - 6.0.0+ require JDK 17
-    testImplementation(platform("org.junit:junit-bom:5.14.2"))
-    testImplementation("org.junit.vintage:junit-vintage-engine")
-    testImplementation("org.slf4j:slf4j-nop:2.0.17")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.slf4j.nop)
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     maxParallelForks = Runtime.getRuntime().availableProcessors()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-        }
-    }
 }
 
 idea {

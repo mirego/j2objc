@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -265,12 +266,17 @@ public final class KotlinUtil {
       return false;
     }
 
-    String sourceName = ElementUtil.getSourceFile(decClass);
-    if (sourceName == null) {
-      return false;
-    }
+    return isKotlinClass(decClass);
+  }
 
-    return sourceName.endsWith(".kt");
+  public static boolean isKotlinClass(TypeElement typeElement) {
+    for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
+      TypeElement annotationElement = (TypeElement) mirror.getAnnotationType().asElement();
+      if (annotationElement.getQualifiedName().contentEquals("kotlin.Metadata")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

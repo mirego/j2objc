@@ -1,22 +1,14 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
+group = "com.google.j2objc"
+version = "3.0"
 
 plugins {
     java
     idea
     `java-library`
-    `maven-publish`
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(11)
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-        }
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
 idea {

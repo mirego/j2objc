@@ -47,11 +47,11 @@ ANIMAL_SNIFFER_ANNOTATIONS_SOURCE_JAR = animal-sniffer-annotations-1.24-sources.
 FAILUREACCESS_JAR = failureaccess-1.0.3.jar
 FAILUREACCESS_SOURCE_JAR = failureaccess-1.0.3-sources.jar
 
-GUAVA_JAR = guava-33.5.0-jre.jar
-GUAVA_SOURCE_JAR = guava-33.5.0-jre-sources.jar
+GUAVA_JAR = guava-33.6.0-jre.jar
+GUAVA_SOURCE_JAR = guava-33.6.0-jre-sources.jar
 
-GUAVA_ANDROID_JAR = guava-33.5.0-android.jar
-GUAVA_ANDROID_SOURCE_JAR = guava-33.5.0-android-sources.jar
+GUAVA_ANDROID_JAR = guava-33.6.0-android.jar
+GUAVA_ANDROID_SOURCE_JAR = guava-33.6.0-android-sources.jar
 
 SCENELIB_JAR = scenelib.jar
 PLUME_UTIL_JAR = plume-util-1.12.3.jar

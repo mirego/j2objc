@@ -1,50 +1,50 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName", "SpellCheckingInspection")
+group = "com.google.j2objc"
+version = "3.0"
 
 plugins {
     java
     idea
     `java-library`
-    `maven-publish`
 }
 
 repositories {
     mavenCentral()
+    google()
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(11)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+@Suppress("SpellCheckingInspection")
 sourceSets {
     main {
-        java {
-            setSrcDirs(
-                listOf(
-                    "Classes",
-                    "android/frameworks/base/core/java",
-                    "android/platform/external/icu/android_icu4j/libcore_bridge/src/java",
-                    "android/platform/external/icu/android_icu4j/src/main/java",
-                    "android/platform/external/okhttp/okio/okio/src/main/java",
-                    "android/platform/libcore/dalvik/src/main/java",
-                    "android/platform/libcore/json/src/main/java",
-                    "android/platform/libcore/luni/src/main/java",
-                    "android/platform/libcore/luni/src/objc/java",
-                    "android/platform/libcore/ojluni/src/lambda/java",
-                    "android/platform/libcore/ojluni/src/main/java",
-                    "android/platform/libcore/xml/src/main/java",
-                    "android/tools/platform-compat/java",
-                    "apache_harmony/classlib/modules/beans/src/main/java",
-                    "openjdk/src/macosx/classes",
-                    "openjdk/src/share/classes",
-                    "stub_classes/java",
-                ).map { file(it) },
-            )
-        }
+        java.setSrcDirs(
+            listOf(
+                "Classes",
+                "android/frameworks/base/core/java",
+                "android/platform/external/icu/android_icu4j/libcore_bridge/src/java",
+                "android/platform/external/icu/android_icu4j/src/main/java",
+                "android/platform/external/okhttp/okio/okio/src/main/java",
+                "android/platform/libcore/dalvik/src/main/java",
+                "android/platform/libcore/json/src/main/java",
+                "android/platform/libcore/luni/src/main/java",
+                "android/platform/libcore/luni/src/objc/java",
+                "android/platform/libcore/ojluni/src/lambda/java",
+                "android/platform/libcore/ojluni/src/main/java",
+                "android/platform/libcore/xml/src/main/java",
+                "android/tools/platform-compat/java",
+                "apache_harmony/classlib/modules/beans/src/main/java",
+                "openjdk/src/macosx/classes",
+                "openjdk/src/share/classes",
+                "stub_classes/java",
+            ).map { file(it) },
+        )
     }
 
     /* test {
-        java {
-            setSrcDirs(listOf(
+        java.setSrcDirs(
+            listOf(
                 "android/frameworks/base/core/tests/coretests/src",
                 "android/frameworks/base/tests-runner/src",
                 "android/platform/external/icu/android_icu4j/src/main/tests",
@@ -62,24 +62,22 @@ sourceSets {
                 "apache_harmony/classlib/modules/beans/src/test/java",
                 "apache_harmony/classlib/modules/beans/src/test/support/java",
                 "misc_tests",
-            ).map { file(it) })
-        }
+            ).map { file(it) },
+        )
     } */
 }
 
 dependencies {
-    implementation("com.google.j2objc:j2objc-annotations:3.1")
+    implementation(project(":j2objc-annotations"))
 
-    //noinspection NewerVersionAvailable - 6.0.0+ require JDK 17
-    testImplementation(platform("org.junit:junit-bom:5.14.2"))
-    testImplementation("org.junit.vintage:junit-vintage-engine")
-    testImplementation("org.slf4j:slf4j-nop:2.0.17")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.vintage.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.slf4j.nop)
 
-    //noinspection NewerVersionAvailable - Use the same version as `jars.mk`
-    testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-    //noinspection NewerVersionAvailable - Use the same version as `jars.mk`
-    testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("pl.pragmatists:JUnitParams:1.1.1")
+    testImplementation(libs.junit.dataprovider)
+    testImplementation(libs.hamcrest.all)
+    testImplementation(libs.junit.params)
 }
 
 tasks.withType<Test>().configureEach {
@@ -100,14 +98,6 @@ tasks.named<JavaCompile>("compileTestJava") {
 
 tasks.named<Javadoc>("javadoc") {
     isFailOnError = false
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-        }
-    }
 }
 
 idea {

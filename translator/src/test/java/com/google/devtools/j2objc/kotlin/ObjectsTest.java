@@ -12,6 +12,7 @@ import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnot
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
 import com.mirego.interop.java.test.objects.WithCompanionObject;
+import com.mirego.interop.java.test.objects.WithField;
 import com.mirego.interop.java.test.objects.WithNamedCompanionObject;
 import com.mirego.interop.java.test.objects.WithObject;
 
@@ -74,7 +75,6 @@ public class ObjectsTest extends GenerationTest {
   }
 
   public void testWithNamedCompanionObject() throws IOException {
-
     String className = WithNamedCompanionObject.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
     assertTranslation(translation, "[CommonClassWithNamedCompanionObjectNamed named].companionStringWithJvmField");
@@ -82,8 +82,16 @@ public class ObjectsTest extends GenerationTest {
     assertTranslation(translation, "[[CommonClassWithNamedCompanionObject companion] companionJvmStaticFunction]");
   }
 
-  public void testWithObject() throws IOException {
+  public void testWithField() throws IOException {
+    String className = WithField.class.getSimpleName();
+    String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
+    assertTranslation(translation, "[CommonObjectWithField objectWithField].companionString");
+    assertTranslation(translation, "CommonObjectWithField.shared.companionStringAsJvmField");
+    assertTranslation(translation, "[[CommonObjectWithField objectWithField] companionFunction]");
+    assertTranslation(translation, "[[CommonObjectWithField objectWithField] companionJvmStaticFunction]");
+  }
 
+  public void testWithObject() throws IOException {
     String className = WithObject.class.getSimpleName();
     String translation = translateJavaSourceFileForKotlinTest(className, testPackage, ".m");
 

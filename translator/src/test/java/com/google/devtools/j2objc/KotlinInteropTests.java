@@ -2,7 +2,6 @@
 
 package com.google.devtools.j2objc;
 
-import com.google.devtools.j2objc.kotlin.AnnotationsTest;
 import com.google.devtools.j2objc.kotlin.ArrayTest;
 import com.google.devtools.j2objc.kotlin.CheckTest;
 import com.google.devtools.j2objc.kotlin.ClassesTest;
@@ -27,7 +26,6 @@ public class KotlinInteropTests {
 
   private static final Class<?>[] kotlinInteropClasses =
       new Class<?>[]{
-          AnnotationsTest.class,
           ArrayTest.class,
           CheckTest.class,
           ClassesTest.class,

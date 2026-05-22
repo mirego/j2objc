@@ -22,7 +22,6 @@ import com.google.devtools.j2objc.ast.Assignment;
 import com.google.devtools.j2objc.ast.Block;
 import com.google.devtools.j2objc.ast.CastExpression;
 import com.google.devtools.j2objc.ast.CatchClause;
-import com.google.devtools.j2objc.ast.ClassInstanceCreation;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.EnumDeclaration;
 import com.google.devtools.j2objc.ast.Expression;
@@ -42,7 +41,6 @@ import com.google.devtools.j2objc.ast.QualifiedName;
 import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.SingleVariableDeclaration;
 import com.google.devtools.j2objc.ast.Statement;
-import com.google.devtools.j2objc.ast.StringLiteral;
 import com.google.devtools.j2objc.ast.SuperMethodInvocation;
 import com.google.devtools.j2objc.ast.ThrowStatement;
 import com.google.devtools.j2objc.ast.TreeNode;
@@ -56,13 +54,11 @@ import com.google.devtools.j2objc.ast.VariableDeclarationExpression;
 import com.google.devtools.j2objc.ast.VariableDeclarationFragment;
 import com.google.devtools.j2objc.ast.VariableDeclarationStatement;
 import com.google.devtools.j2objc.types.ExecutablePair;
-import com.google.devtools.j2objc.types.GeneratedExecutableElement;
 import com.google.devtools.j2objc.types.GeneratedVariableElement;
 import com.google.devtools.j2objc.util.ElementUtil;
 import com.google.devtools.j2objc.util.ErrorUtil;
 import com.google.devtools.j2objc.util.TypeUtil;
 import com.google.j2objc.annotations.AutoreleasePool;
-import com.google.j2objc.annotations.J2ObjCShellMethod;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -104,33 +100,6 @@ public class Rewriter extends UnitTreeVisitor {
     if (ElementUtil.hasNullableAnnotation(element) || ElementUtil.hasNonnullAnnotation(element)) {
       unit.setHasNullabilityAnnotations();
     }
-
-    // kotlin interop >>
-    if (ElementUtil.hasAnnotation(element, J2ObjCShellMethod.class)
-      || ElementUtil.hasAnnotation(element.getEnclosingElement(), J2ObjCShellMethod.class)) {
-
-      // add super invocation if needed
-      Block body = new Block();
-      if (node.isConstructor()) {
-        Statement statement = node.getBody().getStatements().get(0);
-        if (statement.getKind() == Kind.SUPER_CONSTRUCTOR_INVOCATION) {
-          body.addStatement(statement.copy());
-        }
-      }
-
-      // create throw statement
-      TypeElement typeElement = typeUtil.resolveJavaClass(IllegalArgumentException.class);
-      GeneratedExecutableElement constructorElement = GeneratedExecutableElement.newConstructor(typeElement, typeUtil);
-      constructorElement.addParameter(GeneratedVariableElement.newParameter("message", typeUtil.getJavaString().asType(), null));
-      ClassInstanceCreation classInstanceCreation = new ClassInstanceCreation(new ExecutablePair(constructorElement), typeElement.asType());
-      classInstanceCreation.addArgument(new StringLiteral("Method: " + node.getName().toString() + " was converted to shell should not be called. Class: " + node.getExecutableElement().getEnclosingElement(), typeUtil));
-      ThrowStatement throwStatement = new ThrowStatement(classInstanceCreation);
-
-      // add to the created body and replace
-      body.addStatement(throwStatement);
-      node.setBody(body);
-    }
-    // kotlin interop <<
 
     return true;
   }

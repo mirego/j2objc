@@ -302,7 +302,14 @@ public class NameTable {
 
       // kotlin interop >>
       if (KotlinUtil.isKotlinType(var)) {
-        return className + '.' + camelCaseEnumName(shortName);
+        if (ElementUtil.isEnumConstant(var)) {
+          // Enums names are generated in camelCase by Kotlin.
+          return className + '.' + camelCaseEnumName(shortName);
+        }
+        if (className.endsWith("Kt")) {
+          return className + '.' + shortName;
+        }
+        return className + ".shared." + shortName;
       }
       // kotlin interop <<
 

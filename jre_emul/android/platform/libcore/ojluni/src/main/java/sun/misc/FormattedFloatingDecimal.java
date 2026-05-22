@@ -1156,7 +1156,7 @@ public class FormattedFloatingDecimal{
      * for a single-precision float.
      */
 
-    public strictfp double doubleValue(){
+    public double doubleValue(){
         int     kDigits = Math.min( nDigits, maxDecimalDigits+1 );
         long    lValue;
         double  dValue;
@@ -1515,7 +1515,7 @@ public class FormattedFloatingDecimal{
      * ( because of the preference to a zero low-order bit ).
      */
 
-    public strictfp float floatValue(){
+    public float floatValue(){
         int     kDigits = Math.min( nDigits, singleMaxDecimalDigits+1 );
         int     iValue;
         float   fValue;

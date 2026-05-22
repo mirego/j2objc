@@ -5,7 +5,6 @@
 Gemfile.lock
 
 # Build Output
-**/build/
 **/build_result/
 dist/
 
@@ -23,8 +22,3 @@ dist/
 # IntelliJ IDEA Files
 *.iml
 .idea
-
-# Gradle
-.gradle
-.kotlin
-local.properties

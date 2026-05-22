@@ -1,33 +1,29 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
-
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.LockFileMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
-import java.net.URI
 
-val detekt_version: String by extra
-val kotlin_version: String by extra
+group = "com.google.j2objc"
+version = "3.0"
 
 val isCi = System.getenv().containsKey("CI")
 
 repositories {
     mavenCentral()
     google()
-    maven(url = URI("https://oss.sonatype.org/content/repositories/snapshots"))
+    maven(url = uri("https://oss.sonatype.org/content/repositories/snapshots"))
 }
 
 plugins {
     idea
     kotlin("multiplatform")
-    id("com.google.devtools.ksp")
-    id("dev.detekt")
-    id("dev.mokkery")
-    `maven-publish`
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.mokkery)
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 
     jvm()
 
@@ -67,13 +63,7 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
-                implementation("org.slf4j:slf4j-nop:2.0.17")
-            }
-        }
-
-        jsMain {
-            dependencies {
-                api(kotlin("stdlib-js"))
+                implementation(libs.slf4j.nop)
             }
         }
 
@@ -108,7 +98,7 @@ kotlin {
 }
 
 dependencies {
-    detektPlugins("dev.detekt:detekt-rules-ktlint-wrapper:$detekt_version")
+    detektPlugins(libs.detekt.rules.ktlint.wrapper)
 }
 
 // Disable interfaces and swift name mangling
@@ -125,7 +115,6 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.register("j2objcKotlinTypes") {
-    group = "Interop"
     description = "Generate `J2ObjC_kotlinTypes.h` and copy it to `jre_emul/Classes`"
 
     if (!isCi) {
@@ -185,8 +174,8 @@ detekt {
     autoCorrect = !isCi
     ignoreFailures = !isCi
     buildUponDefaultConfig = true
-    config.setFrom("../../../detekt-config.yml")
-    source.setFrom(file("src").listFiles()!!.filter { it.name.endsWith("Main") || it.name.endsWith("Test") })
+    config.setFrom(rootProject.file("detekt-config.yml"))
+    source.setFrom(fileTree("src").matching { include("*Main/**", "*Test/**") })
 }
 
 idea {

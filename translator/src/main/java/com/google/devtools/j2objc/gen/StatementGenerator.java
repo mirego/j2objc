@@ -126,6 +126,10 @@ import kotlin.metadata.KmClass;
  */
 public class StatementGenerator extends UnitTreeVisitor {
 
+  // kotlin interop >>
+  private final static String KOTLIN_COMPANION_SUFFIX = "].";
+  // kotlin interop <<
+
   private final SourceBuilder buffer;
 
   public static String generate(TreeNode node, int currentLine) {
@@ -426,6 +430,12 @@ public class StatementGenerator extends UnitTreeVisitor {
           buffer.append("shared");
         } else {
           // Annotated with @JvmField
+          // We can't get from the context if it's a call on a companion object or not, so check generated code.
+          String check = buffer.length() >= KOTLIN_COMPANION_SUFFIX.length() ? buffer.substring(buffer.length() - KOTLIN_COMPANION_SUFFIX.length(), buffer.length()) : "";
+          if (ElementUtil.isStatic(node.getVariableElement()) && !check.equals(KOTLIN_COMPANION_SUFFIX)) {
+            buffer.append("shared");
+            buffer.append(".");
+          }
           buffer.append(node.getName().toString());
         }
       }

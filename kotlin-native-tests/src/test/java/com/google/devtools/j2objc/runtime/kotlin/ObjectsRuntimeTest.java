@@ -12,6 +12,7 @@ import com.mirego.interop.java.test.objects.StaticMethodWithStringParamWithAnnot
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParam;
 import com.mirego.interop.java.test.objects.StaticMethodWithoutParamWithAnnotation;
 import com.mirego.interop.java.test.objects.WithCompanionObject;
+import com.mirego.interop.java.test.objects.WithField;
 import com.mirego.interop.java.test.objects.WithNamedCompanionObject;
 import com.mirego.interop.java.test.objects.WithObject;
 
@@ -60,6 +61,10 @@ public class ObjectsRuntimeTest extends TestCase {
 
   public void testWithNamedCompanionObject() {
     assertEquals("companionStringWithJvmField_namedCompanionString_jvmStaticFunction", WithNamedCompanionObject.main(NO_ARGS));
+  }
+
+  public void testWithField() {
+    assertEquals("companionString_companionStringAsJvmField_functionString_jvmStaticFunction", WithField.main(NO_ARGS));
   }
 
   public void testWithObject() {

@@ -1,4 +1,5 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
+group = "com.google.j2objc"
+version = "3.0"
 
 plugins {
     idea
@@ -6,19 +7,21 @@ plugins {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(11)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-tasks.named("clean") {
-    dependsOn(gradle.includedBuilds.filter { !it.name.contains("annotations") && !it.name.contains("plugin") }.map { it.task(":clean") })
-}
+val subprojects = listOf(
+    ":j2objc-annotations",
+    ":j2objc-kompat",
+    ":j2objc-jre_emul",
+    ":j2objc-kotlin-interop-test-cases",
+    ":j2objc-translator",
+)
 
-tasks.named("check") {
-    dependsOn(gradle.includedBuilds.map { it.task(":check") })
-}
-
-tasks.register("publishToMavenLocal") {
-    dependsOn(gradle.includedBuilds.map { it.task(":publishToMavenLocal") })
+listOf("check", "clean").forEach { taskName ->
+    tasks.named(taskName) {
+        dependsOn(subprojects.map { "$it:$taskName" })
+    }
 }
 
 idea {

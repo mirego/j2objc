@@ -209,7 +209,7 @@ public final class StrictMath {
      * @return  the measurement of the angle {@code angdeg}
      *          in radians.
      */
-    public static strictfp double toRadians(double angdeg) {
+    public static double toRadians(double angdeg) {
         // Do not delegate to Math.toRadians(angdeg) because
         // this method has the strictfp modifier.
         return angdeg * DEGREES_TO_RADIANS;
@@ -226,7 +226,7 @@ public final class StrictMath {
      * @return  the measurement of the angle {@code angrad}
      *          in degrees.
      */
-    public static strictfp double toDegrees(double angrad) {
+    public static double toDegrees(double angrad) {
         // Do not delegate to Math.toDegrees(angrad) because
         // this method has the strictfp modifier.
         return angrad * RADIANS_TO_DEGREES;

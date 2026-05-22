@@ -1,9 +1,7 @@
-@file:Suppress("LocalVariableName", "VariableNaming", "PropertyName")
-
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
-val detekt_version: String by extra
-val kotlin_version: String by extra
+group = "com.mirego"
+version = "3.0"
 
 val isCi = System.getenv().containsKey("CI")
 
@@ -15,12 +13,11 @@ repositories {
 plugins {
     idea
     kotlin("multiplatform")
-    id("dev.detekt")
-    `maven-publish`
+    alias(libs.plugins.detekt)
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 
     jvm()
 
@@ -28,7 +25,7 @@ kotlin {
         binaries {
             framework {
                 baseName = "common"
-                export("com.google.j2objc:j2objc-kompat:$version")
+                export(project(":j2objc-kompat"))
                 binaryOption("bundleId", "com.google.j2objc.kompat")
                 isStatic = true
             }
@@ -46,7 +43,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("com.google.j2objc:j2objc-kompat:$version")
+                api(project(":j2objc-kompat"))
             }
         }
 
@@ -81,7 +78,7 @@ kotlin {
 }
 
 dependencies {
-    detektPlugins("dev.detekt:detekt-rules-ktlint-wrapper:$detekt_version")
+    detektPlugins(libs.detekt.rules.ktlint.wrapper)
 }
 
 // Disable interfaces and swift name mangling
@@ -96,8 +93,8 @@ detekt {
     autoCorrect = !isCi
     ignoreFailures = !isCi
     buildUponDefaultConfig = true
-    config.setFrom("../../../detekt-config.yml")
-    source.setFrom(file("src").listFiles()!!.filter { it.name.endsWith("Main") || it.name.endsWith("Test") })
+    config.setFrom(rootProject.file("detekt-config.yml"))
+    source.setFrom(fileTree("src").matching { include("*Main/**", "*Test/**") })
 }
 
 idea {
