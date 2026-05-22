@@ -2,30 +2,65 @@
 
 #import "KotlinShort+JavaLangShort.h"
 
+#define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
+
+
+
+
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "J2ObjC_source.h"
 #include "java/lang/Boolean.h"
 #include "java/lang/Byte.h"
+#include "java/lang/Deprecated.h"
 #include "java/lang/Double.h"
 #include "java/lang/Float.h"
 #include "java/lang/Integer.h"
 #include "java/lang/Long.h"
 #include "java/lang/NumberFormatException.h"
 #include "java/lang/Short.h"
+#include "java/lang/annotation/Annotation.h"
+
+
+
+#if __has_feature(objc_arc)
+#error "java/lang/Short must not be compiled with ARC (-fobjc-arc)"
+#endif
+
+#pragma clang diagnostic error "-Wreturn-type"
+#pragma clang diagnostic ignored "-Wswitch"
+
+
+@interface CommonShort () {
+ @public
+  /*!
+   @brief The value of the <code>Short</code>.
+   */
+  jshort value_;
+}
+
+@end
 
 /*!
- @brief use serialVersionUID from JDK 1.1. for interoperability
+ @brief use serialVersionUID from JDK 1.1.for interoperability
  */
 inline jlong CommonShort_get_serialVersionUID(void);
 #define CommonShort_serialVersionUID 7515723908773894738LL
 J2OBJC_STATIC_FIELD_CONSTANT(CommonShort, serialVersionUID, jlong)
 
+__attribute__((unused)) static IOSObjectArray *CommonShort__Annotations$0(void);
+
+__attribute__((unused)) static IOSObjectArray *CommonShort__Annotations$1(void);
+
+/*!
+ @brief Returns an <code>Optional</code> containing the nominal descriptor for this
+  instance.
+ @return an <code>Optional</code> describing the Short instance
+ @since 15
+ */
 @interface CommonShort_ShortCache : NSObject
 
 - (instancetype)init;
-
-+ (void)fillValuesWithCommonShortArray:(IOSObjectArray *)values;
 
 @end
 
@@ -35,48 +70,44 @@ inline IOSObjectArray *CommonShort_ShortCache_get_cache(void);
 static IOSObjectArray *CommonShort_ShortCache_cache;
 J2OBJC_STATIC_FIELD_OBJ_FINAL(CommonShort_ShortCache, cache, IOSObjectArray *)
 
+inline IOSObjectArray *CommonShort_ShortCache_get_archivedCache(void);
+inline IOSObjectArray *CommonShort_ShortCache_set_archivedCache(IOSObjectArray *value);
+static IOSObjectArray *CommonShort_ShortCache_archivedCache;
+J2OBJC_STATIC_FIELD_OBJ(CommonShort_ShortCache, archivedCache, IOSObjectArray *)
+
 __attribute__((unused)) static void CommonShort_ShortCache_init(CommonShort_ShortCache *self);
 
 __attribute__((unused)) static CommonShort_ShortCache *new_CommonShort_ShortCache_init(void) NS_RETURNS_RETAINED;
 
 __attribute__((unused)) static CommonShort_ShortCache *create_CommonShort_ShortCache_init(void);
 
-__attribute__((unused)) static void CommonShort_ShortCache_fillValuesWithCommonShortArray_(IOSObjectArray *values);
-
 J2OBJC_TYPE_LITERAL_HEADER(CommonShort_ShortCache)
 
+
 J2OBJC_INITIALIZED_DEFN(CommonShort)
+
+extern jshort CommonShort_get_MIN_VALUE(void);
+
+extern jshort CommonShort_get_MAX_VALUE(void);
+
+extern IOSClass *CommonShort_get_TYPE(void);
+
+extern jint CommonShort_get_SIZE(void);
+
+extern jint CommonShort_get_BYTES(void);
+
+extern jlong CommonShort_get_serialVersionUID(void);
 
 IOSClass *CommonShort_TYPE;
 
 @implementation CommonShort (JavaLangShort)
-
-+ (jshort)MIN_VALUE {
-  return CommonShort_MIN_VALUE;
-}
-
-+ (jshort)MAX_VALUE {
-  return CommonShort_MAX_VALUE;
-}
-
-+ (IOSClass *)TYPE {
-  return CommonShort_TYPE;
-}
-
-+ (jint)SIZE {
-  return CommonShort_SIZE;
-}
-
-+ (jint)BYTES {
-  return CommonShort_BYTES;
-}
 
 + (NSString *)toStringWithShort:(jshort)s {
   return CommonShort_toStringWithShort_(s);
 }
 
 + (jshort)parseShortWithNSString:(NSString *)s
-                         withInt:(jint)radix {
+                          withInt:(jint)radix {
   return CommonShort_parseShortWithNSString_withInt_(s, radix);
 }
 
@@ -101,66 +132,74 @@ IOSClass *CommonShort_TYPE;
   return CommonShort_decodeWithNSString_(nm);
 }
 
+J2OBJC_IGNORE_DESIGNATED_BEGIN
+- (instancetype)initWithShort:(jshort)value {
+  CommonShort_initWithShort_(self, value);
+  return self;
+}
+J2OBJC_IGNORE_DESIGNATED_END
+
 - (instancetype)initWithNSString:(NSString *)s {
   CommonShort_initWithNSString_(self, s);
   return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone {
-  return RETAIN_(self);
-}
-
 - (jbyte)charValue {
-  return (jbyte) self.shortValue;
+  return (jbyte) value_;
 }
 
-//- (jshort)shortValue {
-//  return (jshort) self.shortValue;
-//}
+- (jshort)shortValue {
+  return value_;
+}
 
 - (jint)intValue {
-  return (jint) self.shortValue;
+  return (jint) value_;
 }
 
 - (jlong)longLongValue {
-  return (jlong) self.shortValue;
+  return (jlong) value_;
 }
 
-- (jfloat)floatValue {
-  return (jfloat) self.shortValue;
+- (float)floatValue {
+  return (float) value_;
 }
 
-- (jdouble)doubleValue {
-  return (jdouble) self.shortValue;
+- (double)doubleValue {
+  return (double) value_;
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_((jint) self.shortValue);
+  return CommonInt_toStringWithInt_((jint) value_);
 }
 
-//- (NSUInteger)hash {
-//  return CommonShort_hashCodeWithShort_(self.shortValue);
-//}
+- (NSUInteger)hash {
+  return CommonShort_hashCodeWithShort_(value_);
+}
 
 + (jint)hashCodeWithShort:(jshort)value {
   return CommonShort_hashCodeWithShort_(value);
 }
 
-//- (jboolean)isEqual:(id)obj {
-//  if ([obj isKindOfClass:[CommonShort class]]) {
-//    return self.shortValue == [((CommonShort *) nil_chk(((CommonShort *) obj))) shortValue];
-//  }
-//  return false;
-//}
+- (jboolean)isEqual:(id)obj {
+  if ([obj isKindOfClass:[CommonShort class]]) {
+    return value_ == [((CommonShort *) obj) shortValue];
+  }
+  return false;
+}
 
-- (jint)compareToOther:(CommonShort *)anotherShort {
+- (jint)compareToWithId:(CommonShort *)anotherShort {
   cast_chk(anotherShort, [CommonShort class]);
-  return CommonShort_compareWithShort_withShort_(self.shortValue, ((CommonShort *) nil_chk(anotherShort)).shortValue);
+  return CommonShort_compareWithShort_withShort_(self->value_, ((CommonShort *) nil_chk(anotherShort))->value_);
 }
 
 + (jint)compareWithShort:(jshort)x
-               withShort:(jshort)y {
+                  withShort:(jshort)y {
   return CommonShort_compareWithShort_withShort_(x, y);
+}
+
++ (jint)compareUnsignedWithShort:(jshort)x
+                          withShort:(jshort)y {
+  return CommonShort_compareUnsignedWithShort_withShort_(x, y);
 }
 
 + (jshort)reverseBytesWithShort:(jshort)i {
@@ -175,13 +214,13 @@ IOSClass *CommonShort_TYPE;
   return CommonShort_toUnsignedLongWithShort_(x);
 }
 
-//- (const char *)objCType {
-//  return "s";
-//}
+- (const char *)objCType {
+  return "s";
+}
 
-//- (void)getValue:(void *)buffer {
-//  *((short int *) buffer) = self.shortValue;
-//}
+- (void)getValue:(void *)buffer {
+  *((short int *) buffer) = value_;
+}
 
 + (const J2ObjcClassInfo *)__metadata {
   static J2ObjcMethodInfo methods[] = {
@@ -192,23 +231,24 @@ IOSClass *CommonShort_TYPE;
     { NULL, "LCommonShort;", 0x9, 6, 5, 4, -1, -1, -1 },
     { NULL, "LCommonShort;", 0x9, 6, 1, -1, -1, -1, -1 },
     { NULL, "LCommonShort;", 0x9, 7, 5, 4, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 1, -1, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 5, 4, -1, -1, -1 },
-    { NULL, "B", 0x1, 8, -1, -1, -1, -1, -1 },
+    { NULL, NULL, 0x1, -1, 1, -1, -1, 8, -1 },
+    { NULL, NULL, 0x1, -1, 5, 4, -1, 9, -1 },
+    { NULL, "B", 0x1, 10, -1, -1, -1, -1, -1 },
     { NULL, "S", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "I", 0x1, -1, -1, -1, -1, -1, -1 },
-    { NULL, "J", 0x1, 9, -1, -1, -1, -1, -1 },
+    { NULL, "J", 0x1, 11, -1, -1, -1, -1, -1 },
     { NULL, "F", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "D", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "LNSString;", 0x1, 0, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x1, 10, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 10, 1, -1, -1, -1, -1 },
-    { NULL, "Z", 0x1, 11, 12, -1, -1, -1, -1 },
-    { NULL, "I", 0x1, 13, 14, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 15, 16, -1, -1, -1, -1 },
-    { NULL, "S", 0x9, 17, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 18, 1, -1, -1, -1, -1 },
-    { NULL, "J", 0x9, 19, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x1, 12, -1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 12, 1, -1, -1, -1, -1 },
+    { NULL, "Z", 0x1, 13, 14, -1, -1, -1, -1 },
+    { NULL, "I", 0x1, 15, 16, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 17, 18, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 19, 18, -1, -1, -1, -1 },
+    { NULL, "S", 0x9, 20, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 21, 1, -1, -1, -1, -1 },
+    { NULL, "J", 0x9, 22, 1, -1, -1, -1, -1 },
   };
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wobjc-multiple-method-names"
@@ -232,22 +272,24 @@ IOSClass *CommonShort_TYPE;
   methods[16].selector = @selector(hash);
   methods[17].selector = @selector(hashCodeWithShort:);
   methods[18].selector = @selector(isEqual:);
-  methods[19].selector = @selector(compareToOther:);
+  methods[19].selector = @selector(compareToWithId:);
   methods[20].selector = @selector(compareWithShort:withShort:);
-  methods[21].selector = @selector(reverseBytesWithShort:);
-  methods[22].selector = @selector(toUnsignedIntWithShort:);
-  methods[23].selector = @selector(toUnsignedLongWithShort:);
+  methods[21].selector = @selector(compareUnsignedWithShort:withShort:);
+  methods[22].selector = @selector(reverseBytesWithShort:);
+  methods[23].selector = @selector(toUnsignedIntWithShort:);
+  methods[24].selector = @selector(toUnsignedLongWithShort:);
   #pragma clang diagnostic pop
   static const J2ObjcFieldInfo fields[] = {
     { "MIN_VALUE", "S", .constantValue.asShort = CommonShort_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "S", .constantValue.asShort = CommonShort_MAX_VALUE, 0x19, -1, -1, -1, -1 },
-    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 20, 21, -1 },
+    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 23, 24, -1 },
+    { "value_", "S", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonShort_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonShort_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonShort_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
-  static const void *ptrTable[] = { "toString", "S", "parseShort", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "valueOf", "decode", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonShort;", "compare", "SS", "reverseBytes", "toUnsignedInt", "toUnsignedLong", &CommonShort_TYPE, "Ljava/lang/Class<Ljava/lang/Short;>;", "LCommonShort_ShortCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Short;>;" };
-  static const J2ObjcClassInfo _CommonShort = { "Short", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 6, -1, 22, -1, 23, -1 };
+  static const void *ptrTable[] = { "toString", "S", "parseShort", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "valueOf", "decode", (void *)&CommonShort__Annotations$0, (void *)&CommonShort__Annotations$1, "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonShort;", "compare", "SS", "compareUnsigned", "reverseBytes", "toUnsignedInt", "toUnsignedLong", &CommonShort_TYPE, "Ljava/lang/Class<Ljava/lang/Short;>;", "LCommonShort_ShortCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Short;>;" };
+  static const J2ObjcClassInfo _CommonShort = { "Short", "java.lang", ptrTable, methods, fields, 7, 0x11, 25, 7, -1, 25, -1, 26, -1 };
   return &_CommonShort;
 }
 
@@ -305,36 +347,44 @@ CommonShort *CommonShort_decodeWithNSString_(NSString *nm) {
 }
 
 void CommonShort_initWithShort_(CommonShort *self, jshort value) {
-  [self initWithShort:value];
+  NSNumber_init(self);
+  self->value_ = value;
 }
 
 CommonShort *new_CommonShort_initWithShort_(jshort value) {
-  return [[CommonShort alloc] initWithShort:value];
+  J2OBJC_NEW_IMPL(CommonShort, initWithShort_, value)
 }
 
 CommonShort *create_CommonShort_initWithShort_(jshort value) {
-  return [CommonShort numberWithShort:value];
+  J2OBJC_CREATE_IMPL(CommonShort, initWithShort_, value)
 }
 
 void CommonShort_initWithNSString_(CommonShort *self, NSString *s) {
-  [self initWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
+  NSNumber_init(self);
+  self->value_ = CommonShort_parseShortWithNSString_withInt_(s, 10);
 }
 
 CommonShort *new_CommonShort_initWithNSString_(NSString *s) {
-  return [[CommonShort alloc] initWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
+  J2OBJC_NEW_IMPL(CommonShort, initWithNSString_, s)
 }
 
 CommonShort *create_CommonShort_initWithNSString_(NSString *s) {
-  return [CommonShort numberWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
+  J2OBJC_CREATE_IMPL(CommonShort, initWithNSString_, s)
 }
 
 jint CommonShort_hashCodeWithShort_(jshort value) {
-  return (jint) CommonShort_valueOfWithShort_(value).hash;
+  CommonShort_initialize();
+  return (jint) value;
 }
 
 jint CommonShort_compareWithShort_withShort_(jshort x, jshort y) {
   CommonShort_initialize();
   return x - y;
+}
+
+jint CommonShort_compareUnsignedWithShort_withShort_(jshort x, jshort y) {
+  CommonShort_initialize();
+  return CommonShort_toUnsignedIntWithShort_(x) - CommonShort_toUnsignedIntWithShort_(y);
 }
 
 jshort CommonShort_reverseBytesWithShort_(jshort i) {
@@ -352,11 +402,22 @@ jlong CommonShort_toUnsignedLongWithShort_(jshort x) {
   return ((jlong) x) & (jlong) 0xffffLL;
 }
 
+IOSObjectArray *CommonShort__Annotations$0() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
+IOSObjectArray *CommonShort__Annotations$1() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonShort)
 
-J2OBJC_NAME_MAPPING(CommonShort, "java.lang.Short", "CommonShort")
-
 J2OBJC_INITIALIZED_DEFN(CommonShort_ShortCache)
+
+extern IOSObjectArray *CommonShort_ShortCache_get_cache(void);
+
+extern IOSObjectArray *CommonShort_ShortCache_get_archivedCache(void);
+extern IOSObjectArray *CommonShort_ShortCache_set_archivedCache(IOSObjectArray *value);
 
 @implementation CommonShort_ShortCache
 
@@ -367,34 +428,37 @@ J2OBJC_IGNORE_DESIGNATED_BEGIN
 }
 J2OBJC_IGNORE_DESIGNATED_END
 
-+ (void)fillValuesWithCommonShortArray:(IOSObjectArray *)values {
-  CommonShort_ShortCache_fillValuesWithCommonShortArray_(values);
-}
-
 + (const J2ObjcClassInfo *)__metadata {
   static J2ObjcMethodInfo methods[] = {
     { NULL, NULL, 0x2, -1, -1, -1, -1, -1, -1 },
-    { NULL, "V", 0x10a, 0, 1, -1, -1, -1, -1 },
   };
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wobjc-multiple-method-names"
   #pragma clang diagnostic ignored "-Wundeclared-selector"
   methods[0].selector = @selector(init);
-  methods[1].selector = @selector(fillValuesWithCommonShortArray:);
   #pragma clang diagnostic pop
   static const J2ObjcFieldInfo fields[] = {
-    { "cache", "[LCommonShort;", .constantValue.asLong = 0, 0x18, -1, 2, -1, -1 },
+    { "cache", "[LCommonShort;", .constantValue.asLong = 0, 0x18, -1, 0, -1, -1 },
+    { "archivedCache", "[LCommonShort;", .constantValue.asLong = 0, 0x8, -1, 1, -1, -1 },
   };
-  static const void *ptrTable[] = { "fillValues", "[LCommonShort;", &CommonShort_ShortCache_cache, "LCommonShort;" };
-  static const J2ObjcClassInfo _CommonShort_ShortCache = { "ShortCache", "java.lang", ptrTable, methods, fields, 7, 0xa, 2, 1, 3, -1, -1, -1, -1 };
+  static const void *ptrTable[] = { &CommonShort_ShortCache_cache, &CommonShort_ShortCache_archivedCache, "LCommonShort;" };
+  static const J2ObjcClassInfo _CommonShort_ShortCache = { "ShortCache", "java.lang", ptrTable, methods, fields, 7, 0xa, 1, 2, 2, -1, -1, -1, -1 };
   return &_CommonShort_ShortCache;
 }
 
 + (void)initialize {
   if (self == [CommonShort_ShortCache class]) {
-    JreStrongAssignAndConsume(&CommonShort_ShortCache_cache, [IOSObjectArray newArrayWithLength:256 type:CommonShort_class_()]);
     {
-      CommonShort_ShortCache_fillValuesWithCommonShortArray_(CommonShort_ShortCache_cache);
+      jint size = -(-128) + 127 + 1;
+      if (CommonShort_ShortCache_archivedCache == nil || CommonShort_ShortCache_archivedCache->size_ != size) {
+        IOSObjectArray *c = [IOSObjectArray arrayWithLength:size type:CommonShort_class_()];
+        jshort value = -128;
+        for (jint i = 0; i < size; i++) {
+          IOSObjectArray_SetAndConsume(c, i, new_CommonShort_initWithShort_(value++));
+        }
+        JreStrongAssign(&CommonShort_ShortCache_archivedCache, c);
+      }
+      JreStrongAssign(&CommonShort_ShortCache_cache, CommonShort_ShortCache_archivedCache);
     }
     J2OBJC_SET_INITIALIZED(CommonShort_ShortCache)
   }
@@ -414,24 +478,6 @@ CommonShort_ShortCache *create_CommonShort_ShortCache_init() {
   J2OBJC_CREATE_IMPL(CommonShort_ShortCache, init)
 }
 
-void CommonShort_ShortCache_fillValuesWithCommonShortArray_(IOSObjectArray *values) {
-  CommonShort_ShortCache_initialize();
-  Class self = [CommonShort class];
-  size_t objSize = class_getInstanceSize(self);
-  uintptr_t ptr = (uintptr_t)calloc(objSize, 256);
-  id *buf = values->buffer_;
-  for (jint i = -128; i < 128; i++) {
-    id obj = objc_constructInstance(self, (void *)ptr);
-    CommonShort_initWithShort_(obj, (jshort)i);
-    *(buf++) = obj;
-    ptr += objSize;
-  }
-}
-
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonShort_ShortCache)
-
-// Empty class to force category to be loaded.
-@implementation JreKotlinShortCategoryDummy
-@end
 
 // kotlin interop <<

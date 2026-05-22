@@ -1,5 +1,9 @@
 // kotlin interop >>
 
+#import <Foundation/Foundation.h>
+#include "J2ObjC_header.h"
+#import "J2ObjC_kotlinTypes.h"
+
 #if __has_feature(nullability)
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wnullability"
@@ -9,58 +13,52 @@
 #ifndef _KotlinBoolean_JavaLangBoolean_h_
 #define _KotlinBoolean_JavaLangBoolean_h_
 
-#import "J2ObjC_header.h"
-#import "J2ObjC_kotlinTypes.h"
-
 #include "java/io/Serializable.h"
+
 #include "java/lang/Comparable.h"
 
-@class CommonBoolean;
-@class CommonInt;
 @class IOSClass;
+@class CommonInt;
+@class NSString;
 
 /*!
- @brief The Boolean class wraps a value of the primitive type
- <code>boolean</code> in an object.An object of type
- <code>Boolean</code> contains a single field whose type is
+ @brief The Boolean class wraps a value of the primitive type 
+ <code>boolean</code> in an object.An object of type 
+ <code>Boolean</code> contains a single field whose type is 
  <code>boolean</code>.
- <p>
-  In addition, this class provides many methods for
-  converting a <code>boolean</code> to a <code>String</code> and a
+ <p>In addition, this class provides many methods for
+  converting a <code>boolean</code> to a <code>String</code> and a 
  <code>String</code> to a <code>boolean</code>, as well as other
-  constants and methods useful when dealing with a
+  constants and methods useful when dealing with a 
  <code>boolean</code>.
+  
+ <!-- Android-removed: paragraph on ValueBased
+ <p>This is a <a href="{@@docRoot}/java.base/java/lang/doc-files/ValueBased.html">value-based</a>
+ class; programmers should treat instances that are
+ {@@linkplain #equals(Object) equal} as interchangeable and should not
+ use instances for synchronization, or unpredictable behavior may
+ occur. For example, in a future release, synchronization may fail.
+ -->
  @author Arthur van Hoff
- @since JDK1.0
+ @since 1.0
  */
 @interface CommonBoolean (JavaLangBoolean) < JavaIoSerializable, CommonKotlinComparable >
-@property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
-@property (readonly, class, strong, nonnull) CommonBoolean *TRUE_ NS_SWIFT_NAME(TRUE_);
-@property (readonly, class, strong, nonnull) CommonBoolean *FALSE_ NS_SWIFT_NAME(FALSE_);
 
 #pragma mark Public
 
 /*!
- @brief Allocates a <code>Boolean</code> object representing the
+ @brief Allocates a <code>Boolean</code> object representing the 
  <code>value</code> argument.
- <p><b>Note: It is rarely appropriate to use this constructor.
-  Unless a <i>new</i> instance is required, the static factory
- <code>valueOf(boolean)</code> is generally a better choice. It is
-  likely to yield significantly better space and time performance.</b>
  @param value the value of the <code>Boolean</code> .
  */
 - (instancetype __nonnull)initWithBoolean:(jboolean)value;
 
 /*!
- @brief Allocates a <code>Boolean</code> object representing the value
+ @brief Allocates a <code>Boolean</code> object representing the value 
  <code>true</code> if the string argument is not <code>null</code>
   and is equal, ignoring case, to the string <code>"true"</code>.
- Otherwise, allocate a <code>Boolean</code> object representing the
-  value <code>false</code>. Examples:<p>
-  <code>new Boolean("True")</code> produces a <code>Boolean</code> object
-  that represents <code>true</code>.<br>
-  <code>new Boolean("yes")</code> produces a <code>Boolean</code> object
-  that represents <code>false</code>.
+ Otherwise, allocates a <code>Boolean</code> object representing the
+  value <code>false</code>.
  @param s the string to be converted to a <code>Boolean</code> .
  */
 - (instancetype __nonnull)initWithNSString:(NSString *)s;
@@ -74,11 +72,11 @@
 
 /*!
  @brief Compares two <code>boolean</code> values.
- The value returned is identical to what would be returned by:
+ The value returned is identical to what would be returned by: 
  @code
 
-     Boolean.valueOf(x).compareTo(Boolean.valueOf(y))
-
+     Boolean.valueOf(x).compareTo(Boolean.valueOf(y)) 
+  
 @endcode
  @param x the first <code>boolean</code>  to compare
  @param y the second <code>boolean</code>  to compare
@@ -88,7 +86,7 @@
  @since 1.7
  */
 + (jint)compareWithBoolean:(jboolean)x
-               withBoolean:(jboolean)y;
+                  withBoolean:(jboolean)y;
 
 /*!
  @brief Compares this <code>Boolean</code> instance with another.
@@ -101,30 +99,26 @@
  - seealso: Comparable
  @since 1.5
  */
-- (jint)compareToOther:(CommonBoolean *)b __attribute__((swift_name("compareTo(other:)")));
+- (jint)compareToWithId:(CommonBoolean *)b;
 
 /*!
- @brief Returns <code>true</code> if and only if the argument is not
+ @brief Returns <code>true</code> if and only if the argument is not 
  <code>null</code> and is a <code>Boolean</code> object that
   represents the same <code>boolean</code> value as this object.
  @param obj the object to compare with.
  @return <code>true</code> if the Boolean objects represent the
            same value; <code>false</code> otherwise.
  */
-//- (jboolean)isEqual:(id)obj;
+- (jboolean)isEqual:(id)obj;
 
 /*!
- @brief Returns <code>true</code> if and only if the system property
-  named by the argument exists and is equal to the string
- <code>"true"</code>.
- (Beginning with version 1.0.2 of the
-  Java<small><sup>TM</sup></small> platform, the test of
-  this string is case insensitive.) A system property is accessible
-  through <code>getProperty</code>, a method defined by the
- <code>System</code> class.
- <p>
-  If there is no property with the specified name, or if the specified
-  name is empty or null, then <code>false</code> is returned.
+ @brief Returns <code>true</code> if and only if the system property named
+  by the argument exists and is equal to, ignoring case, the
+  string <code>"true"</code>.
+ A system property is accessible through <code>getProperty</code>, a
+  method defined by the <code>System</code> class.  <p> If there is no
+  property with the specified name, or if the specified name is
+  empty or null, then <code>false</code> is returned.
  @param name the system property name.
  @return the <code>boolean</code> value of the system property.
  @throw SecurityExceptionfor the same reasons as
@@ -136,14 +130,14 @@
 
 /*!
  @brief Returns a hash code for this <code>Boolean</code> object.
- @return the integer <code>1231</code> if this object represents
+ @return the integer <code>1231</code> if this object represents 
  <code>true</code>; returns the integer <code>1237</code> if this
   object represents <code>false</code>.
  */
-//- (NSUInteger)hash;
+- (NSUInteger)hash;
 
 /*!
- @brief Returns a hash code for a <code>boolean</code> value; compatible with
+ @brief Returns a hash code for a <code>boolean</code> value; compatible with 
  <code>Boolean.hashCode()</code>.
  @param value the value to hash
  @return a hash code value for a <code>boolean</code> value.
@@ -161,7 +155,7 @@
  @since 1.8
  */
 + (jboolean)logicalAndWithBoolean:(jboolean)a
-                      withBoolean:(jboolean)b;
+                  withBoolean:(jboolean)b;
 
 /*!
  @brief Returns the result of applying the logical OR operator to the
@@ -173,7 +167,7 @@
  @since 1.8
  */
 + (jboolean)logicalOrWithBoolean:(jboolean)a
-                     withBoolean:(jboolean)b;
+                 withBoolean:(jboolean)b;
 
 /*!
  @brief Returns the result of applying the logical XOR operator to the
@@ -185,14 +179,15 @@
  @since 1.8
  */
 + (jboolean)logicalXorWithBoolean:(jboolean)a
-                      withBoolean:(jboolean)b;
+                  withBoolean:(jboolean)b;
 
 /*!
  @brief Parses the string argument as a boolean.The <code>boolean</code>
   returned represents the value <code>true</code> if the string argument
-  is not <code>null</code> and is equal, ignoring case, to the string
+  is not <code>null</code> and is equal, ignoring case, to the string 
  <code>"true"</code>.
- <p>
+ Otherwise, a false value is returned, including for a null
+  argument.<p>
   Example: <code>Boolean.parseBoolean("True")</code> returns <code>true</code>.<br>
   Example: <code>Boolean.parseBoolean("yes")</code> returns <code>false</code>.
  @param s the <code>String</code>  containing the boolean                  representation to be parsed
@@ -223,12 +218,12 @@
 + (NSString * __nonnull)toStringWithBoolean:(jboolean)b;
 
 /*!
- @brief Returns a <code>Boolean</code> instance representing the specified
+ @brief Returns a <code>Boolean</code> instance representing the specified 
  <code>boolean</code> value.If the specified <code>boolean</code> value
   is <code>true</code>, this method returns <code>Boolean.TRUE</code>;
   if it is <code>false</code>, this method returns <code>Boolean.FALSE</code>.
  If a new <code>Boolean</code> instance is not required, this method
-  should generally be used in preference to the constructor
+  should generally be used in preference to the constructor 
  <code>Boolean(boolean)</code>, as this method is likely to yield
   significantly better space and time performance.
  @param b a boolean value.
@@ -242,6 +237,8 @@
   specified string.The <code>Boolean</code> returned represents a
   true value if the string argument is not <code>null</code>
   and is equal, ignoring case, to the string <code>"true"</code>.
+ Otherwise, a false value is returned, including for a null
+  argument.
  @param s a string.
  @return the <code>Boolean</code> value represented by the string.
  */
@@ -275,7 +272,7 @@ J2OBJC_STATIC_FIELD_OBJ_FINAL(CommonBoolean, FALSE, CommonBoolean *)
 
 /*!
  @brief The Class object representing the primitive type boolean.
- @since JDK1.1
+ @since 1.1
  */
 inline IOSClass *CommonBoolean_get_TYPE(void);
 /*! INTERNAL ONLY - Use accessor function from above. */
@@ -318,11 +315,9 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonBoolean)
 
 BOXED_INC_AND_DEC(Boolean, booleanValue, CommonBoolean)
 
-// Empty class to force category to be loaded.
-@interface JreKotlinBooleanCategoryDummy : NSObject
-@end
 
-#endif /* _KotlinBoolean_JavaLangBoolean_h_ */
+#endif
+
 
 #if __has_feature(nullability)
 #pragma clang diagnostic pop

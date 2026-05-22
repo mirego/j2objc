@@ -236,7 +236,7 @@ __attribute__((always_inline)) inline uint16_t *IOSCharArray_GetRef(
   /**
    * The elements of this array.
    */
-  int8_t buffer_[0];
+  jbyte buffer_[0];
 }
 
 /**
@@ -252,12 +252,12 @@ __attribute__((always_inline)) inline uint16_t *IOSCharArray_GetRef(
 /**
  * Create a new array of a specified length, setting the elements to the values in buf.
  */
-+ (instancetype)newArrayWithBytes:(const int8_t *)buf count:(NSUInteger)count;
++ (instancetype)newArrayWithBytes:(const jbyte *)buf count:(NSUInteger)count;
 
 /**
  * Create a new autoreleased array of a specified length, setting the elements to the values in buf.
  */
-+ (instancetype)arrayWithBytes:(const int8_t *)buf count:(NSUInteger)count;
++ (instancetype)arrayWithBytes:(const jbyte *)buf count:(NSUInteger)count;
 
 /**
  * Create a new multi-dimensional array of bytes.
@@ -273,22 +273,22 @@ __attribute__((always_inline)) inline uint16_t *IOSCharArray_GetRef(
 /**
  * Return the byte at the specified index.
  */
-- (int8_t)byteAtIndex:(NSUInteger)index;
+- (jbyte)byteAtIndex:(NSUInteger)index;
 
 /**
  * Return a pointer to the byte at the specified index.
  */
-- (int8_t *)byteRefAtIndex:(NSUInteger)index;
+- (jbyte *)byteRefAtIndex:(NSUInteger)index;
 
 /**
  * Replace the byte at the specified index. Return the new value.
  */
-- (int8_t)replaceByteAtIndex:(NSUInteger)index withByte:(int8_t)value;
+- (jbyte)replaceByteAtIndex:(NSUInteger)index withByte:(jbyte)value;
 
 /**
  * Copy this array's bytes to a buffer.
  */
-- (void)getBytes:(int8_t *)buffer length:(NSUInteger)length;
+- (void)getBytes:(jbyte *)buffer length:(NSUInteger)length;
 
 // Create an array from an NSData object.
 + (instancetype)arrayWithNSData:(NSData *)data;
@@ -296,12 +296,12 @@ __attribute__((always_inline)) inline uint16_t *IOSCharArray_GetRef(
 // Copies the array contents into a specified buffer, up to the specified
 // length.  An IndexOutOfBoundsException is thrown if the specified length
 // is greater than the array size.
-- (void)getBytes:(int8_t *)buffer
+- (void)getBytes:(jbyte *)buffer
           offset:(int32_t)offset
           length:(int32_t)length;
 
 // Copies the specified native buffer into this array at the specified offset.
-- (void)replaceBytes:(const int8_t *)source
+- (void)replaceBytes:(const jbyte *)source
               length:(int32_t)length
               offset:(int32_t)destOffset;
 
@@ -315,7 +315,7 @@ __attribute__((always_inline)) inline uint16_t *IOSCharArray_GetRef(
  * @brief Return the byte at the specified index.
  * Equivalent to byteAtIndex:.
  */
-__attribute__((always_inline)) inline int8_t IOSByteArray_Get(
+__attribute__((always_inline)) inline jbyte IOSByteArray_Get(
     __unsafe_unretained IOSByteArray *array, int32_t index) {
   IOSArray_checkIndex(array->size_, index);
   return array->buffer_[index];
@@ -325,7 +325,7 @@ __attribute__((always_inline)) inline int8_t IOSByteArray_Get(
  * @brief Return a pointer to the byte at the specified index.
  * Equivalent to byteRefAtIndex:.
  */
-__attribute__((always_inline)) inline int8_t *IOSByteArray_GetRef(
+__attribute__((always_inline)) inline jbyte *IOSByteArray_GetRef(
     __unsafe_unretained IOSByteArray *array, int32_t index) {
   IOSArray_checkIndex(array->size_, index);
   return &array->buffer_[index];

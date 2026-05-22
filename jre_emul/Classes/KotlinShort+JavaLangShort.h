@@ -1,61 +1,72 @@
 // kotlin interop >>
 
+#import <Foundation/Foundation.h>
+#include "J2ObjC_header.h"
+#import "J2ObjC_kotlinTypes.h"
+
 #if __has_feature(nullability)
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wnullability"
 #pragma GCC diagnostic ignored "-Wnullability-completeness"
 #endif
 
-#ifndef _KotlinShort_JavaLangShort_h
-#define _KotlinShort_JavaLangShort_h
+#ifndef _KotlinShort_JavaLangShort_h_
+#define _KotlinShort_JavaLangShort_h_
 
-#import "J2ObjC_header.h"
-#import "J2ObjC_kotlinTypes.h"
-
-#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
-@class CommonBoolean;
-@class CommonInt;
 @class IOSClass;
+@class CommonBoolean;
 @class CommonByte;
 @class CommonDouble;
 @class CommonFloat;
+@class CommonInt;
 @class CommonLong;
+@class NSString;
 
 /*!
  @brief The <code>Short</code> class wraps a value of primitive type <code>short</code>
   in an object.An object of type <code>Short</code> contains a
   single field whose type is <code>short</code>.
  <p>In addition, this class provides several methods for converting
-  a <code>short</code> to a <code>String</code> and a <code>String</code> to a
+  a <code>short</code> to a <code>String</code> and a <code>String</code> to a 
  <code>short</code>, as well as other constants and methods useful when
   dealing with a <code>short</code>.
+  
+ <!-- Android-removed: paragraph on ValueBased
+ <p>This is a <a href="{@@docRoot}/java.base/java/lang/doc-files/ValueBased.html">value-based</a>
+ class; programmers should treat instances that are
+ {@@linkplain #equals(Object) equal} as interchangeable and should not
+ use instances for synchronization, or unpredictable behavior may
+ occur. For example, in a future release, synchronization may fail.
+ -->
  @author Nakul Saraiya
  @author Joseph D. Darcy
  - seealso: java.lang.Number
- @since JDK1.1
+ @since 1.1
  */
 @interface CommonShort (JavaLangShort) < JavaIoSerializable, CommonKotlinComparable >
-@property (readonly, class) jshort MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
-@property (readonly, class) jshort MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
-@property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
-@property (readonly, class) jint SIZE NS_SWIFT_NAME(SIZE);
-@property (readonly, class) jint BYTES NS_SWIFT_NAME(BYTES);
 
 #pragma mark Public
 
 /*!
  @brief Constructs a newly allocated <code>Short</code> object that
-  represents the <code>short</code> value indicated by the
- <code>String</code> parameter.The string is converted to a
- <code>short</code> value in exactly the manner used by the
+  represents the specified <code>short</code> value.
+ @param value the value to be represented by the                   
+ <code>Short</code> .
+ */
+- (instancetype __nonnull)initWithShort:(jshort)value;
+
+/*!
+ @brief Constructs a newly allocated <code>Short</code> object that
+  represents the <code>short</code> value indicated by the 
+ <code>String</code> parameter.The string is converted to a 
+ <code>short</code> value in exactly the manner used by the 
  <code>parseShort</code> method for radix 10.
  @param s the <code>String</code>  to be converted to a
             <code>Short</code>
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionIf the <code>String</code>
            does not contain a parsable <code>short</code>.
- - seealso: java.lang.Short#parseShort(java.lang.String, int)
  */
 - (instancetype __nonnull)initWithNSString:(NSString *)s;
 
@@ -67,11 +78,11 @@
 
 /*!
  @brief Compares two <code>short</code> values numerically.
- The value returned is identical to what would be returned by:
+ The value returned is identical to what would be returned by: 
  @code
 
-     Short.valueOf(x).compareTo(Short.valueOf(y))
-
+     Short.valueOf(x).compareTo(Short.valueOf(y)) 
+  
 @endcode
  @param x the first <code>short</code>  to compare
  @param y the second <code>short</code>  to compare
@@ -81,7 +92,7 @@
  @since 1.7
  */
 + (jint)compareWithShort:(jshort)x
-               withShort:(jshort)y;
+                  withShort:(jshort)y;
 
 /*!
  @brief Compares two <code>Short</code> objects numerically.
@@ -95,12 +106,26 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToOther:(CommonShort *)anotherShort __attribute__((swift_name("compareTo(other:)")));
+- (jint)compareToWithId:(CommonShort *)anotherShort;
+
+/*!
+ @brief Compares two <code>short</code> values numerically treating the values
+  as unsigned.
+ @param x the first <code>short</code>  to compare
+ @param y the second <code>short</code>  to compare
+ @return the value <code>0</code> if <code>x == y</code>; a value less
+          than <code>0</code> if <code>x < y</code> as unsigned values; and
+          a value greater than <code>0</code> if <code>x > y</code> as
+          unsigned values
+ @since 9
+ */
++ (jint)compareUnsignedWithShort:(jshort)x
+                          withShort:(jshort)y;
 
 /*!
  @brief Decodes a <code>String</code> into a <code>Short</code>.
  Accepts decimal, hexadecimal, and octal numbers given by
-  the following grammar:
+  the following grammar: 
  <blockquote>
   <dl>
   <dt><i>DecodableString:</i>
@@ -109,17 +134,17 @@
   <dd><i>Sign<sub>opt</sub></i> <code>0X</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>#</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>0</code> <i>OctalDigits</i>
-
+  
  <dt><i>Sign:</i>
   <dd><code>-</code>
   <dd><code>+</code>
   </dl>
   </blockquote>
-
+  
  <i>DecimalNumeral</i>, <i>HexDigits</i>, and <i>OctalDigits</i>
-  are as defined in section 3.10.1 of
- <cite>The Java&trade; Language Specification</cite>,
-  except that underscores are not accepted between digits.
+  are as defined in section 3.10.1 of 
+ <cite>The Java Language Specification</cite>,
+  except that underscores are not accepted between digits. 
  <p>The sequence of characters following an optional
   sign and/or radix specifier ("<code>0x</code>", "<code>0X</code>",
   "<code>#</code>", or leading zero) is parsed as by the <code>Short.parseShort</code>
@@ -132,7 +157,7 @@
  @param nm the <code>String</code>  to decode.
  @return a <code>Short</code> object holding the <code>short</code>
              value represented by <code>nm</code>
- @throw NumberFormatException If the <code>String</code> does not
+ @throw NumberFormatExceptionif the <code>String</code> does not
              contain a parsable <code>short</code>.
  - seealso: java.lang.Short#parseShort(java.lang.String, int)
  */
@@ -142,34 +167,34 @@
  @brief Returns the value of this <code>Short</code> as a <code>double</code>
   after a widening primitive conversion.
  */
-- (jdouble)doubleValue;
+- (double)doubleValue;
 
 /*!
- @brief Compares this object to the specified object.The result is
- <code>true</code> if and only if the argument is not
+ @brief Compares this object to the specified object.The result is 
+ <code>true</code> if and only if the argument is not 
  <code>null</code> and is a <code>Short</code> object that
   contains the same <code>short</code> value as this object.
  @param obj the object to compare with
  @return <code>true</code> if the objects are the same;
                    <code>false</code> otherwise.
  */
-//- (jboolean)isEqual:(id)obj;
+- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Short</code> as a <code>float</code>
   after a widening primitive conversion.
  */
-- (jfloat)floatValue;
+- (float)floatValue;
 
 /*!
  @brief Returns a hash code for this <code>Short</code>; equal to the result
   of invoking <code>intValue()</code>.
  @return a hash code value for this <code>Short</code>
  */
-//- (NSUInteger)hash;
+- (NSUInteger)hash;
 
 /*!
- @brief Returns a hash code for a <code>short</code> value; compatible with
+ @brief Returns a hash code for a <code>short</code> value; compatible with 
  <code>Short.hashCode()</code>.
  @param value the value to hash
  @return a hash code value for a <code>short</code> value.
@@ -204,7 +229,7 @@
             representation to be parsed
  @return the <code>short</code> value represented by the
            argument in decimal.
- @throw NumberFormatException If the string does not
+ @throw NumberFormatExceptionIf the string does not
            contain a parsable <code>short</code>.
  */
 + (jshort)parseShortWithNSString:(NSString *)s;
@@ -221,34 +246,34 @@
   ASCII plus sign <code>'+'</code> (<code>'\u002B'</code>) to
   indicate a positive value.
  The resulting <code>short</code> value
-  is returned.
+  is returned. 
  <p>An exception of type <code>NumberFormatException</code> is
-  thrown if any of the following situations occurs:
+  thrown if any of the following situations occurs: 
  <ul>
   <li> The first argument is <code>null</code> or is a string of
-  length zero.
+  length zero. 
  <li> The radix is either smaller than <code>java.lang.Character.MIN_RADIX</code>
   or larger than <code>java.lang.Character.MAX_RADIX</code>
  .
-
+  
  <li> Any character of the string is not a digit of the
   specified radix, except that the first character may be a minus
-  sign <code>'-'</code> (<code>'\u002D'</code>) or plus sign
+  sign <code>'-'</code> (<code>'\u002D'</code>) or plus sign 
  <code>'+'</code> (<code>'\u002B'</code>) provided that the
-  string is longer than length 1.
- <li> The value represented by the string is not a value of type
+  string is longer than length 1. 
+ <li> The value represented by the string is not a value of type 
  <code>short</code>.
   </ul>
- @param s the <code>String</code>  containing the
+ @param s the <code>String</code>  containing the                   
  <code>short</code>  representation to be parsed
  @param radix the radix to be used while parsing <code>s</code>
  @return the <code>short</code> represented by the string
                    argument in the specified radix.
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionIf the <code>String</code>
                    does not contain a parsable <code>short</code>.
  */
 + (jshort)parseShortWithNSString:(NSString *)s
-                         withInt:(jint)radix;
+                          withInt:(jint)radix;
 
 /*!
  @brief Returns the value obtained by reversing the order of the bytes in the
@@ -261,10 +286,16 @@
 + (jshort)reverseBytesWithShort:(jshort)i;
 
 /*!
- @brief Returns a <code>String</code> object representing this
+ @brief Returns the value of this <code>Short</code> as a 
+ <code>short</code>.
+ */
+- (jshort)shortValue;
+
+/*!
+ @brief Returns a <code>String</code> object representing this 
  <code>Short</code>'s value.The value is converted to signed
   decimal representation and returned as a string, exactly as if
-  the <code>short</code> value were given as an argument to the
+  the <code>short</code> value were given as an argument to the 
  <code>java.lang.Short.toString(short)</code> method.
  @return a string representation of the value of this object in
            base&nbsp;10.
@@ -313,10 +344,10 @@
 + (jlong)toUnsignedLongWithShort:(jshort)x;
 
 /*!
- @brief Returns a <code>Short</code> instance representing the specified
+ @brief Returns a <code>Short</code> instance representing the specified 
  <code>short</code> value.
  If a new <code>Short</code> instance is not required, this method
-  should generally be used in preference to the constructor
+  should generally be used in preference to the constructor 
  <code>Short(short)</code>, as this method is likely to yield
   significantly better space and time performance by caching
   frequently requested values.
@@ -331,21 +362,21 @@
 /*!
  @brief Returns a <code>Short</code> object holding the
   value given by the specified <code>String</code>.The argument
-  is interpreted as representing a signed decimal
- <code>short</code>, exactly as if the argument were given to the
+  is interpreted as representing a signed decimal 
+ <code>short</code>, exactly as if the argument were given to the 
  <code>parseShort(java.lang.String)</code> method.
  The result is
-  a <code>Short</code> object that represents the
- <code>short</code> value specified by the string.
+  a <code>Short</code> object that represents the 
+ <code>short</code> value specified by the string. 
  <p>In other words, this method returns a <code>Short</code> object
-  equal to the value of:
+  equal to the value of: 
  <blockquote>
    <code>new Short(Short.parseShort(s))</code>
   </blockquote>
  @param s the string to be parsed
  @return a <code>Short</code> object holding the value
            represented by the string argument
- @throw NumberFormatException If the <code>String</code> does
+ @throw NumberFormatExceptionIf the <code>String</code> does
            not contain a parsable <code>short</code>.
  */
 + (CommonShort *)valueOfWithNSString:(NSString *)s;
@@ -360,9 +391,9 @@
  int)</code>
   method.
  The result is a <code>Short</code> object that
-  represents the <code>short</code> value specified by the string.
+  represents the <code>short</code> value specified by the string. 
  <p>In other words, this method returns a <code>Short</code> object
-  equal to the value of:
+  equal to the value of: 
  <blockquote>
    <code>new Short(Short.parseShort(s, radix))</code>
   </blockquote>
@@ -371,7 +402,7 @@
  @return a <code>Short</code> object holding the value
                    represented by the string argument in the
                    specified radix.
- @throw NumberFormatException If the <code>String</code> does
+ @throw NumberFormatExceptionIf the <code>String</code> does
                    not contain a parsable <code>short</code>.
  */
 + (CommonShort *)valueOfWithNSString:(NSString *)s
@@ -404,7 +435,7 @@ inline jshort CommonShort_get_MAX_VALUE(void);
 J2OBJC_STATIC_FIELD_CONSTANT(CommonShort, MAX_VALUE, jshort)
 
 /*!
- @brief The <code>Class</code> instance representing the primitive type
+ @brief The <code>Class</code> instance representing the primitive type 
  <code>short</code>.
  */
 inline IOSClass *CommonShort_get_TYPE(void);
@@ -460,6 +491,8 @@ FOUNDATION_EXPORT jint CommonShort_hashCodeWithShort_(jshort value);
 
 FOUNDATION_EXPORT jint CommonShort_compareWithShort_withShort_(jshort x, jshort y);
 
+FOUNDATION_EXPORT jint CommonShort_compareUnsignedWithShort_withShort_(jshort x, jshort y);
+
 FOUNDATION_EXPORT jshort CommonShort_reverseBytesWithShort_(jshort i);
 
 FOUNDATION_EXPORT jint CommonShort_toUnsignedIntWithShort_(jshort x);
@@ -470,11 +503,9 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonShort)
 
 BOXED_INC_AND_DEC(Short, shortValue, CommonShort)
 
-// Empty class to force category to be loaded.
-@interface JreKotlinShortCategoryDummy : NSObject
-@end
 
-#endif // _KotlinShort_JavaLangShort_h
+#endif
+
 
 #if __has_feature(nullability)
 #pragma clang diagnostic pop

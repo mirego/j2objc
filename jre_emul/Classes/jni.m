@@ -166,7 +166,11 @@ static jlong GetDirectBufferCapacity(JNIEnv *env, jobject buf) {
   return ARRAY->buffer_;
 
 static jboolean *GetBooleanArrayElements(JNIEnv *env, jbooleanArray array, jboolean *isCopy) {
-  GET_ARRAY_BUFFER_ELEMENTS(array, isCopy)
+  (void)nil_chk(array);
+  if (isCopy) {
+    *isCopy = false;
+  }
+  return (jboolean *)array->buffer_;
 }
 
 static jbyte *GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy) {

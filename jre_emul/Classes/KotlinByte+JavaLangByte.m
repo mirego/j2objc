@@ -2,6 +2,11 @@
 
 #import "KotlinByte+JavaLangByte.h"
 
+#define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
+
+
+
+
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "IOSPrimitiveArray.h"
@@ -9,15 +14,37 @@
 #include "java/lang/Boolean.h"
 #include "java/lang/Byte.h"
 #include "java/lang/Character.h"
+#include "java/lang/Deprecated.h"
 #include "java/lang/Double.h"
 #include "java/lang/Float.h"
 #include "java/lang/Integer.h"
 #include "java/lang/Long.h"
 #include "java/lang/NumberFormatException.h"
 #include "java/lang/Short.h"
+#include "java/lang/annotation/Annotation.h"
+
+
+
+#if __has_feature(objc_arc)
+#error "java/lang/Byte must not be compiled with ARC (-fobjc-arc)"
+#endif
+
+#pragma clang diagnostic error "-Wreturn-type"
+#pragma clang diagnostic ignored "-Wswitch"
+
+
+@interface CommonByte () {
+ @public
+  /*!
+   @brief The value of the <code>Byte</code>.
+   */
+  jbyte value_;
+}
+
+@end
 
 /*!
- @brief use serialVersionUID from JDK 1.1. for interoperability
+ @brief use serialVersionUID from JDK 1.1.for interoperability
  */
 inline jlong CommonByte_get_serialVersionUID(void);
 #define CommonByte_serialVersionUID -7183698231559129828LL
@@ -31,6 +58,16 @@ inline IOSCharArray *CommonByte_get_UPPER_CASE_DIGITS(void);
 static IOSCharArray *CommonByte_UPPER_CASE_DIGITS;
 J2OBJC_STATIC_FIELD_OBJ_FINAL(CommonByte, UPPER_CASE_DIGITS, IOSCharArray *)
 
+__attribute__((unused)) static IOSObjectArray *CommonByte__Annotations$0(void);
+
+__attribute__((unused)) static IOSObjectArray *CommonByte__Annotations$1(void);
+
+/*!
+ @brief Returns an <code>Optional</code> containing the nominal descriptor for this
+  instance.
+ @return an <code>Optional</code> describing the Byte instance
+ @since 15
+ */
 @interface CommonByte_ByteCache : NSObject
 
 - (instancetype)init;
@@ -55,31 +92,28 @@ __attribute__((unused)) static void CommonByte_ByteCache_fillValuesWithCommonByt
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonByte_ByteCache)
 
+
 J2OBJC_INITIALIZED_DEFN(CommonByte)
+
+extern jbyte CommonByte_get_MIN_VALUE(void);
+
+extern jbyte CommonByte_get_MAX_VALUE(void);
+
+extern IOSClass *CommonByte_get_TYPE(void);
+
+extern jint CommonByte_get_SIZE(void);
+
+extern jint CommonByte_get_BYTES(void);
+
+extern jlong CommonByte_get_serialVersionUID(void);
+
+extern IOSCharArray *CommonByte_get_DIGITS(void);
+
+extern IOSCharArray *CommonByte_get_UPPER_CASE_DIGITS(void);
 
 IOSClass *CommonByte_TYPE;
 
 @implementation CommonByte (JavaLangByte)
-
-+ (jbyte)MIN_VALUE {
-  return CommonByte_MIN_VALUE;
-}
-
-+ (jbyte)MAX_VALUE {
-  return CommonByte_MAX_VALUE;
-}
-
-+ (IOSClass *)TYPE {
-  return CommonByte_TYPE;
-}
-
-+ (jint)SIZE {
-  return CommonByte_SIZE;
-}
-
-+ (jint)BYTES {
-  return CommonByte_BYTES;
-}
 
 + (NSString *)toStringWithByte:(jbyte)b {
   return CommonByte_toStringWithByte_(b);
@@ -90,7 +124,7 @@ IOSClass *CommonByte_TYPE;
 }
 
 + (jbyte)parseByteWithNSString:(NSString *)s
-                       withInt:(jint)radix {
+                        withInt:(jint)radix {
   return CommonByte_parseByteWithNSString_withInt_(s, radix);
 }
 
@@ -121,61 +155,62 @@ IOSClass *CommonByte_TYPE;
   return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone {
-  return RETAIN_(self);
+- (jbyte)charValue {
+  return value_;
 }
 
-//- (jbyte)charValue {
-//  return (jbyte) self.charValue;
-//}
-
 - (jshort)shortValue {
-  return (jshort) self.charValue;
+  return (jshort) value_;
 }
 
 - (jint)intValue {
-  return (jint) self.charValue;
+  return (jint) value_;
 }
 
 - (jlong)longLongValue {
-  return (jlong) self.charValue;
+  return (jlong) value_;
 }
 
-- (jfloat)floatValue {
-  return (jfloat) self.charValue;
+- (float)floatValue {
+  return (float) value_;
 }
 
-- (jdouble)doubleValue {
-  return (jdouble) self.charValue;
+- (double)doubleValue {
+  return (double) value_;
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_((jint) self.charValue);
+  return CommonInt_toStringWithInt_((jint) value_);
 }
 
-//- (NSUInteger)hash {
-//  return CommonByte_hashCodeWithByte_((jbyte) self.charValue);
-//}
+- (NSUInteger)hash {
+  return CommonByte_hashCodeWithByte_(value_);
+}
 
 + (jint)hashCodeWithByte:(jbyte)value {
   return CommonByte_hashCodeWithByte_(value);
 }
 
-//- (jboolean)isEqual:(id)obj {
-//  if ([obj isKindOfClass:[CommonByte class]]) {
-//    return ((jbyte) self.charValue) == ((jbyte) [((CommonByte *) nil_chk(((CommonByte *) obj))) charValue]);
-//  }
-//  return false;
-//}
+- (jboolean)isEqual:(id)obj {
+  if ([obj isKindOfClass:[CommonByte class]]) {
+    return value_ == [((CommonByte *) obj) charValue];
+  }
+  return false;
+}
 
-- (jint)compareToOther:(CommonByte *)anotherByte {
+- (jint)compareToWithId:(CommonByte *)anotherByte {
   cast_chk(anotherByte, [CommonByte class]);
-  return CommonByte_compareWithByte_withByte_((jbyte) self.charValue, (jbyte) ((CommonByte *) nil_chk(anotherByte)).charValue);
+  return CommonByte_compareWithByte_withByte_(self->value_, ((CommonByte *) nil_chk(anotherByte))->value_);
 }
 
 + (jint)compareWithByte:(jbyte)x
-               withByte:(jbyte)y {
+                  withByte:(jbyte)y {
   return CommonByte_compareWithByte_withByte_(x, y);
+}
+
++ (jint)compareUnsignedWithByte:(jbyte)x
+                          withByte:(jbyte)y {
+  return CommonByte_compareUnsignedWithByte_withByte_(x, y);
 }
 
 + (jint)toUnsignedIntWithByte:(jbyte)x {
@@ -191,13 +226,13 @@ IOSClass *CommonByte_TYPE;
   return CommonByte_toHexStringWithByte_withBoolean_(b, upperCase);
 }
 
-//- (const char *)objCType {
-//  return "c";
-//}
+- (const char *)objCType {
+  return "c";
+}
 
-//- (void)getValue:(void *)buffer {
-//  *((char *) buffer) = (jbyte) self.charValue;
-//}
+- (void)getValue:(void *)buffer {
+  *((char *) buffer) = value_;
+}
 
 + (const J2ObjcClassInfo *)__metadata {
   static J2ObjcMethodInfo methods[] = {
@@ -208,23 +243,24 @@ IOSClass *CommonByte_TYPE;
     { NULL, "LCommonByte;", 0x9, 2, 4, 5, -1, -1, -1 },
     { NULL, "LCommonByte;", 0x9, 2, 6, 5, -1, -1, -1 },
     { NULL, "LCommonByte;", 0x9, 7, 6, 5, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 1, -1, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 6, 5, -1, -1, -1 },
-    { NULL, "B", 0x1, 8, -1, -1, -1, -1, -1 },
+    { NULL, NULL, 0x1, -1, 1, -1, -1, 8, -1 },
+    { NULL, NULL, 0x1, -1, 6, 5, -1, 9, -1 },
+    { NULL, "B", 0x1, 10, -1, -1, -1, -1, -1 },
     { NULL, "S", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "I", 0x1, -1, -1, -1, -1, -1, -1 },
-    { NULL, "J", 0x1, 9, -1, -1, -1, -1, -1 },
+    { NULL, "J", 0x1, 11, -1, -1, -1, -1, -1 },
     { NULL, "F", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "D", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "LNSString;", 0x1, 0, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x1, 10, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 10, 1, -1, -1, -1, -1 },
-    { NULL, "Z", 0x1, 11, 12, -1, -1, -1, -1 },
-    { NULL, "I", 0x1, 13, 14, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 15, 16, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 17, 1, -1, -1, -1, -1 },
-    { NULL, "J", 0x9, 18, 1, -1, -1, -1, -1 },
-    { NULL, "LNSString;", 0x9, 19, 20, -1, -1, -1, -1 },
+    { NULL, "I", 0x1, 12, -1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 12, 1, -1, -1, -1, -1 },
+    { NULL, "Z", 0x1, 13, 14, -1, -1, -1, -1 },
+    { NULL, "I", 0x1, 15, 16, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 17, 18, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 19, 18, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 20, 1, -1, -1, -1, -1 },
+    { NULL, "J", 0x9, 21, 1, -1, -1, -1, -1 },
+    { NULL, "LNSString;", 0x9, 22, 23, -1, -1, -1, -1 },
   };
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wobjc-multiple-method-names"
@@ -248,32 +284,34 @@ IOSClass *CommonByte_TYPE;
   methods[16].selector = @selector(hash);
   methods[17].selector = @selector(hashCodeWithByte:);
   methods[18].selector = @selector(isEqual:);
-  methods[19].selector = @selector(compareToOther:);
+  methods[19].selector = @selector(compareToWithId:);
   methods[20].selector = @selector(compareWithByte:withByte:);
-  methods[21].selector = @selector(toUnsignedIntWithByte:);
-  methods[22].selector = @selector(toUnsignedLongWithByte:);
-  methods[23].selector = @selector(toHexStringWithByte:withBoolean:);
+  methods[21].selector = @selector(compareUnsignedWithByte:withByte:);
+  methods[22].selector = @selector(toUnsignedIntWithByte:);
+  methods[23].selector = @selector(toUnsignedLongWithByte:);
+  methods[24].selector = @selector(toHexStringWithByte:withBoolean:);
   #pragma clang diagnostic pop
   static const J2ObjcFieldInfo fields[] = {
     { "MIN_VALUE", "B", .constantValue.asChar = CommonByte_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "B", .constantValue.asChar = CommonByte_MAX_VALUE, 0x19, -1, -1, -1, -1 },
-    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 21, 22, -1 },
+    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 24, 25, -1 },
+    { "value_", "B", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonByte_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonByte_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonByte_serialVersionUID, 0x1a, -1, -1, -1, -1 },
-    { "DIGITS", "[C", .constantValue.asLong = 0, 0x1a, -1, 23, -1, -1 },
-    { "UPPER_CASE_DIGITS", "[C", .constantValue.asLong = 0, 0x1a, -1, 24, -1, -1 },
+    { "DIGITS", "[C", .constantValue.asLong = 0, 0x1a, -1, 26, -1, -1 },
+    { "UPPER_CASE_DIGITS", "[C", .constantValue.asLong = 0, 0x1a, -1, 27, -1, -1 },
   };
-  static const void *ptrTable[] = { "toString", "B", "valueOf", "parseByte", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "decode", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonByte;", "compare", "BB", "toUnsignedInt", "toUnsignedLong", "toHexString", "BZ", &CommonByte_TYPE, "Ljava/lang/Class<Ljava/lang/Byte;>;", &CommonByte_DIGITS, &CommonByte_UPPER_CASE_DIGITS, "LCommonByte_ByteCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Byte;>;" };
-  static const J2ObjcClassInfo _CommonByte = { "Byte", "java.lang", ptrTable, methods, fields, 7, 0x11, 24, 8, -1, 25, -1, 26, -1 };
+  static const void *ptrTable[] = { "toString", "B", "valueOf", "parseByte", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "decode", (void *)&CommonByte__Annotations$0, (void *)&CommonByte__Annotations$1, "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "compareTo", "LCommonByte;", "compare", "BB", "compareUnsigned", "toUnsignedInt", "toUnsignedLong", "toHexString", "BZ", &CommonByte_TYPE, "Ljava/lang/Class<Ljava/lang/Byte;>;", &CommonByte_DIGITS, &CommonByte_UPPER_CASE_DIGITS, "LCommonByte_ByteCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Byte;>;" };
+  static const J2ObjcClassInfo _CommonByte = { "Byte", "java.lang", ptrTable, methods, fields, 7, 0x11, 25, 9, -1, 28, -1, 29, -1 };
   return &_CommonByte;
 }
 
 + (void)initialize {
   if (self == [CommonByte class]) {
     JreStrongAssign(&CommonByte_TYPE, [IOSClass_byteArray(1) getComponentType]);
-    JreStrongAssignAndConsume(&CommonByte_DIGITS, [IOSCharArray newArrayWithChars:(jchar[]){ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' } count:36]);
-    JreStrongAssignAndConsume(&CommonByte_UPPER_CASE_DIGITS, [IOSCharArray newArrayWithChars:(jchar[]){ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' } count:36]);
+    JreStrongAssignAndConsume(&CommonByte_DIGITS, [IOSCharArray newArrayWithChars:(unichar[]){ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' } count:36]);
+    JreStrongAssignAndConsume(&CommonByte_UPPER_CASE_DIGITS, [IOSCharArray newArrayWithChars:(unichar[]){ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' } count:36]);
     J2OBJC_SET_INITIALIZED(CommonByte)
   }
 }
@@ -321,36 +359,44 @@ CommonByte *CommonByte_decodeWithNSString_(NSString *nm) {
 }
 
 void CommonByte_initWithByte_(CommonByte *self, jbyte value) {
-  [self initWithChar:value];
+  NSNumber_init(self);
+  self->value_ = value;
 }
 
 CommonByte *new_CommonByte_initWithByte_(jbyte value) {
-  return [[CommonByte alloc] initWithChar:value];
+  J2OBJC_NEW_IMPL(CommonByte, initWithByte_, value)
 }
 
 CommonByte *create_CommonByte_initWithByte_(jbyte value) {
-  return [CommonByte numberWithChar:value];
+  J2OBJC_CREATE_IMPL(CommonByte, initWithByte_, value)
 }
 
 void CommonByte_initWithNSString_(CommonByte *self, NSString *s) {
-  [self initWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
+  NSNumber_init(self);
+  self->value_ = CommonByte_parseByteWithNSString_withInt_(s, 10);
 }
 
 CommonByte *new_CommonByte_initWithNSString_(NSString *s) {
-  return [[CommonByte alloc] initWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
+  J2OBJC_NEW_IMPL(CommonByte, initWithNSString_, s)
 }
 
 CommonByte *create_CommonByte_initWithNSString_(NSString *s) {
-  return [CommonByte numberWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
+  J2OBJC_CREATE_IMPL(CommonByte, initWithNSString_, s)
 }
 
 jint CommonByte_hashCodeWithByte_(jbyte value) {
-  return (jint) CommonByte_valueOfWithByte_(value).hash;
+  CommonByte_initialize();
+  return (jint) value;
 }
 
 jint CommonByte_compareWithByte_withByte_(jbyte x, jbyte y) {
   CommonByte_initialize();
   return x - y;
+}
+
+jint CommonByte_compareUnsignedWithByte_withByte_(jbyte x, jbyte y) {
+  CommonByte_initialize();
+  return CommonByte_toUnsignedIntWithByte_(x) - CommonByte_toUnsignedIntWithByte_(y);
 }
 
 jint CommonByte_toUnsignedIntWithByte_(jbyte x) {
@@ -372,11 +418,19 @@ NSString *CommonByte_toHexStringWithByte_withBoolean_(jbyte b, jboolean upperCas
   return [NSString java_stringWithCharacters:buf offset:0 length:2];
 }
 
+IOSObjectArray *CommonByte__Annotations$0() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
+IOSObjectArray *CommonByte__Annotations$1() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonByte)
 
-J2OBJC_NAME_MAPPING(CommonByte, "java.lang.Byte", "CommonByte")
-
 J2OBJC_INITIALIZED_DEFN(CommonByte_ByteCache)
+
+extern IOSObjectArray *CommonByte_ByteCache_get_cache(void);
 
 @implementation CommonByte_ByteCache
 
@@ -449,9 +503,5 @@ void CommonByte_ByteCache_fillValuesWithCommonByteArray_(IOSObjectArray *values)
 }
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonByte_ByteCache)
-
-// Empty class to force category to be loaded.
-@implementation JreKotlinByteCategoryDummy
-@end
 
 // kotlin interop <<

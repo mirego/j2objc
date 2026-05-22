@@ -167,7 +167,15 @@ DEBUGFLAGS := $(DEBUGFLAGS) -O$(OPTIMIZATION_LEVEL)
 CC_WARNINGS = -Wall -Werror -Wshorten-64-to-32 -Wimplicit-function-declaration \
   -Wmissing-field-initializers -Wduplicate-method-match -Wno-unused-variable \
   -Wno-nullability-completeness -Wno-unused-but-set-variable \
-  -Wno-implicit-const-int-float-conversion
+  -Wno-implicit-const-int-float-conversion \
+  -Wno-pointer-sign \
+  -Wno-deprecated-declarations \
+  -Wno-mismatched-return-types \
+  -Wno-mismatched-parameter-types \
+  -Wno-objc-protocol-method-implementation \
+  -Wno-incomplete-implementation \
+  -Wno-nonnull \
+  -Wno-protocol
 
 # Specify flag if clang version 13.1 or greater. This is necessary because that
 # version added a new warning that needs to be suppressed, and older versions

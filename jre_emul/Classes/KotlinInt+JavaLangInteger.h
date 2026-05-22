@@ -1,5 +1,9 @@
 // kotlin interop >>
 
+#import <Foundation/Foundation.h>
+#include "J2ObjC_header.h"
+#import "J2ObjC_kotlinTypes.h"
+
 #if __has_feature(nullability)
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wnullability"
@@ -9,33 +13,39 @@
 #ifndef _KotlinInt_JavaLangInteger_h_
 #define _KotlinInt_JavaLangInteger_h_
 
-#import "J2ObjC_header.h"
-#import "J2ObjC_kotlinTypes.h"
-
-#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
+@class IOSCharArray;
+@class IOSClass;
+@class IOSIntArray;
 @class CommonBoolean;
 @class CommonByte;
 @class CommonDouble;
 @class CommonFloat;
 @class CommonLong;
 @class CommonShort;
-@class IOSCharArray;
-@class IOSClass;
-@class IOSIntArray;
+@class NSString;
+@protocol JavaLangCharSequence;
 
 /*!
- @brief The <code>Integer</code> class wraps a value of the primitive type
+ @brief The <code>Integer</code> class wraps a value of the primitive type 
  <code>int</code> in an object.An object of type <code>Integer</code>
   contains a single field whose type is <code>int</code>.
  <p>In addition, this class provides several methods for converting
-  an <code>int</code> to a <code>String</code> and a <code>String</code> to an
+  an <code>int</code> to a <code>String</code> and a <code>String</code> to an 
  <code>int</code>, as well as other constants and methods useful when
   dealing with an <code>int</code>.
-
+  
+ <!-- Android-removed: paragraph on ValueBased
+ <p>This is a <a href="{@@docRoot}/java.base/java/lang/doc-files/ValueBased.html">value-based</a>
+ class; programmers should treat instances that are
+ {@@linkplain #equals(Object) equal} as interchangeable and should not
+ use instances for synchronization, or unpredictable behavior may
+ occur. For example, in a future release, synchronization may fail.
+ -->
+  
  <p>Implementation note: The implementations of the "bit twiddling"
-  methods (such as <code>highestOneBit</code> and
+  methods (such as <code>highestOneBit</code> and 
  <code>numberOfTrailingZeros</code>) are
   based on material from Henry S. Warren, Jr.'s <i>Hacker's
   Delight</i>, (Addison Wesley, 2002).
@@ -43,37 +53,29 @@
  @author Arthur van Hoff
  @author Josh Bloch
  @author Joseph D. Darcy
- @since JDK1.0
+ @since 1.0
  */
 @interface CommonInt (JavaLangInteger) < JavaIoSerializable, CommonKotlinComparable >
-@property (readonly, class) jint MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
-@property (readonly, class) jint MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
-@property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
-@property (readonly, class, strong) IOSIntArray *sizeTable NS_SWIFT_NAME(sizeTable);
-@property (readonly, class) jint SIZE NS_SWIFT_NAME(SIZE);
-@property (readonly, class) jint BYTES NS_SWIFT_NAME(BYTES);
 
 #pragma mark Public
 
 /*!
  @brief Constructs a newly allocated <code>Integer</code> object that
   represents the specified <code>int</code> value.
- @param value the value to be represented by the
+ @param value the value to be represented by the                   
  <code>Integer</code>  object.
  */
-// - (instancetype __nonnull)initWithInt:(jint)value;
+- (instancetype __nonnull)initWithInt:(jint)value;
 
 /*!
  @brief Constructs a newly allocated <code>Integer</code> object that
-  represents the <code>int</code> value indicated by the
- <code>String</code> parameter.The string is converted to an
- <code>int</code> value in exactly the manner used by the
+  represents the <code>int</code> value indicated by the 
+ <code>String</code> parameter.The string is converted to an 
+ <code>int</code> value in exactly the manner used by the 
  <code>parseInt</code> method for radix 10.
- @param s the <code>String</code>  to be converted to an
- <code>Integer</code> .
- @throw NumberFormatException If the <code>String</code> does not
-                contain a parsable integer.
- - seealso: java.lang.Integer#parseInt(java.lang.String, int)
+ @param s the <code>String</code>  to be converted to an <code>Integer</code> .
+ @throw NumberFormatExceptionif the <code>String</code> does not
+               contain a parsable integer.
  */
 - (instancetype __nonnull)initWithNSString:(NSString *)s;
 
@@ -96,11 +98,11 @@
 
 /*!
  @brief Compares two <code>int</code> values numerically.
- The value returned is identical to what would be returned by:
+ The value returned is identical to what would be returned by: 
  @code
 
-     Integer.valueOf(x).compareTo(Integer.valueOf(y))
-
+     Integer.valueOf(x).compareTo(Integer.valueOf(y)) 
+  
 @endcode
  @param x the first <code>int</code>  to compare
  @param y the second <code>int</code>  to compare
@@ -110,7 +112,7 @@
  @since 1.7
  */
 + (jint)compareWithInt:(jint)x
-               withInt:(jint)y;
+                  withInt:(jint)y;
 
 /*!
  @brief Compares two <code>Integer</code> objects numerically.
@@ -124,7 +126,7 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToOther:(CommonInt *)anotherInteger __attribute__((swift_name("compareTo(other:)")));
+- (jint)compareToWithId:(CommonInt *)anotherInteger;
 
 /*!
  @brief Compares two <code>int</code> values numerically treating the values
@@ -138,12 +140,12 @@
  @since 1.8
  */
 + (jint)compareUnsignedWithInt:(jint)x
-                       withInt:(jint)y;
+                          withInt:(jint)y;
 
 /*!
  @brief Decodes a <code>String</code> into an <code>Integer</code>.
  Accepts decimal, hexadecimal, and octal numbers given
-  by the following grammar:
+  by the following grammar: 
  <blockquote>
   <dl>
   <dt><i>DecodableString:</i>
@@ -152,17 +154,17 @@
   <dd><i>Sign<sub>opt</sub></i> <code>0X</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>#</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>0</code> <i>OctalDigits</i>
-
+  
  <dt><i>Sign:</i>
   <dd><code>-</code>
   <dd><code>+</code>
   </dl>
   </blockquote>
-
+  
  <i>DecimalNumeral</i>, <i>HexDigits</i>, and <i>OctalDigits</i>
-  are as defined in section 3.10.1 of
- <cite>The Java&trade; Language Specification</cite>,
-  except that underscores are not accepted between digits.
+  are as defined in section 3.10.1 of 
+ <cite>The Java Language Specification</cite>,
+  except that underscores are not accepted between digits. 
  <p>The sequence of characters following an optional
   sign and/or radix specifier ("<code>0x</code>", "<code>0X</code>",
   "<code>#</code>", or leading zero) is parsed as by the <code>Integer.parseInt</code>
@@ -175,7 +177,7 @@
  @param nm the <code>String</code>  to decode.
  @return an <code>Integer</code> object holding the <code>int</code>
               value represented by <code>nm</code>
- @throw NumberFormatException If the <code>String</code> does not
+ @throw NumberFormatExceptionif the <code>String</code> does not
              contain a parsable integer.
  - seealso: java.lang.Integer#parseInt(java.lang.String, int)
  */
@@ -198,30 +200,30 @@
  @since 1.8
  */
 + (jint)divideUnsignedWithInt:(jint)dividend
-                      withInt:(jint)divisor;
+                         withInt:(jint)divisor;
 
 /*!
  @brief Returns the value of this <code>Integer</code> as a <code>double</code>
   after a widening primitive conversion.
  */
-- (jdouble)doubleValue;
+- (double)doubleValue;
 
 /*!
- @brief Compares this object to the specified object.The result is
- <code>true</code> if and only if the argument is not
+ @brief Compares this object to the specified object.The result is 
+ <code>true</code> if and only if the argument is not 
  <code>null</code> and is an <code>Integer</code> object that
   contains the same <code>int</code> value as this object.
  @param obj the object to compare with.
  @return <code>true</code> if the objects are the same;
            <code>false</code> otherwise.
  */
-//- (jboolean)isEqual:(id)obj;
+- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Integer</code> as a <code>float</code>
   after a widening primitive conversion.
  */
-- (jfloat)floatValue;
+- (float)floatValue;
 
 /*!
  @brief Determines the integer value of the system property with the
@@ -231,13 +233,13 @@
   method. The
   string value of this property is then interpreted as an integer
   value using the grammar supported by <code>decode</code> and
-  an <code>Integer</code> object representing this value is returned.
+  an <code>Integer</code> object representing this value is returned. 
  <p>If there is no property with the specified name, if the
   specified name is empty or <code>null</code>, or if the property
   does not have the correct numeric format, then <code>null</code> is
-  returned.
+  returned. 
  <p>In other words, this method returns an <code>Integer</code>
-  object equal to the value of:
+  object equal to the value of: 
  <blockquote>
    <code>getInteger(nm, null)</code>
   </blockquote>
@@ -258,24 +260,24 @@
   method. The
   string value of this property is then interpreted as an integer
   value using the grammar supported by <code>decode</code> and
-  an <code>Integer</code> object representing this value is returned.
+  an <code>Integer</code> object representing this value is returned. 
  <p>The second argument is the default value. An <code>Integer</code> object
   that represents the value of the second argument is returned if there
   is no property of the specified name, if the property does not have
-  the correct numeric format, or if the specified name is empty or
+  the correct numeric format, or if the specified name is empty or 
  <code>null</code>.
-
+  
  <p>In other words, this method returns an <code>Integer</code> object
-  equal to the value of:
+  equal to the value of: 
  <blockquote>
    <code>getInteger(nm, new Integer(val))</code>
   </blockquote>
-  but in practice it may be implemented in a manner such as:
+  but in practice it may be implemented in a manner such as: 
  <blockquote>@code
 
   Integer result = getInteger(nm, null);
-  return (result == null) ? new Integer(val) : result;
-
+  return (result == null) ? new Integer(val) : result; 
+  
 @endcode</blockquote>
   to avoid the unnecessary allocation of an <code>Integer</code>
   object when the default value is not needed.
@@ -288,32 +290,32 @@
  - seealso: java.lang.System#getProperty(java.lang.String, java.lang.String)
  */
 + (CommonInt * __nullable)getIntegerWithNSString:(NSString *)nm
-                                         withInt:(jint)val;
+                                              withInt:(jint)val;
 
 /*!
  @brief Returns the integer value of the system property with the
   specified name.The first argument is treated as the name of a
   system property.
- System properties are accessible through the
+ System properties are accessible through the 
  <code>java.lang.System.getProperty(java.lang.String)</code> method.
   The string value of this property is then interpreted as an
   integer value, as per the <code>decode</code> method,
   and an <code>Integer</code> object representing this value is
-  returned; in summary:
+  returned; in summary: 
  <ul><li>If the property value begins with the two ASCII characters
           <code>0x</code> or the ASCII character <code>#</code>, not
        followed by a minus sign, then the rest of it is parsed as a
-       hexadecimal integer exactly as by the method
- <code>valueOf(java.lang.String, int)</code> with radix 16.
+       hexadecimal integer exactly as by the method      
+ <code>valueOf(java.lang.String, int)</code> with radix 16. 
  <li>If the property value begins with the ASCII character
       <code>0</code> followed by another character, it is parsed as an
-      octal integer exactly as by the method
- <code>valueOf(java.lang.String, int)</code> with radix 8.
+      octal integer exactly as by the method     
+ <code>valueOf(java.lang.String, int)</code> with radix 8. 
  <li>Otherwise, the property value is parsed as a decimal integer
   exactly as by the method <code>valueOf(java.lang.String, int)</code>
-  with radix 10.
+  with radix 10. 
  </ul>
-
+  
  <p>The second argument is the default value. The default value is
   returned if there is no property of the specified name, if the
   property does not have the correct numeric format, or if the
@@ -327,7 +329,7 @@
  - seealso: System#getProperty(java.lang.String, java.lang.String)
  */
 + (CommonInt * __nullable)getIntegerWithNSString:(NSString *)nm
-                                   withCommonInt:(CommonInt *)val;
+                                  withCommonInt:(CommonInt *)val;
 
 /*!
  @brief Returns a hash code for this <code>Integer</code>.
@@ -335,20 +337,20 @@
            primitive <code>int</code> value represented by this
            <code>Integer</code> object.
  */
-//- (NSUInteger)hash;
+- (NSUInteger)hash;
 
 /*!
- @brief Returns a hash code for a <code>int</code> value; compatible with
+ @brief Returns a hash code for an <code>int</code> value; compatible with 
  <code>Integer.hashCode()</code>.
  @param value the value to hash
  @since 1.8
- @return a hash code value for a <code>int</code> value.
+ @return a hash code value for an <code>int</code> value.
  */
 + (jint)hashCodeWithInt:(jint)value;
 
 /*!
  @brief Returns an <code>int</code> value with at most a single one-bit, in the
-  position of the highest-order ("leftmost") one-bit in the specified
+  position of the highest-order ("leftmost") one-bit in the specified 
  <code>int</code> value.Returns zero if the specified value has no
   one-bits in its two's complement binary representation, that is, if it
   is equal to zero.
@@ -361,10 +363,10 @@
 + (jint)highestOneBitWithInt:(jint)i;
 
 /*!
- @brief Returns the value of this <code>Integer</code> as an
+ @brief Returns the value of this <code>Integer</code> as an 
  <code>int</code>.
  */
-// - (jint)intValue;
+- (jint)intValue;
 
 /*!
  @brief Returns the value of this <code>Integer</code> as a <code>long</code>
@@ -375,7 +377,7 @@
 
 /*!
  @brief Returns an <code>int</code> value with at most a single one-bit, in the
-  position of the lowest-order ("rightmost") one-bit in the specified
+  position of the lowest-order ("rightmost") one-bit in the specified 
  <code>int</code> value.Returns zero if the specified value has no
   one-bits in its two's complement binary representation, that is, if it
   is equal to zero.
@@ -397,7 +399,7 @@
  @since 1.8
  */
 + (jint)maxWithInt:(jint)a
-           withInt:(jint)b;
+              withInt:(jint)b;
 
 /*!
  @brief Returns the smaller of two <code>int</code> values
@@ -409,7 +411,7 @@
  @since 1.8
  */
 + (jint)minWithInt:(jint)a
-           withInt:(jint)b;
+              withInt:(jint)b;
 
 /*!
  @brief Returns the number of zero bits preceding the highest-order
@@ -418,7 +420,7 @@
   specified value has no one-bits in its two's complement representation,
   in other words if it is equal to zero.
  <p>Note that this method is closely related to the logarithm base 2.
-  For all positive <code>int</code> values x:
+  For all positive <code>int</code> values x: 
  <ul>
   <li>floor(log<sub>2</sub>(x)) = <code>31 - numberOfLeadingZeros(x)</code>
   <li>ceil(log<sub>2</sub>(x)) = <code>32 - numberOfLeadingZeros(x - 1)</code>
@@ -434,7 +436,7 @@
 
 /*!
  @brief Returns the number of zero bits following the lowest-order ("rightmost")
-  one-bit in the two's complement binary representation of the specified
+  one-bit in the two's complement binary representation of the specified 
  <code>int</code> value.Returns 32 if the specified value has no
   one-bits in its two's complement representation, in other words if it is
   equal to zero.
@@ -446,6 +448,35 @@
  @since 1.5
  */
 + (jint)numberOfTrailingZerosWithInt:(jint)i;
+
+/*!
+ @brief Parses the <code>CharSequence</code> argument as a signed <code>int</code> in the
+  specified <code>radix</code>, beginning at the specified <code>beginIndex</code>
+  and extending to <code>endIndex - 1</code>.
+ <p>The method does not take steps to guard against the 
+ <code>CharSequence</code> being mutated while parsing.
+ @param s the <code>CharSequence</code>  containing the <code>int</code>                   representation to be parsed
+ @param beginIndex the beginning index, inclusive.
+ @param endIndex the ending index, exclusive.
+ @param radix the radix to be used while parsing <code>s</code> .
+ @return the signed <code>int</code> represented by the subsequence in
+              the specified radix.
+ @throw NullPointerExceptionif <code>s</code> is null.
+ @throw IndexOutOfBoundsExceptionif <code>beginIndex</code> is
+              negative, or if <code>beginIndex</code> is greater than
+              <code>endIndex</code> or if <code>endIndex</code> is greater than
+              <code>s.length()</code>.
+ @throw NumberFormatExceptionif the <code>CharSequence</code> does not
+              contain a parsable <code>int</code> in the specified
+              <code>radix</code>, or if <code>radix</code> is either smaller than
+              <code>java.lang.Character.MIN_RADIX</code> or larger than
+              <code>java.lang.Character.MAX_RADIX</code>.
+ @since 9
+ */
++ (jint)parseIntWithJavaLangCharSequence:(id<JavaLangCharSequence>)s
+                                    withInt:(jint)beginIndex
+                                    withInt:(jint)endIndex
+                                    withInt:(jint)radix;
 
 /*!
  @brief Parses the string argument as a signed decimal integer.The
@@ -461,7 +492,7 @@
   method.
  @param s a <code>String</code>  containing the <code>int</code>              representation to be parsed
  @return the integer value represented by the argument in decimal.
- @throw NumberFormatException If the string does not contain a
+ @throw NumberFormatExceptionif the string does not contain a
                 parsable integer.
  */
 + (jint)parseIntWithNSString:(NSString *)s;
@@ -476,25 +507,25 @@
   indicate a negative value or an ASCII plus sign <code>'+'</code>
   (<code>'\u002B'</code>) to indicate a positive value.
  The
-  resulting integer value is returned.
+  resulting integer value is returned. 
  <p>An exception of type <code>NumberFormatException</code> is
-  thrown if any of the following situations occurs:
+  thrown if any of the following situations occurs: 
  <ul>
   <li>The first argument is <code>null</code> or is a string of
-  length zero.
- <li>The radix is either smaller than
+  length zero. 
+ <li>The radix is either smaller than 
  <code>java.lang.Character.MIN_RADIX</code> or
   larger than <code>java.lang.Character.MAX_RADIX</code>.
-
+  
  <li>Any character of the string is not a digit of the specified
-  radix, except that the first character may be a minus sign
- <code>'-'</code> (<code>'\u002D'</code>) or plus sign
+  radix, except that the first character may be a minus sign 
+ <code>'-'</code> (<code>'\u002D'</code>) or plus sign 
  <code>'+'</code> (<code>'\u002B'</code>) provided that the
-  string is longer than length 1.
- <li>The value represented by the string is not a value of type
+  string is longer than length 1. 
+ <li>The value represented by the string is not a value of type 
  <code>int</code>.
   </ul>
-
+  
  <p>Examples:
   <blockquote>@code
 
@@ -509,23 +540,53 @@
   parseInt("2147483648", 10) throws a NumberFormatException
   parseInt("99", 8) throws a NumberFormatException
   parseInt("Kona", 10) throws a NumberFormatException
-  parseInt("Kona", 27) returns 411787
-
+  parseInt("Kona", 27) returns 411787 
+  
 @endcode</blockquote>
  @param s the <code>String</code>  containing the integer                   representation to be parsed
  @param radix the radix to be used while parsing <code>s</code> .
  @return the integer represented by the string argument in the
               specified radix.
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionif the <code>String</code>
               does not contain a parsable <code>int</code>.
  */
 + (jint)parseIntWithNSString:(NSString *)s
-                     withInt:(jint)radix;
+                        withInt:(jint)radix;
+
+/*!
+ @brief Parses the <code>CharSequence</code> argument as an unsigned <code>int</code> in
+  the specified <code>radix</code>, beginning at the specified 
+ <code>beginIndex</code> and extending to <code>endIndex - 1</code>.
+ <p>The method does not take steps to guard against the 
+ <code>CharSequence</code> being mutated while parsing.
+ @param s the <code>CharSequence</code>  containing the unsigned                  
+ <code>int</code>  representation to be parsed
+ @param beginIndex the beginning index, inclusive.
+ @param endIndex the ending index, exclusive.
+ @param radix the radix to be used while parsing <code>s</code> .
+ @return the unsigned <code>int</code> represented by the subsequence in
+              the specified radix.
+ @throw NullPointerExceptionif <code>s</code> is null.
+ @throw IndexOutOfBoundsExceptionif <code>beginIndex</code> is
+              negative, or if <code>beginIndex</code> is greater than
+              <code>endIndex</code> or if <code>endIndex</code> is greater than
+              <code>s.length()</code>.
+ @throw NumberFormatExceptionif the <code>CharSequence</code> does not
+              contain a parsable unsigned <code>int</code> in the specified
+              <code>radix</code>, or if <code>radix</code> is either smaller than
+              <code>java.lang.Character.MIN_RADIX</code> or larger than
+              <code>java.lang.Character.MAX_RADIX</code>.
+ @since 9
+ */
++ (jint)parseUnsignedIntWithJavaLangCharSequence:(id<JavaLangCharSequence>)s
+                                            withInt:(jint)beginIndex
+                                            withInt:(jint)endIndex
+                                            withInt:(jint)radix;
 
 /*!
  @brief Parses the string argument as an unsigned decimal integer.The
   characters in the string must all be decimal digits, except
-  that the first character may be an an ASCII plus sign <code>'+'</code>
+  that the first character may be an ASCII plus sign <code>'+'</code>
   (<code>'\u002B'</code>).
  The resulting integer value
   is returned, exactly as if the argument and the radix 10 were
@@ -533,7 +594,7 @@
   method.
  @param s a <code>String</code>  containing the unsigned <code>int</code>             representation to be parsed
  @return the unsigned integer value represented by the argument in decimal.
- @throw NumberFormatException If the string does not contain a
+ @throw NumberFormatExceptionif the string does not contain a
              parsable unsigned integer.
  @since 1.8
  */
@@ -549,34 +610,34 @@
   returns a nonnegative
   value), except that the first character may be an ASCII plus
   sign <code>'+'</code> (<code>'\u002B'</code>). The resulting
-  integer value is returned.
+  integer value is returned. 
  <p>An exception of type <code>NumberFormatException</code> is
-  thrown if any of the following situations occurs:
+  thrown if any of the following situations occurs: 
  <ul>
   <li>The first argument is <code>null</code> or is a string of
-  length zero.
- <li>The radix is either smaller than
+  length zero. 
+ <li>The radix is either smaller than 
  <code>java.lang.Character.MIN_RADIX</code> or
   larger than <code>java.lang.Character.MAX_RADIX</code>.
-
+  
  <li>Any character of the string is not a digit of the specified
-  radix, except that the first character may be a plus sign
+  radix, except that the first character may be a plus sign 
  <code>'+'</code> (<code>'\u002B'</code>) provided that the
-  string is longer than length 1.
+  string is longer than length 1. 
  <li>The value represented by the string is larger than the
   largest unsigned <code>int</code>, 2<sup>32</sup>-1.
-
+  
  </ul>
  @param s the <code>String</code>  containing the unsigned integer                   representation to be parsed
  @param radix the radix to be used while parsing <code>s</code> .
  @return the integer represented by the string argument in the
               specified radix.
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionif the <code>String</code>
               does not contain a parsable <code>int</code>.
  @since 1.8
  */
 + (jint)parseUnsignedIntWithNSString:(NSString *)s
-                             withInt:(jint)radix;
+                                withInt:(jint)radix;
 
 /*!
  @brief Returns the unsigned remainder from dividing the first argument
@@ -590,7 +651,7 @@
  @since 1.8
  */
 + (jint)remainderUnsignedWithInt:(jint)dividend
-                         withInt:(jint)divisor;
+                            withInt:(jint)divisor;
 
 /*!
  @brief Returns the value obtained by reversing the order of the bits in the
@@ -618,7 +679,7 @@
   representation of the specified <code>int</code> value left by the
   specified number of bits.
  (Bits shifted out of the left hand, or
-  high-order, side reenter on the right, or low-order.)
+  high-order, side reenter on the right, or low-order.) 
  <p>Note that left rotation with a negative distance is equivalent to
   right rotation: <code>rotateLeft(val, -distance) == rotateRight(val,
   distance)</code>
@@ -635,14 +696,14 @@
  @since 1.5
  */
 + (jint)rotateLeftWithInt:(jint)i
-                  withInt:(jint)distance;
+                     withInt:(jint)distance;
 
 /*!
  @brief Returns the value obtained by rotating the two's complement binary
   representation of the specified <code>int</code> value right by the
   specified number of bits.
  (Bits shifted out of the right hand, or
-  low-order, side reenter on the left, or high-order.)
+  low-order, side reenter on the left, or high-order.) 
  <p>Note that right rotation with a negative distance is equivalent to
   left rotation: <code>rotateRight(val, -distance) == rotateLeft(val,
   distance)</code>
@@ -659,7 +720,7 @@
  @since 1.5
  */
 + (jint)rotateRightWithInt:(jint)i
-                   withInt:(jint)distance;
+                      withInt:(jint)distance;
 
 /*!
  @brief Returns the value of this <code>Integer</code> as a <code>short</code>
@@ -687,7 +748,7 @@
  @since 1.8
  */
 + (jint)sumWithInt:(jint)a
-           withInt:(jint)b;
+              withInt:(jint)b;
 
 /*!
  @brief Returns a string representation of the integer argument as an
@@ -696,11 +757,11 @@
   if the argument is negative; otherwise it is equal to the
   argument.  This value is converted to a string of ASCII digits
   in binary (base&nbsp;2) with no extra leading <code>0</code>s.
-
+  
  <p>The value of the argument can be recovered from the returned
   string <code>s</code> by calling <code>Integer.parseUnsignedInt(s, 2)</code>
  .
-
+  
  <p>If the unsigned magnitude is zero, it is represented by a
   single zero character <code>'0'</code> (<code>'\u0030'</code>);
   otherwise, the first character of the representation of the
@@ -712,7 +773,7 @@
            represented by the argument in binary (base&nbsp;2).
  - seealso: #parseUnsignedInt(String, int)
  - seealso: #toUnsignedString(int, int)
- @since JDK1.0.2
+ @since 1.0.2
  */
 + (NSString * __nonnull)toBinaryStringWithInt:(jint)i;
 
@@ -722,26 +783,26 @@
  <p>The unsigned integer value is the argument plus 2<sup>32</sup>
   if the argument is negative; otherwise, it is equal to the
   argument.  This value is converted to a string of ASCII digits
-  in hexadecimal (base&nbsp;16) with no extra leading
+  in hexadecimal (base&nbsp;16) with no extra leading 
  <code>0</code>s.
-
+  
  <p>The value of the argument can be recovered from the returned
   string <code>s</code> by calling <code>Integer.parseUnsignedInt(s, 16)</code>
  .
-
+  
  <p>If the unsigned magnitude is zero, it is represented by a
   single zero character <code>'0'</code> (<code>'\u0030'</code>);
   otherwise, the first character of the representation of the
   unsigned magnitude will not be the zero character. The
-  following characters are used as hexadecimal digits:
+  following characters are used as hexadecimal digits: 
  <blockquote>
    <code>0123456789abcdef</code>
   </blockquote>
-  These are the characters <code>'\u0030'</code> through
- <code>'\u0039'</code> and <code>'\u0061'</code> through
+  These are the characters <code>'\u0030'</code> through 
+ <code>'\u0039'</code> and <code>'\u0061'</code> through 
  <code>'\u0066'</code>. If uppercase letters are
   desired, the <code>java.lang.String.toUpperCase()</code> method may
-  be called on the result:
+  be called on the result: 
  <blockquote>
    <code>Integer.toHexString(n).toUpperCase()</code>
   </blockquote>
@@ -750,7 +811,7 @@
            represented by the argument in hexadecimal (base&nbsp;16).
  - seealso: #parseUnsignedInt(String, int)
  - seealso: #toUnsignedString(int, int)
- @since JDK1.0.2
+ @since 1.0.2
  */
 + (NSString * __nonnull)toHexStringWithInt:(jint)i;
 
@@ -761,32 +822,32 @@
   if the argument is negative; otherwise, it is equal to the
   argument.  This value is converted to a string of ASCII digits
   in octal (base&nbsp;8) with no extra leading <code>0</code>s.
-
+  
  <p>The value of the argument can be recovered from the returned
   string <code>s</code> by calling <code>Integer.parseUnsignedInt(s, 8)</code>
  .
-
+  
  <p>If the unsigned magnitude is zero, it is represented by a
   single zero character <code>'0'</code> (<code>'\u0030'</code>);
   otherwise, the first character of the representation of the
   unsigned magnitude will not be the zero character. The
-  following characters are used as octal digits:
+  following characters are used as octal digits: 
  <blockquote>
   <code>01234567</code>
   </blockquote>
-  These are the characters <code>'\u0030'</code> through
+  These are the characters <code>'\u0030'</code> through 
  <code>'\u0037'</code>.
  @param i an integer to be converted to a string.
  @return the string representation of the unsigned integer value
            represented by the argument in octal (base&nbsp;8).
  - seealso: #parseUnsignedInt(String, int)
  - seealso: #toUnsignedString(int, int)
- @since JDK1.0.2
+ @since 1.0.2
  */
 + (NSString * __nonnull)toOctalStringWithInt:(jint)i;
 
 /*!
- @brief Returns a <code>String</code> object representing this
+ @brief Returns a <code>String</code> object representing this 
  <code>Integer</code>'s value.The value is converted to signed
   decimal representation and returned as a string, exactly as if
   the integer value were given as an argument to the <code>java.lang.Integer.toString(int)</code>
@@ -811,30 +872,30 @@
  @brief Returns a string representation of the first argument in the
   radix specified by the second argument.
  <p>If the radix is smaller than <code>Character.MIN_RADIX</code>
-  or larger than <code>Character.MAX_RADIX</code>, then the radix
- <code>10</code> is used instead.
+  or larger than <code>Character.MAX_RADIX</code>, then the radix 
+ <code>10</code> is used instead. 
  <p>If the first argument is negative, the first element of the
   result is the ASCII minus character <code>'-'</code>
   (<code>'\u002D'</code>). If the first argument is not
-  negative, no sign character appears in the result.
+  negative, no sign character appears in the result. 
  <p>The remaining characters of the result represent the magnitude
   of the first argument. If the magnitude is zero, it is
   represented by a single zero character <code>'0'</code>
   (<code>'\u0030'</code>); otherwise, the first character of
   the representation of the magnitude will not be the zero
-  character.  The following ASCII characters are used as digits:
+  character.  The following ASCII characters are used as digits: 
  <blockquote>
     <code>0123456789abcdefghijklmnopqrstuvwxyz</code>
   </blockquote>
-  These are <code>'\u0030'</code> through
- <code>'\u0039'</code> and <code>'\u0061'</code> through
- <code>'\u007A'</code>. If <code>radix</code> is
+  These are <code>'\u0030'</code> through 
+ <code>'\u0039'</code> and <code>'\u0061'</code> through 
+ <code>'\u007A'</code>. If <code>radix</code> is 
  <var>N</var>, then the first <var>N</var> of these characters
   are used as radix-<var>N</var> digits in the order shown. Thus,
-  the digits for hexadecimal (radix 16) are
+  the digits for hexadecimal (radix 16) are 
  <code>0123456789abcdef</code>. If uppercase letters are
   desired, the <code>java.lang.String.toUpperCase()</code> method may
-  be called on the result:
+  be called on the result: 
  <blockquote>
    <code>Integer.toString(n, 16).toUpperCase()</code>
   </blockquote>
@@ -845,7 +906,7 @@
  - seealso: java.lang.Character#MIN_RADIX
  */
 + (NSString * __nonnull)toStringWithInt:(jint)i
-                                withInt:(jint)radix;
+                               withInt:(jint)radix;
 
 /*!
  @brief Converts the argument to a <code>long</code> by an unsigned
@@ -884,14 +945,14 @@
   unsigned integer value in the radix specified by the second
   argument.
  <p>If the radix is smaller than <code>Character.MIN_RADIX</code>
-  or larger than <code>Character.MAX_RADIX</code>, then the radix
- <code>10</code> is used instead.
+  or larger than <code>Character.MAX_RADIX</code>, then the radix 
+ <code>10</code> is used instead. 
  <p>Note that since the first argument is treated as an unsigned
-  value, no leading sign character is printed.
+  value, no leading sign character is printed. 
  <p>If the magnitude is zero, it is represented by a single zero
   character <code>'0'</code> (<code>'\u0030'</code>); otherwise,
   the first character of the representation of the magnitude will
-  not be the zero character.
+  not be the zero character. 
  <p>The behavior of radixes and the characters used as digits
   are the same as <code>toString</code>.
  @param i an integer to be converted to an unsigned string.
@@ -901,10 +962,10 @@
  @since 1.8
  */
 + (NSString * __nonnull)toUnsignedStringWithInt:(jint)i
-                                        withInt:(jint)radix;
+                                       withInt:(jint)radix;
 
 /*!
- @brief Returns an <code>Integer</code> instance representing the specified
+ @brief Returns an <code>Integer</code> instance representing the specified 
  <code>int</code> value.If a new <code>Integer</code> instance is not
   required, this method should generally be used in preference to
   the constructor <code>Integer(int)</code>, as this method is likely
@@ -924,18 +985,18 @@
   interpreted as representing a signed decimal integer, exactly
   as if the argument were given to the <code>parseInt(java.lang.String)</code>
   method.
- The result is an
+ The result is an 
  <code>Integer</code> object that represents the integer value
-  specified by the string.
+  specified by the string. 
  <p>In other words, this method returns an <code>Integer</code>
-  object equal to the value of:
+  object equal to the value of: 
  <blockquote>
    <code>new Integer(Integer.parseInt(s))</code>
   </blockquote>
  @param s the string to be parsed.
  @return an <code>Integer</code> object holding the value
               represented by the string argument.
- @throw NumberFormatException If the string cannot be parsed
+ @throw NumberFormatExceptionif the string cannot be parsed
               as an integer.
  */
 + (CommonInt * __nonnull)valueOfWithNSString:(NSString *)s;
@@ -949,9 +1010,9 @@
   were given to the <code>parseInt(java.lang.String, int)</code>
   method.
  The result is an <code>Integer</code> object that
-  represents the integer value specified by the string.
+  represents the integer value specified by the string. 
  <p>In other words, this method returns an <code>Integer</code>
-  object equal to the value of:
+  object equal to the value of: 
  <blockquote>
    <code>new Integer(Integer.parseInt(s, radix))</code>
   </blockquote>
@@ -960,11 +1021,11 @@
  @return an <code>Integer</code> object holding the value
               represented by the string argument in the specified
               radix.
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionif the <code>String</code>
              does not contain a parsable <code>int</code>.
  */
 + (CommonInt * __nonnull)valueOfWithNSString:(NSString *)s
-                                     withInt:(jint)radix;
+                                          withInt:(jint)radix;
 
 #pragma mark Package-Private
 
@@ -980,6 +1041,11 @@
                 withInt:(jint)index
           withCharArray:(IOSCharArray *)buf;
 
+/*!
+ @brief Returns the string representation size for a given int value.
+ @param x int value
+ @return string size
+ */
 + (jint)stringSizeWithInt:(jint)x;
 
 // Disallowed inherited constructors, do not use.
@@ -1007,9 +1073,9 @@ inline jint CommonInt_get_MAX_VALUE(void);
 J2OBJC_STATIC_FIELD_CONSTANT(CommonInt, MAX_VALUE, jint)
 
 /*!
- @brief The <code>Class</code> instance representing the primitive type
+ @brief The <code>Class</code> instance representing the primitive type 
  <code>int</code>.
- @since JDK1.1
+ @since 1.1
  */
 inline IOSClass *CommonInt_get_TYPE(void);
 /*! INTERNAL ONLY - Use accessor function from above. */
@@ -1031,7 +1097,7 @@ inline jint CommonInt_get_SIZE(void);
 J2OBJC_STATIC_FIELD_CONSTANT(CommonInt, SIZE, jint)
 
 /*!
- @brief The number of bytes used to represent a <code>int</code> value in two's
+ @brief The number of bytes used to represent an <code>int</code> value in two's
   complement binary form.
  @since 1.8
  */
@@ -1059,9 +1125,13 @@ FOUNDATION_EXPORT jint CommonInt_stringSizeWithInt_(jint x);
 
 FOUNDATION_EXPORT jint CommonInt_parseIntWithNSString_withInt_(NSString *s, jint radix);
 
+FOUNDATION_EXPORT jint CommonInt_parseIntWithJavaLangCharSequence_withInt_withInt_withInt_(id<JavaLangCharSequence> s, jint beginIndex, jint endIndex, jint radix);
+
 FOUNDATION_EXPORT jint CommonInt_parseIntWithNSString_(NSString *s);
 
 FOUNDATION_EXPORT jint CommonInt_parseUnsignedIntWithNSString_withInt_(NSString *s, jint radix);
+
+FOUNDATION_EXPORT jint CommonInt_parseUnsignedIntWithJavaLangCharSequence_withInt_withInt_withInt_(id<JavaLangCharSequence> s, jint beginIndex, jint endIndex, jint radix);
 
 FOUNDATION_EXPORT jint CommonInt_parseUnsignedIntWithNSString_(NSString *s);
 
@@ -1137,11 +1207,9 @@ BOXED_COMPOUND_ASSIGN_MOD(Int, intValue, jint, CommonInt)
 BOXED_COMPOUND_ASSIGN_BITWISE(Int, intValue, jint, CommonInt)
 BOXED_SHIFT_ASSIGN_32(Int, intValue, jint, CommonInt)
 
-// Empty class to force category to be loaded.
-@interface JreKotlinIntCategoryDummy : NSObject
-@end
 
-#endif /* _KotlinInt_JavaLangInteger_h_ */
+#endif
+
 
 #if __has_feature(nullability)
 #pragma clang diagnostic pop

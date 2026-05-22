@@ -9,6 +9,7 @@ Gemfile.lock
 
 # Build Output
 **/build_result/
+**/build/
 dist/
 
 # Xcode Generated Files

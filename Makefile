@@ -68,8 +68,9 @@ all_frameworks: frameworks protobuf_dist
 	@cd protobuf/runtime && $(MAKE) framework
 
 dist: print_environment translator_dist jre_emul_dist junit_dist jsr305_dist \
-  javax_inject_dist guava_dist mockito_dist truth_dist cycle_finder_dist \
-  xalan_dist install-man-pages install-extras
+  javax_inject_dist install-man-pages install-extras
+# kotlin interop >> Removed non-priority targets (guava_dist, mockito_dist,
+#   truth_dist, cycle_finder_dist, xalan_dist) - not used by bell-nscreen consumer.
 
 protobuf_dist: protobuf_compiler_dist protobuf_runtime_dist
 

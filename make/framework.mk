@@ -95,17 +95,19 @@ framework:: lib $(FRAMEWORK_BUILD_DIR) resources
 
 # Create an xcframework from all appletv, iphone, maccatalyst, macosx, simulator and watchos libs.
 # kotlin interop >>
-$(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) $(MODULE_MAP) | $(DIST_FRAMEWORK_DIR)
+$(FRAMEWORK_BUILD_DIR): lib $(FRAMEWORK_HEADER) | $(DIST_FRAMEWORK_DIR)
 	@echo building $(FRAMEWORK_NAME) framework
-	@mkdir -p $(FRAMEWORK_BUILD_DIR)
+	@rm -rf $(FRAMEWORK_BUILD_DIR)
+	@mkdir -p $(FRAMEWORK_BUILD_DIR)/Headers
+	@tar cf - -C $(STATIC_HEADERS_DIR) $(FRAMEWORK_HEADERS:$(STATIC_HEADERS_DIR)/%=%) \
+		| tar xfp - -C $(FRAMEWORK_BUILD_DIR)/Headers
+	@install -m 0644 $(FRAMEWORK_HEADER) $(FRAMEWORK_BUILD_DIR)/Headers
 	@$(J2OBJC_ROOT)/scripts/gen_xcframework.sh $(FRAMEWORK_BUILD_DIR) \
 		$(shell $(J2OBJC_ROOT)/scripts/list_framework_libraries.sh $(STATIC_LIBRARY_NAME))
-	@mkdir -p $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules
-	@tar cf - -C $(STATIC_HEADERS_DIR) $(FRAMEWORK_HEADERS:$(STATIC_HEADERS_DIR)/%=%) \
-		| tar xfp - -C $(BUILD_DIR)/Framework/Headers
-	@install -m 0644 $(FRAMEWORK_HEADER) $(BUILD_DIR)/Framework/Headers
-	@install -m 0644 $(MODULE_MAP) $(BUILD_DIR)/Framework/Modules
-	@find $(FRAMEWORK_BUILD_DIR) -type d -depth 1 -exec cp -pR $(BUILD_DIR)/Framework/Headers $(BUILD_DIR)/Framework/Modules {} \;
+	@mkdir -p $(BUILD_DIR)/Framework/Headers
+	@cp -fp $(FRAMEWORK_BUILD_DIR)/Headers/* $(BUILD_DIR)/Framework/Headers/ 2>/dev/null || true
+	@rm -rf $(FRAMEWORK_BUILD_DIR)/Headers
+	@find $(FRAMEWORK_BUILD_DIR) -type d -depth 1 -exec cp -pR $(BUILD_DIR)/Framework/Headers {} \;
 # kotlin interop <<
 	@touch $@
 	@rsync -acI --no-times --delete $(FRAMEWORK_BUILD_DIR) $(DIST_FRAMEWORK_DIR)

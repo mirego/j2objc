@@ -1,5 +1,9 @@
 // kotlin interop >>
 
+#import <Foundation/Foundation.h>
+#include "J2ObjC_header.h"
+#import "J2ObjC_kotlinTypes.h"
+
 #if __has_feature(nullability)
 #pragma clang diagnostic push
 #pragma GCC diagnostic ignored "-Wnullability"
@@ -9,19 +13,16 @@
 #ifndef _KotlinByte_JavaLangByte_h_
 #define _KotlinByte_JavaLangByte_h_
 
-#import "J2ObjC_header.h"
-#import "J2ObjC_kotlinTypes.h"
-
-#include "java/io/Serializable.h"
 #include "java/lang/Comparable.h"
 
-@class CommonBoolean;
-@class CommonInt;
 @class IOSClass;
+@class CommonBoolean;
 @class CommonDouble;
 @class CommonFloat;
+@class CommonInt;
 @class CommonLong;
 @class CommonShort;
+@class NSString;
 
 /*!
  @brief The <code>Byte</code> class wraps a value of primitive type <code>byte</code>
@@ -31,56 +32,57 @@
   a <code>byte</code> to a <code>String</code> and a <code>String</code> to a <code>byte</code>
  , as well as other constants and methods useful when dealing
   with a <code>byte</code>.
+  
+ <!-- Android-removed: paragraph on ValueBased
+ <p>This is a <a href="{@@docRoot}/java.base/java/lang/doc-files/ValueBased.html">value-based</a>
+ class; programmers should treat instances that are
+ {@@linkplain #equals(Object) equal} as interchangeable and should not
+ use instances for synchronization, or unpredictable behavior may
+ occur. For example, in a future release, synchronization may fail.
+  -->
  @author Nakul Saraiya
  @author Joseph D. Darcy
  - seealso: java.lang.Number
- @since JDK1.1
+ @since 1.1
  */
 @interface CommonByte (JavaLangByte) < JavaIoSerializable, CommonKotlinComparable >
-
-@property (readonly, class) jbyte MIN_VALUE NS_SWIFT_NAME(MIN_VALUE);
-@property (readonly, class) jbyte MAX_VALUE NS_SWIFT_NAME(MAX_VALUE);
-@property (readonly, class, strong) IOSClass *TYPE NS_SWIFT_NAME(TYPE);
-@property (readonly, class) jint SIZE NS_SWIFT_NAME(SIZE);
-@property (readonly, class) jint BYTES NS_SWIFT_NAME(BYTES);
 
 #pragma mark Public
 
 /*!
  @brief Constructs a newly allocated <code>Byte</code> object that
   represents the specified <code>byte</code> value.
- @param value the value to be represented by the
+ @param value the value to be represented by the                   
  <code>Byte</code> .
  */
 - (instancetype __nonnull)initWithByte:(jbyte)value;
 
 /*!
  @brief Constructs a newly allocated <code>Byte</code> object that
-  represents the <code>byte</code> value indicated by the
- <code>String</code> parameter.The string is converted to a
- <code>byte</code> value in exactly the manner used by the
+  represents the <code>byte</code> value indicated by the 
+ <code>String</code> parameter.The string is converted to a 
+ <code>byte</code> value in exactly the manner used by the 
  <code>parseByte</code> method for radix 10.
- @param s the <code>String</code>  to be converted to a
+ @param s the <code>String</code>  to be converted to a                   
  <code>Byte</code>
- @throw NumberFormatException If the <code>String</code>
+ @throw NumberFormatExceptionif the <code>String</code>
                    does not contain a parsable <code>byte</code>.
- - seealso: java.lang.Byte#parseByte(java.lang.String, int)
  */
 - (instancetype __nonnull)initWithNSString:(NSString *)s;
 
 /*!
- @brief Returns the value of this <code>Byte</code> as a
+ @brief Returns the value of this <code>Byte</code> as a 
  <code>byte</code>.
  */
-//- (jbyte)charValue;
+- (jbyte)charValue;
 
 /*!
  @brief Compares two <code>byte</code> values numerically.
- The value returned is identical to what would be returned by:
+ The value returned is identical to what would be returned by: 
  @code
 
-     Byte.valueOf(x).compareTo(Byte.valueOf(y))
-
+     Byte.valueOf(x).compareTo(Byte.valueOf(y)) 
+  
 @endcode
  @param x the first <code>byte</code>  to compare
  @param y the second <code>byte</code>  to compare
@@ -90,7 +92,7 @@
  @since 1.7
  */
 + (jint)compareWithByte:(jbyte)x
-               withByte:(jbyte)y;
+                  withByte:(jbyte)y;
 
 /*!
  @brief Compares two <code>Byte</code> objects numerically.
@@ -104,12 +106,26 @@
             comparison).
  @since 1.2
  */
-- (jint)compareToOther:(CommonByte *)anotherByte __attribute__((swift_name("compareTo(other:)")));
+- (jint)compareToWithId:(CommonByte *)anotherByte;
+
+/*!
+ @brief Compares two <code>byte</code> values numerically treating the values
+  as unsigned.
+ @param x the first <code>byte</code>  to compare
+ @param y the second <code>byte</code>  to compare
+ @return the value <code>0</code> if <code>x == y</code>; a value less
+          than <code>0</code> if <code>x < y</code> as unsigned values; and
+          a value greater than <code>0</code> if <code>x > y</code> as
+          unsigned values
+ @since 9
+ */
++ (jint)compareUnsignedWithByte:(jbyte)x
+                          withByte:(jbyte)y;
 
 /*!
  @brief Decodes a <code>String</code> into a <code>Byte</code>.
  Accepts decimal, hexadecimal, and octal numbers given by
-  the following grammar:
+  the following grammar: 
  <blockquote>
   <dl>
   <dt><i>DecodableString:</i>
@@ -118,30 +134,30 @@
   <dd><i>Sign<sub>opt</sub></i> <code>0X</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>#</code> <i>HexDigits</i>
   <dd><i>Sign<sub>opt</sub></i> <code>0</code> <i>OctalDigits</i>
-
+  
  <dt><i>Sign:</i>
   <dd><code>-</code>
   <dd><code>+</code>
   </dl>
   </blockquote>
-
+  
  <i>DecimalNumeral</i>, <i>HexDigits</i>, and <i>OctalDigits</i>
-  are as defined in section 3.10.1 of
- <cite>The Java&trade; Language Specification</cite>,
-  except that underscores are not accepted between digits.
+  are as defined in section 3.10.1 of 
+ <cite>The Java Language Specification</cite>,
+  except that underscores are not accepted between digits. 
  <p>The sequence of characters following an optional
   sign and/or radix specifier ("<code>0x</code>", "<code>0X</code>",
   "<code>#</code>", or leading zero) is parsed as by the <code>Byte.parseByte</code>
   method with the indicated radix (10, 16, or 8).
-  This sequence of characters must represent a positive value or a
+  This sequence of characters must represent a positive value or a 
  <code>NumberFormatException</code> will be thrown.  The result is
   negated if first character of the specified <code>String</code> is
-  the minus sign.  No whitespace characters are permitted in the
+  the minus sign.  No whitespace characters are permitted in the 
  <code>String</code>.
  @param nm the <code>String</code>  to decode.
  @return a <code>Byte</code> object holding the <code>byte</code>
            value represented by <code>nm</code>
- @throw NumberFormatException If the <code>String</code> does not
+ @throw NumberFormatExceptionif the <code>String</code> does not
              contain a parsable <code>byte</code>.
  - seealso: java.lang.Byte#parseByte(java.lang.String, int)
  */
@@ -151,34 +167,34 @@
  @brief Returns the value of this <code>Byte</code> as a <code>double</code>
   after a widening primitive conversion.
  */
-- (jdouble)doubleValue;
+- (double)doubleValue;
 
 /*!
- @brief Compares this object to the specified object.The result is
- <code>true</code> if and only if the argument is not
+ @brief Compares this object to the specified object.The result is 
+ <code>true</code> if and only if the argument is not 
  <code>null</code> and is a <code>Byte</code> object that
   contains the same <code>byte</code> value as this object.
  @param obj the object to compare with
  @return <code>true</code> if the objects are the same;
                    <code>false</code> otherwise.
  */
-//- (jboolean)isEqual:(id)obj;
+- (jboolean)isEqual:(id)obj;
 
 /*!
  @brief Returns the value of this <code>Byte</code> as a <code>float</code> after
   a widening primitive conversion.
  */
-- (jfloat)floatValue;
+- (float)floatValue;
 
 /*!
  @brief Returns a hash code for this <code>Byte</code>; equal to the result
   of invoking <code>intValue()</code>.
  @return a hash code value for this <code>Byte</code>
  */
-//- (NSUInteger)hash;
+- (NSUInteger)hash;
 
 /*!
- @brief Returns a hash code for a <code>byte</code> value; compatible with
+ @brief Returns a hash code for a <code>byte</code> value; compatible with 
  <code>Byte.hashCode()</code>.
  @param value the value to hash
  @return a hash code value for a <code>byte</code> value.
@@ -201,7 +217,7 @@
 /*!
  @brief Parses the string argument as a signed decimal <code>byte</code>
  .The characters in the string must all be decimal digits,
-  except that the first character may be an ASCII minus sign
+  except that the first character may be an ASCII minus sign 
  <code>'-'</code> (<code>'\u002D'</code>) to indicate a negative
   value or an ASCII plus sign <code>'+'</code>
   (<code>'\u002B'</code>) to indicate a positive value.
@@ -209,11 +225,11 @@
   resulting <code>byte</code> value is returned, exactly as if the
   argument and the radix 10 were given as arguments to the <code>parseByte(java.lang.String, int)</code>
   method.
- @param s a <code>String</code>  containing the
+ @param s a <code>String</code>  containing the                   
  <code>byte</code>  representation to be parsed
  @return the <code>byte</code> value represented by the
                    argument in decimal
- @throw NumberFormatException If the string does not
+ @throw NumberFormatExceptionif the string does not
                    contain a parsable <code>byte</code>.
  */
 + (jbyte)parseByteWithNSString:(NSString *)s;
@@ -230,34 +246,34 @@
   ASCII plus sign <code>'+'</code> (<code>'\u002B'</code>) to
   indicate a positive value.
  The resulting <code>byte</code> value is
-  returned.
+  returned. 
  <p>An exception of type <code>NumberFormatException</code> is
-  thrown if any of the following situations occurs:
+  thrown if any of the following situations occurs: 
  <ul>
   <li> The first argument is <code>null</code> or is a string of
-  length zero.
+  length zero. 
  <li> The radix is either smaller than <code>java.lang.Character.MIN_RADIX</code>
   or larger than <code>java.lang.Character.MAX_RADIX</code>
  .
-
+  
  <li> Any character of the string is not a digit of the
   specified radix, except that the first character may be a minus
-  sign <code>'-'</code> (<code>'\u002D'</code>) or plus sign
+  sign <code>'-'</code> (<code>'\u002D'</code>) or plus sign 
  <code>'+'</code> (<code>'\u002B'</code>) provided that the
-  string is longer than length 1.
- <li> The value represented by the string is not a value of type
+  string is longer than length 1. 
+ <li> The value represented by the string is not a value of type 
  <code>byte</code>.
   </ul>
- @param s the <code>String</code>  containing the
+ @param s the <code>String</code>  containing the                   
  <code>byte</code>                   representation to be parsed
  @param radix the radix to be used while parsing <code>s</code>
  @return the <code>byte</code> value represented by the string
                     argument in the specified radix
- @throw NumberFormatException If the string does
+ @throw NumberFormatExceptionIf the string does
                    not contain a parsable <code>byte</code>.
  */
 + (jbyte)parseByteWithNSString:(NSString *)s
-                       withInt:(jint)radix;
+                        withInt:(jint)radix;
 
 /*!
  @brief Returns the value of this <code>Byte</code> as a <code>short</code> after
@@ -271,10 +287,10 @@
                       withBoolean:(jboolean)upperCase;
 
 /*!
- @brief Returns a <code>String</code> object representing this
+ @brief Returns a <code>String</code> object representing this 
  <code>Byte</code>'s value.The value is converted to signed
   decimal representation and returned as a string, exactly as if
-  the <code>byte</code> value were given as an argument to the
+  the <code>byte</code> value were given as an argument to the 
  <code>java.lang.Byte.toString(byte)</code> method.
  @return a string representation of the value of this object in
            base&nbsp;10.
@@ -323,10 +339,10 @@
 + (jlong)toUnsignedLongWithByte:(jbyte)x;
 
 /*!
- @brief Returns a <code>Byte</code> instance representing the specified
+ @brief Returns a <code>Byte</code> instance representing the specified 
  <code>byte</code> value.
  If a new <code>Byte</code> instance is not required, this method
-  should generally be used in preference to the constructor
+  should generally be used in preference to the constructor 
  <code>Byte(byte)</code>, as this method is likely to yield
   significantly better space and time performance since
   all byte values are cached.
@@ -342,18 +358,18 @@
   interpreted as representing a signed decimal <code>byte</code>,
   exactly as if the argument were given to the <code>parseByte(java.lang.String)</code>
   method.
- The result is a
+ The result is a 
  <code>Byte</code> object that represents the <code>byte</code>
-  value specified by the string.
+  value specified by the string. 
  <p> In other words, this method returns a <code>Byte</code> object
-  equal to the value of:
+  equal to the value of: 
  <blockquote>
   <code>new Byte(Byte.parseByte(s))</code>
   </blockquote>
  @param s the string to be parsed
  @return a <code>Byte</code> object holding the value
                    represented by the string argument
- @throw NumberFormatException If the <code>String</code> does
+ @throw NumberFormatExceptionIf the <code>String</code> does
                    not contain a parsable <code>byte</code>.
  */
 + (CommonByte * __nonnull)valueOfWithNSString:(NSString *)s;
@@ -368,9 +384,9 @@
  int)</code>
   method.
  The result is a <code>Byte</code> object that
-  represents the <code>byte</code> value specified by the string.
+  represents the <code>byte</code> value specified by the string. 
  <p> In other words, this method returns a <code>Byte</code> object
-  equal to the value of:
+  equal to the value of: 
  <blockquote>
   <code>new Byte(Byte.parseByte(s, radix))</code>
   </blockquote>
@@ -379,11 +395,11 @@
  @return a <code>Byte</code> object holding the value
                    represented by the string argument in the
                    specified radix.
- @throw NumberFormatException If the <code>String</code> does
+ @throw NumberFormatExceptionIf the <code>String</code> does
                    not contain a parsable <code>byte</code>.
  */
 + (CommonByte * __nonnull)valueOfWithNSString:(NSString *)s
-                                        withInt:(jint)radix;
+                                       withInt:(jint)radix;
 
 #pragma mark Package-Private
 
@@ -412,7 +428,7 @@ inline jbyte CommonByte_get_MAX_VALUE(void);
 J2OBJC_STATIC_FIELD_CONSTANT(CommonByte, MAX_VALUE, jbyte)
 
 /*!
- @brief The <code>Class</code> instance representing the primitive type
+ @brief The <code>Class</code> instance representing the primitive type 
  <code>byte</code>.
  */
 inline IOSClass *CommonByte_get_TYPE(void);
@@ -468,6 +484,8 @@ FOUNDATION_EXPORT jint CommonByte_hashCodeWithByte_(jbyte value);
 
 FOUNDATION_EXPORT jint CommonByte_compareWithByte_withByte_(jbyte x, jbyte y);
 
+FOUNDATION_EXPORT jint CommonByte_compareUnsignedWithByte_withByte_(jbyte x, jbyte y);
+
 FOUNDATION_EXPORT jint CommonByte_toUnsignedIntWithByte_(jbyte x);
 
 FOUNDATION_EXPORT jlong CommonByte_toUnsignedLongWithByte_(jbyte x);
@@ -478,11 +496,9 @@ J2OBJC_TYPE_LITERAL_HEADER(CommonByte)
 
 BOXED_INC_AND_DEC(Byte, charValue, CommonByte)
 
-// Empty class to force category to be loaded.
-@interface JreKotlinByteCategoryDummy : NSObject
-@end
 
-#endif /* _KotlinByte_JavaLangByte_h_ */
+#endif
+
 
 #if __has_feature(nullability)
 #pragma clang diagnostic pop

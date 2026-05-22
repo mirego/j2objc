@@ -852,7 +852,7 @@ static bool RangeIsEqual(NSString *self, NSString *other, jint startIdx) {
   if (len == 0 || count == 0) {
     return @"";
   }
-  if (JreIntDiv(JavaLangInteger_MAX_VALUE, count) < len) {
+  if (JreIntDiv(CommonInt_MAX_VALUE, count) < len) {
     @throw create_JavaLangOutOfMemoryError_initWithNSString_(
         JreStrcat("$I$I$", @"Repeating ", len, @" bytes String ", count,
                   @" times will produce a String exceeding maximum size."));

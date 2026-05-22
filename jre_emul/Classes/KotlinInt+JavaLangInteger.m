@@ -2,16 +2,24 @@
 
 #import "KotlinInt+JavaLangInteger.h"
 
+#define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
+
+
+
+
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "IOSPrimitiveArray.h"
 #include "J2ObjC_source.h"
 #include "java/lang/Boolean.h"
 #include "java/lang/Byte.h"
+#include "java/lang/CharSequence.h"
 #include "java/lang/Character.h"
+#include "java/lang/Deprecated.h"
 #include "java/lang/Double.h"
 #include "java/lang/Float.h"
 #include "java/lang/IllegalArgumentException.h"
+#include "java/lang/IndexOutOfBoundsException.h"
 #include "java/lang/Integer.h"
 #include "java/lang/Long.h"
 #include "java/lang/Math.h"
@@ -20,9 +28,44 @@
 #include "java/lang/RuntimeException.h"
 #include "java/lang/Short.h"
 #include "java/lang/System.h"
+#include "java/lang/annotation/Annotation.h"
+#include "java/util/Objects.h"
+
+
+@class NSString;
+
+#if __has_feature(objc_arc)
+#error "java/lang/Integer must not be compiled with ARC (-fobjc-arc)"
+#endif
+
+#pragma clang diagnostic error "-Wreturn-type"
+#pragma clang diagnostic ignored "-Wswitch"
+
+
+@interface CommonInt () {
+ @public
+  /*!
+   @brief The value of the <code>Integer</code>.
+   */
+  jint value_;
+}
 
 /*!
- @brief use serialVersionUID from JDK 1.0.2 for interoperability
+ @brief Convert the integer to an unsigned number.
+ */
++ (NSString *)toUnsignedString0WithInt:(jint)i
+                               withInt:(jint)shift;
+
+@end
+
+/*!
+ @brief Returns an <code>Optional</code> containing the nominal descriptor for this
+  instance, which is the instance itself.
+ @return an <code>Optional</code> describing the Integer instance
+ @since 12
+ @param lookup ignored
+ @return the Integer instance
+ @since 12
  */
 inline jlong CommonInt_get_serialVersionUID(void);
 #define CommonInt_serialVersionUID 1360826667806852920LL
@@ -30,10 +73,23 @@ J2OBJC_STATIC_FIELD_CONSTANT(CommonInt, serialVersionUID, jlong)
 
 NSString *CommonInt_toUnsignedString0WithInt_withInt_(jint i, jint shift);
 
+__attribute__((unused)) static IOSObjectArray *CommonInt__Annotations$0(void);
+
+__attribute__((unused)) static IOSObjectArray *CommonInt__Annotations$1(void);
+
 /*!
  @brief Cache to support the object identity semantics of autoboxing for values between
   -128 and 127 (inclusive) as required by JLS.
- The cache is initialized on first usage.
+ The cache is initialized on first usage.  The size of the cache
+  may be controlled by the <code>-XX:AutoBoxCacheMax=<size></code> option.
+  During VM initialization, java.lang.Integer.IntegerCache.high property
+  may be set and saved in the private system properties in the
+  jdk.internal.misc.VM class.
+  WARNING: The cache is archived with CDS and reloaded from the shared
+  archive at runtime. The archived cache (Integer[]) and Integer objects
+  reside in the closed archive heap regions. Care should be taken when
+  changing the implementation and the cache array should not be assigned
+  with new Integer object(s) after initialization.
  */
 @interface CommonInt_IntegerCache : NSObject
 
@@ -59,36 +115,27 @@ __attribute__((unused)) static void CommonInt_IntegerCache_fillValuesWithCommonI
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonInt_IntegerCache)
 
+
 J2OBJC_INITIALIZED_DEFN(CommonInt)
+
+extern jint CommonInt_get_MIN_VALUE(void);
+
+extern jint CommonInt_get_MAX_VALUE(void);
+
+extern IOSClass *CommonInt_get_TYPE(void);
+
+extern IOSIntArray *CommonInt_get_sizeTable(void);
+
+extern jint CommonInt_get_SIZE(void);
+
+extern jint CommonInt_get_BYTES(void);
+
+extern jlong CommonInt_get_serialVersionUID(void);
 
 IOSClass *CommonInt_TYPE;
 IOSIntArray *CommonInt_sizeTable;
 
 @implementation CommonInt (JavaLangInteger)
-
-+ (jint)MIN_VALUE {
-  return CommonInt_MIN_VALUE;
-}
-
-+ (jint)MAX_VALUE {
-  return CommonInt_MAX_VALUE;
-}
-
-+ (IOSClass *)TYPE {
-  return CommonInt_TYPE;
-}
-
-+ (IOSIntArray *)sizeTable {
-  return CommonInt_sizeTable;
-}
-
-+ (jint)SIZE {
-  return CommonInt_SIZE;
-}
-
-+ (jint)BYTES {
-  return CommonInt_BYTES;
-}
 
 + (NSString *)toStringWithInt:(jint)i
                       withInt:(jint)radix {
@@ -136,8 +183,15 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (jint)parseIntWithNSString:(NSString *)s
-                     withInt:(jint)radix {
+                        withInt:(jint)radix {
   return CommonInt_parseIntWithNSString_withInt_(s, radix);
+}
+
++ (jint)parseIntWithJavaLangCharSequence:(id<JavaLangCharSequence>)s
+                                    withInt:(jint)beginIndex
+                                    withInt:(jint)endIndex
+                                    withInt:(jint)radix {
+  return CommonInt_parseIntWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, radix);
 }
 
 + (jint)parseIntWithNSString:(NSString *)s {
@@ -145,8 +199,15 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (jint)parseUnsignedIntWithNSString:(NSString *)s
-                             withInt:(jint)radix {
+                                withInt:(jint)radix {
   return CommonInt_parseUnsignedIntWithNSString_withInt_(s, radix);
+}
+
++ (jint)parseUnsignedIntWithJavaLangCharSequence:(id<JavaLangCharSequence>)s
+                                            withInt:(jint)beginIndex
+                                            withInt:(jint)endIndex
+                                            withInt:(jint)radix {
+  return CommonInt_parseUnsignedIntWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, radix);
 }
 
 + (jint)parseUnsignedIntWithNSString:(NSString *)s {
@@ -154,7 +215,7 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (CommonInt *)valueOfWithNSString:(NSString *)s
-                           withInt:(jint)radix {
+                                 withInt:(jint)radix {
   return CommonInt_valueOfWithNSString_withInt_(s, radix);
 }
 
@@ -166,64 +227,67 @@ IOSIntArray *CommonInt_sizeTable;
   return CommonInt_valueOfWithInt_(i);
 }
 
+J2OBJC_IGNORE_DESIGNATED_BEGIN
+- (instancetype)initWithInt:(jint)value {
+  CommonInt_initWithInt_(self, value);
+  return self;
+}
+J2OBJC_IGNORE_DESIGNATED_END
+
 - (instancetype)initWithNSString:(NSString *)s {
   CommonInt_initWithNSString_(self, s);
   return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone {
-  return RETAIN_(self);
-}
-
 - (jbyte)charValue {
-  return (jbyte) self.intValue;
+  return (jbyte) value_;
 }
 
 - (jshort)shortValue {
-  return (jshort) self.intValue;
+  return (jshort) value_;
 }
 
-//- (jint)intValue {
-//  return self.intValue;
-//}
+- (jint)intValue {
+  return value_;
+}
 
 - (jlong)longLongValue {
-  return (jlong) self.intValue;
+  return (jlong) value_;
 }
 
-- (jfloat)floatValue {
-  return (jfloat) self.intValue;
+- (float)floatValue {
+  return (float) value_;
 }
 
-- (jdouble)doubleValue {
-  return (jdouble) self.intValue;
+- (double)doubleValue {
+  return (double) value_;
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_(self.intValue);
+  return CommonInt_toStringWithInt_(value_);
 }
 
-//- (NSUInteger)hash {
-//  return CommonInt_hashCodeWithInt_(self.intValue);
-//}
+- (NSUInteger)hash {
+  return CommonInt_hashCodeWithInt_(value_);
+}
 
 + (jint)hashCodeWithInt:(jint)value {
   return CommonInt_hashCodeWithInt_(value);
 }
 
-//- (jboolean)isEqual:(id)obj {
-//  if ([obj isKindOfClass:[CommonInt class]]) {
-//    return self.intValue == [((CommonInt *) nil_chk(((CommonInt *) obj))) intValue];
-//  }
-//  return false;
-//}
+- (jboolean)isEqual:(id)obj {
+  if ([obj isKindOfClass:[CommonInt class]]) {
+    return value_ == [((CommonInt *) obj) intValue];
+  }
+  return false;
+}
 
 + (CommonInt *)getIntegerWithNSString:(NSString *)nm {
   return CommonInt_getIntegerWithNSString_(nm);
 }
 
 + (CommonInt *)getIntegerWithNSString:(NSString *)nm
-                              withInt:(jint)val {
+                                    withInt:(jint)val {
   return CommonInt_getIntegerWithNSString_withInt_(nm, val);
 }
 
@@ -236,18 +300,18 @@ IOSIntArray *CommonInt_sizeTable;
   return CommonInt_decodeWithNSString_(nm);
 }
 
-- (jint)compareToOther:(CommonInt *)anotherInteger {
+- (jint)compareToWithId:(CommonInt *)anotherInteger {
   cast_chk(anotherInteger, [CommonInt class]);
-  return CommonInt_compareWithInt_withInt_(self.intValue, ((CommonInt *) nil_chk(anotherInteger)).intValue);
+  return CommonInt_compareWithInt_withInt_(self->value_, ((CommonInt *) nil_chk(anotherInteger))->value_);
 }
 
 + (jint)compareWithInt:(jint)x
-               withInt:(jint)y {
+                  withInt:(jint)y {
   return CommonInt_compareWithInt_withInt_(x, y);
 }
 
 + (jint)compareUnsignedWithInt:(jint)x
-                       withInt:(jint)y {
+                          withInt:(jint)y {
   return CommonInt_compareUnsignedWithInt_withInt_(x, y);
 }
 
@@ -256,12 +320,12 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (jint)divideUnsignedWithInt:(jint)dividend
-                      withInt:(jint)divisor {
+                         withInt:(jint)divisor {
   return CommonInt_divideUnsignedWithInt_withInt_(dividend, divisor);
 }
 
 + (jint)remainderUnsignedWithInt:(jint)dividend
-                         withInt:(jint)divisor {
+                            withInt:(jint)divisor {
   return CommonInt_remainderUnsignedWithInt_withInt_(dividend, divisor);
 }
 
@@ -286,12 +350,12 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (jint)rotateLeftWithInt:(jint)i
-                  withInt:(jint)distance {
+                     withInt:(jint)distance {
   return CommonInt_rotateLeftWithInt_withInt_(i, distance);
 }
 
 + (jint)rotateRightWithInt:(jint)i
-                   withInt:(jint)distance {
+                      withInt:(jint)distance {
   return CommonInt_rotateRightWithInt_withInt_(i, distance);
 }
 
@@ -308,27 +372,27 @@ IOSIntArray *CommonInt_sizeTable;
 }
 
 + (jint)sumWithInt:(jint)a
-           withInt:(jint)b {
+              withInt:(jint)b {
   return CommonInt_sumWithInt_withInt_(a, b);
 }
 
 + (jint)maxWithInt:(jint)a
-           withInt:(jint)b {
+              withInt:(jint)b {
   return CommonInt_maxWithInt_withInt_(a, b);
 }
 
 + (jint)minWithInt:(jint)a
-           withInt:(jint)b {
+              withInt:(jint)b {
   return CommonInt_minWithInt_withInt_(a, b);
 }
 
-//- (const char *)objCType {
-//  return "i";
-//}
-//
-//- (void)getValue:(void *)buffer {
-//  *((int *) buffer) = self.intValue;
-//}
+- (const char *)objCType {
+  return "i";
+}
+
+- (void)getValue:(void *)buffer {
+  *((int *) buffer) = value_;
+}
 
 + (const J2ObjcClassInfo *)__metadata {
   static J2ObjcMethodInfo methods[] = {
@@ -344,46 +408,48 @@ IOSIntArray *CommonInt_sizeTable;
     { NULL, "I", 0x8, 10, 4, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 11, 12, 13, -1, -1, -1 },
     { NULL, "I", 0x9, 11, 14, 13, -1, -1, -1 },
-    { NULL, "I", 0x9, 15, 12, 13, -1, -1, -1 },
-    { NULL, "I", 0x9, 15, 14, 13, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 16, 12, 13, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 16, 14, 13, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 16, 4, -1, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 4, -1, -1, -1, -1 },
-    { NULL, NULL, 0x1, -1, 14, 13, -1, -1, -1 },
-    { NULL, "B", 0x1, 17, -1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 11, 15, 13, -1, -1, -1 },
+    { NULL, "I", 0x9, 16, 12, 13, -1, -1, -1 },
+    { NULL, "I", 0x9, 16, 14, 13, -1, -1, -1 },
+    { NULL, "I", 0x9, 16, 15, 13, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 17, 12, 13, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 17, 15, 13, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 17, 4, -1, -1, -1, -1 },
+    { NULL, NULL, 0x1, -1, 4, -1, -1, 18, -1 },
+    { NULL, NULL, 0x1, -1, 15, 13, -1, 19, -1 },
+    { NULL, "B", 0x1, 20, -1, -1, -1, -1, -1 },
     { NULL, "S", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "I", 0x1, -1, -1, -1, -1, -1, -1 },
-    { NULL, "J", 0x1, 18, -1, -1, -1, -1, -1 },
+    { NULL, "J", 0x1, 21, -1, -1, -1, -1, -1 },
     { NULL, "F", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "D", 0x1, -1, -1, -1, -1, -1, -1 },
     { NULL, "LNSString;", 0x1, 0, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x1, 19, -1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 19, 4, -1, -1, -1, -1 },
-    { NULL, "Z", 0x1, 20, 21, -1, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 22, 14, -1, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 22, 12, -1, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 22, 23, -1, -1, -1, -1 },
-    { NULL, "LCommonInt;", 0x9, 24, 14, 13, -1, -1, -1 },
-    { NULL, "I", 0x1, 25, 26, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 27, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 28, 1, -1, -1, -1, -1 },
-    { NULL, "J", 0x9, 29, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x1, 22, -1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 22, 4, -1, -1, -1, -1 },
+    { NULL, "Z", 0x1, 23, 24, -1, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 25, 15, -1, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 25, 12, -1, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 25, 26, -1, -1, -1, -1 },
+    { NULL, "LCommonInt;", 0x9, 27, 15, 13, -1, -1, -1 },
+    { NULL, "I", 0x1, 28, 29, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 30, 1, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 31, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 32, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 33, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 34, 4, -1, -1, -1, -1 },
+    { NULL, "J", 0x9, 32, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 33, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 34, 1, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 35, 4, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 36, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 37, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 38, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 37, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 38, 4, -1, -1, -1, -1 },
     { NULL, "I", 0x9, 39, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 40, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 41, 4, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 42, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 43, 1, -1, -1, -1, -1 },
-    { NULL, "I", 0x9, 44, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 40, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 41, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 42, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 43, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 44, 4, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 45, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 46, 1, -1, -1, -1, -1 },
+    { NULL, "I", 0x9, 47, 1, -1, -1, -1, -1 },
   };
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wobjc-multiple-method-names"
@@ -399,59 +465,62 @@ IOSIntArray *CommonInt_sizeTable;
   methods[8].selector = @selector(getCharsWithInt:withInt:withCharArray:);
   methods[9].selector = @selector(stringSizeWithInt:);
   methods[10].selector = @selector(parseIntWithNSString:withInt:);
-  methods[11].selector = @selector(parseIntWithNSString:);
-  methods[12].selector = @selector(parseUnsignedIntWithNSString:withInt:);
-  methods[13].selector = @selector(parseUnsignedIntWithNSString:);
-  methods[14].selector = @selector(valueOfWithNSString:withInt:);
-  methods[15].selector = @selector(valueOfWithNSString:);
-  methods[16].selector = @selector(valueOfWithInt:);
-  methods[17].selector = @selector(initWithInt:);
-  methods[18].selector = @selector(initWithNSString:);
-  methods[19].selector = @selector(charValue);
-  methods[20].selector = @selector(shortValue);
-  methods[21].selector = @selector(intValue);
-  methods[22].selector = @selector(longLongValue);
-  methods[23].selector = @selector(floatValue);
-  methods[24].selector = @selector(doubleValue);
-  methods[25].selector = @selector(description);
-  methods[26].selector = @selector(hash);
-  methods[27].selector = @selector(hashCodeWithInt:);
-  methods[28].selector = @selector(isEqual:);
-  methods[29].selector = @selector(getIntegerWithNSString:);
-  methods[30].selector = @selector(getIntegerWithNSString:withInt:);
-  methods[31].selector = @selector(getIntegerWithNSString:withCommonInt:);
-  methods[32].selector = @selector(decodeWithNSString:);
-  methods[33].selector = @selector(compareToOther:);
-  methods[34].selector = @selector(compareWithInt:withInt:);
-  methods[35].selector = @selector(compareUnsignedWithInt:withInt:);
-  methods[36].selector = @selector(toUnsignedLongWithInt:);
-  methods[37].selector = @selector(divideUnsignedWithInt:withInt:);
-  methods[38].selector = @selector(remainderUnsignedWithInt:withInt:);
-  methods[39].selector = @selector(highestOneBitWithInt:);
-  methods[40].selector = @selector(lowestOneBitWithInt:);
-  methods[41].selector = @selector(numberOfLeadingZerosWithInt:);
-  methods[42].selector = @selector(numberOfTrailingZerosWithInt:);
-  methods[43].selector = @selector(bitCountWithInt:);
-  methods[44].selector = @selector(rotateLeftWithInt:withInt:);
-  methods[45].selector = @selector(rotateRightWithInt:withInt:);
-  methods[46].selector = @selector(reverseWithInt:);
-  methods[47].selector = @selector(signumWithInt:);
-  methods[48].selector = @selector(reverseBytesWithInt:);
-  methods[49].selector = @selector(sumWithInt:withInt:);
-  methods[50].selector = @selector(maxWithInt:withInt:);
-  methods[51].selector = @selector(minWithInt:withInt:);
+  methods[11].selector = @selector(parseIntWithJavaLangCharSequence:withInt:withInt:withInt:);
+  methods[12].selector = @selector(parseIntWithNSString:);
+  methods[13].selector = @selector(parseUnsignedIntWithNSString:withInt:);
+  methods[14].selector = @selector(parseUnsignedIntWithJavaLangCharSequence:withInt:withInt:withInt:);
+  methods[15].selector = @selector(parseUnsignedIntWithNSString:);
+  methods[16].selector = @selector(valueOfWithNSString:withInt:);
+  methods[17].selector = @selector(valueOfWithNSString:);
+  methods[18].selector = @selector(valueOfWithInt:);
+  methods[19].selector = @selector(initWithInt:);
+  methods[20].selector = @selector(initWithNSString:);
+  methods[21].selector = @selector(charValue);
+  methods[22].selector = @selector(shortValue);
+  methods[23].selector = @selector(intValue);
+  methods[24].selector = @selector(longLongValue);
+  methods[25].selector = @selector(floatValue);
+  methods[26].selector = @selector(doubleValue);
+  methods[27].selector = @selector(description);
+  methods[28].selector = @selector(hash);
+  methods[29].selector = @selector(hashCodeWithInt:);
+  methods[30].selector = @selector(isEqual:);
+  methods[31].selector = @selector(getIntegerWithNSString:);
+  methods[32].selector = @selector(getIntegerWithNSString:withInt:);
+  methods[33].selector = @selector(getIntegerWithNSString:withCommonInt:);
+  methods[34].selector = @selector(decodeWithNSString:);
+  methods[35].selector = @selector(compareToWithId:);
+  methods[36].selector = @selector(compareWithInt:withInt:);
+  methods[37].selector = @selector(compareUnsignedWithInt:withInt:);
+  methods[38].selector = @selector(toUnsignedLongWithInt:);
+  methods[39].selector = @selector(divideUnsignedWithInt:withInt:);
+  methods[40].selector = @selector(remainderUnsignedWithInt:withInt:);
+  methods[41].selector = @selector(highestOneBitWithInt:);
+  methods[42].selector = @selector(lowestOneBitWithInt:);
+  methods[43].selector = @selector(numberOfLeadingZerosWithInt:);
+  methods[44].selector = @selector(numberOfTrailingZerosWithInt:);
+  methods[45].selector = @selector(bitCountWithInt:);
+  methods[46].selector = @selector(rotateLeftWithInt:withInt:);
+  methods[47].selector = @selector(rotateRightWithInt:withInt:);
+  methods[48].selector = @selector(reverseWithInt:);
+  methods[49].selector = @selector(signumWithInt:);
+  methods[50].selector = @selector(reverseBytesWithInt:);
+  methods[51].selector = @selector(sumWithInt:withInt:);
+  methods[52].selector = @selector(maxWithInt:withInt:);
+  methods[53].selector = @selector(minWithInt:withInt:);
   #pragma clang diagnostic pop
   static const J2ObjcFieldInfo fields[] = {
     { "MIN_VALUE", "I", .constantValue.asInt = CommonInt_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "I", .constantValue.asInt = CommonInt_MAX_VALUE, 0x19, -1, -1, -1, -1 },
-    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 45, 46, -1 },
-    { "sizeTable", "[I", .constantValue.asLong = 0, 0x18, -1, 47, -1, -1 },
+    { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 48, 49, -1 },
+    { "sizeTable", "[I", .constantValue.asLong = 0, 0x18, -1, 50, -1, -1 },
+    { "value_", "I", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonInt_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonInt_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonInt_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
-  static const void *ptrTable[] = { "toString", "II", "toUnsignedString", "toHexString", "I", "toOctalString", "toBinaryString", "toUnsignedString0", "getChars", "II[C", "stringSize", "parseInt", "LNSString;I", "LJavaLangNumberFormatException;", "LNSString;", "parseUnsignedInt", "valueOf", "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "getInteger", "LNSString;LCommonInt;", "decode", "compareTo", "LCommonInt;", "compare", "compareUnsigned", "toUnsignedLong", "divideUnsigned", "remainderUnsigned", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "bitCount", "rotateLeft", "rotateRight", "reverse", "signum", "reverseBytes", "sum", "max", "min", &CommonInt_TYPE, "Ljava/lang/Class<Ljava/lang/Integer;>;", &CommonInt_sizeTable, "LCommonInt_IntegerCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Integer;>;" };
-  static const J2ObjcClassInfo _CommonInt = { "Integer", "java.lang", ptrTable, methods, fields, 7, 0x11, 52, 7, -1, 48, -1, 49, -1 };
+  static const void *ptrTable[] = { "toString", "II", "toUnsignedString", "toHexString", "I", "toOctalString", "toBinaryString", "toUnsignedString0", "getChars", "II[C", "stringSize", "parseInt", "LNSString;I", "LJavaLangNumberFormatException;", "LJavaLangCharSequence;III", "LNSString;", "parseUnsignedInt", "valueOf", (void *)&CommonInt__Annotations$0, (void *)&CommonInt__Annotations$1, "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "getInteger", "LNSString;LCommonInt;", "decode", "compareTo", "LCommonInt;", "compare", "compareUnsigned", "toUnsignedLong", "divideUnsigned", "remainderUnsigned", "highestOneBit", "lowestOneBit", "numberOfLeadingZeros", "numberOfTrailingZeros", "bitCount", "rotateLeft", "rotateRight", "reverse", "signum", "reverseBytes", "sum", "max", "min", &CommonInt_TYPE, "Ljava/lang/Class<Ljava/lang/Integer;>;", &CommonInt_sizeTable, "LCommonInt_IntegerCache;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Integer;>;" };
+  static const J2ObjcClassInfo _CommonInt = { "Integer", "java.lang", ptrTable, methods, fields, 7, 0x11, 54, 8, -1, 51, -1, 52, -1 };
   return &_CommonInt;
 }
 
@@ -516,7 +585,17 @@ void CommonInt_getCharsWithInt_withInt_withCharArray_(jint i, jint index, IOSCha
 
 jint CommonInt_stringSizeWithInt_(jint x) {
   CommonInt_initialize();
-  for (jint i = 0; ; i++) if (x <= IOSIntArray_Get(nil_chk(CommonInt_sizeTable), i)) return i + 1;
+  jint d = 1;
+  if (x >= 0) {
+    d = 0;
+    x = -x;
+  }
+  jint p = -10;
+  for (jint i = 1; i < 10; i++) {
+    if (x > p) return i + d;
+    p = 10 * p;
+  }
+  return 10 + d;
 }
 
 jint CommonInt_parseIntWithNSString_withInt_(NSString *s, jint radix) {
@@ -530,44 +609,94 @@ jint CommonInt_parseIntWithNSString_withInt_(NSString *s, jint radix) {
   if (radix > JavaLangCharacter_MAX_RADIX) {
     @throw create_JavaLangNumberFormatException_initWithNSString_(JreStrcat("$I$", @"radix ", radix, @" greater than Character.MAX_RADIX"));
   }
-  jint result = 0;
   jboolean negative = false;
   jint i = 0;
   jint len = [s java_length];
   jint limit = -CommonInt_MAX_VALUE;
-  jint multmin;
-  jint digit;
   if (len > 0) {
-    jchar firstChar = [s charAtWithInt:0];
+    unichar firstChar = [s charAtWithInt:0];
     if (firstChar < '0') {
       if (firstChar == '-') {
         negative = true;
         limit = CommonInt_MIN_VALUE;
       }
-      else if (firstChar != '+') @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
-      if (len == 1) @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
+      else if (firstChar != '+') {
+        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
+      }
+      if (len == 1) {
+        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
+      }
       i++;
     }
-    multmin = JreIntDiv(limit, radix);
+    jint multmin = JreIntDiv(limit, radix);
+    jint result = 0;
     while (i < len) {
-      digit = JavaLangCharacter_digitWithChar_withInt_([s charAtWithInt:i++], radix);
-      if (digit < 0) {
-        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
-      }
-      if (result < multmin) {
-        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
+      jint digit = JavaLangCharacter_digitWithChar_withInt_([s charAtWithInt:i++], radix);
+      if (digit < 0 || result < multmin) {
+        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
       }
       result *= radix;
       if (result < limit + digit) {
-        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
+        @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
       }
       result -= digit;
     }
+    return negative ? result : -result;
   }
   else {
-    @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
+    @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
   }
-  return negative ? result : -result;
+}
+
+jint CommonInt_parseIntWithJavaLangCharSequence_withInt_withInt_withInt_(id<JavaLangCharSequence> s, jint beginIndex, jint endIndex, jint radix) {
+  CommonInt_initialize();
+  JavaUtilObjects_requireNonNullWithId_(s);
+  if (beginIndex < 0 || beginIndex > endIndex || endIndex > [((id<JavaLangCharSequence>) nil_chk(s)) java_length]) {
+    @throw create_JavaLangIndexOutOfBoundsException_init();
+  }
+  if (radix < JavaLangCharacter_MIN_RADIX) {
+    @throw create_JavaLangNumberFormatException_initWithNSString_(JreStrcat("$I$", @"radix ", radix, @" less than Character.MIN_RADIX"));
+  }
+  if (radix > JavaLangCharacter_MAX_RADIX) {
+    @throw create_JavaLangNumberFormatException_initWithNSString_(JreStrcat("$I$", @"radix ", radix, @" greater than Character.MAX_RADIX"));
+  }
+  jboolean negative = false;
+  jint i = beginIndex;
+  jint limit = -CommonInt_MAX_VALUE;
+  if (i < endIndex) {
+    unichar firstChar = [((id<JavaLangCharSequence>) nil_chk(s)) charAtWithInt:i];
+    if (firstChar < '0') {
+      if (firstChar == '-') {
+        negative = true;
+        limit = CommonInt_MIN_VALUE;
+      }
+      else if (firstChar != '+') {
+        @throw nil_chk(JavaLangNumberFormatException_forCharSequenceWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, i));
+      }
+      i++;
+      if (i == endIndex) {
+        @throw nil_chk(JavaLangNumberFormatException_forCharSequenceWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, i));
+      }
+    }
+    jint multmin = JreIntDiv(limit, radix);
+    jint result = 0;
+    while (i < endIndex) {
+      jint digit = JavaLangCharacter_digitWithChar_withInt_([s charAtWithInt:i], radix);
+      if (digit < 0 || result < multmin) {
+        @throw nil_chk(JavaLangNumberFormatException_forCharSequenceWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, i));
+      }
+      result *= radix;
+      if (result < limit + digit) {
+        @throw nil_chk(JavaLangNumberFormatException_forCharSequenceWithJavaLangCharSequence_withInt_withInt_withInt_(s, beginIndex, endIndex, i));
+      }
+      i++;
+      result -= digit;
+    }
+    return negative ? result : -result;
+  }
+  else {
+    @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(@"", radix));
+  }
 }
 
 jint CommonInt_parseIntWithNSString_(NSString *s) {
@@ -578,11 +707,11 @@ jint CommonInt_parseIntWithNSString_(NSString *s) {
 jint CommonInt_parseUnsignedIntWithNSString_withInt_(NSString *s, jint radix) {
   CommonInt_initialize();
   if (s == nil) {
-    @throw create_JavaLangNumberFormatException_initWithNSString_(@"null");
+    @throw create_JavaLangNumberFormatException_initWithNSString_(@"Cannot parse null string");
   }
   jint len = [s java_length];
   if (len > 0) {
-    jchar firstChar = [s charAtWithInt:0];
+    unichar firstChar = [s charAtWithInt:0];
     if (firstChar == '-') {
       @throw create_JavaLangNumberFormatException_initWithNSString_(NSString_java_formatWithNSString_withNSObjectArray_(@"Illegal leading minus sign on unsigned string %s.", [IOSObjectArray arrayWithObjects:(id[]){ s } count:1 type:NSObject_class_()]));
     }
@@ -602,7 +731,40 @@ jint CommonInt_parseUnsignedIntWithNSString_withInt_(NSString *s, jint radix) {
     }
   }
   else {
-    @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_(s));
+    @throw nil_chk(JavaLangNumberFormatException_forInputStringWithNSString_withInt_(s, radix));
+  }
+}
+
+jint CommonInt_parseUnsignedIntWithJavaLangCharSequence_withInt_withInt_withInt_(id<JavaLangCharSequence> s, jint beginIndex, jint endIndex, jint radix) {
+  CommonInt_initialize();
+  JavaUtilObjects_requireNonNullWithId_(s);
+  if (beginIndex < 0 || beginIndex > endIndex || endIndex > [((id<JavaLangCharSequence>) nil_chk(s)) java_length]) {
+    @throw create_JavaLangIndexOutOfBoundsException_init();
+  }
+  jint start = beginIndex;
+  jint len = endIndex - beginIndex;
+  if (len > 0) {
+    unichar firstChar = [((id<JavaLangCharSequence>) nil_chk(s)) charAtWithInt:start];
+    if (firstChar == '-') {
+      @throw create_JavaLangNumberFormatException_initWithNSString_(NSString_java_formatWithNSString_withNSObjectArray_(@"Illegal leading minus sign on unsigned string %s.", [IOSObjectArray arrayWithObjects:(id[]){ s } count:1 type:NSObject_class_()]));
+    }
+    else {
+      if (len <= 5 || (radix == 10 && len <= 9)) {
+        return CommonInt_parseIntWithJavaLangCharSequence_withInt_withInt_withInt_(s, start, start + len, radix);
+      }
+      else {
+        jlong ell = CommonLong_parseLongWithJavaLangCharSequence_withInt_withInt_withInt_(s, start, start + len, radix);
+        if ((ell & (jlong) 0xffffffff00000000LL) == 0) {
+          return (jint) ell;
+        }
+        else {
+          @throw create_JavaLangNumberFormatException_initWithNSString_(NSString_java_formatWithNSString_withNSObjectArray_(@"String value %s exceeds range of unsigned int.", [IOSObjectArray arrayWithObjects:(id[]){ s } count:1 type:NSObject_class_()]));
+        }
+      }
+    }
+  }
+  else {
+    @throw create_JavaLangNumberFormatException_initWithNSString_(@"");
   }
 }
 
@@ -627,31 +789,34 @@ CommonInt *CommonInt_valueOfWithInt_(jint i) {
 }
 
 void CommonInt_initWithInt_(CommonInt *self, jint value) {
-  [self initWithInt:value];
+  NSNumber_init(self);
+  self->value_ = value;
 }
 
 CommonInt *new_CommonInt_initWithInt_(jint value) {
-  return [[CommonInt alloc] initWithInt:value];
+  J2OBJC_NEW_IMPL(CommonInt, initWithInt_, value)
 }
 
 CommonInt *create_CommonInt_initWithInt_(jint value) {
-  return [CommonInt numberWithInt:value];
+  J2OBJC_CREATE_IMPL(CommonInt, initWithInt_, value)
 }
 
 void CommonInt_initWithNSString_(CommonInt *self, NSString *s) {
-  [self initWithInt:CommonInt_parseIntWithNSString_withInt_(s, 10)];
+  NSNumber_init(self);
+  self->value_ = CommonInt_parseIntWithNSString_withInt_(s, 10);
 }
 
 CommonInt *new_CommonInt_initWithNSString_(NSString *s) {
-  return [[CommonInt alloc] initWithInt:CommonInt_parseIntWithNSString_withInt_(s, 10)];
+  J2OBJC_NEW_IMPL(CommonInt, initWithNSString_, s)
 }
 
 CommonInt *create_CommonInt_initWithNSString_(NSString *s) {
-  return [CommonInt numberWithInt:CommonInt_parseIntWithNSString_withInt_(s, 10)];
+  J2OBJC_CREATE_IMPL(CommonInt, initWithNSString_, s)
 }
 
 jint CommonInt_hashCodeWithInt_(jint value) {
-  return (jint) CommonInt_valueOfWithInt_(value).hash;
+  CommonInt_initialize();
+  return value;
 }
 
 CommonInt *CommonInt_getIntegerWithNSString_(NSString *nm) {
@@ -691,8 +856,8 @@ CommonInt *CommonInt_decodeWithNSString_(NSString *nm) {
   jint index = 0;
   jboolean negative = false;
   CommonInt *result;
-  if ([((NSString *) nil_chk(nm)) java_length] == 0) @throw create_JavaLangNumberFormatException_initWithNSString_(@"Zero length string");
-  jchar firstChar = [nm charAtWithInt:0];
+  if ([((NSString *) nil_chk(nm)) isEmpty]) @throw create_JavaLangNumberFormatException_initWithNSString_(@"Zero length string");
+  unichar firstChar = [nm charAtWithInt:0];
   if (firstChar == '-') {
     negative = true;
     index++;
@@ -749,12 +914,7 @@ jint CommonInt_remainderUnsignedWithInt_withInt_(jint dividend, jint divisor) {
 
 jint CommonInt_highestOneBitWithInt_(jint i) {
   CommonInt_initialize();
-  i |= (JreRShift32(i, 1));
-  i |= (JreRShift32(i, 2));
-  i |= (JreRShift32(i, 4));
-  i |= (JreRShift32(i, 8));
-  i |= (JreRShift32(i, 16));
-  return i - (JreURShift32(i, 1));
+  return i & (JreURShift32(CommonInt_MIN_VALUE, CommonInt_numberOfLeadingZerosWithInt_(i)));
 }
 
 jint CommonInt_lowestOneBitWithInt_(jint i) {
@@ -764,54 +924,49 @@ jint CommonInt_lowestOneBitWithInt_(jint i) {
 
 jint CommonInt_numberOfLeadingZerosWithInt_(jint i) {
   CommonInt_initialize();
-  if (i == 0) return 32;
-  jint n = 1;
-  if (JreURShift32(i, 16) == 0) {
-    n += 16;
-    JreLShiftAssignInt(&i, 16);
+  if (i <= 0) return i == 0 ? 32 : 0;
+  jint n = 31;
+  if (i >= JreLShift32(1, 16)) {
+    n -= 16;
+    JreURShiftAssignInt(&i, 16);
   }
-  if (JreURShift32(i, 24) == 0) {
-    n += 8;
-    JreLShiftAssignInt(&i, 8);
+  if (i >= JreLShift32(1, 8)) {
+    n -= 8;
+    JreURShiftAssignInt(&i, 8);
   }
-  if (JreURShift32(i, 28) == 0) {
-    n += 4;
-    JreLShiftAssignInt(&i, 4);
+  if (i >= JreLShift32(1, 4)) {
+    n -= 4;
+    JreURShiftAssignInt(&i, 4);
   }
-  if (JreURShift32(i, 30) == 0) {
-    n += 2;
-    JreLShiftAssignInt(&i, 2);
+  if (i >= JreLShift32(1, 2)) {
+    n -= 2;
+    JreURShiftAssignInt(&i, 2);
   }
-  n -= JreURShift32(i, 31);
-  return n;
+  return n - (JreURShift32(i, 1));
 }
 
 jint CommonInt_numberOfTrailingZerosWithInt_(jint i) {
   CommonInt_initialize();
-  jint y;
-  if (i == 0) return 32;
-  jint n = 31;
-  y = JreLShift32(i, 16);
-  if (y != 0) {
-    n = n - 16;
-    i = y;
+  i = ~i & (i - 1);
+  if (i <= 0) return i & 32;
+  jint n = 1;
+  if (i > JreLShift32(1, 16)) {
+    n += 16;
+    JreURShiftAssignInt(&i, 16);
   }
-  y = JreLShift32(i, 8);
-  if (y != 0) {
-    n = n - 8;
-    i = y;
+  if (i > JreLShift32(1, 8)) {
+    n += 8;
+    JreURShiftAssignInt(&i, 8);
   }
-  y = JreLShift32(i, 4);
-  if (y != 0) {
-    n = n - 4;
-    i = y;
+  if (i > JreLShift32(1, 4)) {
+    n += 4;
+    JreURShiftAssignInt(&i, 4);
   }
-  y = JreLShift32(i, 2);
-  if (y != 0) {
-    n = n - 2;
-    i = y;
+  if (i > JreLShift32(1, 2)) {
+    n += 2;
+    JreURShiftAssignInt(&i, 2);
   }
-  return n - (JreURShift32((JreLShift32(i, 1)), 31));
+  return n + (JreURShift32(i, 1));
 }
 
 jint CommonInt_bitCountWithInt_(jint i) {
@@ -839,8 +994,7 @@ jint CommonInt_reverseWithInt_(jint i) {
   i = (JreLShift32((i & (jint) 0x55555555), 1)) | ((JreURShift32(i, 1)) & (jint) 0x55555555);
   i = (JreLShift32((i & (jint) 0x33333333), 2)) | ((JreURShift32(i, 2)) & (jint) 0x33333333);
   i = (JreLShift32((i & (jint) 0x0f0f0f0f), 4)) | ((JreURShift32(i, 4)) & (jint) 0x0f0f0f0f);
-  i = (JreLShift32(i, 24)) | (JreLShift32((i & (jint) 0xff00), 8)) | ((JreURShift32(i, 8)) & (jint) 0xff00) | (JreURShift32(i, 24));
-  return i;
+  return CommonInt_reverseBytesWithInt_(i);
 }
 
 jint CommonInt_signumWithInt_(jint i) {
@@ -850,7 +1004,7 @@ jint CommonInt_signumWithInt_(jint i) {
 
 jint CommonInt_reverseBytesWithInt_(jint i) {
   CommonInt_initialize();
-  return ((JreURShift32(i, 24))) | ((JreRShift32(i, 8)) & (jint) 0xFF00) | ((JreLShift32(i, 8)) & (jint) 0xFF0000) | ((JreLShift32(i, 24)));
+  return (JreLShift32(i, 24)) | (JreLShift32((i & (jint) 0xff00), 8)) | ((JreURShift32(i, 8)) & (jint) 0xff00) | (JreURShift32(i, 24));
 }
 
 jint CommonInt_sumWithInt_withInt_(jint a, jint b) {
@@ -868,11 +1022,19 @@ jint CommonInt_minWithInt_withInt_(jint a, jint b) {
   return JavaLangMath_minWithInt_withInt_(a, b);
 }
 
+IOSObjectArray *CommonInt__Annotations$0() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"9") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
+IOSObjectArray *CommonInt__Annotations$1() {
+  return [IOSObjectArray arrayWithObjects:(id[]){ create_JavaLangDeprecated(false, @"9") } count:1 type:JavaLangAnnotationAnnotation_class_()];
+}
+
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonInt)
 
-J2OBJC_NAME_MAPPING(CommonInt, "java.lang.Integer", "CommonInt")
-
 J2OBJC_INITIALIZED_DEFN(CommonInt_IntegerCache)
+
+extern IOSObjectArray *CommonInt_IntegerCache_get_cache(void);
 
 @implementation CommonInt_IntegerCache
 
@@ -945,9 +1107,5 @@ void CommonInt_IntegerCache_fillValuesWithCommonIntArray_(IOSObjectArray *values
 }
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonInt_IntegerCache)
-
-// Empty class to force category to be loaded.
-@implementation JreKotlinIntCategoryDummy
-@end
 
 // kotlin interop <<

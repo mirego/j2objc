@@ -178,7 +178,7 @@ static void ThrowArrayStoreException(Class expectedType, Class actualType) {
 @implementation IOSBooleanArray
 
 // kotlin interop >>
-PRIMITIVE_ARRAY_IMPLEMENTATION(boolean, Boolean, jboolean, CommonBoolean, booleanValue)
+PRIMITIVE_ARRAY_IMPLEMENTATION(boolean, Boolean, bool, CommonBoolean, booleanValue)
 // kotlin interop <<
 
 - (NSString *)descriptionOfElementAtIndex:(jint)index {

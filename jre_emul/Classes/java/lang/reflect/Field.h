@@ -55,7 +55,7 @@
 // Field.get(Object), etc.
 - (id)getWithId:(id)object;
 - (bool)getBooleanWithId:(id)object;
-- (int8_t)getByteWithId:(id)object;
+- (jbyte)getByteWithId:(id)object;
 - (uint16_t)getCharWithId:(id)object;
 - (double)getDoubleWithId:(id)object;
 - (float)getFloatWithId:(id)object;
@@ -66,7 +66,7 @@
 // Field.set(Object, Object), etc.
 - (void)setWithId:(id)object withId:(id)value;
 - (void)setBooleanWithId:(id)object withBoolean:(bool)value;
-- (void)setByteWithId:(id)object withByte:(int8_t)value;
+- (void)setByteWithId:(id)object withByte:(jbyte)value;
 - (void)setCharWithId:(id)object withChar:(uint16_t)value;
 - (void)setDoubleWithId:(id)object withDouble:(double)value;
 - (void)setFloatWithId:(id)object withFloat:(float)value;

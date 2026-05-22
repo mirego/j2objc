@@ -38,15 +38,7 @@ typedef long long       jlong;          /* signed 64 bits */
 typedef float           jfloat;         /* 32-bit IEEE 754 */
 typedef double          jdouble;        /* 64-bit IEEE 754 */
 
-// kotlin interop >>
-#if defined(__OBJC__)
-typedef BOOL            jboolean;
-#elif defined(__cplusplus__)
 typedef bool            jboolean;
-#else
-typedef uint8_t         jboolean;
-#endif
-// kotlin interop <<
 
 // Typedefs for Java types declared as volatile.
 typedef _Atomic(int8_t)   volatile_int8_t;
