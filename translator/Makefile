@@ -433,8 +433,8 @@ COMMON_TEST_FLAG += \
   -Dkotlin.kompat.lib.path=$(KOTLIN_KOMPAT_FRAMEWORK_LIB)
 # kotlin interop <<
 
-# kotlin interop - add `kotlin_run_tests` and `KotlinInteropTests`
-test: compile-tests copy-test-resources kotlin_run_tests
+# kotlin interop - kotlin_run_tests moved to standalone `test_kotlin` target.
+test: compile-tests copy-test-resources
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.SmallTests
 	$(JAVA) $(COMMON_TEST_FLAGS) com.google.devtools.j2objc.KotlinInteropTests
 

@@ -76,6 +76,10 @@ kotlin_compile_tests: kotlin_translate_tests
 	@$(J2OBJCC_EXE) \
 	-ObjC \
 	-Wno-objc-property-no-attribute \
+	-Wno-pointer-sign \
+	-Wno-unused-value \
+	-Wno-incomplete-implementation \
+	-Wno-deprecated-declarations \
 	-fobjc-arc -fobjc-arc-exceptions \
 	-I$(KOTLIN_INTEROP_TEST_CASES_BUILD_OUTPUT_DIR)/Headers \
 	-ljre_emul -ljunit $(KOTLIN_INTEROP_TEST_CASES_FRAMEWORK_LIB) \

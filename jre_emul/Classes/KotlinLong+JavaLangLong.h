@@ -15,16 +15,13 @@
 
 // Current API, redeclared since this block goes before the transpiled API in the header.
 @class CommonLong;
-FOUNDATION_EXPORT void CommonLong_initWithLongLong_(CommonLong *self, jlong value);
 FOUNDATION_EXPORT CommonLong *new_CommonLong_initWithLongLong_(jlong value) NS_RETURNS_RETAINED;
 FOUNDATION_EXPORT CommonLong *create_CommonLong_initWithLongLong_(jlong value);
 
-// Backward compatibility API (b/243948394).
-__attribute__((always_inline)) inline
-void CommonLong_initWithLong_(CommonLong *self, jlong value) {
-  CommonLong_initWithLongLong_(self, value);
-}
-
+// kotlin interop >>
+// Backward compatibility API (b/243948394) - the void-returning variant was
+// removed because CommonLong lives in libcommon; only the new_/create_
+// factory wrappers remain as aliases.
 __attribute__((always_inline)) inline
 CommonLong *new_CommonLong_initWithLong_(jlong value) NS_RETURNS_RETAINED {
   return new_CommonLong_initWithLongLong_(value);
@@ -34,6 +31,7 @@ __attribute__((always_inline)) inline
 CommonLong *create_CommonLong_initWithLong_(jlong value) {
   return create_CommonLong_initWithLongLong_(value);
 }
+// kotlin interop <<
 
 #endif // CommonLong_H
 
@@ -1175,13 +1173,11 @@ FOUNDATION_EXPORT CommonLong *CommonLong_valueOfWithLong_(jlong l);
 
 FOUNDATION_EXPORT CommonLong *CommonLong_decodeWithNSString_(NSString *nm);
 
-FOUNDATION_EXPORT void CommonLong_initWithLongLong_(CommonLong *self, jlong value);
 
 FOUNDATION_EXPORT CommonLong *new_CommonLong_initWithLongLong_(jlong value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonLong *create_CommonLong_initWithLongLong_(jlong value);
 
-FOUNDATION_EXPORT void CommonLong_initWithNSString_(CommonLong *self, NSString *s);
 
 FOUNDATION_EXPORT CommonLong *new_CommonLong_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

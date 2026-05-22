@@ -846,19 +846,16 @@ FOUNDATION_EXPORT jboolean CommonFloat_isInfiniteWithFloat_(float v);
 
 FOUNDATION_EXPORT jboolean CommonFloat_isFiniteWithFloat_(float f);
 
-FOUNDATION_EXPORT void CommonFloat_initWithFloat_(CommonFloat *self, float value);
 
 FOUNDATION_EXPORT CommonFloat *new_CommonFloat_initWithFloat_(float value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonFloat *create_CommonFloat_initWithFloat_(float value);
 
-FOUNDATION_EXPORT void CommonFloat_initWithDouble_(CommonFloat *self, double value);
 
 FOUNDATION_EXPORT CommonFloat *new_CommonFloat_initWithDouble_(double value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonFloat *create_CommonFloat_initWithDouble_(double value);
 
-FOUNDATION_EXPORT void CommonFloat_initWithNSString_(CommonFloat *self, NSString *s);
 
 FOUNDATION_EXPORT CommonFloat *new_CommonFloat_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

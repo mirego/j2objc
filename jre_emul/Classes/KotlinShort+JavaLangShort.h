@@ -475,13 +475,11 @@ FOUNDATION_EXPORT CommonShort *CommonShort_valueOfWithShort_(jshort s);
 
 FOUNDATION_EXPORT CommonShort *CommonShort_decodeWithNSString_(NSString *nm);
 
-FOUNDATION_EXPORT void CommonShort_initWithShort_(CommonShort *self, jshort value);
 
 FOUNDATION_EXPORT CommonShort *new_CommonShort_initWithShort_(jshort value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonShort *create_CommonShort_initWithShort_(jshort value);
 
-FOUNDATION_EXPORT void CommonShort_initWithNSString_(CommonShort *self, NSString *s);
 
 FOUNDATION_EXPORT CommonShort *new_CommonShort_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

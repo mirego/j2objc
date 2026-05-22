@@ -64,6 +64,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
@@ -352,6 +353,14 @@ public class GenerationTest extends TestCase {
     }
   }
 
+  /**
+   * Alias for {@link #assertTranslation}. Upstream renamed; fork keeps both for
+   * test compatibility.
+   */
+  protected void assertInTranslation(String translation, String expected) {
+    assertTranslation(translation, expected);
+  }
+
   protected void assertNotInTranslation(String translation, String notExpected) {
     if (translation.contains(notExpected)) {
       fail("NOT expected:\"" + notExpected + "\" in:\n" + translation);
@@ -626,7 +635,7 @@ public class GenerationTest extends TestCase {
     genUnit.incrementInputs();
     genUnit.addCompilationUnit(unit);
 
-    TranslationProcessor.generateObjectiveCSource(genUnit);
+    TranslationProcessor.generateObjectiveCSource(genUnit, new HashMap<>());
     return getTranslatedFile(filename);
   }
 

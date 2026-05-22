@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "J2ObjC_source.h"
@@ -21,8 +18,6 @@
 #include "java/lang/Short.h"
 #include "java/lang/annotation/Annotation.h"
 
-
-
 #if __has_feature(objc_arc)
 #error "java/lang/Short must not be compiled with ARC (-fobjc-arc)"
 #endif
@@ -30,16 +25,12 @@
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
 
-
-@interface CommonShort () {
- @public
-  /*!
-   @brief The value of the <code>Short</code>.
-   */
-  jshort value_;
-}
-
-@end
+// kotlin interop >>
+// `[self shortValue]` ivar trick removed - it does not produce real ivar metadata
+// when CommonShort is implemented in another compilation unit (libcommon).
+// All reads route through `[self shortValue]`; construction through
+// `-[CommonShort initWithShort:]` / `+[CommonShort numberWithShort:]`.
+// kotlin interop <<
 
 /*!
  @brief use serialVersionUID from JDK 1.1.for interoperability
@@ -82,7 +73,6 @@ __attribute__((unused)) static CommonShort_ShortCache *new_CommonShort_ShortCach
 __attribute__((unused)) static CommonShort_ShortCache *create_CommonShort_ShortCache_init(void);
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonShort_ShortCache)
-
 
 J2OBJC_INITIALIZED_DEFN(CommonShort)
 
@@ -132,48 +122,46 @@ IOSClass *CommonShort_TYPE;
   return CommonShort_decodeWithNSString_(nm);
 }
 
-J2OBJC_IGNORE_DESIGNATED_BEGIN
-- (instancetype)initWithShort:(jshort)value {
-  CommonShort_initWithShort_(self, value);
-  return self;
-}
-J2OBJC_IGNORE_DESIGNATED_END
+// kotlin interop >>
+// `initWithShort:` is provided by Common*; the override that used to populate a
+// removed `value_` ivar has been deleted to avoid infinite recursion.
+// kotlin interop <<
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonShort_initWithNSString_(self, s);
-  return self;
+  return [self initWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
 }
 
 - (jbyte)charValue {
-  return (jbyte) value_;
+  return (jbyte) [self shortValue];
 }
 
-- (jshort)shortValue {
-  return value_;
-}
+// kotlin interop >>
+// `shortValue` is inherited from NSNumber; the previous category override used a `value_`
+// ivar that no longer exists, so the override has been removed.
+// kotlin interop <<
 
 - (jint)intValue {
-  return (jint) value_;
+  return (jint) [self shortValue];
 }
 
 - (jlong)longLongValue {
-  return (jlong) value_;
+  return (jlong) [self shortValue];
 }
 
 - (float)floatValue {
-  return (float) value_;
+  return (float) [self shortValue];
 }
 
 - (double)doubleValue {
-  return (double) value_;
+  return (double) [self shortValue];
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_((jint) value_);
+  return CommonInt_toStringWithInt_((jint) [self shortValue]);
 }
 
 - (NSUInteger)hash {
-  return CommonShort_hashCodeWithShort_(value_);
+  return CommonShort_hashCodeWithShort_([self shortValue]);
 }
 
 + (jint)hashCodeWithShort:(jshort)value {
@@ -182,14 +170,15 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jboolean)isEqual:(id)obj {
   if ([obj isKindOfClass:[CommonShort class]]) {
-    return value_ == [((CommonShort *) obj) shortValue];
+    return [self shortValue] == [((CommonShort *) obj) shortValue];
   }
   return false;
 }
 
 - (jint)compareToWithId:(CommonShort *)anotherShort {
   cast_chk(anotherShort, [CommonShort class]);
-  return CommonShort_compareWithShort_withShort_(self->value_, ((CommonShort *) nil_chk(anotherShort))->value_);
+  return CommonShort_compareWithShort_withShort_(
+      [self shortValue], [((CommonShort *) nil_chk(anotherShort)) shortValue]);
 }
 
 + (jint)compareWithShort:(jshort)x
@@ -219,7 +208,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (void)getValue:(void *)buffer {
-  *((short int *) buffer) = value_;
+  *((short int *) buffer) = [self shortValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -283,7 +272,7 @@ J2OBJC_IGNORE_DESIGNATED_END
     { "MIN_VALUE", "S", .constantValue.asShort = CommonShort_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "S", .constantValue.asShort = CommonShort_MAX_VALUE, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 23, 24, -1 },
-    { "value_", "S", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self shortValue]", "S", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonShort_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonShort_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonShort_serialVersionUID, 0x1a, -1, -1, -1, -1 },
@@ -346,30 +335,24 @@ CommonShort *CommonShort_decodeWithNSString_(NSString *nm) {
   return CommonShort_valueOfWithShort_((jshort) i);
 }
 
-void CommonShort_initWithShort_(CommonShort *self, jshort value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonShort *new_CommonShort_initWithShort_(jshort value) {
-  J2OBJC_NEW_IMPL(CommonShort, initWithShort_, value)
+  CommonShort_initialize();
+  return [[CommonShort alloc] initWithShort:value];
 }
 
 CommonShort *create_CommonShort_initWithShort_(jshort value) {
-  J2OBJC_CREATE_IMPL(CommonShort, initWithShort_, value)
-}
-
-void CommonShort_initWithNSString_(CommonShort *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonShort_parseShortWithNSString_withInt_(s, 10);
+  CommonShort_initialize();
+  return [CommonShort numberWithShort:value];
 }
 
 CommonShort *new_CommonShort_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonShort, initWithNSString_, s)
+  CommonShort_initialize();
+  return [[CommonShort alloc] initWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
 }
 
 CommonShort *create_CommonShort_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonShort, initWithNSString_, s)
+  CommonShort_initialize();
+  return [CommonShort numberWithShort:CommonShort_parseShortWithNSString_withInt_(s, 10)];
 }
 
 jint CommonShort_hashCodeWithShort_(jshort value) {

@@ -279,17 +279,19 @@ inline IOSClass *CommonBoolean_get_TYPE(void);
 FOUNDATION_EXPORT IOSClass *CommonBoolean_TYPE;
 J2OBJC_STATIC_FIELD_OBJ_FINAL(CommonBoolean, TYPE, IOSClass *)
 
-FOUNDATION_EXPORT void CommonBoolean_initWithBoolean_(CommonBoolean *self, jboolean value);
-
+// kotlin interop >>
+// CommonBoolean_initWith*_ removed: CommonBoolean's implementation lives in
+// libcommon (Kotlin/Native) so a separate C init function cannot populate
+// its state. Use [[CommonBoolean alloc] initWithBool:] or
+// +[CommonBoolean numberWithBool:] directly instead.
 FOUNDATION_EXPORT CommonBoolean *new_CommonBoolean_initWithBoolean_(jboolean value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonBoolean *create_CommonBoolean_initWithBoolean_(jboolean value);
 
-FOUNDATION_EXPORT void CommonBoolean_initWithNSString_(CommonBoolean *self, NSString *s);
-
 FOUNDATION_EXPORT CommonBoolean *new_CommonBoolean_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonBoolean *create_CommonBoolean_initWithNSString_(NSString *s);
+// kotlin interop <<
 
 FOUNDATION_EXPORT jboolean CommonBoolean_parseBooleanWithNSString_(NSString *s);
 

@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "J2ObjC_source.h"
@@ -22,25 +19,12 @@
 #include "java/lang/annotation/Annotation.h"
 #include "sun/misc/FloatingDecimal.h"
 
-
-
 #if __has_feature(objc_arc)
 #error "java/lang/Float must not be compiled with ARC (-fobjc-arc)"
 #endif
 
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
-
-
-@interface CommonFloat () {
- @public
-  /*!
-   @brief The value of the Float.
-   */
-  float value_;
-}
-
-@end
 
 /*!
  @brief Returns an <code>Optional</code> containing the nominal descriptor for this
@@ -123,63 +107,60 @@ IOSClass *CommonFloat_TYPE;
   return CommonFloat_isFiniteWithFloat_(f);
 }
 
-J2OBJC_IGNORE_DESIGNATED_BEGIN
-- (instancetype)initWithFloat:(float)value {
-  CommonFloat_initWithFloat_(self, value);
-  return self;
-}
-J2OBJC_IGNORE_DESIGNATED_END
+// kotlin interop >>
+// `initWithFloat:` is provided by Common*; the override that used to populate a
+// removed `value_` ivar has been deleted to avoid infinite recursion.
+// kotlin interop <<
 
 J2OBJC_IGNORE_DESIGNATED_BEGIN
 - (instancetype)initWithDouble:(double)value {
-  CommonFloat_initWithDouble_(self, value);
-  return self;
+  return [self initWithFloat:(float)value];
 }
 J2OBJC_IGNORE_DESIGNATED_END
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonFloat_initWithNSString_(self, s);
-  return self;
+  return [self initWithFloat:CommonFloat_parseFloatWithNSString_(s)];
 }
 
 - (jboolean)isNaN {
-  return CommonFloat_isNaNWithFloat_(value_);
+  return CommonFloat_isNaNWithFloat_([self floatValue]);
 }
 
 - (jboolean)isInfinite {
-  return CommonFloat_isInfiniteWithFloat_(value_);
+  return CommonFloat_isInfiniteWithFloat_([self floatValue]);
 }
 
 - (NSString *)description {
-  return CommonFloat_toStringWithFloat_(value_);
+  return CommonFloat_toStringWithFloat_([self floatValue]);
 }
 
 - (jbyte)charValue {
-  return JreFpToByte(value_);
+  return JreFpToByte([self floatValue]);
 }
 
 - (jshort)shortValue {
-  return JreFpToShort(value_);
+  return JreFpToShort([self floatValue]);
 }
 
 - (jint)intValue {
-  return JreFpToInt(value_);
+  return JreFpToInt([self floatValue]);
 }
 
 - (jlong)longLongValue {
-  return JreFpToLong(value_);
+  return JreFpToLong([self floatValue]);
 }
 
-- (float)floatValue {
-  return value_;
-}
+// kotlin interop >>
+// `floatValue` is inherited from NSNumber; the previous category override used a `value_`
+// ivar that no longer exists, so the override has been removed.
+// kotlin interop <<
 
 - (double)doubleValue {
-  return (double) value_;
+  return (double) [self floatValue];
 }
 
 - (NSUInteger)hash {
-  return CommonFloat_hashCodeWithFloat_(value_);
+  return CommonFloat_hashCodeWithFloat_([self floatValue]);
 }
 
 + (jint)hashCodeWithFloat:(float)value {
@@ -187,7 +168,10 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (jboolean)isEqual:(id)obj {
-  return ([obj isKindOfClass:[CommonFloat class]]) && (CommonFloat_floatToIntBitsWithFloat_(((CommonFloat *) nil_chk(((CommonFloat *) cast_chk(obj, [CommonFloat class]))))->value_) == CommonFloat_floatToIntBitsWithFloat_(value_));
+  return ([obj isKindOfClass:[CommonFloat class]])
+      && (CommonFloat_floatToIntBitsWithFloat_(
+              [((CommonFloat *) nil_chk(((CommonFloat *) cast_chk(obj, [CommonFloat class])))) floatValue])
+          == CommonFloat_floatToIntBitsWithFloat_([self floatValue]));
 }
 
 + (jint)floatToIntBitsWithFloat:(float)value {
@@ -204,7 +188,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jint)compareToWithId:(CommonFloat *)anotherFloat {
   cast_chk(anotherFloat, [CommonFloat class]);
-  return CommonFloat_compareWithFloat_withFloat_(value_, ((CommonFloat *) nil_chk(anotherFloat))->value_);
+  return CommonFloat_compareWithFloat_withFloat_([self floatValue], [((CommonFloat *) nil_chk(anotherFloat)) floatValue]);
 }
 
 + (jint)compareWithFloat:(float)f1
@@ -232,7 +216,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (void)getValue:(void *)buffer {
-  *((float *) buffer) = value_;
+  *((float *) buffer) = [self floatValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -316,7 +300,7 @@ J2OBJC_IGNORE_DESIGNATED_END
     { "SIZE", "I", .constantValue.asInt = CommonFloat_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonFloat_BYTES, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 30, 31, -1 },
-    { "value_", "F", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self floatValue]", "F", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonFloat_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "F", "toHexString", "valueOf", "LNSString;", "LJavaLangNumberFormatException;", "parseFloat", "isNaN", "isInfinite", "isFinite", (void *)&CommonFloat__Annotations$0, "D", (void *)&CommonFloat__Annotations$1, (void *)&CommonFloat__Annotations$2, "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "floatToIntBits", "floatToRawIntBits", "intBitsToFloat", "I", "compareTo", "LCommonFloat;", "compare", "FF", "sum", "max", "min", &CommonFloat_TYPE, "Ljava/lang/Class<Ljava/lang/Float;>;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Float;>;" };
@@ -377,43 +361,34 @@ jboolean CommonFloat_isFiniteWithFloat_(float f) {
   return JavaLangMath_absWithFloat_(f) <= CommonFloat_MAX_VALUE;
 }
 
-void CommonFloat_initWithFloat_(CommonFloat *self, float value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonFloat *new_CommonFloat_initWithFloat_(float value) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithFloat_, value)
+  CommonFloat_initialize();
+  return [[CommonFloat alloc] initWithFloat:value];
 }
 
 CommonFloat *create_CommonFloat_initWithFloat_(float value) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithFloat_, value)
-}
-
-void CommonFloat_initWithDouble_(CommonFloat *self, double value) {
-  NSNumber_init(self);
-  self->value_ = (float) value;
+  CommonFloat_initialize();
+  return [CommonFloat numberWithFloat:value];
 }
 
 CommonFloat *new_CommonFloat_initWithDouble_(double value) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithDouble_, value)
+  CommonFloat_initialize();
+  return [[CommonFloat alloc] initWithFloat:value];
 }
 
 CommonFloat *create_CommonFloat_initWithDouble_(double value) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithDouble_, value)
-}
-
-void CommonFloat_initWithNSString_(CommonFloat *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonFloat_parseFloatWithNSString_(s);
+  CommonFloat_initialize();
+  return [CommonFloat numberWithFloat:value];
 }
 
 CommonFloat *new_CommonFloat_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonFloat, initWithNSString_, s)
+  CommonFloat_initialize();
+  return [[CommonFloat alloc] initWithFloat:CommonFloat_parseFloatWithNSString_(s)];
 }
 
 CommonFloat *create_CommonFloat_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonFloat, initWithNSString_, s)
+  CommonFloat_initialize();
+  return [CommonFloat numberWithFloat:CommonFloat_parseFloatWithNSString_(s)];
 }
 
 jint CommonFloat_hashCodeWithFloat_(float value) {

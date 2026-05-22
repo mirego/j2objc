@@ -100,7 +100,22 @@
 
 - (NSString *)getSimpleName {
   const J2ObjcClassInfo *metadata = [self getMetadata];
-  return metadata ? JreClassTypeName(metadata) : NSStringFromClass(class_);
+  if (metadata) {
+    return JreClassTypeName(metadata);
+  }
+  NSString *name = NSStringFromClass(class_);
+  // kotlin interop >>
+  // Strip the `Common` package prefix that the Kotlin/Native ObjC export
+  // applies (translator emits `com.mirego.interop.kotlin.*=Common`) so that
+  // Java's getSimpleName() returns the original Kotlin class name.
+  if ([name hasPrefix:@"Common"] && name.length > 6) {
+    unichar next = [name characterAtIndex:6];
+    if (next >= 'A' && next <= 'Z') {
+      return [name substringFromIndex:6];
+    }
+  }
+  // kotlin interop <<
+  return name;
 }
 
 - (NSString *)objcName {

@@ -1,9 +1,9 @@
 package com.mirego.interop.java.test.function;
 
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
 import com.mirego.interop.kotlin.test.constructor.ClassWithDefaultConstructor;
 import com.mirego.interop.kotlin.test.constructor.ClassWithoutConstructor;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ConstructorAsFunctionReference {
 

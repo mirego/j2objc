@@ -1184,12 +1184,11 @@ public class StatementGenerator extends UnitTreeVisitor {
       String caseEnumValueName = element.toString();
       int ordinalForEnumValue = findOrdinalForEnumValue(kotlinMetaData, caseEnumValueName);
 
-      buffer.append(ordinalForEnumValue + ":");
+      buffer.append(Integer.toString(ordinalForEnumValue));
       // add comment so a human reading the code knows which ordinal matches to which enum value
-      buffer.append(" // " + caseEnumValueName + "\n");
+      buffer.append(" /* " + caseEnumValueName + " */");
     } else {
       expression.accept(this);
-      buffer.append(":\n");
     }
   }
 

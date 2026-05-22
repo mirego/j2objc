@@ -468,13 +468,11 @@ FOUNDATION_EXPORT CommonByte *CommonByte_valueOfWithNSString_(NSString *s);
 
 FOUNDATION_EXPORT CommonByte *CommonByte_decodeWithNSString_(NSString *nm);
 
-FOUNDATION_EXPORT void CommonByte_initWithByte_(CommonByte *self, jbyte value);
 
 FOUNDATION_EXPORT CommonByte *new_CommonByte_initWithByte_(jbyte value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonByte *create_CommonByte_initWithByte_(jbyte value);
 
-FOUNDATION_EXPORT void CommonByte_initWithNSString_(CommonByte *self, NSString *s);
 
 FOUNDATION_EXPORT CommonByte *new_CommonByte_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

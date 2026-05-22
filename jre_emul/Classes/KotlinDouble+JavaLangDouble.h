@@ -963,13 +963,11 @@ FOUNDATION_EXPORT jboolean CommonDouble_isInfiniteWithDouble_(double v);
 
 FOUNDATION_EXPORT jboolean CommonDouble_isFiniteWithDouble_(double d);
 
-FOUNDATION_EXPORT void CommonDouble_initWithDouble_(CommonDouble *self, double value);
 
 FOUNDATION_EXPORT CommonDouble *new_CommonDouble_initWithDouble_(double value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonDouble *create_CommonDouble_initWithDouble_(double value);
 
-FOUNDATION_EXPORT void CommonDouble_initWithNSString_(CommonDouble *self, NSString *s);
 
 FOUNDATION_EXPORT CommonDouble *new_CommonDouble_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

@@ -1211,6 +1211,12 @@ public class Options {
     nullability = b;
   }
 
+  /** Alias of {@link #setNullability}; kept for upstream-test compatibility. */
+  @VisibleForTesting
+  public void setDefaultNonnull(boolean b) {
+    setNullability(b);
+  }
+
   public boolean swiftEnums() {
     return swiftEnums;
   }

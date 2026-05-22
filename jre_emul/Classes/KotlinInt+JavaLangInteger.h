@@ -1141,13 +1141,11 @@ FOUNDATION_EXPORT CommonInt *CommonInt_valueOfWithNSString_(NSString *s);
 
 FOUNDATION_EXPORT CommonInt *CommonInt_valueOfWithInt_(jint i);
 
-FOUNDATION_EXPORT void CommonInt_initWithInt_(CommonInt *self, jint value);
 
 FOUNDATION_EXPORT CommonInt *new_CommonInt_initWithInt_(jint value) NS_RETURNS_RETAINED;
 
 FOUNDATION_EXPORT CommonInt *create_CommonInt_initWithInt_(jint value);
 
-FOUNDATION_EXPORT void CommonInt_initWithNSString_(CommonInt *self, NSString *s);
 
 FOUNDATION_EXPORT CommonInt *new_CommonInt_initWithNSString_(NSString *s) NS_RETURNS_RETAINED;
 

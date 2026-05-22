@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "IOSPrimitiveArray.h"
@@ -23,8 +20,6 @@
 #include "java/lang/Short.h"
 #include "java/lang/annotation/Annotation.h"
 
-
-
 #if __has_feature(objc_arc)
 #error "java/lang/Byte must not be compiled with ARC (-fobjc-arc)"
 #endif
@@ -32,16 +27,12 @@
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
 
-
-@interface CommonByte () {
- @public
-  /*!
-   @brief The value of the <code>Byte</code>.
-   */
-  jbyte value_;
-}
-
-@end
+// kotlin interop >>
+// `[self charValue]` ivar trick removed - it does not produce real ivar metadata
+// when CommonByte is implemented in another compilation unit (libcommon).
+// All reads route through `[self charValue]`; construction through
+// `-[CommonByte initWithChar:]` / `+[CommonByte numberWithChar:]`.
+// kotlin interop <<
 
 /*!
  @brief use serialVersionUID from JDK 1.1.for interoperability
@@ -91,7 +82,6 @@ __attribute__((unused)) static CommonByte_ByteCache *create_CommonByte_ByteCache
 __attribute__((unused)) static void CommonByte_ByteCache_fillValuesWithCommonByteArray_(IOSObjectArray *values);
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonByte_ByteCache)
-
 
 J2OBJC_INITIALIZED_DEFN(CommonByte)
 
@@ -146,45 +136,44 @@ IOSClass *CommonByte_TYPE;
 }
 
 - (instancetype)initWithByte:(jbyte)value {
-  CommonByte_initWithByte_(self, value);
-  return self;
+  return [self initWithChar:value];
 }
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonByte_initWithNSString_(self, s);
-  return self;
+  return [self initWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
 }
 
-- (jbyte)charValue {
-  return value_;
-}
+// kotlin interop >>
+// `charValue` is inherited from NSNumber; the previous category override used a `value_`
+// ivar that no longer exists, so the override has been removed.
+// kotlin interop <<
 
 - (jshort)shortValue {
-  return (jshort) value_;
+  return (jshort) [self charValue];
 }
 
 - (jint)intValue {
-  return (jint) value_;
+  return (jint) [self charValue];
 }
 
 - (jlong)longLongValue {
-  return (jlong) value_;
+  return (jlong) [self charValue];
 }
 
 - (float)floatValue {
-  return (float) value_;
+  return (float) [self charValue];
 }
 
 - (double)doubleValue {
-  return (double) value_;
+  return (double) [self charValue];
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_((jint) value_);
+  return CommonInt_toStringWithInt_((jint) [self charValue]);
 }
 
 - (NSUInteger)hash {
-  return CommonByte_hashCodeWithByte_(value_);
+  return CommonByte_hashCodeWithByte_([self charValue]);
 }
 
 + (jint)hashCodeWithByte:(jbyte)value {
@@ -193,14 +182,14 @@ IOSClass *CommonByte_TYPE;
 
 - (jboolean)isEqual:(id)obj {
   if ([obj isKindOfClass:[CommonByte class]]) {
-    return value_ == [((CommonByte *) obj) charValue];
+    return [self charValue] == [((CommonByte *) obj) charValue];
   }
   return false;
 }
 
 - (jint)compareToWithId:(CommonByte *)anotherByte {
   cast_chk(anotherByte, [CommonByte class]);
-  return CommonByte_compareWithByte_withByte_(self->value_, ((CommonByte *) nil_chk(anotherByte))->value_);
+  return CommonByte_compareWithByte_withByte_([self charValue], [((CommonByte *) nil_chk(anotherByte)) charValue]);
 }
 
 + (jint)compareWithByte:(jbyte)x
@@ -231,7 +220,7 @@ IOSClass *CommonByte_TYPE;
 }
 
 - (void)getValue:(void *)buffer {
-  *((char *) buffer) = value_;
+  *((char *) buffer) = [self charValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -295,7 +284,7 @@ IOSClass *CommonByte_TYPE;
     { "MIN_VALUE", "B", .constantValue.asChar = CommonByte_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "B", .constantValue.asChar = CommonByte_MAX_VALUE, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 24, 25, -1 },
-    { "value_", "B", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self charValue]", "B", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonByte_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonByte_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonByte_serialVersionUID, 0x1a, -1, -1, -1, -1 },
@@ -358,30 +347,24 @@ CommonByte *CommonByte_decodeWithNSString_(NSString *nm) {
   return CommonByte_valueOfWithByte_((jbyte) i);
 }
 
-void CommonByte_initWithByte_(CommonByte *self, jbyte value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonByte *new_CommonByte_initWithByte_(jbyte value) {
-  J2OBJC_NEW_IMPL(CommonByte, initWithByte_, value)
+  CommonByte_initialize();
+  return [[CommonByte alloc] initWithChar:value];
 }
 
 CommonByte *create_CommonByte_initWithByte_(jbyte value) {
-  J2OBJC_CREATE_IMPL(CommonByte, initWithByte_, value)
-}
-
-void CommonByte_initWithNSString_(CommonByte *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonByte_parseByteWithNSString_withInt_(s, 10);
+  CommonByte_initialize();
+  return [CommonByte numberWithChar:value];
 }
 
 CommonByte *new_CommonByte_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonByte, initWithNSString_, s)
+  CommonByte_initialize();
+  return [[CommonByte alloc] initWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
 }
 
 CommonByte *create_CommonByte_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonByte, initWithNSString_, s)
+  CommonByte_initialize();
+  return [CommonByte numberWithChar:CommonByte_parseByteWithNSString_withInt_(s, 10)];
 }
 
 jint CommonByte_hashCodeWithByte_(jbyte value) {
@@ -488,19 +471,17 @@ CommonByte_ByteCache *create_CommonByte_ByteCache_init() {
   J2OBJC_CREATE_IMPL(CommonByte_ByteCache, init)
 }
 
+// kotlin interop >>
+// See KotlinInt+JavaLangInteger.m for rationale - allocate each entry
+// through CommonByte's actual initWithChar: initializer.
 void CommonByte_ByteCache_fillValuesWithCommonByteArray_(IOSObjectArray *values) {
   CommonByte_ByteCache_initialize();
-  Class self = [CommonByte class];
-  size_t objSize = class_getInstanceSize(self);
-  uintptr_t ptr = (uintptr_t)calloc(objSize, 256);
   id *buf = values->buffer_;
   for (jint i = -128; i < 128; i++) {
-    id obj = objc_constructInstance(self, (void *)ptr);
-    CommonByte_initWithByte_(obj, (jbyte)i);
-    *(buf++) = obj;
-    ptr += objSize;
+    *(buf++) = [[CommonByte alloc] initWithChar:(jbyte)i];
   }
 }
+// kotlin interop <<
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonByte_ByteCache)
 

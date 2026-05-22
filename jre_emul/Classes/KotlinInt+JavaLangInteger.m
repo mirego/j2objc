@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "IOSPrimitiveArray.h"
@@ -31,7 +28,6 @@
 #include "java/lang/annotation/Annotation.h"
 #include "java/util/Objects.h"
 
-
 @class NSString;
 
 #if __has_feature(objc_arc)
@@ -41,14 +37,7 @@
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
 
-
-@interface CommonInt () {
- @public
-  /*!
-   @brief The value of the <code>Integer</code>.
-   */
-  jint value_;
-}
+@interface CommonInt ()
 
 /*!
  @brief Convert the integer to an unsigned number.
@@ -114,7 +103,6 @@ __attribute__((unused)) static CommonInt_IntegerCache *create_CommonInt_IntegerC
 __attribute__((unused)) static void CommonInt_IntegerCache_fillValuesWithCommonIntArray_(IOSObjectArray *values);
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonInt_IntegerCache)
-
 
 J2OBJC_INITIALIZED_DEFN(CommonInt)
 
@@ -227,48 +215,46 @@ IOSIntArray *CommonInt_sizeTable;
   return CommonInt_valueOfWithInt_(i);
 }
 
-J2OBJC_IGNORE_DESIGNATED_BEGIN
-- (instancetype)initWithInt:(jint)value {
-  CommonInt_initWithInt_(self, value);
-  return self;
-}
-J2OBJC_IGNORE_DESIGNATED_END
+// kotlin interop >>
+// `initWithInt:` is provided by Common*; the override that used to populate a
+// removed `value_` ivar has been deleted to avoid infinite recursion.
+// kotlin interop <<
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonInt_initWithNSString_(self, s);
-  return self;
+  return [self initWithInt:CommonInt_parseIntWithNSString_(s)];
 }
 
 - (jbyte)charValue {
-  return (jbyte) value_;
+  return (jbyte) [self intValue];
 }
 
 - (jshort)shortValue {
-  return (jshort) value_;
+  return (jshort) [self intValue];
 }
 
-- (jint)intValue {
-  return value_;
-}
+// kotlin interop >>
+// `intValue` is inherited from NSNumber; the previous category override used a `value_`
+// ivar that no longer exists, so the override has been removed.
+// kotlin interop <<
 
 - (jlong)longLongValue {
-  return (jlong) value_;
+  return (jlong) [self intValue];
 }
 
 - (float)floatValue {
-  return (float) value_;
+  return (float) [self intValue];
 }
 
 - (double)doubleValue {
-  return (double) value_;
+  return (double) [self intValue];
 }
 
 - (NSString *)description {
-  return CommonInt_toStringWithInt_(value_);
+  return CommonInt_toStringWithInt_([self intValue]);
 }
 
 - (NSUInteger)hash {
-  return CommonInt_hashCodeWithInt_(value_);
+  return CommonInt_hashCodeWithInt_([self intValue]);
 }
 
 + (jint)hashCodeWithInt:(jint)value {
@@ -277,7 +263,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jboolean)isEqual:(id)obj {
   if ([obj isKindOfClass:[CommonInt class]]) {
-    return value_ == [((CommonInt *) obj) intValue];
+    return [self intValue] == [((CommonInt *) obj) intValue];
   }
   return false;
 }
@@ -302,7 +288,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jint)compareToWithId:(CommonInt *)anotherInteger {
   cast_chk(anotherInteger, [CommonInt class]);
-  return CommonInt_compareWithInt_withInt_(self->value_, ((CommonInt *) nil_chk(anotherInteger))->value_);
+  return CommonInt_compareWithInt_withInt_([self intValue], [((CommonInt *) nil_chk(anotherInteger)) intValue]);
 }
 
 + (jint)compareWithInt:(jint)x
@@ -391,7 +377,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (void)getValue:(void *)buffer {
-  *((int *) buffer) = value_;
+  *((int *) buffer) = [self intValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -514,7 +500,7 @@ J2OBJC_IGNORE_DESIGNATED_END
     { "MAX_VALUE", "I", .constantValue.asInt = CommonInt_MAX_VALUE, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 48, 49, -1 },
     { "sizeTable", "[I", .constantValue.asLong = 0, 0x18, -1, 50, -1, -1 },
-    { "value_", "I", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self intValue]", "I", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonInt_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonInt_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonInt_serialVersionUID, 0x1a, -1, -1, -1, -1 },
@@ -788,30 +774,24 @@ CommonInt *CommonInt_valueOfWithInt_(jint i) {
   return i >= 128 || i < -128 ? create_CommonInt_initWithInt_(i) : IOSObjectArray_Get(nil_chk(JreLoadStatic(CommonInt_IntegerCache, cache)), i + 128);
 }
 
-void CommonInt_initWithInt_(CommonInt *self, jint value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonInt *new_CommonInt_initWithInt_(jint value) {
-  J2OBJC_NEW_IMPL(CommonInt, initWithInt_, value)
+  CommonInt_initialize();
+  return [[CommonInt alloc] initWithInt:value];
 }
 
 CommonInt *create_CommonInt_initWithInt_(jint value) {
-  J2OBJC_CREATE_IMPL(CommonInt, initWithInt_, value)
-}
-
-void CommonInt_initWithNSString_(CommonInt *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonInt_parseIntWithNSString_withInt_(s, 10);
+  CommonInt_initialize();
+  return [CommonInt numberWithInt:value];
 }
 
 CommonInt *new_CommonInt_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonInt, initWithNSString_, s)
+  CommonInt_initialize();
+  return [[CommonInt alloc] initWithInt:CommonInt_parseIntWithNSString_(s)];
 }
 
 CommonInt *create_CommonInt_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonInt, initWithNSString_, s)
+  CommonInt_initialize();
+  return [CommonInt numberWithInt:CommonInt_parseIntWithNSString_(s)];
 }
 
 jint CommonInt_hashCodeWithInt_(jint value) {
@@ -1092,19 +1072,21 @@ CommonInt_IntegerCache *create_CommonInt_IntegerCache_init() {
   J2OBJC_CREATE_IMPL(CommonInt_IntegerCache, init)
 }
 
+// kotlin interop >>
+// Original code used calloc + objc_constructInstance to pre-allocate 256
+// CommonInt instances sharing one contiguous buffer, then poked each
+// instance's `value_` ivar through CommonInt_initWithInt_. That trick
+// relied on a fake ivar that can't be added to CommonInt (implemented in
+// libcommon). Instead, allocate each instance through CommonInt's actual
+// initWithInt: initializer.
 void CommonInt_IntegerCache_fillValuesWithCommonIntArray_(IOSObjectArray *values) {
   CommonInt_IntegerCache_initialize();
-  Class self = [CommonInt class];
-  size_t objSize = class_getInstanceSize(self);
-  uintptr_t ptr = (uintptr_t)calloc(objSize, 256);
   id *buf = values->buffer_;
   for (jint i = -128; i < 128; i++) {
-    id obj = objc_constructInstance(self, (void *)ptr);
-    CommonInt_initWithInt_(obj, i);
-    *(buf++) = obj;
-    ptr += objSize;
+    *(buf++) = [[CommonInt alloc] initWithInt:i];
   }
 }
+// kotlin interop <<
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonInt_IntegerCache)
 

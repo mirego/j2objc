@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "J2ObjC_source.h"
@@ -25,25 +22,12 @@
 #include "sun/misc/DoubleConsts.h"
 #include "sun/misc/FloatingDecimal.h"
 
-
-
 #if __has_feature(objc_arc)
 #error "java/lang/Double must not be compiled with ARC (-fobjc-arc)"
 #endif
 
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
-
-
-@interface CommonDouble () {
- @public
-  /*!
-   @brief The value of the Double.
-   */
-  double value_;
-}
-
-@end
 
 /*!
  @brief Returns an <code>Optional</code> containing the nominal descriptor for this
@@ -124,56 +108,54 @@ IOSClass *CommonDouble_TYPE;
   return CommonDouble_isFiniteWithDouble_(d);
 }
 
-J2OBJC_IGNORE_DESIGNATED_BEGIN
-- (instancetype)initWithDouble:(double)value {
-  CommonDouble_initWithDouble_(self, value);
-  return self;
-}
-J2OBJC_IGNORE_DESIGNATED_END
+// kotlin interop >>
+// `initWithDouble:` is provided by Common*; the override that used to populate a
+// removed `value_` ivar has been deleted to avoid infinite recursion.
+// kotlin interop <<
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonDouble_initWithNSString_(self, s);
-  return self;
+  return [self initWithDouble:CommonDouble_parseDoubleWithNSString_(s)];
 }
 
 - (jboolean)isNaN {
-  return CommonDouble_isNaNWithDouble_(value_);
+  return CommonDouble_isNaNWithDouble_([self doubleValue]);
 }
 
 - (jboolean)isInfinite {
-  return CommonDouble_isInfiniteWithDouble_(value_);
+  return CommonDouble_isInfiniteWithDouble_([self doubleValue]);
 }
 
 - (NSString *)description {
-  return CommonDouble_toStringWithDouble_(value_);
+  return CommonDouble_toStringWithDouble_([self doubleValue]);
 }
 
 - (jbyte)charValue {
-  return JreFpToByte(value_);
+  return JreFpToByte([self doubleValue]);
 }
 
 - (jshort)shortValue {
-  return JreFpToShort(value_);
+  return JreFpToShort([self doubleValue]);
 }
 
 - (jint)intValue {
-  return JreFpToInt(value_);
+  return JreFpToInt([self doubleValue]);
 }
 
 - (jlong)longLongValue {
-  return JreFpToLong(value_);
+  return JreFpToLong([self doubleValue]);
 }
 
 - (float)floatValue {
-  return (float) value_;
+  return (float) [self doubleValue];
 }
 
-- (double)doubleValue {
-  return value_;
-}
+// kotlin interop >>
+// `doubleValue` is inherited from NSNumber; the previous category override used a `value_`
+// ivar that no longer exists, so the override has been removed.
+// kotlin interop <<
 
 - (NSUInteger)hash {
-  return CommonDouble_hashCodeWithDouble_(value_);
+  return CommonDouble_hashCodeWithDouble_([self doubleValue]);
 }
 
 + (jint)hashCodeWithDouble:(double)value {
@@ -181,7 +163,10 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (jboolean)isEqual:(id)obj {
-  return ([obj isKindOfClass:[CommonDouble class]]) && (CommonDouble_doubleToLongBitsWithDouble_(((CommonDouble *) nil_chk(((CommonDouble *) cast_chk(obj, [CommonDouble class]))))->value_) == CommonDouble_doubleToLongBitsWithDouble_(value_));
+  return ([obj isKindOfClass:[CommonDouble class]])
+      && (CommonDouble_doubleToLongBitsWithDouble_(
+              [((CommonDouble *) nil_chk(((CommonDouble *) cast_chk(obj, [CommonDouble class])))) doubleValue])
+          == CommonDouble_doubleToLongBitsWithDouble_([self doubleValue]));
 }
 
 + (jlong)doubleToLongBitsWithDouble:(double)value {
@@ -198,7 +183,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jint)compareToWithId:(CommonDouble *)anotherDouble {
   cast_chk(anotherDouble, [CommonDouble class]);
-  return CommonDouble_compareWithDouble_withDouble_(value_, ((CommonDouble *) nil_chk(anotherDouble))->value_);
+  return CommonDouble_compareWithDouble_withDouble_([self doubleValue], [((CommonDouble *) nil_chk(anotherDouble)) doubleValue]);
 }
 
 + (jint)compareWithDouble:(double)d1
@@ -226,7 +211,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (void)getValue:(void *)buffer {
-  *((double *) buffer) = value_;
+  *((double *) buffer) = [self doubleValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -308,7 +293,7 @@ J2OBJC_IGNORE_DESIGNATED_END
     { "SIZE", "I", .constantValue.asInt = CommonDouble_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonDouble_BYTES, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 28, 29, -1 },
-    { "value_", "D", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self doubleValue]", "D", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonDouble_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "toString", "D", "toHexString", "valueOf", "LNSString;", "LJavaLangNumberFormatException;", "parseDouble", "isNaN", "isInfinite", "isFinite", (void *)&CommonDouble__Annotations$0, (void *)&CommonDouble__Annotations$1, "byteValue", "longValue", "hashCode", "equals", "LNSObject;", "doubleToLongBits", "doubleToRawLongBits", "longBitsToDouble", "J", "compareTo", "LCommonDouble;", "compare", "DD", "sum", "max", "min", &CommonDouble_TYPE, "Ljava/lang/Class<Ljava/lang/Double;>;", "Ljava/lang/Number;Ljava/lang/Comparable<Ljava/lang/Double;>;" };
@@ -384,30 +369,24 @@ jboolean CommonDouble_isFiniteWithDouble_(double d) {
   return JavaLangMath_absWithDouble_(d) <= CommonDouble_MAX_VALUE;
 }
 
-void CommonDouble_initWithDouble_(CommonDouble *self, double value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonDouble *new_CommonDouble_initWithDouble_(double value) {
-  J2OBJC_NEW_IMPL(CommonDouble, initWithDouble_, value)
+  CommonDouble_initialize();
+  return [[CommonDouble alloc] initWithDouble:value];
 }
 
 CommonDouble *create_CommonDouble_initWithDouble_(double value) {
-  J2OBJC_CREATE_IMPL(CommonDouble, initWithDouble_, value)
-}
-
-void CommonDouble_initWithNSString_(CommonDouble *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonDouble_parseDoubleWithNSString_(s);
+  CommonDouble_initialize();
+  return [CommonDouble numberWithDouble:value];
 }
 
 CommonDouble *new_CommonDouble_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonDouble, initWithNSString_, s)
+  CommonDouble_initialize();
+  return [[CommonDouble alloc] initWithDouble:CommonDouble_parseDoubleWithNSString_(s)];
 }
 
 CommonDouble *create_CommonDouble_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonDouble, initWithNSString_, s)
+  CommonDouble_initialize();
+  return [CommonDouble numberWithDouble:CommonDouble_parseDoubleWithNSString_(s)];
 }
 
 jint CommonDouble_hashCodeWithDouble_(double value) {

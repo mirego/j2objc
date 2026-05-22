@@ -4,9 +4,6 @@
 
 #define J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION 1
 
-
-
-
 #include "IOSClass.h"
 #include "IOSObjectArray.h"
 #include "IOSPrimitiveArray.h"
@@ -32,7 +29,6 @@
 #include "java/math/BigInteger.h"
 #include "java/util/Objects.h"
 
-
 @class NSString;
 
 #if __has_feature(objc_arc)
@@ -42,14 +38,7 @@
 #pragma clang diagnostic error "-Wreturn-type"
 #pragma clang diagnostic ignored "-Wswitch"
 
-
-@interface CommonLong () {
- @public
-  /*!
-   @brief The value of the <code>Long</code>.
-   */
-  jlong value_;
-}
+@interface CommonLong ()
 
 /*!
  @brief Return a BigInteger equal to the unsigned value of the
@@ -105,7 +94,6 @@ __attribute__((unused)) static CommonLong_LongCache *create_CommonLong_LongCache
 __attribute__((unused)) static void CommonLong_LongCache_fillValuesWithCommonLongArray_(IOSObjectArray *values);
 
 J2OBJC_TYPE_LITERAL_HEADER(CommonLong_LongCache)
-
 
 J2OBJC_INITIALIZED_DEFN(CommonLong)
 
@@ -223,48 +211,46 @@ IOSClass *CommonLong_TYPE;
   return CommonLong_decodeWithNSString_(nm);
 }
 
-J2OBJC_IGNORE_DESIGNATED_BEGIN
-- (instancetype)initWithLongLong:(jlong)value {
-  CommonLong_initWithLongLong_(self, value);
-  return self;
-}
-J2OBJC_IGNORE_DESIGNATED_END
+// kotlin interop >>
+// `initWithLongLong:` is provided by Common*; the override that used to populate a
+// removed `value_` ivar has been deleted to avoid infinite recursion.
+// kotlin interop <<
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonLong_initWithNSString_(self, s);
-  return self;
+  return [self initWithLongLong:CommonLong_parseLongWithNSString_(s)];
 }
 
 - (jbyte)charValue {
-  return (jbyte) value_;
+  return (jbyte) [self longLongValue];
 }
 
 - (jshort)shortValue {
-  return (jshort) value_;
+  return (jshort) [self longLongValue];
 }
 
 - (jint)intValue {
-  return (jint) value_;
+  return (jint) [self longLongValue];
 }
 
-- (jlong)longLongValue {
-  return value_;
-}
+// kotlin interop >>
+// `longLongValue` is inherited from NSNumber; the previous override used the
+// removed `value_` ivar, so the override has been deleted.
+// kotlin interop <<
 
 - (float)floatValue {
-  return (float) value_;
+  return (float) [self longLongValue];
 }
 
 - (double)doubleValue {
-  return (double) value_;
+  return (double) [self longLongValue];
 }
 
 - (NSString *)description {
-  return CommonLong_toStringWithLong_(value_);
+  return CommonLong_toStringWithLong_([self longLongValue]);
 }
 
 - (NSUInteger)hash {
-  return CommonLong_hashCodeWithLong_(value_);
+  return CommonLong_hashCodeWithLong_([self longLongValue]);
 }
 
 + (jint)hashCodeWithLong:(jlong)value {
@@ -273,7 +259,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jboolean)isEqual:(id)obj {
   if ([obj isKindOfClass:[CommonLong class]]) {
-    return value_ == [((CommonLong *) obj) longLongValue];
+    return [self longLongValue] == [((CommonLong *) obj) longLongValue];
   }
   return false;
 }
@@ -294,7 +280,8 @@ J2OBJC_IGNORE_DESIGNATED_END
 
 - (jint)compareToWithId:(CommonLong *)anotherLong {
   cast_chk(anotherLong, [CommonLong class]);
-  return CommonLong_compareWithLong_withLong_(self->value_, ((CommonLong *) nil_chk(anotherLong))->value_);
+  return CommonLong_compareWithLong_withLong_(
+      [self longLongValue], [((CommonLong *) nil_chk(anotherLong)) longLongValue]);
 }
 
 + (jint)compareWithLong:(jlong)x
@@ -379,7 +366,7 @@ J2OBJC_IGNORE_DESIGNATED_END
 }
 
 - (void)getValue:(void *)buffer {
-  *((long long int *) buffer) = value_;
+  *((long long int *) buffer) = [self longLongValue];
 }
 
 + (const J2ObjcClassInfo *)__metadata {
@@ -501,7 +488,7 @@ J2OBJC_IGNORE_DESIGNATED_END
     { "MIN_VALUE", "J", .constantValue.asLong = CommonLong_MIN_VALUE, 0x19, -1, -1, -1, -1 },
     { "MAX_VALUE", "J", .constantValue.asLong = CommonLong_MAX_VALUE, 0x19, -1, -1, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 50, 51, -1 },
-    { "value_", "J", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
+    { "[self longLongValue]", "J", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "SIZE", "I", .constantValue.asInt = CommonLong_SIZE, 0x19, -1, -1, -1, -1 },
     { "BYTES", "I", .constantValue.asInt = CommonLong_BYTES, 0x19, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonLong_serialVersionUID, 0x1a, -1, -1, -1, -1 },
@@ -854,30 +841,24 @@ CommonLong *CommonLong_decodeWithNSString_(NSString *nm) {
   return result;
 }
 
-void CommonLong_initWithLongLong_(CommonLong *self, jlong value) {
-  NSNumber_init(self);
-  self->value_ = value;
-}
-
 CommonLong *new_CommonLong_initWithLongLong_(jlong value) {
-  J2OBJC_NEW_IMPL(CommonLong, initWithLongLong_, value)
+  CommonLong_initialize();
+  return [[CommonLong alloc] initWithLongLong:value];
 }
 
 CommonLong *create_CommonLong_initWithLongLong_(jlong value) {
-  J2OBJC_CREATE_IMPL(CommonLong, initWithLongLong_, value)
-}
-
-void CommonLong_initWithNSString_(CommonLong *self, NSString *s) {
-  NSNumber_init(self);
-  self->value_ = CommonLong_parseLongWithNSString_withInt_(s, 10);
+  CommonLong_initialize();
+  return [CommonLong numberWithLongLong:value];
 }
 
 CommonLong *new_CommonLong_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonLong, initWithNSString_, s)
+  CommonLong_initialize();
+  return [[CommonLong alloc] initWithLongLong:CommonLong_parseLongWithNSString_(s)];
 }
 
 CommonLong *create_CommonLong_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonLong, initWithNSString_, s)
+  CommonLong_initialize();
+  return [CommonLong numberWithLongLong:CommonLong_parseLongWithNSString_(s)];
 }
 
 jint CommonLong_hashCodeWithLong_(jlong value) {
@@ -1094,17 +1075,15 @@ CommonLong_LongCache *create_CommonLong_LongCache_init() {
 }
 
 void CommonLong_LongCache_fillValuesWithCommonLongArray_(IOSObjectArray *values) {
+  // kotlin interop >>
+  // See KotlinInt+JavaLangInteger.m - allocate each entry through
+  // CommonLong's actual initWithLongLong: initializer.
   CommonLong_LongCache_initialize();
-  Class self = [CommonLong class];
-  size_t objSize = class_getInstanceSize(self);
-  uintptr_t ptr = (uintptr_t)calloc(objSize, 256);
   id *buf = values->buffer_;
   for (jint i = -128; i < 128; i++) {
-    id obj = objc_constructInstance(self, (void *)ptr);
-    CommonLong_initWithLongLong_(obj, i);
-    *(buf++) = obj;
-    ptr += objSize;
+    *(buf++) = [[CommonLong alloc] initWithLongLong:(jlong)i];
   }
+  // kotlin interop <<
 }
 
 J2OBJC_CLASS_TYPE_LITERAL_SOURCE(CommonLong_LongCache)

@@ -30,15 +30,13 @@
 #pragma clang diagnostic ignored "-Wswitch"
 
 
-@interface CommonBoolean () {
- @public
-  /*!
-   @brief The value of the Boolean.
-   */
-  jboolean value_;
-}
-
-@end
+// kotlin interop >>
+// The boolean value is held by the inherited Kotlin/Native `CommonBoolean`
+// instance itself (a NSNumber subclass). All reads route through
+// `[self boolValue]`; the class extension trick used to add a `value_` ivar
+// to a class implemented in another compilation unit (libcommon) does not
+// produce real ivar metadata on modern Objective-C ABI, so it is removed.
+// kotlin interop <<
 
 /*!
  @brief use serialVersionUID from JDK 1.0.2 for interoperability
@@ -68,13 +66,11 @@ IOSClass *CommonBoolean_TYPE;
 @implementation CommonBoolean (JavaLangBoolean)
 
 - (instancetype)initWithBoolean:(jboolean)value {
-  CommonBoolean_initWithBoolean_(self, value);
-  return self;
+  return [self initWithBool:value];
 }
 
 - (instancetype)initWithNSString:(NSString *)s {
-  CommonBoolean_initWithNSString_(self, s);
-  return self;
+  return [self initWithBool:CommonBoolean_parseBooleanWithNSString_(s)];
 }
 
 + (jboolean)parseBooleanWithNSString:(NSString *)s {
@@ -82,7 +78,7 @@ IOSClass *CommonBoolean_TYPE;
 }
 
 - (jboolean)booleanValue {
-  return value_;
+  return [self boolValue];
 }
 
 + (CommonBoolean *)valueOfWithBoolean:(jboolean)b {
@@ -98,11 +94,11 @@ IOSClass *CommonBoolean_TYPE;
 }
 
 - (NSString *)description {
-  return value_ ? @"true" : @"false";
+  return [self boolValue] ? @"true" : @"false";
 }
 
 - (NSUInteger)hash {
-  return CommonBoolean_hashCodeWithBoolean_(value_);
+  return CommonBoolean_hashCodeWithBoolean_([self boolValue]);
 }
 
 + (jint)hashCodeWithBoolean:(jboolean)value {
@@ -111,7 +107,7 @@ IOSClass *CommonBoolean_TYPE;
 
 - (jboolean)isEqual:(id)obj {
   if ([obj isKindOfClass:[CommonBoolean class]]) {
-    return value_ == [((CommonBoolean *) obj) booleanValue];
+    return [self boolValue] == [((CommonBoolean *) obj) booleanValue];
   }
   return false;
 }
@@ -122,7 +118,8 @@ IOSClass *CommonBoolean_TYPE;
 
 - (jint)compareToWithId:(CommonBoolean *)b {
   cast_chk(b, [CommonBoolean class]);
-  return CommonBoolean_compareWithBoolean_withBoolean_(self->value_, ((CommonBoolean *) nil_chk(b))->value_);
+  return CommonBoolean_compareWithBoolean_withBoolean_(
+      [self boolValue], [((CommonBoolean *) nil_chk(b)) boolValue]);
 }
 
 + (jint)compareWithBoolean:(jboolean)x
@@ -190,7 +187,6 @@ IOSClass *CommonBoolean_TYPE;
     { "TRUE", "LCommonBoolean;", .constantValue.asLong = 0, 0x19, -1, 18, -1, -1 },
     { "FALSE", "LCommonBoolean;", .constantValue.asLong = 0, 0x19, -1, 19, -1, -1 },
     { "TYPE", "LIOSClass;", .constantValue.asLong = 0, 0x19, -1, 20, 21, -1 },
-    { "value_", "Z", .constantValue.asLong = 0, 0x12, -1, -1, -1, -1 },
     { "serialVersionUID", "J", .constantValue.asLong = CommonBoolean_serialVersionUID, 0x1a, -1, -1, -1, -1 },
   };
   static const void *ptrTable[] = { "Z", (void *)&CommonBoolean__Annotations$0, "LNSString;", (void *)&CommonBoolean__Annotations$1, "parseBoolean", "valueOf", "toString", "hashCode", "equals", "LNSObject;", "getBoolean", "compareTo", "LCommonBoolean;", "compare", "ZZ", "logicalAnd", "logicalOr", "logicalXor", &CommonBoolean_TRUE, &CommonBoolean_FALSE, &CommonBoolean_TYPE, "Ljava/lang/Class<Ljava/lang/Boolean;>;", "Ljava/lang/Object;Ljava/io/Serializable;Ljava/lang/Comparable<Ljava/lang/Boolean;>;" };
@@ -209,30 +205,31 @@ IOSClass *CommonBoolean_TYPE;
 
 @end
 
-void CommonBoolean_initWithBoolean_(CommonBoolean *self, jboolean value) {
-  NSObject_init(self);
-  self->value_ = value;
-}
-
+// kotlin interop >>
+// CommonBoolean_initWithBoolean_(self, value) removed - CommonBoolean is
+// implemented in libcommon (Kotlin/Native), so no separate C init can
+// populate its state. new_/create_ wrappers go straight through Kotlin's
+// own initializer/factory.
 CommonBoolean *new_CommonBoolean_initWithBoolean_(jboolean value) {
-  J2OBJC_NEW_IMPL(CommonBoolean, initWithBoolean_, value)
+  CommonBoolean_initialize();
+  return [[CommonBoolean alloc] initWithBool:value];
 }
 
 CommonBoolean *create_CommonBoolean_initWithBoolean_(jboolean value) {
-  J2OBJC_CREATE_IMPL(CommonBoolean, initWithBoolean_, value)
-}
-
-void CommonBoolean_initWithNSString_(CommonBoolean *self, NSString *s) {
-  CommonBoolean_initWithBoolean_(self, CommonBoolean_parseBooleanWithNSString_(s));
+  CommonBoolean_initialize();
+  return [CommonBoolean numberWithBool:value];
 }
 
 CommonBoolean *new_CommonBoolean_initWithNSString_(NSString *s) {
-  J2OBJC_NEW_IMPL(CommonBoolean, initWithNSString_, s)
+  CommonBoolean_initialize();
+  return [[CommonBoolean alloc] initWithBool:CommonBoolean_parseBooleanWithNSString_(s)];
 }
 
 CommonBoolean *create_CommonBoolean_initWithNSString_(NSString *s) {
-  J2OBJC_CREATE_IMPL(CommonBoolean, initWithNSString_, s)
+  CommonBoolean_initialize();
+  return [CommonBoolean numberWithBool:CommonBoolean_parseBooleanWithNSString_(s)];
 }
+// kotlin interop <<
 
 jboolean CommonBoolean_parseBooleanWithNSString_(NSString *s) {
   CommonBoolean_initialize();

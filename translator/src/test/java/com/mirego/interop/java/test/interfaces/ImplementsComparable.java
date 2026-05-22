@@ -5,13 +5,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class ImplementsComparable implements Comparable<Integer> {
 
+  @SuppressWarnings("unchecked")
   public static String main(String[] args) {
     ImplementsComparable implementsComparable = new ImplementsComparable();
 
     Object obj = implementsComparable;
 
     boolean isInstanceOfComparable = obj instanceof Comparable;
-    Comparable<Integer> castedComparable = (Comparable) obj;
+    Comparable<Integer> castedComparable = (Comparable<Integer>) obj;
 
     Comparable[] comparableArray = new Comparable[2];
 
