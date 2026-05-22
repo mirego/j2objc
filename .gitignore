@@ -25,3 +25,11 @@ dist/
 # IntelliJ IDEA Files
 *.iml
 .idea
+
+# Eclipse Files
+.classpath
+.project
+.settings/
+
+# Gradle Files
+.gradle/
