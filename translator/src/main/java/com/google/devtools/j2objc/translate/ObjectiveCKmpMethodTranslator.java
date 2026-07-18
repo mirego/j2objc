@@ -26,12 +26,14 @@ import com.google.devtools.j2objc.ast.AbstractTypeDeclaration;
 import com.google.devtools.j2objc.ast.Block;
 import com.google.devtools.j2objc.ast.BodyDeclaration;
 import com.google.devtools.j2objc.ast.CastExpression;
+import com.google.devtools.j2objc.ast.ClassInstanceCreation;
 import com.google.devtools.j2objc.ast.CompilationUnit;
 import com.google.devtools.j2objc.ast.EnumDeclaration;
 import com.google.devtools.j2objc.ast.Expression;
 import com.google.devtools.j2objc.ast.ExpressionStatement;
 import com.google.devtools.j2objc.ast.FunctionDeclaration;
 import com.google.devtools.j2objc.ast.FunctionInvocation;
+import com.google.devtools.j2objc.ast.LambdaExpression;
 import com.google.devtools.j2objc.ast.MethodDeclaration;
 import com.google.devtools.j2objc.ast.MethodInvocation;
 import com.google.devtools.j2objc.ast.NativeStatement;
@@ -41,6 +43,7 @@ import com.google.devtools.j2objc.ast.SimpleName;
 import com.google.devtools.j2objc.ast.SingleVariableDeclaration;
 import com.google.devtools.j2objc.ast.Statement;
 import com.google.devtools.j2objc.ast.ThisExpression;
+import com.google.devtools.j2objc.ast.TreeVisitor;
 import com.google.devtools.j2objc.ast.TypeDeclaration;
 import com.google.devtools.j2objc.ast.UnitTreeVisitor;
 import com.google.devtools.j2objc.types.ExecutablePair;
@@ -59,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -142,6 +146,9 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
           "java.util.Map",
           "java.util.Set");
 
+  private static final ImmutableSet<String> TYPES_THAT_OMIT_NULLABILITY_MARKER =
+      ImmutableSet.of("java.lang.Void");
+
   private final ImmutableSet<String> supportedConversionTypes = JAVA_TO_NATIVE_TYPE_MAP.keySet();
   private final AdapterLookup adapterLookup;
 
@@ -152,6 +159,44 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
   public ObjectiveCKmpMethodTranslator(CompilationUnit unit) {
     super(unit);
     this.adapterLookup = new AdapterLookup(typeUtil);
+  }
+
+  // Re-run lambda lowering passes because ObjectiveCKmpMethodTranslator synthesizes new
+  // LambdaExpression AST arguments for composable collection converters after LambdaRewriter
+  // originally executed in the translator pipeline.
+  @Override
+  public void run() {
+    Set<AbstractTypeDeclaration> existingTypes = new HashSet<>(unit.getTypes());
+    super.run();
+    new LambdaTypeElementAdder(unit).run();
+    new LambdaRewriter(unit).run();
+    new InnerClassExtractor(unit).run();
+
+    Functionizer functionizer = new Functionizer(unit);
+    var unused = functionizer.visit(unit);
+    InitializationNormalizer initNormalizer = new InitializationNormalizer(unit);
+
+    // Pass 1: Run Functionizer and InitializationNormalizer exclusively over newly introduced
+    // lambda type declarations created during this translation pass.
+    for (AbstractTypeDeclaration type : unit.getTypes()) {
+      if (!existingTypes.contains(type)) {
+        type.accept(functionizer);
+        type.accept(initNormalizer);
+      }
+    }
+
+    // Pass 2: Run Functionizer specifically on ClassInstanceCreation nodes across the unit.
+    // This updates newly generated lambda instantiations (e.g., inside generated adapter methods).
+    unit.accept(
+        new TreeVisitor() {
+          @Override
+          public void endVisit(ClassInstanceCreation node) {
+            functionizer.endVisit(node);
+          }
+        });
+
+    new StaticVarRewriter(unit).run();
+    new PrivateDeclarationResolver(unit).run();
   }
 
   private String getOverrideSignature(ExecutablePair method) {
@@ -702,12 +747,7 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
         throw new IllegalArgumentException(
             String.format("No cannot find adapter %s", adapter.toString()));
       }
-      AdapterLookup.ConverterMatch match;
-      if (isParam) {
-        match = strategy.findParamConverter(adapterLookup, adapterElement, originalType);
-      } else {
-        match = strategy.findReturnConverter(adapterLookup, adapterElement, originalType);
-      }
+      var match = strategy.findConverter(adapterLookup, adapterElement, originalType, isParam);
 
       if (match.matchType() == AdapterLookup.MatchType.NONE_EXACT_REQUIRED) {
         throw new IllegalStateException(
@@ -730,7 +770,13 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
       }
 
       Expression converterInvocation =
-          createAdapterInvocation(foundMethod, adapterElement, argument);
+          createAdapterInvocation(
+              foundMethod,
+              adapterElement,
+              argument,
+              isParam,
+              originalType,
+              match.matchType().isComposing());
 
       return maybeCast(castType, converterInvocation);
     }
@@ -738,12 +784,76 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
     // Adapter invocation are always with wrapped methods, which means that the package it is in
     // must enable wrapper methods.
     private Expression createAdapterInvocation(
-        ExecutableElement foundMethod, TypeElement adapterElement, Expression argument) {
+        ExecutableElement foundMethod,
+        TypeElement adapterElement,
+        Expression argument,
+        boolean isParam,
+        TypeMirror originalType,
+        boolean isComposing) {
       MethodInvocation methodInvocation =
           new MethodInvocation(new ExecutablePair(foundMethod), new SimpleName(adapterElement));
       TypeMirror paramType = foundMethod.getParameters().get(0).asType();
       methodInvocation.addArgument(maybeCast(paramType, argument));
+      if (isComposing && originalType instanceof DeclaredType declaredType) {
+        populateComposingArguments(methodInvocation, foundMethod, declaredType, isParam);
+      }
       return methodInvocation;
+    }
+
+    private void populateComposingArguments(
+        MethodInvocation methodInvocation,
+        ExecutableElement foundMethod,
+        DeclaredType declaredType,
+        boolean isParam) {
+      for (int i = 1; i < foundMethod.getParameters().size(); i++) {
+        if (i - 1 >= declaredType.getTypeArguments().size()) {
+          break;
+        }
+        var elemType = declaredType.getTypeArguments().get(i - 1);
+        var convParam = foundMethod.getParameters().get(i);
+        var convType = convParam.asType();
+
+        // Synthesize an anonymous adaptation lambda for each composing parameter:
+        //   elem -> Adapter.toJavaUtilList(elem, nestedLambda)
+        // or pass-through:
+        //   elem -> elem
+        var functionInterface = TypeUtil.asTypeElement(convType);
+        ExecutableElement samMethod = null;
+        TypeMirror samParamType = elemType;
+        if (functionInterface != null) {
+          samMethod = findSamMethod(functionInterface);
+          if (samMethod != null && !samMethod.getParameters().isEmpty()) {
+            samParamType = samMethod.getParameters().get(0).asType();
+          }
+        }
+        var paramElem = GeneratedVariableElement.newParameter("elem", samParamType, null);
+        var paramDecl = new SingleVariableDeclaration().setVariableElement(paramElem);
+
+        var lambda = new LambdaExpression().setTypeMirror(convType);
+        lambda.addTargetType(convType);
+        lambda.getParameters().add(paramDecl);
+
+        if (samMethod != null) {
+          lambda.setDescriptor(new ExecutablePair(samMethod));
+        }
+
+        var nativeType = calculateNativeType(elemType, originalMethodExecutable);
+        var elemCastType = strategy.getCastType(elemType, nativeType, isParam);
+        Expression bodyExpr =
+            createConverterMethodInvocation(
+                isParam, elemType, elemCastType, new SimpleName(paramElem));
+        lambda.setBody(bodyExpr);
+        methodInvocation.addArgument(lambda);
+      }
+    }
+
+    private ExecutableElement findSamMethod(TypeElement interfaceElement) {
+      for (ExecutableElement method : ElementUtil.getMethods(interfaceElement)) {
+        if (method.getModifiers().contains(Modifier.ABSTRACT)) {
+          return method;
+        }
+      }
+      throw new AssertionError("Cannot find abstract SAM method in " + interfaceElement);
     }
 
     private Expression maybeCast(TypeMirror targetType, Expression expression) {
@@ -818,15 +928,16 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
   }
 
   private boolean isNullable(TypeMirror typeMirror) {
-    return typeMirror.getAnnotationMirrors().stream()
-        .anyMatch(
-            annotation ->
-                annotation
-                    .getAnnotationType()
-                    .asElement()
-                    .getSimpleName()
-                    .toString()
-                    .contains("Nullable"));
+    return !TYPES_THAT_OMIT_NULLABILITY_MARKER.contains(TypeUtil.getQualifiedName(typeMirror))
+        && typeMirror.getAnnotationMirrors().stream()
+            .anyMatch(
+                annotation ->
+                    annotation
+                        .getAnnotationType()
+                        .asElement()
+                        .getSimpleName()
+                        .toString()
+                        .contains("Nullable"));
   }
 
   /**
@@ -864,7 +975,9 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
       }
       builder.append(nativeType.nativeTypeName);
       List<? extends TypeMirror> typeArguments = type.getTypeArguments();
-      if (options.asObjCGenericDecl() && !typeArguments.isEmpty()) {
+      if (options.asObjCGenericDecl()
+          && !typeArguments.isEmpty()
+          && !nativeType.isUntranslatedInterface) {
         String typeArgsString = buildTypeArgumentString(typeArguments);
         builder.append("<").append(typeArgsString).append(">");
       }
@@ -970,6 +1083,17 @@ public final class ObjectiveCKmpMethodTranslator extends UnitTreeVisitor {
 
     abstract TypeMirror getReturnCastType(
         TypeMirror originalMethodReturnType, TypeMirror adapterReturnType);
+
+    AdapterLookup.ConverterMatch findConverter(
+        AdapterLookup lookup, TypeElement adapterClass, TypeMirror type, boolean isParam) {
+      return isParam
+          ? findParamConverter(lookup, adapterClass, type)
+          : findReturnConverter(lookup, adapterClass, type);
+    }
+
+    TypeMirror getCastType(TypeMirror type, TypeMirror nativeType, boolean isParam) {
+      return isParam ? getParamCastType(type, nativeType) : getReturnCastType(type, nativeType);
+    }
   }
 
   private record PrintableNativeType(

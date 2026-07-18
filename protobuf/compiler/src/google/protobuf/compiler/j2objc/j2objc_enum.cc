@@ -117,7 +117,8 @@ void EnumGenerator::GenerateHeader(io::Printer* printer) {
       "\n// Java enum ordinal preprocessor name that allows for stricter enum "
       "types\n"
       "// outside transpiled code.\n"
-      "#if J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
+      "#if defined(J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION) && "
+      "J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
       "#define $ordinalpreprocessorname$ jint\n"
       "#else\n"
       "#define $ordinalpreprocessorname$ $ordinalenumname$\n"
@@ -149,7 +150,8 @@ void EnumGenerator::GenerateHeader(io::Printer* printer) {
       "\n// Java enum value preprocessor name that allows for stricter enum "
       "types\n"
       "// outside transpiled code.\n"
-      "#if J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
+      "#if defined(J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION) && "
+      "J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
       "#define $valuepreprocessorname$ jint\n"
       "#else\n"
       "#define $valuepreprocessorname$ $valueenumname$\n"
@@ -194,9 +196,7 @@ void EnumGenerator::GenerateHeader(io::Printer* printer) {
       CValuePreprocessorName(descriptor_));
 
   if (IsGenerateProperties(descriptor_->file())) {
-    printer->Print("- ($valuepreprocessorname$)number;\n",
-                   "valuepreprocessorname",
-                   CValuePreprocessorName(descriptor_));
+    printer->Print("@property(readonly) int number;\n");
     printer->Print("@property(readonly) $ordinalpreprocessorname$ nsEnum;\n",
                    "ordinalpreprocessorname",
                    COrdinalPreprocessorName(descriptor_));
@@ -369,11 +369,9 @@ void EnumGenerator::GenerateSource(io::Printer* printer) {
 
   if (IsGenerateProperties(descriptor_->file())) {
     printer->Print(
-        "- ($valuepreprocessorname$)number {\n"
-        "  return [self getNumber];\n"
-        "}\n",
-        "classname", ClassName(descriptor_), "valuepreprocessorname",
-        CValuePreprocessorName(descriptor_));
+        "- (int)number {\n"
+        "  return (int) [self getNumber];\n"
+        "}\n");
     printer->Print(
         "- ($ordinalpreprocessorname$)nsEnum {\n"
         "  return [self ordinal];\n"

@@ -606,7 +606,7 @@ public class StatementGeneratorTest extends GenerationTest {
             "Test",
             "Test.m");
     assertInTranslation(translation, "- (int32_t)testWithInt:(int32_t)inArg");
-    assertInTranslation(translation, "return inArg + outArg;");
+    assertInTranslation(translation, "return JreIntPlus(inArg, outArg);");
   }
 
   public void testFieldAccess() throws IOException {
@@ -1378,7 +1378,7 @@ public class StatementGeneratorTest extends GenerationTest {
             """,
             "A",
             "A.m");
-    assertInTranslation(translation, "return i_ + i_B_;");
+    assertInTranslation(translation, "return JreIntPlus(i_, i_B_);");
   }
 
   public void testStaticConstants() throws IOException {
@@ -1511,7 +1511,179 @@ public class StatementGeneratorTest extends GenerationTest {
     List<Statement> stmts = translateStatements(source);
     assertEquals(3, stmts.size());
     String result = generateStatement(stmts.get(2));
-    assertEquals("*IOSIntArray_GetRef(array, offset) += 23;", result);
+    assertEquals("JrePlusAssignIntI(IOSIntArray_GetRef(array, offset), 23);", result);
+  }
+
+  public void testCompoundAssignmentAllTypes() throws IOException {
+    String source =
+        "class Test { "
+            + " int i = 0; volatile int vi = 0;"
+            + " long j = 0; volatile long vj = 0;"
+            + " char c = 'a'; volatile char vc = 'a';"
+            + " byte b = 0; volatile byte vb = 0;"
+            + " short s = 0; volatile short vs = 0;"
+            + " void test() {"
+            + "   i += 1; vi += 1;"
+            + "   i += j; vi += j;"
+            + "   i -= 1; vi -= 1;"
+            + "   i -= j; vi -= j;"
+            + "   i *= 1; vi *= 1;"
+            + "   i *= j; vi *= j;"
+            + "   j += 1; vj += 1;"
+            + "   j += j; vj += j;"
+            + "   j -= 1; vj -= 1;"
+            + "   j -= j; vj -= j;"
+            + "   j *= 1; vj *= 1;"
+            + "   j *= j; vj *= j;"
+            + "   c += 1; vc += 1;"
+            + "   c += j; vc += j;"
+            + "   c -= 1; vc -= 1;"
+            + "   c -= j; vc -= j;"
+            + "   c *= 1; vc *= 1;"
+            + "   c *= j; vc *= j;"
+            + "   b += 1; vb += 1;"
+            + "   b += j; vb += j;"
+            + "   b -= 1; vb -= 1;"
+            + "   b -= j; vb -= j;"
+            + "   b *= 1; vb *= 1;"
+            + "   b *= j; vb *= j;"
+            + "   s += 1; vs += 1;"
+            + "   s += j; vs += j;"
+            + "   s -= 1; vs -= 1;"
+            + "   s -= j; vs -= j;"
+            + "   s *= 1; vs *= 1;"
+            + "   s *= j; vs *= j;"
+            + " }"
+            + "}";
+    String translation = translateSourceFile(source, "Test", "Test.m");
+    assertTranslatedLines(
+        translation,
+        "JrePlusAssignIntI(&i_, 1);",
+        "JrePlusAssignVolatileIntI(&vi_, 1);",
+        "JrePlusAssignIntJ(&i_, j_);",
+        "JrePlusAssignVolatileIntJ(&vi_, j_);",
+        "JreMinusAssignIntI(&i_, 1);",
+        "JreMinusAssignVolatileIntI(&vi_, 1);",
+        "JreMinusAssignIntJ(&i_, j_);",
+        "JreMinusAssignVolatileIntJ(&vi_, j_);",
+        "JreTimesAssignIntI(&i_, 1);",
+        "JreTimesAssignVolatileIntI(&vi_, 1);",
+        "JreTimesAssignIntJ(&i_, j_);",
+        "JreTimesAssignVolatileIntJ(&vi_, j_);",
+        "JrePlusAssignLongJ(&j_, 1);",
+        "JrePlusAssignVolatileLongJ(&vj_, 1);",
+        "JrePlusAssignLongJ(&j_, j_);",
+        "JrePlusAssignVolatileLongJ(&vj_, j_);",
+        "JreMinusAssignLongJ(&j_, 1);",
+        "JreMinusAssignVolatileLongJ(&vj_, 1);",
+        "JreMinusAssignLongJ(&j_, j_);",
+        "JreMinusAssignVolatileLongJ(&vj_, j_);",
+        "JreTimesAssignLongJ(&j_, 1);",
+        "JreTimesAssignVolatileLongJ(&vj_, 1);",
+        "JreTimesAssignLongJ(&j_, j_);",
+        "JreTimesAssignVolatileLongJ(&vj_, j_);",
+        "JrePlusAssignCharI(&c_, 1);",
+        "JrePlusAssignVolatileCharI(&vc_, 1);",
+        "JrePlusAssignCharJ(&c_, j_);",
+        "JrePlusAssignVolatileCharJ(&vc_, j_);",
+        "JreMinusAssignCharI(&c_, 1);",
+        "JreMinusAssignVolatileCharI(&vc_, 1);",
+        "JreMinusAssignCharJ(&c_, j_);",
+        "JreMinusAssignVolatileCharJ(&vc_, j_);",
+        "JreTimesAssignCharI(&c_, 1);",
+        "JreTimesAssignVolatileCharI(&vc_, 1);",
+        "JreTimesAssignCharJ(&c_, j_);",
+        "JreTimesAssignVolatileCharJ(&vc_, j_);",
+        "JrePlusAssignByteI(&b_, 1);",
+        "JrePlusAssignVolatileByteI(&vb_, 1);",
+        "JrePlusAssignByteJ(&b_, j_);",
+        "JrePlusAssignVolatileByteJ(&vb_, j_);",
+        "JreMinusAssignByteI(&b_, 1);",
+        "JreMinusAssignVolatileByteI(&vb_, 1);",
+        "JreMinusAssignByteJ(&b_, j_);",
+        "JreMinusAssignVolatileByteJ(&vb_, j_);",
+        "JreTimesAssignByteI(&b_, 1);",
+        "JreTimesAssignVolatileByteI(&vb_, 1);",
+        "JreTimesAssignByteJ(&b_, j_);",
+        "JreTimesAssignVolatileByteJ(&vb_, j_);",
+        "JrePlusAssignShortI(&s_, 1);",
+        "JrePlusAssignVolatileShortI(&vs_, 1);",
+        "JrePlusAssignShortJ(&s_, j_);",
+        "JrePlusAssignVolatileShortJ(&vs_, j_);",
+        "JreMinusAssignShortI(&s_, 1);",
+        "JreMinusAssignVolatileShortI(&vs_, 1);",
+        "JreMinusAssignShortJ(&s_, j_);",
+        "JreMinusAssignVolatileShortJ(&vs_, j_);",
+        "JreTimesAssignShortI(&s_, 1);",
+        "JreTimesAssignVolatileShortI(&vs_, 1);",
+        "JreTimesAssignShortJ(&s_, j_);",
+        "JreTimesAssignVolatileShortJ(&vs_, j_);");
+  }
+
+  public void testIncrementDecrementAllTypes() throws IOException {
+    String source =
+        "class Test { "
+            + " int i = 0; volatile int vi = 0;"
+            + " long j = 0; volatile long vj = 0;"
+            + " char c = 'a'; volatile char vc = 'a';"
+            + " byte b = 0; volatile byte vb = 0;"
+            + " short s = 0; volatile short vs = 0;"
+            + " void test() {"
+            + "   i++; vi++; ++i; ++vi;"
+            + "   i--; vi--; --i; --vi;"
+            + "   j++; vj++; ++j; ++vj;"
+            + "   j--; vj--; --j; --vj;"
+            + "   c++; vc++; ++c; ++vc;"
+            + "   c--; vc--; --c; --vc;"
+            + "   b++; vb++; ++b; ++vb;"
+            + "   b--; vb--; --b; --vb;"
+            + "   s++; vs++; ++s; ++vs;"
+            + "   s--; vs--; --s; --vs;"
+            + " }"
+            + "}";
+    String translation = translateSourceFile(source, "Test", "Test.m");
+    assertTranslatedLines(
+        translation,
+        "JrePostIncInt(&i_);",
+        "JrePostIncVolatileInt(&vi_);",
+        "JrePreIncInt(&i_);",
+        "JrePreIncVolatileInt(&vi_);",
+        "JrePostDecInt(&i_);",
+        "JrePostDecVolatileInt(&vi_);",
+        "JrePreDecInt(&i_);",
+        "JrePreDecVolatileInt(&vi_);",
+        "JrePostIncLong(&j_);",
+        "JrePostIncVolatileLong(&vj_);",
+        "JrePreIncLong(&j_);",
+        "JrePreIncVolatileLong(&vj_);",
+        "JrePostDecLong(&j_);",
+        "JrePostDecVolatileLong(&vj_);",
+        "JrePreDecLong(&j_);",
+        "JrePreDecVolatileLong(&vj_);",
+        "JrePostIncChar(&c_);",
+        "JrePostIncVolatileChar(&vc_);",
+        "JrePreIncChar(&c_);",
+        "JrePreIncVolatileChar(&vc_);",
+        "JrePostDecChar(&c_);",
+        "JrePostDecVolatileChar(&vc_);",
+        "JrePreDecChar(&c_);",
+        "JrePreDecVolatileChar(&vc_);",
+        "JrePostIncByte(&b_);",
+        "JrePostIncVolatileByte(&vb_);",
+        "JrePreIncByte(&b_);",
+        "JrePreIncVolatileByte(&vb_);",
+        "JrePostDecByte(&b_);",
+        "JrePostDecVolatileByte(&vb_);",
+        "JrePreDecByte(&b_);",
+        "JrePreDecVolatileByte(&vb_);",
+        "JrePostIncShort(&s_);",
+        "JrePostIncVolatileShort(&vs_);",
+        "JrePreIncShort(&s_);",
+        "JrePreIncVolatileShort(&vs_);",
+        "JrePostDecShort(&s_);",
+        "JrePostDecVolatileShort(&vs_);",
+        "JrePreDecShort(&s_);",
+        "JrePreDecVolatileShort(&vs_);");
   }
 
   public void testRegisterVariableName() throws IOException {
@@ -1982,7 +2154,7 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslatedLines(
         translation,
         """
-        for (int32_t i = 0; i < 10; i++) {
+        for (int32_t i = 0; i < 10; JrePostIncInt(&i)) {
         }
         """);
   }
@@ -2004,7 +2176,7 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslatedLines(
         translation,
         """
-        for (int32_t i = 0; i < 10; i++) {
+        for (int32_t i = 0; i < 10; JrePostIncInt(&i)) {
           @autoreleasepool {
           }
         }
@@ -2046,7 +2218,7 @@ public class StatementGeneratorTest extends GenerationTest {
     assertTranslatedLines(
         translation,
         """
-        for (int32_t i = 0; i < 10; i++) {
+        for (int32_t i = 0; i < 10; JrePostIncInt(&i)) {
           @autoreleasepool {
           }
         }
@@ -2089,7 +2261,8 @@ public class StatementGeneratorTest extends GenerationTest {
             "Test.m");
     assertInTranslation(
         translation, "JreURShiftAssignInt(IOSIntArray_GetRef(nil_chk(array), 0), 2)");
-    assertInTranslation(translation, "JreURShiftAssignInt(IOSIntArray_GetRef(array, i - 1), 3)");
+    assertInTranslation(
+        translation, "JreURShiftAssignInt(IOSIntArray_GetRef(array, JreIntMinus(i, 1)), 3)");
     assertInTranslation(translation, "JreRShiftAssignInt(IOSIntArray_GetRef(array, 1), 4)");
     assertInTranslation(translation, "JreLShiftAssignInt(IOSIntArray_GetRef(array, 2), 5)");
   }

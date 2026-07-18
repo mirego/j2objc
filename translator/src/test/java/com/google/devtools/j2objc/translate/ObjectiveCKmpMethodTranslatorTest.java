@@ -49,6 +49,7 @@ public class ObjectiveCKmpMethodTranslatorTest extends GenerationTest {
         import java.util.List;
         import java.util.Set;
         import java.util.Map;
+        import java.util.function.Function;
 
         public class Adapter {
           public static native Integer toInteger(Object n) /*-[ return nil; ]-*/;
@@ -85,6 +86,13 @@ public class ObjectiveCKmpMethodTranslatorTest extends GenerationTest {
 
           public static native List<Integer> toJavaUtilList_Integer_(Object n) /*-[ return nil; ]-*/;
           public static native Object fromJavaUtilList_Integer_(List<Integer> n) /*-[ return nil; ]-*/;
+
+          public static native <T> List<T> toJavaUtilList(Object list, Function<Object, T> conv) /*-[ return nil; ]-*/;
+          public static native <T> Object fromJavaUtilList(List<T> list, Function<T, Object> conv) /*-[ return nil; ]-*/;
+          public static native <T> Set<T> toJavaUtilSet(Object set, Function<Object, T> conv) /*-[ return nil; ]-*/;
+          public static native <T> Object fromJavaUtilSet(Set<T> set, Function<T, Object> conv) /*-[ return nil; ]-*/;
+          public static native <K, V> Map<K, V> toJavaUtilMap(Object map, Function<Object, K> kConv, Function<Object, V> vConv) /*-[ return nil; ]-*/;
+          public static native <K, V> Object fromJavaUtilMap(Map<K, V> map, Function<K, Object> kConv, Function<V, Object> vConv) /*-[ return nil; ]-*/;
         }
         """,
         "Adapter.java");
@@ -1631,39 +1639,139 @@ public class ObjectiveCKmpMethodTranslatorTest extends GenerationTest {
     options.setAsObjCGenericDecl(true);
   }
 
-  public void testSetOfBooleanFails() throws IOException {
+  public void testTranslate_setOfBoolean() throws IOException {
     addSourceFile(
         """
         import com.google.j2objc.annotations.ObjectiveCKmpMethod;
         import java.util.Set;
-        public class FailBoolean {
+        public class TestSetOfBoolean {
           @ObjectiveCKmpMethod(selector="setBooleanSet:", adapter=Adapter.class)
           public void setBooleanSet(Set<Boolean> set) {}
         }
         """,
-        "FailBoolean.java");
+        "TestSetOfBoolean.java");
 
-    Throwable e =
-        assertThrows(Throwable.class, () -> translateSourceFile("FailBoolean", "FailBoolean.m"));
-    assertTrue(e.getMessage().contains("Exact converter required for mapped type"));
+    String header = translateSourceFile("TestSetOfBoolean", "TestSetOfBoolean.h");
+    assertInTranslation(header, "- (void)setBooleanSet:(NSSet<NSNumber *> *)set;");
+    String impl = translateSourceFile("TestSetOfBoolean", "TestSetOfBoolean.m");
+    assertInTranslation(
+        impl,
+        """
+        - (void)setBooleanSet:(NSSet<NSNumber *> *)set {
+          [self setBooleanSetWithJavaUtilSet:(id<JavaUtilSet>) [Adapter toJavaUtilSetWithId:set withJavaUtilFunctionFunction:JreLoadStatic(TestSetOfBoolean_$Lambda$1, instance)]];
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        - (id)applyWithId:(id)elem {
+          return Adapter_toBooleanWithId_(elem);
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        + (void)initialize {
+          if (self == [TestSetOfBoolean_$Lambda$1 class]) {
+            TestSetOfBoolean_$Lambda$1_instance = create_TestSetOfBoolean_$Lambda$1_init();
+            J2OBJC_SET_INITIALIZED(TestSetOfBoolean_$Lambda$1)
+          }
+        }
+        """);
   }
 
-  public void testSetOfListFails() throws IOException {
+  public void testTranslate_parameterizedSet_leafElementConversion() throws IOException {
+    addSourceFile(
+        """
+        import com.google.j2objc.annotations.ObjectiveCKmpMethod;
+        import java.util.Set;
+        public class TestSetLeaf {
+          @ObjectiveCKmpMethod(selector="setBooleanSet:", adapter=Adapter.class)
+          public void setBooleanSet(Set<Boolean> set) {}
+        }
+        """,
+        "TestSetLeaf.java");
+
+    String header = translateSourceFile("TestSetLeaf", "TestSetLeaf.h");
+    assertInTranslation(header, "- (void)setBooleanSet:(NSSet<NSNumber *> *)set;");
+    String impl = translateSourceFile("TestSetLeaf", "TestSetLeaf.m");
+    assertInTranslation(
+        impl,
+        """
+        - (void)setBooleanSet:(NSSet<NSNumber *> *)set {
+          [self setBooleanSetWithJavaUtilSet:(id<JavaUtilSet>) [Adapter toJavaUtilSetWithId:set withJavaUtilFunctionFunction:JreLoadStatic(TestSetLeaf_$Lambda$1, instance)]];
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        - (id)applyWithId:(id)elem {
+          return Adapter_toBooleanWithId_(elem);
+        }
+        """);
+  }
+
+  public void testTranslate_parameterizedList_lambdaParameterType() throws IOException {
+    addSourceFile(
+        """
+        import com.google.j2objc.annotations.ObjectiveCKmpMethod;
+        import java.util.List;
+        public class TestListParam {
+          @ObjectiveCKmpMethod(selector="setBooleanList:", adapter=Adapter.class)
+          public void setBooleanList(List<Boolean> list) {}
+        }
+        """,
+        "TestListParam.java");
+
+    String header = translateSourceFile("TestListParam", "TestListParam.h");
+    assertInTranslation(header, "- (void)setBooleanList:(NSArray<NSNumber *> *)list;");
+    String impl = translateSourceFile("TestListParam", "TestListParam.m");
+    assertInTranslation(
+        impl,
+        """
+        - (void)setBooleanList:(NSArray<NSNumber *> *)list {
+          [self setBooleanListWithJavaUtilList:(id<JavaUtilList>) [Adapter toJavaUtilListWithId:list withJavaUtilFunctionFunction:JreLoadStatic(TestListParam_$Lambda$1, instance)]];
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        - (id)applyWithId:(id)elem {
+          return Adapter_toBooleanWithId_(elem);
+        }
+        """);
+  }
+
+  public void testTranslate_setOfList() throws IOException {
     addSourceFile(
         """
         import com.google.j2objc.annotations.ObjectiveCKmpMethod;
         import java.util.Set;
         import java.util.List;
-        public class FailList {
+        public class TestSetOfList {
           @ObjectiveCKmpMethod(selector="setListSet:", adapter=Adapter.class)
           public void setListSet(Set<List<String>> set) {}
         }
         """,
-        "FailList.java");
+        "TestSetOfList.java");
 
-    Throwable e =
-        assertThrows(Throwable.class, () -> translateSourceFile("FailList", "FailList.m"));
-    assertTrue(e.getMessage().contains("Exact converter required for mapped type"));
+    String header = translateSourceFile("TestSetOfList", "TestSetOfList.h");
+    assertInTranslation(header, "- (void)setListSet:(NSSet<NSArray<NSString *> *> *)set;");
+    String impl = translateSourceFile("TestSetOfList", "TestSetOfList.m");
+    assertInTranslation(
+        impl,
+        """
+        - (void)setListSet:(NSSet<NSArray<NSString *> *> *)set {
+          [self setListSetWithJavaUtilSet:(id<JavaUtilSet>) [Adapter toJavaUtilSetWithId:set withJavaUtilFunctionFunction:JreLoadStatic(TestSetOfList_$Lambda$1, instance)]];
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        - (id)applyWithId:(id)elem {
+          return (id<JavaUtilList>) Adapter_toJavaUtilListWithId_(elem);
+        }
+        """);
   }
 
   public void testInterfaceTypes() throws IOException {
@@ -1861,4 +1969,74 @@ public class ObjectiveCKmpMethodTranslatorTest extends GenerationTest {
                               withNullableMap:(NSDictionary<NSString *, id<Baz> _Nullable> * _Nullable)map;
         """);
   }
+
+  public void testVoidNullability() throws IOException {
+    addSourceFile(
+        """
+        import com.google.j2objc.annotations.ObjectiveCKmpMethod;
+        import org.jspecify.annotations.Nullable;
+
+        public class VoidNullability {
+          @ObjectiveCKmpMethod(selector="doSomethingWithVoid:", adapter=Adapter.class)
+          public void doSomething(@Nullable Void v) {}
+
+          @ObjectiveCKmpMethod(selector="getVoid", adapter=Adapter.class)
+          public @Nullable Void getVoid() {
+            return null;
+          }
+        }
+        """,
+        "VoidNullability.java");
+
+    String header = translateSourceFile("VoidNullability", "VoidNullability.h");
+    assertInTranslation(header, "- (void)doSomethingWithVoid:(JavaLangVoid *)v;");
+    assertInTranslation(header, "- (JavaLangVoid *)getVoid;");
+  }
+
+  public void testUntranslatedInterfaceGenerics() throws IOException {
+    addSourceFile("public interface GenericInterface<T> {}", "GenericInterface.java");
+    addSourceFile(
+        """
+        import com.google.j2objc.annotations.ObjectiveCKmpMethod;
+
+        public class InterfaceGenerics {
+          @ObjectiveCKmpMethod(selector="doSomethingWithInterface:", adapter=Adapter.class)
+          public void doSomething(GenericInterface<String> i) {}
+        }
+        """,
+        "InterfaceGenerics.java");
+
+    String header = translateSourceFile("InterfaceGenerics", "InterfaceGenerics.h");
+    assertInTranslation(header, "- (void)doSomethingWithInterface:(id<GenericInterface>)i;");
+  }
+
+  public void testTranslate_nestedListParameter() throws IOException {
+    addSourceFile(
+        """
+        import com.google.j2objc.annotations.ObjectiveCKmpMethod;
+        import java.util.List;
+        public class TestClass {
+          @ObjectiveCKmpMethod(selector = "verifyList:", adapter = Adapter.class)
+          public void verifyList(List<List<List<Foo>>> list) {}
+        }
+        """,
+        "TestClass.java");
+    String impl = translateSourceFile("TestClass", "TestClass.m");
+    assertInTranslation(
+        impl,
+        """
+        - (void)verifyList:(NSArray<NSArray<NSArray<Foo *> *> *> *)list {
+          [self verifyListWithJavaUtilList:(id<JavaUtilList>) [Adapter toJavaUtilListWithId:list \
+        withJavaUtilFunctionFunction:JreLoadStatic(TestClass_$Lambda$1, instance)]];
+        }
+        """);
+    assertInTranslation(
+        impl,
+        """
+        - (id)applyWithId:(id)elem {
+          return (id<JavaUtilList>) Adapter_toJavaUtilList_JavaUtilList_WithId_(elem);
+        }
+        """);
+  }
 }
+

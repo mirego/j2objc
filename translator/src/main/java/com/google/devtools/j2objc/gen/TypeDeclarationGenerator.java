@@ -141,6 +141,11 @@ public class TypeDeclarationGenerator extends TypeGenerator {
           printMethodDeclaration((MethodDeclaration) declaration, false, true);
         }
       }
+      for (VariableDeclarationFragment fragment : getStaticFields()) {
+        PropertyGenerator.generate(
+                fragment, options, nameTable, typeUtil, parametersNonnullByDefault, true)
+            .ifPresent(this::println);
+      }
       println("\n@end\n");
     }
 
@@ -239,7 +244,8 @@ public class TypeDeclarationGenerator extends TypeGenerator {
       // Use different types for transpiled Java ordinals (which expects ordinals to be int32_t) and
       // native code using the enum (where stricter ordinal types help clang warnings).
       printf(
-          "#if J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
+          "#if defined(J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION) &&"
+              + " J2OBJC_IMPORTED_BY_JAVA_IMPLEMENTATION\n"
               + "#define %s int32_t\n"
               + "#else\n"
               + "#define %s %s\n"
@@ -476,6 +482,12 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     printProperties();
     printStaticInterfaceMethods();
     printStaticAccessors();
+    if (needsKotlinCompanionClass()) {
+      printf("\n#pragma clang diagnostic push\n");
+      printf("#pragma clang diagnostic ignored \"-Wincompatible-property-type\"\n");
+      printf("@property (readonly, class) id<%sCompanion> companion;\n", typeName);
+      printf("#pragma clang diagnostic pop\n");
+    }
     println("\n@end");
   }
 
@@ -710,7 +722,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     return true;
   }
 
-  private void printPseudoProperty(MethodDeclaration m) {
+  private void printPseudoProperty(MethodDeclaration m, boolean isKotlinCompanion) {
     ExecutableElement methodElement = m.getExecutableElement();
     String methodName = nameTable.getMethodSelector(methodElement);
     String propertyName = NameTable.lowercaseFirst(methodName.replaceFirst("get", ""));
@@ -726,12 +738,13 @@ public class TypeDeclarationGenerator extends TypeGenerator {
 
     TypeMirror returnType = m.getReturnTypeMirror();
     ExecutableElement setter =
-        ElementUtil.findSetterMethod(propertyName, returnType, declaringClass, false);
+        ElementUtil.findSetterMethod(
+            propertyName, returnType, declaringClass, ElementUtil.isStatic(methodElement));
 
     newline();
     printf(
         "@property (%snonatomic, %s, %s%s) %s %s;",
-        ElementUtil.isStatic(methodElement) ? "class, " : "",
+        ElementUtil.isStatic(methodElement) && !isKotlinCompanion ? "class, " : "",
         "getter=" + methodName,
         setter != null ? "setter=" + nameTable.getMethodSelector(setter) : "readonly",
         shouldAddNullableAnnotation(methodElement) ? ", nullable" : "",
@@ -752,15 +765,15 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     TypeElement typeElement = ElementUtil.getDeclaringClass(methodElement);
     boolean allowGenerics = !typeUtil.isProtoClass(typeElement.asType());
 
-    if (typeElement.getKind().isInterface()) {
+    if (isKotlinCompanion) {
+      if (!ElementUtil.isStatic(methodElement)) {
+        return;
+      }
+    } else if (typeElement.getKind().isInterface()) {
       // isCompanion and isStatic must be both false (i.e. this prints a non-static method decl
       // in @protocol) or must both be true (i.e. this prints a static method decl in the
       // companion class' @interface).
       if (isCompanionClass != ElementUtil.isStatic(methodElement)) {
-        return;
-      }
-    } else if (isKotlinCompanion) {
-      if (!ElementUtil.isStatic(methodElement)) {
         return;
       }
     }
@@ -769,7 +782,7 @@ public class TypeDeclarationGenerator extends TypeGenerator {
     JavadocGenerator.printDocComment(getBuilder(), m.getJavadoc());
 
     if (canPrintPseudoProperty(m)) {
-      printPseudoProperty(m);
+      printPseudoProperty(m, isKotlinCompanion);
       return;
     }
 
